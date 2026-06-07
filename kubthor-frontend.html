@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUBTHOR ຢາງພາລາ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700;900&display=swap');
+
+/* Phetsarath OT fallback via Google Fonts Noto Sans Lao */
+@font-face {
+  font-family: 'Phetsarath OT';
+  src: url('https://cdn.jsdelivr.net/gh/fontforge/phetsarath@master/Phetsarath_OT.ttf') format('truetype');
+  font-weight: normal;
+  font-display: swap;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#08080a;
+  --deep:#0d0d10;
+  --panel:#13131a;
+  --card:#18181f;
+  --edge:#22222c;
+  --line:#2a2a38;
+  --fog:#444460;
+  --mist:#6a6a88;
+  --silver:#b0b0cc;
+  --light:#e8e4f0;
+  --white:#f5f2ff;
+  --fire:#d44a1a;
+  --ember:#ff6a2a;
+  --gold:#c9962a;
+  --amber:#f0b84a;
+  --leaf:#1a7a3a;
+  --mint:#2aaa5a;
+  --sky:#2a6aaa;
+
+  --font-lao: 'Phetsarath OT', 'Noto Sans Lao', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family: var(--font-lao);
+  background:var(--ink);color:var(--light);
+  overflow-x:hidden;line-height:1.6;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.5;mix-blend-mode:overlay;
+}
+
+/* ── CURSOR GLOW ── */
+.cursor-glow{
+  position:fixed;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle, rgba(212,74,26,.08) 0%, transparent 70%);
+  pointer-events:none;z-index:1;transform:translate(-50%,-50%);
+  transition:opacity .3s;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 3rem;
+  background:rgba(8,8,10,.7);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+nav::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--fire) 30%,var(--gold) 70%,transparent);
+  opacity:.4;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+}
+.logo-mark{
+  width:36px;height:36px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-mark svg{width:100%;height:100%}
+.logo-text{
+  font-family:var(--font-lao);
+  font-size:1.25rem;font-weight:700;
+  letter-spacing:.08em;color:var(--white);
+  line-height:1;
+}
+.logo-sub{
+  font-size:.55rem;letter-spacing:.2em;
+  color:var(--mist);text-transform:uppercase;
+  font-family:var(--font-mono);margin-top:2px;
+}
+.nav-center{display:flex;gap:2.5rem;align-items:center}
+.nav-center a{
+  color:var(--mist);font-size:.82rem;text-decoration:none;
+  letter-spacing:.05em;transition:color .2s;position:relative;
+  font-family:var(--font-lao);
+}
+.nav-center a::after{
+  content:'';position:absolute;bottom:-4px;left:0;right:0;
+  height:1px;background:var(--fire);transform:scaleX(0);
+  transition:transform .2s;transform-origin:left;
+}
+.nav-center a:hover{color:var(--light)}
+.nav-center a:hover::after{transform:scaleX(1)}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.btn-nav{
+  background:transparent;border:1px solid rgba(212,74,26,.4);
+  color:var(--fire);padding:.4rem 1.1rem;font-size:.78rem;
+  font-family:var(--font-lao);font-weight:600;
+  cursor:pointer;text-decoration:none;
+  transition:all .2s;letter-spacing:.05em;
+}
+.btn-nav:hover{background:var(--fire);color:#fff;border-color:var(--fire)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none}
+.hamburger span{width:24px;height:1.5px;background:var(--light);transition:all .3s;display:block}
+
+/* ── MOBILE MENU ── */
+.mobile-nav{
+  display:none;position:fixed;
+  top:64px;left:0;right:0;bottom:0;
+  background:var(--deep);z-index:499;
+  flex-direction:column;
+  padding:3rem 2rem;gap:.5rem;
+  transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.mobile-nav.open{transform:translateX(0)}
+.mobile-nav a{
+  color:var(--silver);font-size:1.6rem;font-weight:700;
+  text-decoration:none;padding:1rem 0;
+  border-bottom:1px solid var(--line);
+  font-family:var(--font-lao);
+  transition:color .2s,padding-left .2s;
+}
+.mobile-nav a:hover{color:var(--fire);padding-left:.5rem}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;position:relative;
+  display:flex;align-items:center;
+  padding:80px 3rem 0;overflow:hidden;
+}
+/* Deep space background */
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 50%, rgba(212,74,26,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 80% at 0% 100%, rgba(42,106,170,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,150,42,.06) 0%, transparent 50%),
+    linear-gradient(180deg, var(--ink) 0%, var(--deep) 100%);
+}
+/* Geometric grid */
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 80% 80% at 80% 50%, black 0%, transparent 70%);
+}
+/* Large decorative text */
+.hero-watermark{
+  position:absolute;right:-2rem;top:50%;transform:translateY(-50%);
+  font-family:var(--font-lao);font-size:clamp(8rem,18vw,18rem);font-weight:900;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(212,74,26,.08);
+  line-height:1;pointer-events:none;white-space:nowrap;letter-spacing:-.02em;
+  user-select:none;
+}
+.hero-content{
+  position:relative;z-index:2;
+  max-width:1200px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1.1fr .9fr;
+  gap:5rem;align-items:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(212,74,26,.1);
+  border:1px solid rgba(212,74,26,.2);
+  border-left:3px solid var(--fire);
+  padding:.4rem 1rem;margin-bottom:1.5rem;
+}
+.hero-eyebrow-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--fire);animation:blink 1.5s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-eyebrow span{
+  font-family:var(--font-mono);font-size:.65rem;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--fire);
+}
+.hero-h1{
+  font-family:var(--font-lao);font-weight:900;
+  font-size:clamp(2.8rem,6vw,5.5rem);
+  line-height:1.05;letter-spacing:-.01em;
+  margin-bottom:1.5rem;
+}
+.hero-h1 .line1{color:var(--white)}
+.hero-h1 .line2{
+  color:transparent;
+  -webkit-text-stroke:1px var(--fire);
+  display:block;
+}
+.hero-h1 .line3{
+  background:linear-gradient(135deg,var(--fire),var(--amber));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;display:block;
+}
+.hero-desc{
+  font-size:1rem;color:var(--silver);line-height:1.8;
+  margin-bottom:2.5rem;max-width:480px;
+  font-family:var(--font-lao);
+}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem}
+.btn-fire{
+  background:linear-gradient(135deg,var(--fire),var(--ember));
+  color:#fff;border:none;padding:.8rem 2rem;
+  font-family:var(--font-lao);font-size:.9rem;font-weight:600;
+  cursor:pointer;text-decoration:none;display:inline-block;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 30px rgba(212,74,26,.25);
+  transition:all .25s;
+}
+.btn-fire::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--ember),var(--fire));
+  opacity:0;transition:opacity .25s;
+}
+.btn-fire:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(212,74,26,.4)}
+.btn-fire:hover::before{opacity:1}
+.btn-fire span{position:relative;z-index:1}
+.btn-ghost{
+  background:transparent;color:var(--silver);
+  border:1px solid var(--line);
+  padding:.8rem 2rem;font-family:var(--font-lao);font-size:.9rem;
+  cursor:pointer;text-decoration:none;display:inline-block;
+  transition:all .25s;
+}
+.btn-ghost:hover{border-color:var(--silver);color:var(--white)}
+/* Hero stats bar */
+.hero-stats-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  backdrop-filter:blur(10px);
+}
+.hero-stat{
+  padding:1.2rem 1.5rem;
+  border-right:1px solid var(--line);
+  position:relative;overflow:hidden;
+}
+.hero-stat:last-child{border-right:none}
+.hero-stat::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--fire),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.hero-stat:hover::before{opacity:1}
+.stat-n{
+  font-family:var(--font-lao);font-size:1.8rem;font-weight:700;
+  color:var(--white);line-height:1;margin-bottom:4px;
+}
+.stat-l{font-size:.72rem;color:var(--mist);letter-spacing:.06em;font-family:var(--font-lao)}
+
+/* Hero right visual */
+.hero-visual{position:relative}
+.price-orb{
+  width:360px;height:360px;border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 35%,rgba(212,74,26,.25),rgba(201,150,42,.1) 40%,transparent 65%);
+  border:1px solid rgba(212,74,26,.15);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;margin:0 auto;
+  box-shadow:
+    0 0 60px rgba(212,74,26,.12),
+    inset 0 0 60px rgba(212,74,26,.06);
+  animation:floatY 7s ease-in-out infinite;
+}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.orb-ring{
+  position:absolute;border-radius:50%;border:1px solid rgba(212,74,26,.12);
+  animation:spinRing linear infinite;
+}
+.orb-ring:nth-child(1){inset:-20px;animation-duration:30s}
+.orb-ring:nth-child(2){inset:-40px;animation-duration:45s;animation-direction:reverse;border-style:dashed}
+.orb-ring:nth-child(3){inset:-70px;animation-duration:60s;opacity:.5}
+@keyframes spinRing{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.orb-dot{
+  position:absolute;width:10px;height:10px;border-radius:50%;
+  background:var(--fire);top:0;left:50%;transform:translateX(-50%);
+  box-shadow:0 0 12px var(--fire);
+}
+.orb-center{
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,rgba(212,74,26,.3),rgba(201,150,42,.15) 50%,rgba(8,8,10,.8));
+  border:1px solid rgba(212,74,26,.25);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.5);
+}
+.orb-price{
+  font-family:var(--font-lao);font-size:2.6rem;font-weight:700;
+  color:var(--white);line-height:1;
+  text-shadow:0 0 20px rgba(212,74,26,.5);
+}
+.orb-unit{
+  font-size:.68rem;color:var(--mist);
+  letter-spacing:.12em;margin-top:5px;
+  font-family:var(--font-mono);text-transform:uppercase;
+}
+.orb-change{
+  font-size:.75rem;font-weight:600;
+  color:var(--mint);margin-top:8px;
+  font-family:var(--font-mono);
+}
+/* Floating data cards */
+.float-card{
+  position:absolute;
+  background:rgba(19,19,26,.85);
+  border:1px solid var(--line);
+  backdrop-filter:blur(12px);
+  padding:.7rem 1rem;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+.float-card-label{
+  font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mist);font-family:var(--font-mono);margin-bottom:3px;
+}
+.float-card-val{font-size:.9rem;font-weight:700;color:var(--white);font-family:var(--font-lao)}
+.fc1{top:5%;right:-10%;animation:floatY 5s ease-in-out infinite}
+.fc2{bottom:15%;left:-8%;animation:floatY 6s ease-in-out infinite 1s}
+.fc3{bottom:30%;right:-12%;animation:floatY 4s ease-in-out infinite .5s}
+
+/* ── TICKER ── */
+.ticker{
+  overflow:hidden;white-space:nowrap;
+  background:linear-gradient(90deg,var(--fire),var(--ember),var(--gold),var(--ember),var(--fire));
+  background-size:300% 100%;
+  animation:gradientShift 8s ease infinite;
+  padding:.5rem 0;
+}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.ticker-track{display:inline-flex;gap:2.5rem;animation:scroll 25s linear infinite}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{
+  font-family:var(--font-mono);font-size:.75rem;
+  font-weight:600;color:#fff;letter-spacing:.08em;
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+
+/* ── SECTION BASE ── */
+.section{padding:6rem 3rem}
+.container{max-width:1200px;margin:0 auto}
+.sec-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--font-mono);font-size:.65rem;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--fire);margin-bottom:1rem;
+}
+.sec-tag::before{content:'';width:24px;height:1px;background:var(--fire)}
+.sec-title{
+  font-family:var(--font-lao);font-weight:900;
+  font-size:clamp(2rem,4.5vw,3.8rem);
+  line-height:1.05;letter-spacing:-.01em;
+  margin-bottom:1.2rem;color:var(--white);
+}
+.sec-sub{
+  font-size:.95rem;color:var(--silver);
+  line-height:1.8;max-width:520px;
+  font-family:var(--font-lao);
+}
+
+/* ── ABOUT ── */
+.about{background:var(--deep)}
+.about-layout{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:6rem;align-items:center;margin-top:4rem;
+}
+.about-visual-wrap{position:relative}
+.about-img-placeholder{
+  width:100%;aspect-ratio:4/5;
+  background:linear-gradient(135deg,var(--panel),var(--card));
+  border:1px solid var(--line);
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.about-img-placeholder::before{
+  content:'';position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(212,74,26,.03) 20px,rgba(212,74,26,.03) 21px);
+}
+.about-img-placeholder::after{
+  content:'🌿';font-size:6rem;opacity:.15;
+}
+.about-accent-line{
+  position:absolute;left:-1.5rem;top:2rem;bottom:2rem;
+  width:3px;
+  background:linear-gradient(180deg,transparent,var(--fire) 30%,var(--gold) 70%,transparent);
+}
+.about-badge{
+  position:absolute;bottom:-1.5rem;right:-1.5rem;
+  background:var(--fire);color:#fff;
+  padding:1.2rem 1.5rem;text-align:center;
+  box-shadow:0 8px 32px rgba(212,74,26,.3);
+}
+.badge-num{
+  font-family:var(--font-lao);font-size:2.5rem;font-weight:700;line-height:1;
+}
+.badge-txt{font-size:.7rem;letter-spacing:.1em;opacity:.85;margin-top:3px;font-family:var(--font-lao)}
+.about-features{display:flex;flex-direction:column;gap:1.2rem;margin-top:2.5rem}
+.feature-item{
+  display:flex;gap:1.2rem;align-items:flex-start;
+  padding:1.2rem;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--line);
+  border-left:3px solid transparent;
+  transition:border-left-color .2s,background .2s;
+}
+.feature-item:hover{border-left-color:var(--fire);background:rgba(212,74,26,.04)}
+.feature-icon{
+  width:40px;height:40px;flex-shrink:0;
+  background:rgba(212,74,26,.1);
+  border:1px solid rgba(212,74,26,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;
+}
+.feature-title{font-weight:700;font-size:.9rem;margin-bottom:.3rem;color:var(--white);font-family:var(--font-lao)}
+.feature-text{font-size:.82rem;color:var(--mist);line-height:1.6;font-family:var(--font-lao)}
+
+/* ── PRICE SECTION ── */
+.price-sec{
+  background:var(--ink);
+  position:relative;overflow:hidden;
+}
+.price-sec::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--fire) 30%,var(--gold) 70%,transparent);
+}
+.price-header{
+  display:flex;justify-content:space-between;
+  align-items:flex-end;flex-wrap:wrap;gap:1rem;
+  margin-bottom:3rem;
+}
+.price-live{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-mono);font-size:.7rem;
+  color:var(--mint);letter-spacing:.1em;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--mint);
+  animation:pulse 1.5s ease-in-out infinite;
+}
+.price-cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--line);
+}
+.price-card{
+  background:var(--panel);padding:1.8rem 1.5rem;
+  position:relative;overflow:hidden;
+  transition:background .2s;cursor:pointer;
+}
+.price-card:hover{background:var(--card)}
+.price-card.hot{background:var(--card)}
+.price-card.hot::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--fire),var(--amber));
+}
+.price-card-bg{
+  position:absolute;bottom:-20px;right:-20px;
+  font-family:var(--font-lao);font-size:6rem;font-weight:900;
+  color:rgba(255,255,255,.02);line-height:1;pointer-events:none;
+}
+.pc-type{
+  font-family:var(--font-mono);font-size:.6rem;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--mist);margin-bottom:.8rem;
+}
+.pc-name{font-family:var(--font-lao);font-weight:700;font-size:1rem;color:var(--light);margin-bottom:.5rem}
+.pc-price{
+  font-family:var(--font-lao);font-size:2.8rem;font-weight:900;
+  color:var(--white);line-height:1;
+}
+.pc-unit{font-family:var(--font-mono);font-size:.7rem;color:var(--mist);margin-top:4px}
+.pc-delta{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:.8rem;font-size:.75rem;font-weight:600;
+  font-family:var(--font-mono);
+}
+.up{color:var(--mint)}.dn{color:var(--fire)}.flat{color:var(--mist)}
+
+/* ── SERVICES ── */
+.services{background:var(--deep)}
+.services-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;margin-top:3.5rem;
+}
+.svc-card{
+  background:var(--panel);border:1px solid var(--line);
+  padding:2rem;position:relative;overflow:hidden;
+  transition:transform .25s,border-color .25s,box-shadow .25s;
+}
+.svc-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(212,74,26,.06),transparent 60%);
+  opacity:0;transition:opacity .25s;
+}
+.svc-card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(212,74,26,.3);
+  box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 40px rgba(212,74,26,.08);
+}
+.svc-card:hover::before{opacity:1}
+.svc-num{
+  font-family:var(--font-mono);font-size:.65rem;
+  color:var(--line);letter-spacing:.15em;margin-bottom:1rem;
+}
+.svc-icon-wrap{
+  width:52px;height:52px;
+  background:rgba(212,74,26,.08);
+  border:1px solid rgba(212,74,26,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin-bottom:1.2rem;
+  position:relative;
+}
+.svc-icon-wrap::after{
+  content:'';position:absolute;bottom:-1px;right:-1px;
+  width:8px;height:8px;background:var(--fire);
+}
+.svc-title{
+  font-family:var(--font-lao);font-weight:700;
+  font-size:1.05rem;color:var(--white);margin-bottom:.6rem;
+}
+.svc-text{font-size:.85rem;color:var(--mist);line-height:1.7;font-family:var(--font-lao)}
+
+/* ── WHY ── */
+.why{background:var(--ink);position:relative}
+.why::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(212,74,26,.06),transparent);
+}
+.why-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--line);
+  margin-top:3.5rem;border:1px solid var(--line);
+}
+.why-item{
+  background:var(--panel);padding:2rem 1.5rem;
+  position:relative;overflow:hidden;
+  transition:background .2s;
+}
+.why-item:hover{background:var(--card)}
+.why-item-num{
+  font-family:var(--font-lao);font-size:4rem;font-weight:900;
+  color:rgba(212,74,26,.08);line-height:1;margin-bottom:.5rem;
+}
+.why-item-icon{font-size:1.5rem;margin-bottom:.8rem}
+.why-item-title{
+  font-family:var(--font-lao);font-weight:700;
+  font-size:.95rem;color:var(--white);margin-bottom:.4rem;
+}
+.why-item-text{font-size:.8rem;color:var(--mist);line-height:1.6;font-family:var(--font-lao)}
+
+/* ── CONTACT ── */
+.contact{background:var(--deep);position:relative;overflow:hidden}
+.contact::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);
+}
+.contact-bg-text{
+  position:absolute;bottom:-4rem;right:-2rem;
+  font-family:var(--font-lao);font-size:16rem;font-weight:900;
+  color:transparent;-webkit-text-stroke:1px rgba(212,74,26,.04);
+  pointer-events:none;line-height:1;user-select:none;
+}
+.contact-layout{
+  display:grid;grid-template-columns:1fr 1.2fr;
+  gap:5rem;align-items:start;margin-top:4rem;
+}
+.contact-info{display:flex;flex-direction:column;gap:1rem}
+.ci-item{
+  display:flex;gap:1rem;align-items:flex-start;
+  padding:1.2rem;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--line);
+  transition:border-color .2s,background .2s;
+}
+.ci-item:hover{border-color:rgba(212,74,26,.25);background:rgba(212,74,26,.03)}
+.ci-icon{
+  width:42px;height:42px;flex-shrink:0;
+  background:rgba(212,74,26,.1);
+  border:1px solid rgba(212,74,26,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+}
+.ci-label{
+  font-family:var(--font-mono);font-size:.6rem;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fire);margin-bottom:4px;
+}
+.ci-val{font-size:.9rem;color:var(--light);font-family:var(--font-lao)}
+/* Form */
+.contact-form{display:flex;flex-direction:column;gap:1.2rem}
+.field{display:flex;flex-direction:column;gap:.4rem}
+.field label{
+  font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--mist);
+}
+.field input,.field textarea,.field select{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  color:var(--light);padding:.75rem 1rem;
+  font-family:var(--font-lao);font-size:.9rem;
+  outline:none;transition:border-color .2s,background .2s;
+  width:100%;
+}
+.field input:focus,.field textarea:focus{
+  border-color:var(--fire);
+  background:rgba(212,74,26,.04);
+}
+.field textarea{min-height:130px;resize:vertical}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.btn-submit{
+  background:linear-gradient(135deg,var(--fire),var(--ember));
+  color:#fff;border:none;padding:.9rem 2rem;
+  font-family:var(--font-lao);font-size:.95rem;font-weight:700;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 4px 20px rgba(212,74,26,.25);
+  transition:all .25s;letter-spacing:.04em;
+  width:100%;
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(212,74,26,.4)}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--ink);
+  border-top:1px solid var(--line);
+  padding:2.5rem 3rem;
+}
+.footer-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:2rem;
+}
+.footer-logo{
+  font-family:var(--font-lao);font-weight:700;
+  font-size:1.1rem;color:var(--mist);
+}
+.footer-copy{
+  font-family:var(--font-mono);font-size:.65rem;
+  color:var(--fog);letter-spacing:.06em;text-align:center;
+}
+.footer-links{
+  display:flex;gap:1.5rem;justify-content:flex-end;
+}
+.footer-links a{
+  font-family:var(--font-lao);font-size:.78rem;
+  color:var(--fog);text-decoration:none;transition:color .2s;
+}
+.footer-links a:hover{color:var(--fire)}
+
+/* ── SCROLL REVEAL ── */
+[data-reveal]{
+  opacity:0;transform:translateY(32px);
+  transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1);
+}
+[data-reveal].in{opacity:1;transform:none}
+[data-reveal-delay="1"]{transition-delay:.1s}
+[data-reveal-delay="2"]{transition-delay:.2s}
+[data-reveal-delay="3"]{transition-delay:.3s}
+[data-reveal-delay="4"]{transition-delay:.4s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .hero-content{grid-template-columns:1fr;gap:3rem}
+  .price-orb{width:300px;height:300px}
+  .orb-center{width:180px;height:180px}
+  .fc1,.fc2,.fc3{display:none}
+  .about-layout{grid-template-columns:1fr;gap:3rem}
+  .about-img-placeholder{aspect-ratio:16/9}
+  .about-accent-line,.about-badge{display:none}
+  .price-cards{grid-template-columns:1fr 1fr}
+  .services-grid{grid-template-columns:1fr 1fr}
+  .why-grid{grid-template-columns:1fr 1fr}
+  .contact-layout{grid-template-columns:1fr;gap:3rem}
+  .footer-inner{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}
+  .footer-links{grid-column:1/-1;justify-content:flex-start}
+}
+@media(max-width:768px){
+  .section{padding:4rem 1.5rem}
+  .hero{padding:80px 1.5rem 2rem}
+  nav{padding:0 1.2rem}
+  footer{padding:2rem 1.5rem}
+  .nav-center,.nav-right{display:none}
+  .hamburger{display:flex}
+  .hero-h1{font-size:clamp(2.2rem,8vw,3.5rem)}
+  .hero-stats-bar{grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+  .hero-stat:nth-child(3){grid-column:1/-1}
+  .price-cards{grid-template-columns:1fr}
+  .services-grid{grid-template-columns:1fr}
+  .why-grid{grid-template-columns:1fr 1fr}
+  .field-row{grid-template-columns:1fr}
+  .hero-watermark{font-size:8rem}
+  .price-orb{width:240px;height:240px}
+  .orb-center{width:150px;height:150px}
+  .orb-price{font-size:2rem}
+  .contact-bg-text{display:none}
+}
+@media(max-width:480px){
+  .why-grid{grid-template-columns:1fr}
+  .hero-actions{flex-direction:column}
+  .btn-fire,.btn-ghost{text-align:center;width:100%}
+  .footer-inner{grid-template-columns:1fr;text-align:center}
+  .footer-links{justify-content:center}
+}
+@media(hover:none){
+  .svc-card:hover{transform:none}
+  .btn-fire:hover,.btn-submit:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none">
+        <polygon points="18,2 34,12 34,24 18,34 2,24 2,12" stroke="#d44a1a" stroke-width="1.5" fill="rgba(212,74,26,.08)"/>
+        <polygon points="18,8 28,14 28,22 18,28 8,22 8,14" stroke="#c9962a" stroke-width="1" fill="rgba(201,150,42,.06)"/>
+        <circle cx="18" cy="18" r="4" fill="#d44a1a"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">KUBTHOR</div>
+      <div class="logo-sub">ຢາງພາລາ · LAO</div>
+    </div>
+  </a>
+  <div class="nav-center">
+    <a href="#about">ກ່ຽວກັບ</a>
+    <a href="#price">ລາຄາຢາງ</a>
+    <a href="#services">ບໍລິການ</a>
+    <a href="#contact">ຕິດຕໍ່</a>
+  </div>
+  <div class="nav-right">
+    <a href="#contact" class="btn-nav">ຂາຍຢາງກັບເຮົາ</a>
+  </div>
+  <button class="hamburger" onclick="toggleNav()" id="hbtn" aria-label="menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about" onclick="toggleNav()">ກ່ຽວກັບ</a>
+  <a href="#price" onclick="toggleNav()">ລາຄາຢາງ</a>
+  <a href="#services" onclick="toggleNav()">ບໍລິການ</a>
+  <a href="#contact" onclick="toggleNav()">ຕິດຕໍ່</a>
+  <a href="#contact" onclick="toggleNav()" style="color:var(--fire);border-color:var(--fire)">ຂາຍຢາງ →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-watermark">KUBTHOR</div>
+  <div class="hero-content container">
+    <div>
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-dot"></div>
+        <span>ລັດວິສາຫະກິດ · ດຳເນີນການ 2014</span>
+      </div>
+      <h1 class="hero-h1">
+        <span class="line1">ຜູ້ນຳດ້ານ</span>
+        <span class="line2">ຢາງພາລາ</span>
+        <span class="line3">ຄຸນນະພາບສູງ</span>
+      </h1>
+      <p class="hero-desc">ລັດວິສາຫະກິດ KUBTHOR ຢາງພາລາ — ຮັບຊື້ຢາງຄຸນນະພາບ ລາຄາຍຸຕິທຳ ຊຳລະດ່ວນ ໂປ່ງໃສ ທຸກຂັ້ນຕອນ</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-fire"><span>ຂາຍຢາງກັບເຮົາ →</span></a>
+        <a href="#price" class="btn-ghost">ເບິ່ງລາຄາວັນນີ້</a>
+      </div>
+      <div class="hero-stats-bar">
+        <div class="hero-stat">
+          <div class="stat-n" id="cntOrders">0</div>
+          <div class="stat-l">ໃບເກັບຊື້</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-n" id="cntKg">0</div>
+          <div class="stat-l">ກກ. ທັງໝົດ</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-n">10+</div>
+          <div class="stat-l">ປີ ປະສົບການ</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="price-orb">
+        <div class="orb-ring"><div class="orb-dot"></div></div>
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+        <div class="orb-center">
+          <div class="orb-price" id="heroP">62.50</div>
+          <div class="orb-unit">₭ / ກກ · RSS3</div>
+          <div class="orb-change" id="heroDelta">▲ +1.25 (2.04%)</div>
+        </div>
+      </div>
+      <div class="float-card fc1">
+        <div class="float-card-label">ຢາງ RSS4</div>
+        <div class="float-card-val">₭60.00/ກກ</div>
+      </div>
+      <div class="float-card fc2">
+        <div class="float-card-label">ລູກຄ້າ</div>
+        <div class="float-card-val">1,200+ ຄົນ</div>
+      </div>
+      <div class="float-card fc3">
+        <div class="float-card-label">ຊຳລະ</div>
+        <div class="float-card-val">ທັນທີ</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- ABOUT -->
+<section class="section about" id="about">
+  <div class="container">
+    <div data-reveal>
+      <span class="sec-tag">ກ່ຽວກັບເຮົາ</span>
+      <h2 class="sec-title">ໝັ້ນຄົງ · ໂປ່ງໃສ<br>ເຊື່ອຖືໄດ້</h2>
+    </div>
+    <div class="about-layout">
+      <div class="about-visual-wrap" data-reveal data-reveal-delay="1">
+        <div class="about-accent-line"></div>
+        <div class="about-img-placeholder"></div>
+        <div class="about-badge">
+          <div class="badge-num">10+</div>
+          <div class="badge-txt">ປີ ປະສົບການ</div>
+        </div>
+      </div>
+      <div data-reveal data-reveal-delay="2">
+        <p class="sec-sub" style="margin-bottom:2rem">ລັດວິສາຫະກິດ KUBTHOR ຢາງພາລາ ສ້າງຕັ້ງຂຶ້ນດ້ວຍຈຸດປະສົງເພື່ອເປັນຕົວກາງລະຫວ່າງຊາວສວນຢາງ ແລະ ຕະຫຼາດ ດ້ວຍລາຄາທີ່ຍຸຕິທຳ ໂປ່ງໃສ</p>
+        <div class="about-features">
+          <div class="feature-item">
+            <div class="feature-icon">⚖️</div>
+            <div>
+              <div class="feature-title">ລາຄາຍຸຕິທຳ</div>
+              <div class="feature-text">ອ້າງອີງລາຄາຕະຫຼາດ ອັບເດດທຸກວັນ ໂປ່ງໃສ ບໍ່ມີຄ່າໃຊ້ຈ່າຍແອບແຝງ</div>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <div>
+              <div class="feature-title">ຊຳລະດ່ວນ</div>
+              <div class="feature-text">ລະບົບຊຳລະທີ່ທັນສະໄໝ ບັນທຶກຄົບຖ້ວນ ຊຳລະໄດ້ທັນທີ</div>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🏛️</div>
+            <div>
+              <div class="feature-title">ດຳເນີນໂດຍລັດ</div>
+              <div class="feature-text">ໝັ້ນຄົງ ຕໍ່ເນື່ອງ ເຊື່ອຖືໄດ້ ດ້ວຍການຊ່ວຍເຫຼືອຂອງລັດຖະບານ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICE -->
+<section class="section price-sec" id="price">
+  <div class="container">
+    <div class="price-header">
+      <div data-reveal>
+        <span class="sec-tag">ລາຄາຢາງ</span>
+        <h2 class="sec-title">ລາຄາວັນນີ້</h2>
+      </div>
+      <div class="price-live" data-reveal data-reveal-delay="2">
+        <div class="live-dot"></div>
+        <span id="liveTime">LIVE · --:--</span>
+      </div>
+    </div>
+    <div class="price-cards" id="priceCards" data-reveal></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section services" id="services">
+  <div class="container">
+    <div data-reveal>
+      <span class="sec-tag">ບໍລິການ</span>
+      <h2 class="sec-title">ສິ່ງທີ່ເຮົາ<br>ສະໜອງ</h2>
+    </div>
+    <div class="services-grid" id="servGrid"></div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="section why">
+  <div class="container">
+    <div data-reveal>
+      <span class="sec-tag">ເປັນຫຍັງ KUBTHOR</span>
+      <h2 class="sec-title">ຄວາມໄດ້ປຽບ</h2>
+    </div>
+    <div class="why-grid" data-reveal>
+      <div class="why-item">
+        <div class="why-item-num">01</div>
+        <div class="why-item-icon">💎</div>
+        <div class="why-item-title">ລາຄາດີທີ່ສຸດ</div>
+        <div class="why-item-text">ໃຫ້ລາຄາດີທີ່ສຸດ ອ້າງອີງຕາມຕະຫຼາດ</div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-num">02</div>
+        <div class="why-item-icon">🕐</div>
+        <div class="why-item-title">ຮັບຊື້ 6 ວັນ</div>
+        <div class="why-item-text">ຈ. – ສ. 07:00–17:00 ພ້ອມຮັບ</div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-num">03</div>
+        <div class="why-item-icon">📱</div>
+        <div class="why-item-title">ລະບົບດິຈິຕອນ</div>
+        <div class="why-item-text">ບັນທຶກ ໂປ່ງໃສ ກວດສອບໄດ້ທຸກເວລາ</div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-num">04</div>
+        <div class="why-item-icon">🤝</div>
+        <div class="why-item-title">ຄູ່ຮ່ວມໝັ້ນຄົງ</div>
+        <div class="why-item-text">ດຳເນີນການຢ່າງຕໍ່ເນື່ອງ ໄວ້ໃຈໄດ້</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section contact" id="contact">
+  <div class="contact-bg-text">ຕິດຕໍ່</div>
+  <div class="container">
+    <div data-reveal>
+      <span class="sec-tag">ຕິດຕໍ່ເຮົາ</span>
+      <h2 class="sec-title">ພ້ອມຊ່ວຍ<br>ທ່ານທຸກເວລາ</h2>
+    </div>
+    <div class="contact-layout">
+      <div class="contact-info" data-reveal data-reveal-delay="1">
+        <div class="ci-item">
+          <div class="ci-icon">📞</div>
+          <div>
+            <div class="ci-label">ໂທລະສັບ</div>
+            <div class="ci-val">020 96891617</div>
+          </div>
+        </div>
+        <div class="ci-item">
+          <div class="ci-icon">🏢</div>
+          <div>
+            <div class="ci-label">ທີ່ຢູ່</div>
+            <div class="ci-val">ລັດວິສາຫະກິດ KUBTHOR, ສ.ປ.ປ. ລາວ</div>
+          </div>
+        </div>
+        <div class="ci-item">
+          <div class="ci-icon">🕐</div>
+          <div>
+            <div class="ci-label">ເວລາທຳການ</div>
+            <div class="ci-val">ຈ.–ສ. 07:00 – 17:00</div>
+          </div>
+        </div>
+        <div class="ci-item">
+          <div class="ci-icon">🌿</div>
+          <div>
+            <div class="ci-label">ຮັບຊື້</div>
+            <div class="ci-val">RSS3, RSS4, STR20, ນ້ຳຢາງ, ຢາງຖ້ວຍ</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form" data-reveal data-reveal-delay="2">
+        <div class="field-row">
+          <div class="field">
+            <label>ຊື່ຂອງທ່ານ</label>
+            <input type="text" placeholder="ກະລຸນາໃສ່ຊື່...">
+          </div>
+          <div class="field">
+            <label>ເບີໂທ</label>
+            <input type="tel" placeholder="020 xx xxx xxx">
+          </div>
+        </div>
+        <div class="field">
+          <label>ປະເພດຢາງ</label>
+          <select style="background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--light);padding:.75rem 1rem;font-family:var(--font-lao);font-size:.9rem;outline:none;width:100%">
+            <option value="">ເລືອກປະເພດຢາງ...</option>
+            <option>ຢາງ RSS3</option>
+            <option>ຢາງ RSS4</option>
+            <option>ຢາງ STR20</option>
+            <option>ນ້ຳຢາງສົດ</option>
+            <option>ຢາງຖ້ວຍ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ຂໍ້ຄວາມ</label>
+          <textarea placeholder="ບອກເຮົາກ່ຽວກັບຢາງທີ່ທ່ານຕ້ອງການຂາຍ..."></textarea>
+        </div>
+        <button class="btn-submit" onclick="doContact()">ສົ່ງຂໍ້ຄວາມ →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">KUBTHOR ຢາງພາລາ</div>
+    <div class="footer-copy">© 2026 ລັດວິສາຫະກິດ KUBTHOR · ສ.ປ.ປ. ລາວ</div>
+    <div class="footer-links">
+      <a href="#about">ກ່ຽວກັບ</a>
+      <a href="#price">ລາຄາ</a>
+      <a href="#contact">ຕິດຕໍ່</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR GLOW ──
+const glow = document.getElementById("cursorGlow");
+document.addEventListener("mousemove", e => {
+  glow.style.left = e.clientX + "px";
+  glow.style.top = e.clientY + "px";
+});
+
+// ── TICKER ──
+const tdata = ["RSS3 · ₭62.50 ▲","RSS4 · ₭60.00 ▲","STR20 · ₭58.75 ▲","ນ້ຳຢາງ · ₭38.50 →","ຢາງຖ້ວຍ · ₭34.00 ▼","KUBTHOR ຢາງພາລາ · ລາຄາດີ · ຊຳລະດ່ວນ · ເຊື່ອຖືໄດ້"];
+const tt = document.getElementById("tickerTrack");
+const full = [...tdata,...tdata,...tdata,...tdata].map(t=>`<span class="ticker-item"><span>●</span>${t}</span>`).join("");
+tt.innerHTML = full;
+
+// ── PRICE CARDS ──
+const prices = [
+  {type:"RSS",name:"ຢາງ RSS3",price:"62.50",unit:"₭/ກກ",d:"+1.25",up:true,hot:true},
+  {type:"RSS",name:"ຢາງ RSS4",price:"60.00",unit:"₭/ກກ",d:"+0.75",up:true,hot:false},
+  {type:"STR",name:"ຢາງ STR20",price:"58.75",unit:"₭/ກກ",d:"+0.50",up:true,hot:false},
+  {type:"LAT",name:"ນ້ຳຢາງສົດ",price:"38.50",unit:"₭/ກກ",d:"0.00",up:null,hot:false},
+  {type:"CUP",name:"ຢາງຖ້ວຍ",price:"34.00",unit:"₭/ກກ",d:"-0.50",up:false,hot:false},
+  {type:"BLK",name:"ຢາງກ້ອນ",price:"36.00",unit:"₭/ກກ",d:"+0.25",up:true,hot:false},
+];
+document.getElementById("priceCards").innerHTML = prices.map(p=>`
+  <div class="price-card${p.hot?" hot":""}">
+    <div class="price-card-bg">${p.type}</div>
+    <div class="pc-type">${p.type}</div>
+    <div class="pc-name">${p.name}</div>
+    <div class="pc-price">${p.price}</div>
+    <div class="pc-unit">${p.unit}</div>
+    <div class="pc-delta ${p.up===null?"flat":(p.up?"up":"dn")}">
+      ${p.up===null?"→":(p.up?"▲":"▼")} ${p.d}
+    </div>
+  </div>`).join("");
+
+// ── SERVICES ──
+const svcs = [
+  {n:"01",ic:"🌿",t:"ຮັບຊື້ຢາງ",txt:"ຮັບຊື້ຢາງພາລາທຸກຊະນິດ ລາຄາດີ ຕ່ານທີ"},
+  {n:"02",ic:"📋",t:"ອອກໃບເກັບ",txt:"ອອກໃບເກັບຊື້ທັນທີ ລາຍລະອຽດຄົບ ພ້ອມພິມ"},
+  {n:"03",ic:"💰",t:"ຊຳລະດ່ວນ",txt:"ຊຳລະເງິນທັນທີຫຼັງຊັ່ງ ໂອນ ຫຼື ຈ່າຍສົດ"},
+  {n:"04",ic:"📊",t:"ຂໍ້ມູນລາຄາ",txt:"ລາຄາຕະຫຼາດທຸກວັນ ຊ່ວຍຕັດສິນໃຈໄດ້ດີ"},
+  {n:"05",ic:"🚚",t:"ຮັບສົ່ງ",txt:"ລົດຮັບສົ່ງຢາງ ສະດວກສົບາຍ ຄ່າໃຊ້ຈ່າຍຕຳ"},
+  {n:"06",ic:"🤝",t:"ລູກຄ້າໝັ້ນຄົງ",txt:"ລົງທະບຽນ ຮັບລາຄາພິເສດ ບໍລິການຄົບຊຸດ"},
+];
+document.getElementById("servGrid").innerHTML = svcs.map((s,i)=>`
+  <div class="svc-card" data-reveal data-reveal-delay="${i%3+1}">
+    <div class="svc-num">${s.n}</div>
+    <div class="svc-icon-wrap">${s.ic}</div>
+    <div class="svc-title">${s.t}</div>
+    <div class="svc-text">${s.txt}</div>
+  </div>`).join("");
+
+// ── LIVE TIME ──
+function updateTime(){
+  document.getElementById("liveTime").textContent = "LIVE · " + new Date().toLocaleTimeString("lo-LA");
+}
+updateTime();setInterval(updateTime,1000);
+
+// ── HERO PRICE ANIMATION ──
+let hp=62.50,hbase=62.50;
+setInterval(()=>{
+  hp = Math.max(58,Math.min(68,hp+(Math.random()-.48)*.2));
+  document.getElementById("heroP").textContent = hp.toFixed(2);
+  const d = hp-hbase;
+  const el = document.getElementById("heroDelta");
+  el.textContent = `${d>=0?"▲":"▼"} ${d>=0?"+":""}${d.toFixed(2)} (${(d/hbase*100).toFixed(2)}%)`;
+  el.style.color = d>=0?"var(--mint)":"var(--fire)";
+},4000);
+
+// ── COUNTERS ──
+function counter(el,target,suffix=""){
+  let c=0,step=Math.ceil(target/80);
+  const t=setInterval(()=>{
+    c=Math.min(c+step,target);
+    el.textContent=c.toLocaleString()+suffix;
+    if(c>=target)clearInterval(t);
+  },25);
+}
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add("in");
+      if(e.target.id==="cntOrders")counter(e.target,148);
+      if(e.target.id==="cntKg")counter(e.target,45000," ກກ");
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:.12});
+document.querySelectorAll("[data-reveal],[id^='cnt']").forEach(el=>observer.observe(el));
+
+// ── NAV TOGGLE ──
+let navOpen=false;
+function toggleNav(){
+  navOpen=!navOpen;
+  const m=document.getElementById("mobileNav");
+  const h=document.getElementById("hbtn");
+  const s=h.querySelectorAll("span");
+  if(navOpen){
+    m.classList.add("open");m.style.display="flex";
+    s[0].style.cssText="transform:rotate(45deg) translate(5px,5px)";
+    s[1].style.opacity="0";
+    s[2].style.cssText="transform:rotate(-45deg) translate(5px,-5px)";
+    document.body.style.overflow="hidden";
+  } else {
+    m.classList.remove("open");
+    setTimeout(()=>m.style.display="",350);
+    s.forEach(x=>{x.style.cssText=""});
+    document.body.style.overflow="";
+  }
+}
+
+// ── NAV SCROLL EFFECT ──
+window.addEventListener("scroll",()=>{
+  const nb=document.getElementById("navbar");
+  nb.style.background = window.scrollY>60
+    ? "rgba(8,8,10,.95)"
+    : "rgba(8,8,10,.7)";
+});
+
+// ── CONTACT ──
+function doContact(){
+  alert("ຂອບໃຈທີ່ຕິດຕໍ່ KUBTHOR ຢາງພາລາ\nທີມງານຈະໂທຫາທ່ານໄວໆນີ້ 🙏");
+}
+</script>
+</body>
+</html>

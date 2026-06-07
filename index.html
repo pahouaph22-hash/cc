@@ -100,92 +100,166 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
 #toast.success{background:var(--green);color:#fff;border-color:#5cbf7a}
 #toast.error{background:var(--accent);color:#fff;border-color:#ff6b45}
 
-/* ── RESPONSIVE ── */
-/* Tablet */
-@media(max-width:900px){
-  .grid3{grid-template-columns:1fr 1fr}
-  .item-row{grid-template-columns:1fr 1fr;gap:.5rem}
-  .item-row>*:nth-child(3),.item-row>*:nth-child(4){margin-top:.3rem}
-  .tab-btn{padding:.55rem .8rem;font-size:.7rem;letter-spacing:.03em}
-  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
-  .order-table th:nth-child(4),.order-table td:nth-child(4){display:none}
+/* ══════════════════════════════════════
+   RESPONSIVE WEB APP — Full Coverage
+   Desktop → Tablet → Mobile
+   ══════════════════════════════════════ */
+
+/* Base — all screen sizes */
+*{-webkit-tap-highlight-color:transparent}
+img,video{max-width:100%;height:auto}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.table-scroll::-webkit-scrollbar{height:4px}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* ── LARGE DESKTOP (1280px+) ── */
+@media(min-width:1280px){
+  .tab-pane{max-width:1200px}
+  .grid3{grid-template-columns:repeat(3,1fr)}
 }
 
-/* Mobile */
-@media(max-width:600px){
-  #topbar{padding:0 .8rem;height:48px}
-  .logo{font-size:1.2rem}
-  #topbar .btn-secondary{font-size:.65rem;padding:.25rem .5rem}
-  #topbar>div:last-child>div{padding:.2rem .5rem}
+/* ── DESKTOP (1024px–1279px) ── */
+@media(max-width:1279px){
+  .tab-pane{max-width:100%;padding:1.4rem 1.6rem}
+}
 
+/* ── TABLET LANDSCAPE (900px–1023px) ── */
+@media(max-width:1023px){
+  .tab-pane{padding:1.2rem 1.2rem}
+  .grid3{grid-template-columns:1fr 1fr}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:repeat(2,1fr)!important}
+  .item-row{grid-template-columns:2fr 1fr 1fr 1fr auto;gap:.5rem}
+  .order-table th:nth-child(6),.order-table td:nth-child(6){display:none}
+}
+
+/* ── TABLET PORTRAIT (768px–899px) ── */
+@media(max-width:899px){
+  body{font-size:13px}
+  #topbar{padding:0 1rem;height:52px}
+  .logo{font-size:1.35rem}
+  #tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap}
+  #tabs::-webkit-scrollbar{display:none}
+  .tab-btn{padding:.6rem 1rem;font-size:.72rem;letter-spacing:.03em;white-space:nowrap;flex-shrink:0}
+  .tab-pane{padding:1.1rem 1rem}
+  .grid2{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .card-header{flex-wrap:wrap;gap:.4rem}
+  .order-table{font-size:.78rem}
+  .order-table th,.order-table td{padding:.55rem .7rem}
+  .order-table th:nth-child(4),.order-table td:nth-child(4){display:none}
+  .order-table th:nth-child(5),.order-table td:nth-child(5){display:none}
+  .letterhead{padding:.9rem 0 .7rem}
+  .company-row{flex-wrap:wrap;gap:.5rem}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(3,1fr)!important}
+  .item-row{grid-template-columns:2fr 1fr 1fr 1fr auto}
+  .pending-card-header{flex-wrap:wrap;gap:.4rem}
+  .modal-box{max-width:90%;padding:1.3rem}
+}
+
+/* ── MOBILE LARGE (600px–767px) ── */
+@media(max-width:767px){
+  body{font-size:13px}
+  #topbar{padding:0 .9rem;height:48px}
+  .logo{font-size:1.2rem}
+  .logo-dot{width:7px;height:7px}
+  #topbar>div:last-child>div{padding:.22rem .6rem;font-size:.68rem}
+  #topbar .btn-secondary{font-size:.65rem;padding:.28rem .6rem}
   #tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   #tabs::-webkit-scrollbar{display:none}
-  .tab-btn{padding:.5rem .75rem;font-size:.68rem;white-space:nowrap;flex-shrink:0}
-
-  .tab-pane{padding:1rem .8rem}
-
-  .grid2,.grid3{grid-template-columns:1fr}
-  .item-row{grid-template-columns:1fr 1fr;gap:.4rem}
-
-  .card-header{flex-direction:column;align-items:flex-start;gap:.4rem;padding:.6rem .8rem}
-  .card-body{padding:.8rem}
-
-  .letterhead{padding:.8rem 0}
-  .company-row{flex-direction:column;align-items:flex-start;gap:.6rem}
-
-  /* Tables scroll horizontally */
+  .tab-btn{padding:.55rem .85rem;font-size:.68rem;white-space:nowrap;flex-shrink:0}
+  .tab-pane{padding:1rem .9rem}
+  .grid2{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr}
+  .card-header{flex-direction:column;align-items:flex-start;gap:.4rem;padding:.65rem .9rem}
+  .card-body{padding:.9rem}
+  .letterhead{padding:.8rem 0 .6rem}
+  .company-row{flex-direction:column;align-items:flex-start;gap:.5rem}
   .order-table{font-size:.75rem}
-  .order-table th,.order-table td{padding:.5rem .6rem}
-  .order-table th:nth-child(3),.order-table td:nth-child(3),
+  .order-table th,.order-table td{padding:.5rem .55rem}
+  .order-table th:nth-child(3),.order-table td:nth-child(3){display:none}
   .order-table th:nth-child(4),.order-table td:nth-child(4){display:none}
-
-  /* Stat grid */
-  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr!important}
-
-  /* Pending cards */
-  .pending-card-header{flex-direction:column;align-items:flex-start;gap:.3rem}
-
-  /* Buttons */
-  .btn-primary{padding:.6rem 1rem;font-size:.82rem}
-  .btn-pay{padding:.5rem .9rem;font-size:.8rem}
-
-  /* Modal full width on mobile */
-  .modal-box{max-width:100%;margin:.5rem;padding:1.1rem}
-
-  /* Login card */
-  .login-card{padding:1.2rem}
-
-  /* Detail pane */
-  #pane-detail{padding:1rem .8rem}
-
-  /* Toast bottom center */
-  #toast{right:50%;transform:translateX(50%);bottom:16px;width:90%;text-align:center}
-
-  /* Summary rows wrap */
-  .sum-row{flex-wrap:wrap;gap:.2rem}
-
-  /* Hide less important columns in history */
-  #history-body tr td:nth-child(3){display:none}
-  #history-table thead tr th:nth-child(3){display:none}
-}
-
-/* Mobile landscape / small tablet */
-@media(max-width:768px){
+  .order-table th:nth-child(5),.order-table td:nth-child(5){display:none}
   .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
-  [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{display:grid;grid-template-columns:1fr 1fr!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:repeat(2,1fr)!important}
+  .item-row{grid-template-columns:1fr 1fr;gap:.45rem}
+  .pending-card-header{flex-direction:column;align-items:flex-start;gap:.3rem}
+  .btn-primary{padding:.6rem 1rem;font-size:.82rem}
+  .btn-pay{padding:.5rem .85rem;font-size:.8rem}
+  .modal-box{max-width:96%;margin:.3rem;padding:1.1rem}
+  #pane-detail{padding:1rem .9rem}
+  .sum-row{flex-wrap:wrap;gap:.2rem}
+  .login-card{padding:1.2rem}
+  #toast{right:50%;transform:translateX(50%);bottom:16px;width:92%;max-width:360px;text-align:center}
 }
 
-/* Touch improvements */
-@media(hover:none){
-  .tab-btn,.btn-primary,.btn-secondary,.btn-danger,.btn-pay,.btn-gold{
+/* ── MOBILE SMALL (max 599px) ── */
+@media(max-width:599px){
+  body{font-size:12.5px}
+  #topbar{padding:0 .7rem;height:46px}
+  .logo{font-size:1.1rem;gap:6px}
+  .tab-btn{padding:.5rem .7rem;font-size:.65rem}
+  .tab-pane{padding:.9rem .7rem}
+  .grid2{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr}
+  [style*="grid-template-columns:1fr 1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+  .card-header{padding:.55rem .7rem}
+  .card-body{padding:.75rem}
+  .order-table{font-size:.72rem}
+  .order-table th,.order-table td{padding:.45rem .5rem}
+  .order-table th:nth-child(2),.order-table td:nth-child(2){max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
+  .stat-box{padding:.7rem .9rem}
+  .bebas[style*="font-size:1.8rem"]{font-size:1.5rem!important}
+  .bebas[style*="font-size:2rem"]{font-size:1.7rem!important}
+  .item-row{grid-template-columns:1fr 1fr;gap:.35rem}
+  .btn-primary,.btn-submit{font-size:.8rem;padding:.55rem .9rem}
+  .btn-secondary{font-size:.75rem;padding:.42rem .75rem}
+  .modal-box{max-width:100%;margin:.2rem;border-radius:0;padding:1rem}
+  #pane-detail{padding:.9rem .7rem}
+  .login-card{padding:1rem}
+  .pending-card-header{padding:.5rem .8rem}
+  [style*="display:flex;gap:2rem"]{flex-wrap:wrap;gap:.8rem!important}
+  [style*="display:flex;gap:1.5rem"]{flex-wrap:wrap;gap:.6rem!important}
+  .float-card{display:none}
+}
+
+/* ── EXTRA SMALL (max 380px) ── */
+@media(max-width:380px){
+  body{font-size:12px}
+  #topbar{height:44px}
+  .logo{font-size:1rem}
+  .tab-btn{padding:.45rem .6rem;font-size:.62rem}
+  .tab-pane{padding:.75rem .6rem}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:1fr!important}
+  .card-body{padding:.65rem}
+  .order-table{font-size:.68rem}
+  .modal-box{padding:.85rem}
+}
+
+/* ── TOUCH DEVICE IMPROVEMENTS ── */
+@media(hover:none) and (pointer:coarse){
+  .tab-btn,.btn-primary,.btn-secondary,.btn-danger,.btn-pay,.btn-gold,.btn-submit{
     -webkit-tap-highlight-color:transparent;
     touch-action:manipulation;
+    min-height:40px;
   }
   .order-table tbody tr:hover{background:transparent}
+  .order-table tbody tr:active{background:rgba(255,255,255,.03)}
+  input,select,textarea{font-size:16px!important} /* Prevent iOS zoom */
+  .tab-btn{min-height:44px;display:flex;align-items:center;justify-content:center}
 }
 
-/* Scrollable tables on mobile */
-.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* ── PRINT ── */
+@media print{
+  #topbar,#tabs,#toast,.modal-overlay,.no-print{display:none!important}
+  .tab-pane{display:block!important;padding:0}
+  body{background:#fff;color:#000}
+}
+
+/* Scrollable tables */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 
 
 /* UTILS */
@@ -647,24 +721,85 @@ let savedPrices={RUBBER:62.50,SHIPPING:62.50};
 const PRODUCTS=[{id:"RUBBER",name:"ยางพารา"},{id:"SHIPPING",name:"ค่าจัดส่ง"}];
 
 async function loadData(){
+  // Try loading orders from Supabase orders table first
+  let sbOrders=null;
+  try{
+    const {data,error}=await _sb.from("orders").select("*, order_items(*)").order("created_at",{ascending:false});
+    if(!error&&data&&data.length>0){
+      sbOrders=data.map(o=>({
+        id:o.id,poNo:o.po_no,customer:o.customer,
+        date:o.date,note:o.note||"",status:o.status,
+        subtotal:parseFloat(o.subtotal)||0,
+        totalQty:parseFloat(o.total_qty)||0,
+        grandTotal:parseFloat(o.grand_total)||0,
+        createdBy:o.created_by||"",paidBy:o.paid_by||"",
+        cancelReason:o.cancel_reason||"",
+        createdAt:o.created_at,
+        items:(o.order_items||[]).map(it=>({productId:it.product_id,qty:it.qty,price:parseFloat(it.price)||0}))
+      }));
+    }
+  }catch(e){console.warn("Supabase orders load error",e);}
+
   const[o,c,p]=await Promise.all([sg("rubber_orders"),sg("rubber_po_counter"),sg("rubber_prices")]);
-  orders=o?JSON.parse(o):[];
+  // Use Supabase orders if available, fallback to app_data JSON
+  orders=sbOrders||(o?JSON.parse(o):[]);
   counter=c?parseInt(c):1;
   if(p)savedPrices=JSON.parse(p);
 }
 async function persist(){
-  // Save to localStorage first (fast)
+  // Always save to localStorage first (instant, no network)
   localStorage.setItem("rubber_orders",JSON.stringify(orders));
   localStorage.setItem("rubber_po_counter",String(counter));
   localStorage.setItem("rubber_prices",JSON.stringify(savedPrices));
-  // Save to Supabase (async)
+  // Save counter + prices to app_data
   try{
     await Promise.all([
-      _sb.from("app_data").upsert({key:"rubber_orders",value:JSON.stringify(orders),updated_at:new Date().toISOString()},{onConflict:"key"}),
       _sb.from("app_data").upsert({key:"rubber_po_counter",value:String(counter),updated_at:new Date().toISOString()},{onConflict:"key"}),
       _sb.from("app_data").upsert({key:"rubber_prices",value:JSON.stringify(savedPrices),updated_at:new Date().toISOString()},{onConflict:"key"}),
     ]);
-  }catch(e){console.warn("Supabase sync error",e);}
+  }catch(e){console.warn("Supabase app_data sync error",e);}
+}
+
+// Save a single order + its items directly to Supabase
+async function persistOrder(order){
+  try{
+    const {error:oErr}=await _sb.from("orders").upsert({
+      id:order.id,
+      po_no:order.poNo,
+      customer:order.customer,
+      date:order.date||null,
+      note:order.note||null,
+      status:order.status,
+      subtotal:order.subtotal||0,
+      total_qty:order.totalQty||0,
+      grand_total:order.grandTotal||0,
+      created_by:order.createdBy||null,
+      paid_by:order.paidBy||null,
+      cancel_reason:order.cancelReason||null,
+      updated_at:new Date().toISOString()
+    },{onConflict:"id"});
+    if(oErr){console.error("Order upsert error:",oErr);return;}
+    // Save items
+    if(order.items&&order.items.length>0){
+      await _sb.from("order_items").delete().eq("order_id",order.id);
+      const itemRows=order.items.map((it,i)=>({
+        order_id:order.id,
+        product_id:it.productId,
+        qty:it.qty||null,
+        price:it.price||0,
+        sort_order:i
+      }));
+      const {error:iErr}=await _sb.from("order_items").insert(itemRows);
+      if(iErr)console.error("Items insert error:",iErr);
+    }
+  }catch(e){console.error("persistOrder error:",e);}
+}
+
+// Update order status in Supabase
+async function updateOrderStatus(id,fields){
+  try{
+    await _sb.from("orders").update({...fields,updated_at:new Date().toISOString()}).eq("id",id);
+  }catch(e){console.warn("updateOrderStatus error",e);}
 }
 
 // ── DATES ──
@@ -900,6 +1035,8 @@ async function handleSave(){
   const order={id:Date.now(),poNo,customer:customer,date:saveDate||document.getElementById("form-date").value,note:document.getElementById("form-note").value,status:document.getElementById("form-status").value,items,subtotal,totalQty,grandTotal:subtotal,createdAt:new Date().toISOString(),createdBy:currentUser?.displayName||currentUser?.username||""};
   orders.unshift(order);
   await persist();
+  // Save order directly to Supabase orders + order_items tables
+  await persistOrder(order);
 
   // Auto-create customer record if not exists
   if(!customers.find(c=>c.name===customer)){
