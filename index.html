@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>RubberLedger</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -249,6 +249,120 @@ img,video{max-width:100%;height:auto}
   .order-table tbody tr:active{background:rgba(255,255,255,.03)}
   input,select,textarea{font-size:16px!important} /* Prevent iOS zoom */
   .tab-btn{min-height:44px;display:flex;align-items:center;justify-content:center}
+}
+
+/* ── MOBILE SPECIFIC FIXES ── */
+@media(max-width:480px){
+  /* History table on mobile - show only essential columns */
+  #history-table th:nth-child(3),
+  #history-table td:nth-child(3){display:none} /* date */
+  #history-table th:nth-child(4),
+  #history-table td:nth-child(4){display:none} /* amount */
+  #history-table th:nth-child(7),
+  #history-table td:nth-child(7){display:none} /* actor */
+
+  /* Action buttons in table - stack vertically */
+  .order-table td div[style*="display:flex"]{
+    flex-direction:column;gap:.25rem!important;align-items:flex-start;
+  }
+  .btn-danger,.btn-gold{
+    width:100%;text-align:center;padding:.35rem .5rem!important;
+    font-size:.68rem!important;
+  }
+
+  /* Tabs - horizontal scroll */
+  #tabs{
+    display:flex;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;flex-wrap:nowrap;
+    padding-bottom:1px;
+  }
+  #tabs::-webkit-scrollbar{display:none}
+  .tab-btn{
+    flex:0 0 auto;padding:.55rem .9rem;
+    font-size:.66rem;white-space:nowrap;
+    min-height:42px;
+  }
+
+  /* Topbar compact */
+  #topbar{padding:0 .65rem;height:46px;gap:.4rem}
+  .logo{font-size:1rem;gap:5px}
+  #topbar .btn-secondary{
+    font-size:.6rem;padding:.22rem .5rem;
+    white-space:nowrap;
+  }
+
+  /* Tab panes */
+  .tab-pane{padding:.8rem .65rem}
+  .card-body{padding:.75rem .65rem}
+  .card-header{padding:.55rem .65rem;font-size:.78rem}
+
+  /* Forms */
+  .grid2,.grid3{grid-template-columns:1fr!important}
+  .form-group{margin-bottom:.7rem}
+
+  /* Item rows in create form */
+  .item-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:.35rem!important;
+  }
+
+  /* Summary section */
+  .sum-row{flex-wrap:wrap;gap:.15rem}
+
+  /* Stat boxes */
+  .stat-box{padding:.65rem .8rem}
+  .stat-box .bebas[style*="1.4rem"]{font-size:1.2rem!important}
+
+  /* Modal */
+  .modal-box{
+    max-width:100%!important;width:100%!important;
+    margin:.2rem!important;padding:.9rem!important;
+  }
+  #pay-modal>div,.modal-box{border-radius:0}
+
+  /* Detail pane */
+  #pane-detail{padding:.8rem .65rem}
+  .company-row{flex-direction:column;gap:.4rem}
+  .letterhead{padding:.7rem 0 .5rem}
+
+  /* Customer detail modal */
+  #cust-detail-overlay>div{
+    max-width:100%!important;margin:.3rem!important;
+    padding:1rem!important;
+  }
+
+  /* Toast */
+  #toast{
+    right:50%!important;transform:translateX(50%)!important;
+    bottom:12px;width:94%!important;max-width:340px;
+    text-align:center;font-size:.78rem;padding:.55rem .9rem;
+  }
+
+  /* Pending cards */
+  .pending-card-header{flex-direction:column;align-items:flex-start;gap:.3rem;padding:.7rem .8rem}
+  .pending-card-body{padding:.7rem .8rem}
+
+  /* Login */
+  .login-card{padding:1rem .9rem}
+  .login-card .bebas[style*="2rem"]{font-size:1.6rem!important}
+
+  /* Member type buttons */
+  #btn-new-member,#btn-old-member{font-size:.68rem;padding:.3rem .7rem}
+}
+
+/* ── VERY SMALL PHONES (max 360px) ── */
+@media(max-width:360px){
+  #topbar{height:44px;padding:0 .5rem}
+  .logo{font-size:.95rem}
+  .tab-btn{padding:.48rem .7rem;font-size:.62rem}
+  .tab-pane{padding:.7rem .5rem}
+  .card-body{padding:.6rem .5rem}
+  .order-table{font-size:.68rem}
+  .order-table th,.order-table td{padding:.4rem .4rem}
+  .stat-box .bebas[style*="1.4rem"]{font-size:1.1rem!important}
+  .btn-danger{padding:.3rem .4rem!important;font-size:.64rem!important}
 }
 
 /* ── PRINT ── */
@@ -540,7 +654,7 @@ textarea{min-height:64px;resize:vertical}
     </div>
     <div id="search-info" style="font-size:.7rem;color:var(--muted);margin-bottom:.7rem;font-family:'IBM Plex Mono',monospace"></div>
     <div class="card">
-      <div class="table-scroll"><table class="order-table" id="history-table">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%"><table class="order-table" id="history-table" style="min-width:500px">
         <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>ยอดรวม</th><th>สถานะ</th><th id="last-col-header">การจัดการ</th><th>ดำเนินการ</th></tr></thead>
         <tbody id="history-body"></tbody>
       </table>
@@ -1207,11 +1321,11 @@ function renderHistory(){
     }else{
       const canPrintRow=(currentUser?.role==="admin"||currentUser?.role==="staff_biller");
       lastCol=`<td>
-        <div style="display:flex;gap:.35rem;flex-wrap:wrap">
-          <button class="btn-danger" onclick="event.stopPropagation();openDetail('${o.id}')">ดู</button>
-          <button class="btn-danger" onclick="event.stopPropagation();openDelModal('${o.id}')">ลบ</button>
-          ${canPrintRow?`<button style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.28rem .6rem;font-size:.7rem;font-weight:600;cursor:pointer" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()">🖨</button>`:""}
-          ${currentUser?.role!=="staff_biller"?`<button class="btn-gold" onclick="event.stopPropagation();moveToSent('${o.id}')">เลือกชำระ</button>`:""}
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;align-items:center">
+          <button class="btn-danger" onclick="event.stopPropagation();openDetail('${o.id}')" title="ดูรายละเอียด">ดู</button>
+          <button class="btn-danger" onclick="event.stopPropagation();openDelModal('${o.id}')" title="ยกเลิก">ลบ</button>
+          ${canPrintRow?`<button style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.28rem .55rem;font-size:.7rem;font-weight:600;cursor:pointer;min-height:28px" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()" title="พิมพ์ใบเสร็จ">🖨</button>`:""}
+          ${currentUser?.role!=="staff_biller"?`<button class="btn-gold" onclick="event.stopPropagation();moveToSent('${o.id}')" title="เลือกชำระ">ชำระ</button>`:""}
         </div>
       </td>`;
     }
@@ -1221,7 +1335,7 @@ function renderHistory(){
     if(o.paidBy) actors.push(`<div style="font-size:.68rem;color:var(--green)">💰 ${o.paidBy}</div>`);
     const actorCell=actors.length>0?actors.join(""):`<span style="color:#444;font-size:.72rem">—</span>`;
     return`<tr onclick="openDetail('${o.id}')">
-      <td class="mono text-accent fw6">${o.poNo}</td>
+      <td class="mono text-accent fw6" style="white-space:nowrap">${o.poNo}</td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
       <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
       <td class="mono fw6">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
@@ -1454,7 +1568,7 @@ function renderReport(){
         <table class="order-table" style="width:100%">
           <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>ยอดรวม กก.</th><th>ยอดชำระ</th></tr></thead>
           <tbody>${s.orders.map(o=>`<tr onclick="openDetail('${o.id}')" style="cursor:pointer">
-            <td class="mono text-accent fw6">${o.poNo}</td>
+            <td class="mono text-accent fw6" style="white-space:nowrap">${o.poNo}</td>
             <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
             <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
             <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} กก.</td>
@@ -1585,7 +1699,7 @@ function openCustDetail(id){
   document.getElementById("cust-detail-tbody").innerHTML=custOrders.length===0
     ?`<tr><td colspan="5" class="empty-state">ยังไม่มีรายการ</td></tr>`
     :custOrders.map(o=>`<tr>
-      <td class="mono text-accent fw6">${o.poNo}</td>
+      <td class="mono text-accent fw6" style="white-space:nowrap">${o.poNo}</td>
       <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
       <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} กก.</td>
       <td class="mono fw6">₭${o.grandTotal.toLocaleString("th-TH",{maximumFractionDigits:0})}</td>
