@@ -215,8 +215,8 @@ textarea{min-height:64px;resize:vertical}
       <div class="form-group"><label class="form-label">ชื่อผู้ใช้</label><input type="text" id="ln-user" placeholder="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="form-group"><label class="form-label">รหัสผ่าน</label><input type="password" id="ln-pass" placeholder="password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div id="ln-err" style="font-size:.78rem;color:var(--accent);margin-bottom:.8rem;display:none">⚠ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
-      <div id="firebase-status" style="font-size:.72rem;color:var(--muted);text-align:center;margin-bottom:.6rem;font-family:'IBM Plex Mono',monospace">
-  ⏳ กำลังเชื่อมต่อ Firebase...
+      <div id="firebase-status" style="font-size:.72rem;color:var(--green);text-align:center;margin-bottom:.6rem;font-family:'IBM Plex Mono',monospace">
+  ✓ เชื่อมต่อ Supabase
 </div>
 <button class="btn-primary" style="width:100%" onclick="doLogin()" id="login-btn" disabled>เข้าสู่ระบบ</button>
       <div style="margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--border)">
@@ -591,32 +591,13 @@ textarea{min-height:64px;resize:vertical}
 
 <div id="toast"></div>
 
-<!-- Firebase CDN -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBbdwuMNH7ukADRf_A_DOYtObcxeWKS1Nc",
-    authDomain: "rubber-ledger-40a00.firebaseapp.com",
-    projectId: "rubber-ledger-40a00",
-    storageBucket: "rubber-ledger-40a00.firebasestorage.app",
-    messagingSenderId: "91284314549",
-    appId: "1:91284314549:web:745ea5ac240fb0da1f21fc"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Expose Firestore functions globally for use in main script
-  window._db = db;
-  window._fsDoc = doc;
-  window._fsGetDoc = getDoc;
-  window._fsSetDoc = setDoc;
-  window._fsCollection = collection;
-  window._fsGetDocs = getDocs;
-  window._firebaseReady = true;
-  window.dispatchEvent(new Event("firebaseReady"));
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://kgiyiflrwgiflpqglqky.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1_q1v3vtUwHZ92JaEXbCLQ_uNOvCACu";
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window._firebaseReady = true;
 </script>
 
 <script>
@@ -627,57 +608,39 @@ const DEFAULT_ACCOUNTS=[
 let ACCOUNTS=[...DEFAULT_ACCOUNTS];
 let currentUser=null;
 
-// Enable login when Firebase ready
-window.addEventListener("firebaseReady",()=>{
-  const btn=document.getElementById("login-btn");
-  const status=document.getElementById("firebase-status");
-  if(btn){btn.disabled=false;}
-  if(status){status.textContent="✓ เชื่อมต่อ Firebase แล้ว";status.style.color="var(--green)";}
-});
-// Fallback: if firebase fails after 5s, still allow login with localStorage
-setTimeout(()=>{
-  const btn=document.getElementById("login-btn");
-  const status=document.getElementById("firebase-status");
-  if(btn&&btn.disabled){
-    btn.disabled=false;
-    if(status){status.textContent="⚠ ออฟไลน์ (localStorage)";status.style.color="var(--gold)";}
-  }
-},5000);
+// Supabase ready
 
 async function loadAccounts(){
-  const r=await sg("rubber_accounts");
-  const extra=r?JSON.parse(r):[];
-  ACCOUNTS=[...DEFAULT_ACCOUNTS,...extra];
+  try{
+    const {data}=await _sb.from("accounts").select("*");
+    if(data&&data.length>0){
+      ACCOUNTS=[...DEFAULT_ACCOUNTS,...data.filter(a=>a.username!=="admin").map(a=>({username:a.username,password:a.password,role:a.role,displayName:a.display_name}))];
+    }
+  }catch(e){
+    const r=await sg("rubber_accounts");
+    const extra=r?JSON.parse(r):[];
+    ACCOUNTS=[...DEFAULT_ACCOUNTS,...extra];
+  }
 }
 async function saveAccounts(){
+  // Saved via addStaffAccount/removeStaffAccount directly to Supabase
   const extra=ACCOUNTS.filter(a=>a.role!=="admin"||a.username!=="admin");
   await ss("rubber_accounts",JSON.stringify(extra));
 }
 
-// ── STORAGE (Firestore + localStorage fallback) ──
-async function waitFirebase(){
-  if(window._firebaseReady)return;
-  return new Promise(r=>window.addEventListener("firebaseReady",r,{once:true}));
-}
+// ── STORAGE (Supabase) ──
 async function sg(k){
   try{
-    await waitFirebase();
-    if(window._db){
-      const snap=await window._fsGetDoc(window._fsDoc(window._db,"app_data",k));
-      return snap.exists()?snap.data().value:null;
-    }
-    return localStorage.getItem(k);
-  }catch(e){console.warn("sg error",e);return localStorage.getItem(k);}
+    const {data,error}=await _sb.from("app_data").select("value").eq("key",k).single();
+    if(error)return localStorage.getItem(k);
+    return data?data.value:null;
+  }catch(e){return localStorage.getItem(k);}
 }
 async function ss(k,v){
   try{
-    await waitFirebase();
-    if(window._db){
-      await window._fsSetDoc(window._fsDoc(window._db,"app_data",k),{value:v,updatedAt:new Date().toISOString()});
-      return;
-    }
+    await _sb.from("app_data").upsert({key:k,value:v,updated_at:new Date().toISOString()},{onConflict:"key"});
     localStorage.setItem(k,v);
-  }catch(e){console.warn("ss error",e);localStorage.setItem(k,v);}
+  }catch(e){localStorage.setItem(k,v);}
 }
 
 let orders=[];
@@ -692,7 +655,18 @@ async function loadData(){
   if(p)savedPrices=JSON.parse(p);
 }
 async function persist(){
-  await Promise.all([ss("rubber_orders",JSON.stringify(orders)),ss("rubber_po_counter",String(counter)),ss("rubber_prices",JSON.stringify(savedPrices))]);
+  // Save to localStorage first (fast)
+  localStorage.setItem("rubber_orders",JSON.stringify(orders));
+  localStorage.setItem("rubber_po_counter",String(counter));
+  localStorage.setItem("rubber_prices",JSON.stringify(savedPrices));
+  // Save to Supabase (async)
+  try{
+    await Promise.all([
+      _sb.from("app_data").upsert({key:"rubber_orders",value:JSON.stringify(orders),updated_at:new Date().toISOString()},{onConflict:"key"}),
+      _sb.from("app_data").upsert({key:"rubber_po_counter",value:String(counter),updated_at:new Date().toISOString()},{onConflict:"key"}),
+      _sb.from("app_data").upsert({key:"rubber_prices",value:JSON.stringify(savedPrices),updated_at:new Date().toISOString()},{onConflict:"key"}),
+    ]);
+  }catch(e){console.warn("Supabase sync error",e);}
 }
 
 // ── DATES ──
@@ -708,11 +682,21 @@ function showToast(msg,type="success"){
 }
 
 // ── LOGIN ──
-function doLogin(){
+async function doLogin(){
   const u=document.getElementById("ln-user").value.trim();
   const p=document.getElementById("ln-pass").value;
-  const acc=ACCOUNTS.find(a=>a.username===u&&a.password===p);
   const err=document.getElementById("ln-err");
+  const btn=document.getElementById("login-btn");
+  btn.disabled=true;btn.textContent="กำลังตรวจสอบ...";
+  // Check Supabase accounts first, fallback to local
+  let acc=null;
+  try{
+    const {data}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).single();
+    if(data)acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name};
+  }catch(e){}
+  // Fallback to local ACCOUNTS
+  if(!acc)acc=ACCOUNTS.find(a=>a.username===u&&a.password===p);
+  btn.disabled=false;btn.textContent="เข้าสู่ระบบ";
   if(!acc){err.style.display="block";return;}
   err.style.display="none";
   currentUser=acc;
@@ -1258,6 +1242,8 @@ async function addStaffAccount(){
   if(ACCOUNTS.find(a=>a.username===un)){showToast("ชื่อผู้ใช้นี้มีอยู่แล้ว","error");return;}
   const role=document.getElementById("new-role")?.value||"staff_biller";
   ACCOUNTS.push({username:un,password:pw,role,displayName:dn});
+  // Save to Supabase
+  try{await _sb.from("accounts").insert({username:un,password:pw,role,display_name:dn});}catch(e){}
   await saveAccounts();
   document.getElementById("new-displayname").value="";
   document.getElementById("new-username").value="";
@@ -1268,6 +1254,7 @@ async function removeStaffAccount(username){
   if(currentUser?.role!=="admin"){showToast("ไม่มีสิทธิ์ดำเนินการนี้","error");return;}
   if(username==="admin"){showToast("ไม่สามารถลบบัญชี admin","error");return;}
   ACCOUNTS=ACCOUNTS.filter(a=>a.username!==username);
+  try{await _sb.from("accounts").delete().eq("username",username);}catch(e){}
   await saveAccounts();renderStaffList();showToast("ลบบัญชีแล้ว");
 }
 function renderStaffList(){
