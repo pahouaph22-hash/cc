@@ -192,9 +192,9 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
   /* Tab buttons smaller */
   .tab-btn{padding:.5rem .75rem;font-size:.65rem;letter-spacing:.02em}
 
-  /* History table - hide less important cols */
-  #history-table th:nth-child(4),#history-table td:nth-child(4){display:none}
-  #history-table th:nth-child(7),#history-table td:nth-child(7){display:none}
+  /* History table on small mobile - keep essential cols visible */
+  /* Only hide 'date' column (col 3) on very small screens */
+  #history-table th:nth-child(3),#history-table td:nth-child(3){display:none}
 
   /* Action buttons */
   .order-table td div[style*="flex"]{flex-wrap:wrap;gap:.25rem!important}
@@ -772,7 +772,7 @@ textarea{min-height:64px;resize:vertical}
     </div>
     <div id="search-info" style="font-size:.7rem;color:var(--muted);margin-bottom:.7rem;font-family:'IBM Plex Mono',monospace"></div>
     <div class="card">
-      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%"><table class="order-table" id="history-table" style="min-width:500px">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;-webkit-overflow-scrolling:touch"><table class="order-table" id="history-table" style="min-width:480px;width:100%">
         <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>ยอดรวม</th><th>สถานะ</th><th id="last-col-header">การจัดการ</th><th>ดำเนินการ</th></tr></thead>
         <tbody id="history-body"></tbody>
       </table>
@@ -1438,28 +1438,28 @@ function renderHistory(){
       lastCol=`<td style="font-size:.75rem;color:#5cbf7a">${o.paidBy||"—"}</td>`;
     }else{
       const canPrintRow=(currentUser?.role==="admin"||currentUser?.role==="staff_biller");
-      lastCol=`<td>
-        <div style="display:flex;gap:.3rem;flex-wrap:wrap;align-items:center">
-          <button class="btn-danger" onclick="event.stopPropagation();openDetail('${o.id}')" title="ดูรายละเอียด">ดู</button>
-          <button class="btn-danger" onclick="event.stopPropagation();openDelModal('${o.id}')" title="ยกเลิก">ลบ</button>
-          ${canPrintRow?`<button style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.28rem .55rem;font-size:.7rem;font-weight:600;cursor:pointer;min-height:28px" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()" title="พิมพ์ใบเสร็จ">🖨</button>`:""}
-          ${currentUser?.role!=="staff_biller"?`<button class="btn-gold" onclick="event.stopPropagation();moveToSent('${o.id}')" title="เลือกชำระ">ชำระ</button>`:""}
+      lastCol=`<td style="white-space:nowrap">
+        <div style="display:flex;gap:.25rem;align-items:center;flex-wrap:nowrap">
+          <button class="btn-danger" onclick="event.stopPropagation();openDetail('${o.id}')" style="padding:.25rem .45rem;font-size:.65rem">ดู</button>
+          <button class="btn-danger" onclick="event.stopPropagation();openDelModal('${o.id}')" style="padding:.25rem .45rem;font-size:.65rem">ลบ</button>
+          ${canPrintRow?`<button style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.25rem .4rem;font-size:.65rem;font-weight:600;cursor:pointer" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()">🖨</button>`:""}
+          ${currentUser?.role!=="staff_biller"?`<button class="btn-gold" onclick="event.stopPropagation();moveToSent('${o.id}')" style="padding:.25rem .4rem;font-size:.65rem">ชำระ</button>`:""}
         </div>
       </td>`;
     }
     // build ดำเนินการ cell
     const actors=[];
-    if(o.createdBy) actors.push(`<div style="font-size:.68rem;color:var(--blue)">📝 ${o.createdBy}</div>`);
-    if(o.paidBy) actors.push(`<div style="font-size:.68rem;color:var(--green)">💰 ${o.paidBy}</div>`);
-    const actorCell=actors.length>0?actors.join(""):`<span style="color:#444;font-size:.72rem">—</span>`;
+    if(o.createdBy) actors.push(`<div style="font-size:.65rem;color:var(--blue);white-space:nowrap">📝 ${o.createdBy}</div>`);
+    if(o.paidBy) actors.push(`<div style="font-size:.65rem;color:var(--green);white-space:nowrap">💰 ${o.paidBy}</div>`);
+    const actorCell=actors.length>0?actors.join(""):`<span style="color:#444;font-size:.68rem">—</span>`;
     return`<tr onclick="openDetail('${o.id}')">
-      <td class="mono text-accent fw6" style="white-space:nowrap">${o.poNo}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
-      <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
-      <td class="mono fw6">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
-      <td><span class="badge ${badgeCls}">${badgeLabel}</span></td>
+      <td class="mono text-accent fw6" style="white-space:nowrap;font-size:.75rem">${o.poNo}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem">${o.customer}</td>
+      <td class="mono" style="color:var(--muted);font-size:.72rem;white-space:nowrap">${thaiShort(o.date)}</td>
+      <td class="mono fw6" style="white-space:nowrap;font-size:.78rem">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td style="white-space:nowrap"><span class="badge ${badgeCls}">${badgeLabel}</span></td>
       ${lastCol}
-      <td style="min-width:110px">${actorCell}</td>
+      <td style="min-width:90px">${actorCell}</td>
     </tr>`;
   }).join("");
   renderHistoryStats(filtered);
