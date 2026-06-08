@@ -1144,6 +1144,8 @@ async function initApp(){
   renderPending();
   renderCustomers();
   updateCustomerDatalist();
+  // Start real-time sync
+  setTimeout(() => { startRealtimeSync(); addSyncIndicator(); }, 1000);
   const settingsBtn=document.getElementById("tab-settings-btn");
   const reportBtn=document.getElementById("tab-report-btn");
   const myworkBtn=document.getElementById("tab-mywork-btn");
@@ -1316,11 +1318,12 @@ async function handleSave(){
   // Save to Supabase FIRST (critical), localStorage as backup
   const saveOk = await persistOrder(order);
   if (!saveOk) {
-    // Still save to localStorage as fallback
     localStorage.setItem("rubber_orders", JSON.stringify(orders));
     showToast("⚠ บันทึกสำเร็จ (ออฟไลน์)", "error");
   }
+  _syncPaused = true;
   await persist();
+  setTimeout(() => { _syncPaused = false; }, 2000);
 
   // Auto-create customer record if not exists
   if(!customers.find(c=>c.name===customer)){
@@ -1752,11 +1755,45 @@ function renderReport(){
 // ── CUSTOMERS ──
 let customers=[];
 async function loadCustomers(){
-  const r=await sg("rubber_customers");
+  try{
+    const {data,error}=await _sb.from("customers").select("*").order("name");
+    if(!error&&data&&data.length>0){
+      customers=data.map(c=>({
+        id:String(c.id),
+        name:c.name,
+        phone:c.phone||"",
+        house:c.house||"",
+        subdistrict:c.subdistrict||"",
+        district:c.district||"",
+        province:c.province||"",
+        autoCreated:c.auto_created||false,
+        createdAt:c.created_at
+      }));
+      localStorage.setItem("rubber_customers",JSON.stringify(customers));
+      return;
+    }
+  }catch(e){console.warn("Supabase customers load error",e);}
+  // Fallback to localStorage
+  const r=localStorage.getItem("rubber_customers");
   customers=r?JSON.parse(r):[];
 }
 async function saveCustomers(){
   await ss("rubber_customers",JSON.stringify(customers));
+  // Also sync to Supabase customers table
+  try{
+    for(const c of customers){
+      await _sb.from("customers").upsert({
+        id:String(c.id),
+        name:c.name,
+        phone:c.phone||"",
+        house:c.house||"",
+        subdistrict:c.subdistrict||"",
+        district:c.district||"",
+        province:c.province||"",
+        auto_created:c.autoCreated||false
+      },{onConflict:"id"});
+    }
+  }catch(e){console.warn("customers sync error",e);}
 }
 async function addCustomer(){
   const name=document.getElementById("cust-name").value.trim();
@@ -2216,8 +2253,10 @@ window.addEventListener("click", (e) => {
 const _originalExecPay = execPay;
 execPay = async function(id, payer) {
   window._currentLockId = null; // Clear before paying (unlock after save)
+  _syncPaused = true;
   await _originalExecPay(id, payer);
   await unlockBill(id);
+  setTimeout(() => { _syncPaused = false; }, 2000);
 };
 
 // ── REAL-TIME AUTO SYNC ──
@@ -2308,21 +2347,15 @@ function mapRow(row, items) {
   };
 }
 
-// Pause sync during save to prevent echo
-const _origPersist = persist;
-persist = async function() {
+// Pause sync during save to prevent echo (use flag directly, no override)
+async function pausedPersist() {
   _syncPaused = true;
-  await _origPersist();
+  await persist();
   setTimeout(() => { _syncPaused = false; }, 2000);
-};
+}
 
-// Start realtime after login
-const _origInitApp = initApp;
-initApp = async function() {
-  await _origInitApp();
-  startRealtimeSync();
-  addSyncIndicator();
-};
+// Realtime starts after initApp — called from initApp directly below
+
 
 // ── SYNC INDICATOR UI ──
 function addSyncIndicator() {
