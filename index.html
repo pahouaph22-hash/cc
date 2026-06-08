@@ -598,7 +598,7 @@ textarea{min-height:64px;resize:vertical}
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem;margin-bottom:1.1rem" id="cust-detail-info"></div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.1em;color:var(--muted);margin-bottom:.6rem">ประวัติการขายยาง</div>
         <table class="order-table" id="cust-detail-orders" style="width:100%">
-          <thead><tr><th>เลขที่</th><th>วันที่</th><th>จำนวน (กก.)</th><th>ยอดชำระ</th><th>สถานะ</th></tr></thead>
+          <thead><tr><th>เลขที่</th><th>วันที่</th><th id="h-qty">จำนวน (กก.)</th><th>ยอดชำระ</th><th>สถานะ</th></tr></thead>
           <tbody id="cust-detail-tbody"></tbody>
         </table>
       </div>
@@ -608,10 +608,10 @@ textarea{min-height:64px;resize:vertical}
   <!-- TAB: CREATE -->
   <div class="tab-pane active" id="pane-create">
     <div class="letterhead">
-      <div class="bebas" style="font-size:1.9rem;letter-spacing:.16em">ใบเก็บซื้อสินค้ายางพารา</div>
+      <div class="bebas" id="bill-page-title" style="font-size:1.9rem;letter-spacing:.16em">ใบเก็บซื้อสินค้ายางพารา</div>
       <div class="company-row">
         <div>
-          <div class="company-name">รัฐวิสาหกิจ KUBTHOR ยางพารา</div>
+          <div class="company-name" id="company-name-el">รัฐวิสาหกิจ KUBTHOR ยางพารา</div>
           <div class="company-phone">☎ 02096891617</div>
         </div>
         <div style="display:flex;align-items:center;gap:.6rem">
@@ -741,7 +741,7 @@ textarea{min-height:64px;resize:vertical}
     <div id="search-info" style="font-size:.7rem;color:var(--muted);margin-bottom:.7rem;font-family:'IBM Plex Mono',monospace"></div>
     <div class="card">
       <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%"><table class="order-table" id="history-table" style="min-width:600px">
-        <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>ยอดรวม</th><th>สถานะ</th><th id="last-col-header">การจัดการ</th><th>ดำเนินการ</th></tr></thead>
+        <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th id="h-subtotal">ยอดรวม</th><th>สถานะ</th><th id="last-col-header">การจัดการ</th><th>ดำเนินการ</th></tr></thead>
         <tbody id="history-body"></tbody>
       </table>
     </div>
@@ -1986,7 +1986,7 @@ function renderMyWork(){
   // table header
   const thead=document.getElementById("mywork-thead");
   if(isBiller){
-    thead.innerHTML=`<th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>รวม กก.</th><th>ยอดรวม</th><th>สถานะ</th><th>ผู้ชำระ</th>`;
+    thead.innerHTML=`<th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>รวม กก.</th><th id="h-subtotal">ยอดรวม</th><th>สถานะ</th><th>ผู้ชำระ</th>`;
   } else {
     thead.innerHTML=`<th>เลขที่</th><th>ลูกค้า</th><th>วันที่ชำระ</th><th>รวม กก.</th><th>ยอดชำระ</th><th>ผู้จดบิล</th>`;
   }
@@ -2770,6 +2770,8 @@ function applyLang() {
   _s("btn-add-item", t("btn_add_item"));
   _s("btn-new-member", t("new_member"));
   _s("btn-old-member", t("old_member"));
+  // Company info
+  _s("company-name-el", lang === "lo" ? "ລັດວິສາຫະກິດ KUBTHOR ຢາງພາລາ" : lang === "en" ? "KUBTHOR Rubber Enterprise" : "รัฐวิสาหกิจ KUBTHOR ยางพารา");
   // History table headers
   _s("h-col-id", t("col_id"));
   _s("h-col-cust", t("col_customer"));
@@ -2777,7 +2779,14 @@ function applyLang() {
   _s("h-col-amt", t("col_amount"));
   _s("h-col-status", t("col_status"));
   _s("h-col-actor", t("col_actor"));
+  _s("h-product", t("col_product"));
+  _s("h-qty", t("col_qty"));
+  _s("h-price", t("col_price"));
+  _s("h-subtotal", t("col_subtotal"));
 
+  // Form labels
+  _s("note-label-el", t("note_label"));
+  _s("status-label-el", t("status_label"));
   // Save button
   const saveBtn = document.getElementById("btn-save");
   if (saveBtn && !saveBtn.disabled) saveBtn.textContent = t("btn_save");
