@@ -496,12 +496,21 @@ textarea{min-height:64px;resize:vertical}
 <div id="app" style="display:none">
   <div id="topbar">
     <div class="logo"><span class="logo-dot"></span>RUBBERLEDGER</div>
-    <div style="display:flex;align-items:center;gap:.8rem">
-      <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);padding:.3rem .8rem">
-        <span id="role-badge" style="font-size:.62rem;font-weight:700;letter-spacing:.06em;font-family:'IBM Plex Mono',monospace"></span>
-        <span id="display-name" style="font-size:.75rem"></span>
+    <div id="sync-indicator-wrap" style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0"></div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin-left:auto">
+      <select id="lang-select" onchange="setLang(this.value)" title="เปลี่ยนภาษา"
+        style="background:var(--surface2);border:1px solid var(--border);color:var(--text);
+               padding:.28rem .4rem;font-size:.72rem;cursor:pointer;border-radius:2px;
+               font-family:'IBM Plex Sans Thai',sans-serif;flex-shrink:0">
+        <option value="th">TH ไทย</option>
+        <option value="lo">LA ລາວ</option>
+        <option value="en">EN</option>
+      </select>
+      <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);padding:.28rem .7rem;flex-shrink:0">
+        <span id="role-badge" style="font-size:.6rem;font-weight:700;letter-spacing:.06em;font-family:'IBM Plex Mono',monospace"></span>
+        <span id="display-name" style="font-size:.73rem"></span>
       </div>
-      <button class="btn-secondary" style="font-size:.7rem;padding:.28rem .8rem" onclick="doLogout()">ออกจากระบบ</button>
+      <button class="btn-secondary" style="font-size:.68rem;padding:.28rem .7rem;white-space:nowrap;flex-shrink:0" onclick="doLogout()" data-i18n="logout">ออกจากระบบ</button>
     </div>
   </div>
 
@@ -2397,31 +2406,9 @@ async function pausedPersist() {
 
 // ── SYNC INDICATOR UI ──
 function addSyncIndicator() {
-  if (document.getElementById("sync-indicator")) return;
-  const topbar = document.getElementById("topbar");
-  if (!topbar) return;
-  const dot = document.createElement("div");
-  dot.id = "sync-indicator";
-  dot.title = "กำลังเชื่อมต่อ Real-time...";
-  dot.style.cssText = `
-    width:8px;height:8px;border-radius:50%;
-    background:var(--gold);flex-shrink:0;
-    margin-left:4px;cursor:default;
-    box-shadow:0 0 6px currentColor;
-    transition:background .3s;
-    animation:syncPulse 2s ease-in-out infinite;
-  `;
-  // Add pulse animation
-  if (!document.getElementById("sync-style")) {
-    const s = document.createElement("style");
-    s.id = "sync-style";
-    s.textContent = `@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.4}}`;
-    document.head.appendChild(s);
-  }
-  // Insert after logo
-  const logo = topbar.querySelector(".logo");
-  if (logo) logo.after(dot);
-  else topbar.prepend(dot);
+  // Already in HTML as sync-indicator-wrap
+  const wrap = document.getElementById("sync-indicator-wrap");
+  if (wrap) wrap.id = "sync-indicator";
 }
 
 // Auto refresh handled by syncFromSupabase polling (10s)
@@ -2756,6 +2743,9 @@ function applyLang() {
   if (langSel) langSel.value = currentLang;
   // Update document lang
   document.documentElement.lang = currentLang === "lo" ? "lo" : currentLang === "en" ? "en" : "th";
+  // Sync dropdown value
+  const sel = document.getElementById("lang-select");
+  if (sel) sel.value = currentLang;
   // Update error message placeholder
   const err = document.getElementById("ln-err");
   if (err) err.textContent = t("login_err");
