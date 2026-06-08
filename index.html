@@ -954,28 +954,58 @@ let savedPrices={RUBBER:62.50,SHIPPING:62.50};
 const PRODUCTS=[{id:"RUBBER",name:"ยางพารา"},{id:"SHIPPING",name:"ค่าจัดส่ง"}];
 
 async function loadData(){
-  // Try loading orders from Supabase orders table first
+  // ── Load from Supabase (primary source of truth) ──
   let sbOrders=null;
   try{
-    const {data,error}=await _sb.from("orders").select("*, order_items(*)").order("created_at",{ascending:false});
-    if(!error&&data&&data.length>0){
+    const {data,error}=await _sb
+      .from("orders")
+      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,cancel_reason,created_at,updated_at")
+      .order("created_at",{ascending:false})
+      .limit(500);
+    if(!error&&data){
+      // Load items separately for performance
+      const orderIds=data.map(o=>String(o.id));
+      let allItems=[];
+      if(orderIds.length>0){
+        const {data:itemsData}=await _sb.from("order_items").select("*").in("order_id",orderIds);
+        allItems=itemsData||[];
+      }
       sbOrders=data.map(o=>({
-        id:o.id,poNo:o.po_no,customer:o.customer,
-        date:o.date,note:o.note||"",status:o.status,
+        id:String(o.id),
+        poNo:o.po_no,
+        customer:o.customer,
+        date:o.date,
+        note:o.note||"",
+        status:o.status||"draft",
         subtotal:parseFloat(o.subtotal)||0,
         totalQty:parseFloat(o.total_qty)||0,
         grandTotal:parseFloat(o.grand_total)||0,
-        createdBy:o.created_by||"",paidBy:o.paid_by||"",
+        createdBy:o.created_by||"",
+        paidBy:o.paid_by||"",
         cancelReason:o.cancel_reason||"",
         createdAt:o.created_at,
-        items:(o.order_items||[]).map(it=>({productId:it.product_id,qty:it.qty,price:parseFloat(it.price)||0}))
+        items:allItems
+          .filter(it=>String(it.order_id)===String(o.id))
+          .sort((a,b)=>a.sort_order-b.sort_order)
+          .map(it=>({productId:it.product_id,qty:parseFloat(it.qty)||0,price:parseFloat(it.price)||0}))
       }));
+      // Sync to localStorage as cache
+      localStorage.setItem("rubber_orders",JSON.stringify(sbOrders));
+      console.log(`✅ Loaded ${sbOrders.length} orders from Supabase`);
     }
-  }catch(e){console.warn("Supabase orders load error",e);}
+  }catch(e){
+    console.warn("⚠ Supabase load failed, using localStorage:",e);
+  }
 
-  const[o,c,p]=await Promise.all([sg("rubber_orders"),sg("rubber_po_counter"),sg("rubber_prices")]);
-  // Use Supabase orders if available, fallback to app_data JSON
-  orders=sbOrders||(o?JSON.parse(o):[]);
+  const[c,p]=await Promise.all([sg("rubber_po_counter"),sg("rubber_prices")]);
+  // Supabase = primary, localStorage = fallback
+  if(sbOrders!==null){
+    orders=sbOrders;
+  } else {
+    const cached=localStorage.getItem("rubber_orders");
+    orders=cached?JSON.parse(cached):[];
+    console.warn("⚠ Using cached orders from localStorage");
+  }
   counter=c?parseInt(c):1;
   if(p)savedPrices=JSON.parse(p);
 }
@@ -996,43 +1026,59 @@ async function persist(){
 // Save a single order + its items directly to Supabase
 async function persistOrder(order){
   try{
-    const {error:oErr}=await _sb.from("orders").upsert({
-      id:order.id,
+    const payload={
+      id:String(order.id),
       po_no:order.poNo,
       customer:order.customer,
       date:order.date||null,
-      note:order.note||null,
-      status:order.status,
-      subtotal:order.subtotal||0,
-      total_qty:order.totalQty||0,
-      grand_total:order.grandTotal||0,
-      created_by:order.createdBy||null,
+      note:order.note||"",
+      status:order.status||"draft",
+      subtotal:parseFloat(order.subtotal)||0,
+      total_qty:parseFloat(order.totalQty)||0,
+      grand_total:parseFloat(order.grandTotal)||0,
+      created_by:order.createdBy||"",
       paid_by:order.paidBy||null,
       cancel_reason:order.cancelReason||null,
       updated_at:new Date().toISOString()
-    },{onConflict:"id"});
-    if(oErr){console.error("Order upsert error:",oErr);return;}
+    };
+    const {error:oErr}=await _sb.from("orders").upsert(payload,{onConflict:"id"});
+    if(oErr){
+      console.error("❌ Order upsert error:",JSON.stringify(oErr));
+      showToast("⚠ ข้อผิดพลาด Supabase: "+oErr.message,"error");
+      return false;
+    }
     // Save items
     if(order.items&&order.items.length>0){
-      await _sb.from("order_items").delete().eq("order_id",order.id);
+      await _sb.from("order_items").delete().eq("order_id",String(order.id));
       const itemRows=order.items.map((it,i)=>({
-        order_id:order.id,
-        product_id:it.productId,
-        qty:it.qty||null,
-        price:it.price||0,
+        order_id:String(order.id),
+        product_id:it.productId||"RUBBER",
+        qty:parseFloat(it.qty)||null,
+        price:parseFloat(it.price)||0,
         sort_order:i
       }));
       const {error:iErr}=await _sb.from("order_items").insert(itemRows);
-      if(iErr)console.error("Items insert error:",iErr);
+      if(iErr)console.error("❌ Items insert error:",JSON.stringify(iErr));
     }
-  }catch(e){console.error("persistOrder error:",e);}
+    return true;
+  }catch(e){
+    console.error("❌ persistOrder exception:",e);
+    return false;
+  }
 }
 
 // Update order status in Supabase
 async function updateOrderStatus(id,fields){
   try{
-    await _sb.from("orders").update({...fields,updated_at:new Date().toISOString()}).eq("id",id);
-  }catch(e){console.warn("updateOrderStatus error",e);}
+    const {error}=await _sb.from("orders")
+      .update({...fields,updated_at:new Date().toISOString()})
+      .eq("id",String(id));
+    if(error)console.error("❌ updateOrderStatus error:",JSON.stringify(error));
+    return !error;
+  }catch(e){
+    console.warn("updateOrderStatus exception:",e);
+    return false;
+  }
 }
 
 // ── DATES ──
@@ -1267,9 +1313,14 @@ async function handleSave(){
   });
   const order={id:Date.now(),poNo,customer:customer,date:saveDate||document.getElementById("form-date").value,note:document.getElementById("form-note").value,status:document.getElementById("form-status").value,items,subtotal,totalQty,grandTotal:subtotal,createdAt:new Date().toISOString(),createdBy:currentUser?.displayName||currentUser?.username||""};
   orders.unshift(order);
+  // Save to Supabase FIRST (critical), localStorage as backup
+  const saveOk = await persistOrder(order);
+  if (!saveOk) {
+    // Still save to localStorage as fallback
+    localStorage.setItem("rubber_orders", JSON.stringify(orders));
+    showToast("⚠ บันทึกสำเร็จ (ออฟไลน์)", "error");
+  }
   await persist();
-  // Save order directly to Supabase orders + order_items tables
-  await persistOrder(order);
 
   // Auto-create customer record if not exists
   if(!customers.find(c=>c.name===customer)){
