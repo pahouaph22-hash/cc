@@ -2062,6 +2062,271 @@ function printReceipt(){
   w.document.close();
   w.onload=()=>setTimeout(()=>w.print(),800);
 }
+
+// ══════════════════════════════════════
+// AUTO MODE — Real-time Sync + Bill Lock
+// ══════════════════════════════════════
+
+// ── BILL LOCK SYSTEM ──
+// Prevents two staff from paying the same bill simultaneously
+const LOCK_TTL = 30000; // 30 seconds lock timeout
+
+async function lockBill(orderId) {
+  const lockKey = `lock_order_${orderId}`;
+  const lockVal = {
+    lockedBy: currentUser?.displayName,
+    lockedAt: Date.now(),
+    expires: Date.now() + LOCK_TTL
+  };
+  try {
+    // Check if already locked by someone else
+    const { data } = await _sb.from("app_data").select("value").eq("key", lockKey).single();
+    if (data) {
+      const existing = JSON.parse(data.value);
+      if (existing.expires > Date.now() && existing.lockedBy !== currentUser?.displayName) {
+        return { success: false, lockedBy: existing.lockedBy };
+      }
+    }
+    // Set lock
+    await _sb.from("app_data").upsert(
+      { key: lockKey, value: JSON.stringify(lockVal), updated_at: new Date().toISOString() },
+      { onConflict: "key" }
+    );
+    return { success: true };
+  } catch(e) {
+    return { success: true }; // Allow if Supabase fails (offline mode)
+  }
+}
+
+async function unlockBill(orderId) {
+  try {
+    await _sb.from("app_data").delete().eq("key", `lock_order_${orderId}`);
+  } catch(e) {}
+}
+
+async function checkLock(orderId) {
+  try {
+    const { data } = await _sb.from("app_data").select("value").eq("key", `lock_order_${orderId}`).single();
+    if (!data) return null;
+    const lock = JSON.parse(data.value);
+    if (lock.expires < Date.now()) {
+      await unlockBill(orderId);
+      return null;
+    }
+    return lock;
+  } catch(e) { return null; }
+}
+
+// ── OVERRIDE openPayModal with lock ──
+const _originalOpenPayModal = openPayModal;
+openPayModal = async function(id) {
+  // Check lock first
+  showToast("กำลังตรวจสอบสถานะ...", "info");
+  const lock = await checkLock(id);
+  if (lock && lock.lockedBy !== currentUser?.displayName) {
+    showToast(`⚠ บิลนี้กำลังถูกชำระโดย ${lock.lockedBy}`, "error");
+    return;
+  }
+  // Verify order status from Supabase (latest)
+  try {
+    const { data } = await _sb.from("orders").select("status").eq("id", id).single();
+    if (data && data.status === "paid") {
+      showToast("⚠ บิลนี้ชำระแล้ว", "error");
+      await loadData(); renderHistory(); renderPending();
+      return;
+    }
+    if (data && data.status === "cancelled") {
+      showToast("⚠ บิลนี้ถูกยกเลิกแล้ว", "error");
+      await loadData(); renderHistory(); renderPending();
+      return;
+    }
+  } catch(e) {}
+  // Acquire lock
+  const lockResult = await lockBill(id);
+  if (!lockResult.success) {
+    showToast(`⚠ ${lockResult.lockedBy} กำลังดำเนินการอยู่`, "error");
+    return;
+  }
+  // Store lock ID for cleanup
+  window._currentLockId = id;
+  _originalOpenPayModal(id);
+};
+
+// Release lock if modal closed without paying
+const _originalCloseModals = typeof closeDelModal !== "undefined" ? closeDelModal : ()=>{};
+window.addEventListener("click", (e) => {
+  if (e.target?.id === "pay-modal" && window._currentLockId) {
+    unlockBill(window._currentLockId);
+    window._currentLockId = null;
+  }
+});
+
+// Release lock after payment
+const _originalExecPay = execPay;
+execPay = async function(id, payer) {
+  window._currentLockId = null; // Clear before paying (unlock after save)
+  await _originalExecPay(id, payer);
+  await unlockBill(id);
+};
+
+// ── REAL-TIME AUTO SYNC ──
+let _realtimeChannel = null;
+let _syncPaused = false;
+
+function startRealtimeSync() {
+  if (_realtimeChannel) return;
+  try {
+    _realtimeChannel = _sb
+      .channel("orders-realtime")
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "orders"
+      }, async (payload) => {
+        if (_syncPaused) return;
+        const evt = payload.eventType;
+        const newRow = payload.new;
+        const oldRow = payload.old;
+
+        if (evt === "INSERT") {
+          // New order from another user — add if not exists
+          if (!orders.find(o => String(o.id) === String(newRow.id))) {
+            const { data: items } = await _sb.from("order_items").select("*").eq("order_id", newRow.id);
+            const newOrder = mapRow(newRow, items || []);
+            orders.unshift(newOrder);
+            localStorage.setItem("rubber_orders", JSON.stringify(orders));
+            renderHistory(); renderPending();
+            showToast(`📋 บิลใหม่ ${newRow.po_no} จาก ${newRow.created_by||""}`, "info");
+          }
+        }
+        else if (evt === "UPDATE") {
+          const idx = orders.findIndex(o => String(o.id) === String(newRow.id));
+          if (idx !== -1) {
+            orders[idx].status = newRow.status;
+            orders[idx].paidBy = newRow.paid_by || orders[idx].paidBy;
+            orders[idx].cancelReason = newRow.cancel_reason || "";
+            localStorage.setItem("rubber_orders", JSON.stringify(orders));
+            renderHistory(); renderPending();
+            if (newRow.status === "paid") {
+              showToast(`✅ ${newRow.po_no} ชำระแล้วโดย ${newRow.paid_by||""}`, "info");
+            }
+          }
+        }
+        else if (evt === "DELETE") {
+          orders = orders.filter(o => String(o.id) !== String(oldRow.id));
+          localStorage.setItem("rubber_orders", JSON.stringify(orders));
+          renderHistory(); renderPending();
+        }
+      })
+      .subscribe((status) => {
+        const indicator = document.getElementById("sync-indicator");
+        if (!indicator) return;
+        if (status === "SUBSCRIBED") {
+          indicator.style.background = "var(--green)";
+          indicator.title = "เชื่อมต่อ Real-time แล้ว";
+        } else {
+          indicator.style.background = "var(--gold)";
+          indicator.title = "กำลังเชื่อมต่อ...";
+        }
+      });
+  } catch(e) {
+    console.warn("Realtime sync unavailable:", e);
+  }
+}
+
+function mapRow(row, items) {
+  return {
+    id: row.id,
+    poNo: row.po_no,
+    customer: row.customer,
+    date: row.date,
+    note: row.note || "",
+    status: row.status,
+    subtotal: parseFloat(row.subtotal) || 0,
+    totalQty: parseFloat(row.total_qty) || 0,
+    grandTotal: parseFloat(row.grand_total) || 0,
+    createdBy: row.created_by || "",
+    paidBy: row.paid_by || "",
+    cancelReason: row.cancel_reason || "",
+    createdAt: row.created_at,
+    items: items.map(it => ({
+      productId: it.product_id,
+      qty: it.qty,
+      price: parseFloat(it.price) || 0
+    }))
+  };
+}
+
+// Pause sync during save to prevent echo
+const _origPersist = persist;
+persist = async function() {
+  _syncPaused = true;
+  await _origPersist();
+  setTimeout(() => { _syncPaused = false; }, 2000);
+};
+
+// Start realtime after login
+const _origInitApp = initApp;
+initApp = async function() {
+  await _origInitApp();
+  startRealtimeSync();
+  addSyncIndicator();
+};
+
+// ── SYNC INDICATOR UI ──
+function addSyncIndicator() {
+  if (document.getElementById("sync-indicator")) return;
+  const topbar = document.getElementById("topbar");
+  if (!topbar) return;
+  const dot = document.createElement("div");
+  dot.id = "sync-indicator";
+  dot.title = "กำลังเชื่อมต่อ Real-time...";
+  dot.style.cssText = `
+    width:8px;height:8px;border-radius:50%;
+    background:var(--gold);flex-shrink:0;
+    margin-left:4px;cursor:default;
+    box-shadow:0 0 6px currentColor;
+    transition:background .3s;
+    animation:syncPulse 2s ease-in-out infinite;
+  `;
+  // Add pulse animation
+  if (!document.getElementById("sync-style")) {
+    const s = document.createElement("style");
+    s.id = "sync-style";
+    s.textContent = `@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.4}}`;
+    document.head.appendChild(s);
+  }
+  // Insert after logo
+  const logo = topbar.querySelector(".logo");
+  if (logo) logo.after(dot);
+  else topbar.prepend(dot);
+}
+
+// ── AUTO REFRESH every 60s as fallback ──
+setInterval(async () => {
+  if (!currentUser || _syncPaused) return;
+  try {
+    const { data } = await _sb.from("orders")
+      .select("id, status, paid_by, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(50);
+    if (!data) return;
+    let changed = false;
+    data.forEach(row => {
+      const o = orders.find(x => String(x.id) === String(row.id));
+      if (o && o.status !== row.status) {
+        o.status = row.status;
+        o.paidBy = row.paid_by || o.paidBy;
+        changed = true;
+      }
+    });
+    if (changed) {
+      localStorage.setItem("rubber_orders", JSON.stringify(orders));
+      renderHistory(); renderPending();
+    }
+  } catch(e) {}
+}, 60000);
+
 </script>
 </body>
 </html>
