@@ -1322,6 +1322,8 @@ async function handleSave(){
   if(!saveOk){
     showToast("⚠ บันทึกสำเร็จ (ออฟไลน์ — ข้อมูลอาจไม่ sync)","error");
   }
+  // Resume sync
+  setTimeout(()=>{ _syncPaused=false; },1500);
 
   // Auto-create customer record if not exists
   if(!customers.find(c=>c.name===customer)){
@@ -1596,6 +1598,8 @@ async function execPay(id,name){
   renderHistory();renderPending();
   showToast("✅ บันทึกการชำระโดย: "+name);
   if(document.getElementById("pane-detail").style.display!=="none")openDetail(id);
+  // Resume sync after brief pause
+  setTimeout(()=>{ _syncPaused=false; },1500);
 }
 
 // ── DELETE MODAL ──
@@ -2297,72 +2301,110 @@ execPay = async function(id, payer) {
   _syncPaused = true;
   await _originalExecPay(id, payer);
   await unlockBill(id);
-  setTimeout(() => { _syncPaused = false; }, 2000);
+  setTimeout(() => { _syncPaused = false; console.log("▶ Sync resumed"); }, 1500);
 };
 
 // ── REAL-TIME AUTO SYNC ──
 let _realtimeChannel = null;
 let _syncPaused = false;
+let _lastSyncTime = 0;
+
+// Core: pull latest data from Supabase and update UI if changed
+async function syncFromSupabase(silent=false) {
+  if (_syncPaused) return;
+  try {
+    const since = _lastSyncTime
+      ? new Date(_lastSyncTime - 5000).toISOString()
+      : new Date(Date.now() - 86400000 * 30).toISOString(); // 30 days
+
+    const { data, error } = await _sb
+      .from("orders")
+      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,cancel_reason,created_at,updated_at")
+      .gte("updated_at", since)
+      .order("updated_at", { ascending: false });
+
+    if (error || !data) return;
+
+    let changed = false;
+    for (const row of data) {
+      const idx = orders.findIndex(o => String(o.id) === String(row.id));
+      if (idx === -1) {
+        // New order — fetch its items
+        const { data: items } = await _sb.from("order_items").select("*").eq("order_id", String(row.id));
+        orders.unshift(mapRow(row, items || []));
+        changed = true;
+        if (!silent) showToast(`📋 บิลใหม่ ${row.po_no} จาก ${row.created_by||""}`, "info");
+      } else {
+        // Update existing
+        const o = orders[idx];
+        if (o.status !== row.status || o.paidBy !== row.paid_by) {
+          o.status = row.status;
+          o.paidBy = row.paid_by || o.paidBy;
+          o.cancelReason = row.cancel_reason || "";
+          changed = true;
+          if (!silent && row.status === "paid") {
+            showToast(`✅ ${row.po_no} ชำระแล้วโดย ${row.paid_by||""}`, "info");
+          }
+        }
+      }
+    }
+    if (changed) {
+      _lastSyncTime = Date.now();
+      localStorage.setItem("rubber_orders", JSON.stringify(orders));
+      renderHistory();
+      renderPending();
+    }
+  } catch(e) {
+    console.warn("syncFromSupabase error:", e);
+  }
+}
 
 function startRealtimeSync() {
   if (_realtimeChannel) return;
+  _lastSyncTime = Date.now();
+
+  // Method 1: Supabase Realtime (instant)
   try {
     _realtimeChannel = _sb
-      .channel("orders-realtime")
+      .channel("db-orders-" + Math.random().toString(36).slice(2,8))
       .on("postgres_changes", {
         event: "*",
         schema: "public",
         table: "orders"
       }, async (payload) => {
-        if (_syncPaused) return;
-        const evt = payload.eventType;
-        const newRow = payload.new;
-        const oldRow = payload.old;
-
-        if (evt === "INSERT") {
-          // New order from another user — add if not exists
-          if (!orders.find(o => String(o.id) === String(newRow.id))) {
-            const { data: items } = await _sb.from("order_items").select("*").eq("order_id", newRow.id);
-            const newOrder = mapRow(newRow, items || []);
-            orders.unshift(newOrder);
-            localStorage.setItem("rubber_orders", JSON.stringify(orders));
-            renderHistory(); renderPending();
-            showToast(`📋 บิลใหม่ ${newRow.po_no} จาก ${newRow.created_by||""}`, "info");
-          }
+        console.log("🔄 Realtime event:", payload.eventType, payload.new?.po_no || payload.old?.id);
+        // Ignore own changes (brief pause after our own save)
+        if (_syncPaused) {
+          console.log("⏸ Sync paused, skipping");
+          return;
         }
-        else if (evt === "UPDATE") {
-          const idx = orders.findIndex(o => String(o.id) === String(newRow.id));
-          if (idx !== -1) {
-            orders[idx].status = newRow.status;
-            orders[idx].paidBy = newRow.paid_by || orders[idx].paidBy;
-            orders[idx].cancelReason = newRow.cancel_reason || "";
-            localStorage.setItem("rubber_orders", JSON.stringify(orders));
-            renderHistory(); renderPending();
-            if (newRow.status === "paid") {
-              showToast(`✅ ${newRow.po_no} ชำระแล้วโดย ${newRow.paid_by||""}`, "info");
-            }
-          }
-        }
-        else if (evt === "DELETE") {
-          orders = orders.filter(o => String(o.id) !== String(oldRow.id));
-          localStorage.setItem("rubber_orders", JSON.stringify(orders));
-          renderHistory(); renderPending();
-        }
+        await syncFromSupabase(false);
       })
-      .subscribe((status) => {
-        const indicator = document.getElementById("sync-indicator");
-        if (!indicator) return;
+      .subscribe((status, err) => {
+        console.log("📡 Realtime status:", status, err||"");
+        const dot = document.getElementById("sync-indicator");
+        if (!dot) return;
         if (status === "SUBSCRIBED") {
-          indicator.style.background = "var(--green)";
-          indicator.title = "เชื่อมต่อ Real-time แล้ว";
+          dot.style.background = "var(--green)";
+          dot.title = "🟢 Real-time เชื่อมต่อแล้ว";
+          console.log("✅ Realtime SUBSCRIBED");
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          dot.style.background = "var(--accent)";
+          dot.title = "🔴 Real-time ขัดข้อง — ใช้ polling";
+          console.warn("⚠ Realtime error, falling back to polling");
         } else {
-          indicator.style.background = "var(--gold)";
-          indicator.title = "กำลังเชื่อมต่อ...";
+          dot.style.background = "var(--gold)";
+          dot.title = "🟡 กำลังเชื่อมต่อ...";
         }
       });
+    console.log("📡 Realtime subscription started");
   } catch(e) {
-    console.warn("Realtime sync unavailable:", e);
+    console.warn("Realtime unavailable:", e);
   }
+
+  // Method 2: Polling fallback every 10s (catches missed events)
+  setInterval(() => syncFromSupabase(true), 10000);
+  console.log("⏱ Polling fallback started (10s interval)");
 }
 
 function mapRow(row, items) {
@@ -2392,7 +2434,7 @@ function mapRow(row, items) {
 async function pausedPersist() {
   _syncPaused = true;
   await persist();
-  setTimeout(() => { _syncPaused = false; }, 2000);
+  setTimeout(() => { _syncPaused = false; console.log("▶ Sync resumed"); }, 1500);
 }
 
 // Realtime starts after initApp — called from initApp directly below
