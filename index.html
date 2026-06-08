@@ -1912,6 +1912,12 @@ function renderMyWork(){
 }
 
 // ── PRINT RECEIPT ──
+function laoDate(dateStr){
+  if(!dateStr)return "—";
+  const d=new Date(dateStr);
+  const months=["ມັງກອນ","ກຸມພາ","ມີນາ","ເມສາ","ພຶດສະພາ","ມິຖຸນາ","ກໍລະກົດ","ສິງຫາ","ກັນຍາ","ຕຸລາ","ພະຈິກ","ທັນວາ"];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+}
 function printReceipt(){
   const o=window._currentDetailOrder;
   if(!o)return;
@@ -1921,93 +1927,140 @@ function printReceipt(){
     const qty=isS?rubberQty:(it.qty||0);
     const price=it.price||0;
     const total=qty*price;
+    const qtyFmt=qty.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2});
+    const priceFmt=price.toLocaleString("lo-LA",{minimumFractionDigits:0,maximumFractionDigits:0});
+    const totalFmt=total.toLocaleString("lo-LA",{minimumFractionDigits:0,maximumFractionDigits:0});
     return`<tr>
-      <td style="padding:6px 4px;border-bottom:1px dashed #ccc;font-size:12px">${isS?"ຄ່າຈັດສົ່ງ":"ຢາງພາລາ"}</td>
-      <td style="padding:6px 4px;border-bottom:1px dashed #ccc;text-align:right;font-size:12px">${qty.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}${isS?'<br><span style="font-size:9px;color:#999">ອ້າງອີງ</span>':""}</td>
-      <td style="padding:6px 4px;border-bottom:1px dashed #ccc;text-align:right;font-size:12px">₭${price.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-      <td style="padding:6px 4px;border-bottom:1px dashed #ccc;text-align:right;font-size:12px;font-weight:700">₭${total.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td style="padding:5px 3px;border-bottom:1px dashed #ccc;font-family:'Phetsarath OT','Noto Sans Lao',sans-serif">${isS?"ຄ່າຂົນສົ່ງ":"ຢາງພາລາ"}${isS?'<br><span style="font-size:9px;color:#888">(ອ້າງອີງ)</span>':""}</td>
+      <td style="padding:5px 3px;border-bottom:1px dashed #ccc;text-align:right;font-family:'Phetsarath OT','Noto Sans Lao',sans-serif">${qtyFmt}</td>
+      <td style="padding:5px 3px;border-bottom:1px dashed #ccc;text-align:right;font-family:'Phetsarath OT','Noto Sans Lao',sans-serif">${priceFmt}</td>
+      <td style="padding:5px 3px;border-bottom:1px dashed #ccc;text-align:right;font-weight:700;font-family:'Phetsarath OT','Noto Sans Lao',sans-serif">${totalFmt}</td>
     </tr>`;
   }).join("");
 
   const w=window.open("","_blank","width=420,height=700");
+  const laoNow=laoDate(new Date().toISOString().slice(0,10));
   w.document.write(`<!DOCTYPE html><html lang="lo"><head>
   <meta charset="UTF-8">
   <title>ໃບເກັບຊື້ ${o.poNo}</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    @font-face{
+      font-family:'Phetsarath OT';
+      src:url('https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted-static/NotoSansLao/NotoSansLao-Regular.ttf') format('truetype');
+      font-weight:400;
+    }
+    @font-face{
+      font-family:'Phetsarath OT';
+      src:url('https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted-static/NotoSansLao/NotoSansLao-Bold.ttf') format('truetype');
+      font-weight:700;
+    }
     *{box-sizing:border-box;margin:0;padding:0}
-    /* Thermal printer: 58mm ≈ 220px, 80mm ≈ 302px */
     @page{size:80mm auto;margin:4mm}
     body{
-      font-family:'IBM Plex Sans Thai',sans-serif;
+      font-family:'Phetsarath OT','Noto Sans Lao',sans-serif;
       background:#fff;color:#000;
       width:76mm;margin:0 auto;
-      font-size:11px;line-height:1.4;
+      font-size:12px;line-height:1.6;
     }
-    @media screen{body{width:302px;padding:12px;box-shadow:0 0 8px rgba(0,0,0,.15);margin:16px auto}}
-    @media print{.no-print{display:none!important} body{width:76mm}}
+    @media screen{body{width:302px;padding:14px;box-shadow:0 0 10px rgba(0,0,0,.15);margin:16px auto}}
+    @media print{.no-print{display:none!important} body{width:76mm;font-size:11px}}
     .center{text-align:center}
     .bold{font-weight:700}
-    .divider{border:none;border-top:1px dashed #000;margin:6px 0}
-    .divider-solid{border:none;border-top:1px solid #000;margin:6px 0}
+    .divider{border:none;border-top:1px dashed #555;margin:7px 0}
+    .divider-solid{border:none;border-top:2px solid #000;margin:7px 0}
+    .divider-light{border:none;border-top:1px dotted #aaa;margin:5px 0}
     table{width:100%;border-collapse:collapse}
-    td,th{padding:3px 2px;font-size:10px}
-    th{text-align:left;font-weight:700;border-bottom:1px solid #000}
+    td,th{padding:4px 3px;font-size:11px;font-family:'Phetsarath OT','Noto Sans Lao',sans-serif}
+    th{text-align:left;font-weight:700;border-bottom:1px solid #000;padding-bottom:5px}
     th:not(:first-child),td:not(:first-child){text-align:right}
-    .tot-row{display:flex;justify-content:space-between;padding:2px 0;font-size:11px}
-    .tot-final{font-size:14px;font-weight:700}
-    .btn-print{display:block;margin:12px auto;background:#c8451a;color:#fff;border:none;padding:8px 24px;font-size:13px;font-weight:600;cursor:pointer;border-radius:4px;width:100%}
+    .row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0}
+    .tot-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+    .tot-final{font-size:15px;font-weight:700}
+    .label{color:#555;font-size:11px}
+    .btn-print{
+      display:block;margin:14px auto 10px;background:#c8451a;color:#fff;
+      border:none;padding:10px;font-size:13px;font-weight:700;
+      cursor:pointer;width:100%;
+      font-family:'Phetsarath OT','Noto Sans Lao',sans-serif;
+    }
+    .company-name{font-size:15px;font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+    .doc-title{font-size:13px;font-weight:700;letter-spacing:1px;margin:5px 0}
+    .po-number{font-size:13px;font-weight:700;letter-spacing:1px}
   </style>
   </head><body>
-  <button class="btn-print no-print" onclick="window.print()">🖨 ພິມໃບເສັດ</button>
+  <button class="btn-print no-print" onclick="window.print()">🖨 ພິມໃບເກັບຊື້</button>
 
-  <div class="center" style="margin-bottom:6px">
-    <div class="bold" style="font-size:14px;letter-spacing:1px">ລັດວິສາຫະກິດ KUBTHOR</div>
-    <div style="font-size:12px;font-weight:600">ຢາງພາລາ</div>
-    <div style="font-size:10px;color:#444">☎ 02096891617</div>
+  <!-- ຫົວໃບເກັບ -->
+  <div class="center" style="margin-bottom:8px">
+    <div class="company-name">ລັດວິສາຫະກິດ ກຸ້ບທໍ</div>
+    <div style="font-size:12px;font-weight:600">ຢາງພາລາ (KUBTHOR)</div>
+    <div class="label">☎ 020 96 891 617</div>
   </div>
 
-  <hr class="divider-solid">
-  <div class="center bold" style="font-size:12px;letter-spacing:1px;margin:4px 0">ໃບເກັບຊື້ສິນຄ້າຢາງພາລາ</div>
-  <hr class="divider">
+  <div class="divider-solid"></div>
+  <div class="center doc-title">ໃບເກັບຊື້ສິນຄ້າຢາງພາລາ</div>
+  <div class="divider"></div>
 
-  <div style="display:flex;justify-content:space-between;margin:3px 0">
-    <span>ເລກທີ:</span><span class="bold">${o.poNo}</span>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin:3px 0">
-    <span>ວັນທີ:</span><span>${thaiLong(o.date)}</span>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin:3px 0">
-    <span>ລູກຄ້າ:</span><span class="bold">${o.customer}</span>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin:3px 0">
-    <span>ຜູ້ຈົດບິນ:</span><span>${o.createdBy||"—"}</span>
-  </div>
-  ${o.paidBy?`<div style="display:flex;justify-content:space-between;margin:3px 0"><span>ຜູ້ຊໍາລະ:</span><span>${o.paidBy}</span></div>`:""}
+  <!-- ຂໍ້ມູນໃບ -->
+  <div class="row"><span class="label">ເລກທີໃບເກັບ:</span><span class="po-number">${o.poNo}</span></div>
+  <div class="row"><span class="label">ວັນທີ:</span><span class="bold">${laoDate("${o.date}")}</span></div>
+  <div class="row"><span class="label">ຊື່ລູກຄ້າ:</span><span class="bold">${o.customer}</span></div>
+  <div class="row"><span class="label">ຜູ້ຈົດບິນ:</span><span>${o.createdBy||"—"}</span></div>
+  ${o.paidBy?`<div class="row"><span class="label">ຜູ້ຮັບເງິນ:</span><span>${o.paidBy}</span></div>`:""}
+  ${o.note?`<div class="row"><span class="label">ໝາຍເຫດ:</span><span style="font-size:11px">${o.note}</span></div>`:""}
 
-  <hr class="divider">
+  <div class="divider"></div>
+
+  <!-- ລາຍການສິນຄ້າ -->
   <table>
-    <thead><tr><th>ສິນຄ້າ</th><th>ກກ.</th><th>ລາຄາ</th><th>ລວມ</th></tr></thead>
+    <thead>
+      <tr>
+        <th>ສິນຄ້າ</th>
+        <th>ຈຳນວນ(ກກ)</th>
+        <th>ລາຄາ/ກກ</th>
+        <th>ລວມ(₭)</th>
+      </tr>
+    </thead>
     <tbody>${itemsHtml}</tbody>
   </table>
-  <hr class="divider">
 
-  <div class="tot-row"><span>ຍອດລວມເງິນ</span><span>₭ ${o.subtotal.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
-  <div class="tot-row"><span>ຍອດລວມ ກກ.</span><span>${rubberQty.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ກກ.</span></div>
-  <hr class="divider-solid">
-  <div class="tot-row bold"><span class="tot-final">ຍອດລວມທັງໝົດ</span><span class="tot-final">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
-  <hr class="divider">
+  <div class="divider"></div>
 
-  ${o.note?`<div style="font-size:10px;color:#555;margin:4px 0">ໝາຍເຫດ: ${o.note}</div><hr class="divider">`:""}
+  <!-- ຍອດລວມ -->
+  <div class="tot-row"><span class="label">ຍອດລວມ (ກກ)</span><span class="bold">${rubberQty.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})} ກກ</span></div>
+  <div class="tot-row"><span class="label">ຍອດລວມເງິນ</span><span>₭ ${o.subtotal.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
 
-  <div class="center" style="font-size:9px;color:#888;margin-top:6px">
-    <div>ຂອບໃຈທີ່ໃຊ້ບໍລິການ</div>
-    <div>RubberLedger v1.0 · ພິມ: ${new Date().toLocaleDateString("th-TH",{year:"numeric",month:"short",day:"numeric"})}</div>
+  <div class="divider-solid"></div>
+  <div class="tot-row bold" style="padding:4px 0">
+    <span class="tot-final">ຍອດລວມທັງໝົດ</span>
+    <span class="tot-final" style="color:#c8451a">₭${o.grandTotal.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
   </div>
-  </body></html>`);
+  <div class="divider"></div>
+
+  <!-- ລາຍເຊັນ -->
+  <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:4px">
+    <div class="center" style="width:45%">
+      <div style="border-top:1px solid #000;padding-top:4px;margin-top:18px">
+        <div class="label" style="font-size:10px">ລາຍເຊັນຜູ້ຂາຍ</div>
+      </div>
+    </div>
+    <div class="center" style="width:45%">
+      <div style="border-top:1px solid #000;padding-top:4px;margin-top:18px">
+        <div class="label" style="font-size:10px">ລາຍເຊັນຜູ້ຮັບ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ທ້າຍ -->
+  <div class="center divider-light" style="margin-top:10px"></div>
+  <div class="center" style="font-size:10px;color:#888;margin-top:5px">
+    <div>ຂອບໃຈທີ່ໃຊ້ບໍລິການ ລັດວິສາຫະກິດ ກຸ້ບທໍ</div>
+    <div>ພິມວັນທີ: ${laoNow}</div>
+  </div>
+
+  </body></html>\`);
   w.document.close();
-  // Auto trigger print dialog after fonts load
-  w.onload=()=>setTimeout(()=>w.print(),500);
+  w.onload=()=>setTimeout(()=>w.print(),800);
 }
 </script>
 </body>
