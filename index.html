@@ -2310,8 +2310,10 @@ let _syncPaused = false;
 let _lastSyncTime = 0;
 
 // Core: pull latest data from Supabase and update UI if changed
-async function syncFromSupabase(silent=false) {
-  if (_syncPaused) return;
+async function syncFromSupabase(silent=false, force=false) {
+  // Polling (force=true from setInterval) ignores _syncPaused
+  // Only realtime events respect _syncPaused
+  if (_syncPaused && !force) return;
   try {
     const since = _lastSyncTime
       ? new Date(_lastSyncTime - 5000).toISOString()
@@ -2378,7 +2380,7 @@ function startRealtimeSync() {
           console.log("⏸ Sync paused, skipping");
           return;
         }
-        await syncFromSupabase(false);
+        await syncFromSupabase(false, false);
       })
       .subscribe((status, err) => {
         console.log("📡 Realtime status:", status, err||"");
@@ -2403,8 +2405,8 @@ function startRealtimeSync() {
   }
 
   // Method 2: Polling fallback every 10s (catches missed events)
-  setInterval(() => syncFromSupabase(true), 10000);
-  console.log("⏱ Polling fallback started (10s interval)");
+  setInterval(() => syncFromSupabase(true, true), 5000);
+  console.log("⏱ Polling started (5s interval)");
 }
 
 function mapRow(row, items) {
@@ -2469,30 +2471,7 @@ function addSyncIndicator() {
   else topbar.prepend(dot);
 }
 
-// ── AUTO REFRESH every 60s as fallback ──
-setInterval(async () => {
-  if (!currentUser || _syncPaused) return;
-  try {
-    const { data } = await _sb.from("orders")
-      .select("id, status, paid_by, updated_at")
-      .order("updated_at", { ascending: false })
-      .limit(50);
-    if (!data) return;
-    let changed = false;
-    data.forEach(row => {
-      const o = orders.find(x => String(x.id) === String(row.id));
-      if (o && o.status !== row.status) {
-        o.status = row.status;
-        o.paidBy = row.paid_by || o.paidBy;
-        changed = true;
-      }
-    });
-    if (changed) {
-      localStorage.setItem("rubber_orders", JSON.stringify(orders));
-      renderHistory(); renderPending();
-    }
-  } catch(e) {}
-}, 60000);
+// Auto refresh handled by syncFromSupabase polling (10s)
 
 </script>
 </body>
