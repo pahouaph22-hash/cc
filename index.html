@@ -1315,15 +1315,13 @@ async function handleSave(){
   });
   const order={id:Date.now(),poNo,customer:customer,date:saveDate||document.getElementById("form-date").value,note:document.getElementById("form-note").value,status:document.getElementById("form-status").value,items,subtotal,totalQty,grandTotal:subtotal,createdAt:new Date().toISOString(),createdBy:currentUser?.displayName||currentUser?.username||""};
   orders.unshift(order);
-  // Save to Supabase FIRST (critical), localStorage as backup
+  // Save to Supabase (primary)
   const saveOk = await persistOrder(order);
-  if (!saveOk) {
-    localStorage.setItem("rubber_orders", JSON.stringify(orders));
-    showToast("⚠ บันทึกสำเร็จ (ออฟไลน์)", "error");
+  // Always update localStorage cache
+  localStorage.setItem("rubber_orders",JSON.stringify(orders));
+  if(!saveOk){
+    showToast("⚠ บันทึกสำเร็จ (ออฟไลน์ — ข้อมูลอาจไม่ sync)","error");
   }
-  _syncPaused = true;
-  await persist();
-  setTimeout(() => { _syncPaused = false; }, 2000);
 
   // Auto-create customer record if not exists
   if(!customers.find(c=>c.name===customer)){
@@ -1544,7 +1542,8 @@ async function moveToSent(id){
   const o=orders.find(x=>x.id==id);
   if(!o)return;
   o.status="sent";
-  await persist();renderHistory();renderPending();
+  await _sb.from("orders").update({status:"sent",updated_at:new Date().toISOString()}).eq("id",String(id)).then(({error})=>{ if(error)console.error("moveToSent error:",error.message); });
+  localStorage.setItem("rubber_orders",JSON.stringify(orders));renderHistory();renderPending();
   switchTab("pending",document.getElementById("tab-pending-btn"));
   showToast("ย้ายไปรอชำระแล้ว");
 }
@@ -1569,11 +1568,33 @@ async function confirmPay(){
   await execPay(payTargetId,name);closePayModal();
 }
 async function execPay(id,name){
-  const o=orders.find(x=>x.id==id);
-  if(!o)return;
-  o.status="paid";o.paidBy=name;
-  await persist();
-  renderHistory();renderPending();showToast("บันทึกการชำระโดย: "+name);
+  const o=orders.find(x=>String(x.id)===String(id));
+  if(!o){showToast("ไม่พบรายการ","error");return;}
+  // 1. Update local state
+  o.status="paid";
+  o.paidBy=name;
+  // 2. Save to Supabase immediately
+  try{
+    const {error}=await _sb.from("orders").update({
+      status:"paid",
+      paid_by:name,
+      updated_at:new Date().toISOString()
+    }).eq("id",String(id));
+    if(error){
+      console.error("❌ execPay Supabase error:",error.message);
+      showToast("⚠ ชำระแล้ว แต่ sync ล้มเหลว: "+error.message,"error");
+    } else {
+      console.log("✅ Payment saved to Supabase: "+o.poNo);
+    }
+  }catch(e){
+    console.error("❌ execPay exception:",e);
+  }
+  // 3. Update localStorage cache
+  localStorage.setItem("rubber_orders",JSON.stringify(orders));
+  // 4. Update UI
+  document.getElementById("pay-modal").style.display="none";
+  renderHistory();renderPending();
+  showToast("✅ บันทึกการชำระโดย: "+name);
   if(document.getElementById("pane-detail").style.display!=="none")openDetail(id);
 }
 
@@ -1584,11 +1605,31 @@ function closeDelModal(){document.getElementById("del-modal").style.display="non
 async function confirmDelete(){
   const reason=document.getElementById("del-reason").value.trim();
   if(!reason){showToast("กรุณาระบุเหตุผลการลบ","error");return;}
-  const o=orders.find(x=>x.id==delTargetId);
+  const o=orders.find(x=>String(x.id)===String(delTargetId));
   if(!o)return;
-  o.status="cancelled";o.cancelReason=reason;
-  await persist();closeDelModal();
-  renderHistory();renderPending();showToast("ย้ายไปยังยกเลิกแล้ว");
+  // 1. Update local state
+  o.status="cancelled";
+  o.cancelReason=reason;
+  // 2. Save to Supabase immediately
+  try{
+    const {error}=await _sb.from("orders").update({
+      status:"cancelled",
+      cancel_reason:reason,
+      updated_at:new Date().toISOString()
+    }).eq("id",String(delTargetId));
+    if(error){
+      console.error("❌ confirmDelete Supabase error:",error.message);
+    } else {
+      console.log("✅ Cancellation saved to Supabase");
+    }
+  }catch(e){
+    console.error("❌ confirmDelete exception:",e);
+  }
+  // 3. Update localStorage cache
+  localStorage.setItem("rubber_orders",JSON.stringify(orders));
+  closeDelModal();
+  renderHistory();renderPending();
+  showToast("ยกเลิกบิลแล้ว");
   if(document.getElementById("pane-detail").style.display!=="none")closeDetail();
 }
 
