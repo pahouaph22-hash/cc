@@ -78,7 +78,8 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
 .item-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:.55rem;align-items:end;margin-bottom:.6rem}
 
 /* ORDER TABLE */
-.order-table{width:100%;border-collapse:collapse}
+.order-table{width:100%;border-collapse:collapse;min-width:300px}
+.order-table-container{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
 .order-table thead tr{background:var(--surface2)}
 .order-table th{padding:.6rem .9rem;text-align:left;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
 .order-table td{padding:.7rem .9rem;border-bottom:1px solid var(--border);font-size:.8rem;vertical-align:middle}
@@ -128,8 +129,8 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
 @media(max-width:900px){
   .tab-pane.active{padding:1.2rem 1rem}
   .grid3{grid-template-columns:1fr 1fr}
-  .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
-  .stat-grid[style*="repeat(4"]{grid-template-columns:repeat(2,1fr)!important}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
   .item-row{grid-template-columns:2fr 1fr 1fr 1fr auto;gap:.5rem}
 }
 
@@ -137,17 +138,18 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
 @media(max-width:640px){
   body{font-size:13px}
   .tab-pane.active{padding:.9rem .75rem}
-  #topbar{padding:0 .8rem;height:48px}
-  .logo{font-size:1.1rem;gap:6px}
-  #topbar>div:last-child>div{font-size:.65rem;padding:.2rem .5rem}
-  #topbar .btn-secondary{font-size:.62rem;padding:.22rem .5rem}
+  #topbar{padding:0 .6rem;height:52px;gap:.4rem}
+  .logo{font-size:1rem;gap:5px}
+  #topbar>div:last-child>div{font-size:.62rem;padding:.18rem .45rem}
+  #topbar .btn-secondary{font-size:.6rem;padding:.2rem .45rem;white-space:nowrap}
+  #lang-select{font-size:.68rem;padding:.2rem .3rem}
   .card-header{flex-direction:column;align-items:flex-start;gap:.4rem;padding:.6rem .75rem}
   .card-body{padding:.8rem .75rem}
   .grid2,.grid3{grid-template-columns:1fr}
   .order-table{font-size:.75rem}
   .order-table th,.order-table td{padding:.45rem .5rem}
-  .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
-  .stat-grid[style*="repeat(4"]{grid-template-columns:repeat(2,1fr)!important}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
   .item-row{grid-template-columns:1fr 1fr!important;gap:.4rem!important}
   .btn-primary{padding:.58rem .9rem;font-size:.8rem}
   .modal-box{max-width:96%;margin:.3rem;padding:1.1rem}
@@ -180,6 +182,13 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
   input,select,textarea{font-size:16px!important}
   .order-table tbody tr:hover{background:transparent}
   .order-table tbody tr:active{background:rgba(255,255,255,.04)}
+  /* Prevent text wrap in table cells */
+  .order-table th,.order-table td{white-space:nowrap}
+  /* Make buttons in table compact */
+  .order-table .btn-danger,.order-table .btn-gold{
+    padding:.22rem .4rem!important;
+    font-size:.65rem!important;
+  }
 }
 
 /* ── PRINT ── */
@@ -206,8 +215,8 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
 /* ── TABLET LANDSCAPE (900px–1023px) ── */
 @media(max-width:1023px){
   .grid3{grid-template-columns:1fr 1fr}
-  .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
-  .stat-grid[style*="repeat(4"]{grid-template-columns:repeat(2,1fr)!important}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
   .item-row{grid-template-columns:2fr 1fr 1fr 1fr auto;gap:.5rem}
   .order-table th:nth-child(6),.order-table td:nth-child(6){display:none}
 }
@@ -257,8 +266,8 @@ button{cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;border:none}
   .order-table th:nth-child(3),.order-table td:nth-child(3){display:none}
   .order-table th:nth-child(4),.order-table td:nth-child(4){display:none}
   .order-table th:nth-child(5),.order-table td:nth-child(5){display:none}
-  .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
-  .stat-grid[style*="repeat(4"]{grid-template-columns:repeat(2,1fr)!important}
+  .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
+  .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
   .item-row{grid-template-columns:1fr 1fr;gap:.45rem}
   .pending-card-header{flex-direction:column;align-items:flex-start;gap:.3rem}
   .btn-primary{padding:.6rem 1rem;font-size:.82rem}
@@ -469,15 +478,15 @@ textarea{min-height:64px;resize:vertical}
   <div>
     <div style="text-align:center;margin-bottom:1.6rem">
       <div class="logo" style="justify-content:center;font-size:1.8rem"><span class="logo-dot"></span>RUBBERLEDGER</div>
-      <div style="font-size:.7rem;color:var(--muted);letter-spacing:.12em;margin-top:4px">รัฐวิสาหกิจ KUBTHOR ยางพารา</div>
+      <div style="font-size:.7rem;color:var(--muted);letter-spacing:.12em;margin-top:4px" data-i18n="company_sub">รัฐวิสาหกิจ KUBTHOR ยางพารา</div>
     </div>
     <div class="login-card">
-      <div style="font-size:.85rem;font-weight:600;color:var(--muted);letter-spacing:.08em;margin-bottom:1.2rem;padding-bottom:.7rem;border-bottom:1px solid var(--border)">เข้าสู่ระบบ</div>
-      <div class="form-group"><label class="form-label">ชื่อผู้ใช้</label><input type="text" id="ln-user" placeholder="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="form-group"><label class="form-label">รหัสผ่าน</label><input type="password" id="ln-pass" placeholder="password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div style="font-size:.85rem;font-weight:600;color:var(--muted);letter-spacing:.08em;margin-bottom:1.2rem;padding-bottom:.7rem;border-bottom:1px solid var(--border)" data-i18n="login_title">เข้าสู่ระบบ</div>
+      <div class="form-group"><label class="form-label" data-i18n="username">ชื่อผู้ใช้</label><input type="text" id="ln-user" placeholder="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="form-group"><label class="form-label" data-i18n="password">รหัสผ่าน</label><input type="password" id="ln-pass" placeholder="password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div id="ln-err" style="font-size:.78rem;color:var(--accent);margin-bottom:.8rem;display:none">⚠ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
       
-<button class="btn-primary" style="width:100%" onclick="doLogin()" id="login-btn">เข้าสู่ระบบ</button>
+<button class="btn-primary" style="width:100%" onclick="doLogin()" id="login-btn" data-i18n="login_btn">เข้าสู่ระบบ</button>
       <div style="margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--border)">
         <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;letter-spacing:.08em">บัญชีในระบบ</div>
         <div style="display:flex;flex-direction:column;gap:5px">
@@ -509,14 +518,14 @@ textarea{min-height:64px;resize:vertical}
   </div>
 
   <div id="tabs">
-    <button class="tab-btn" onclick="switchTab('customers',this)">ข้อมูลลูกค้า</button>
-    <button class="tab-btn active" onclick="switchTab('create',this)">+ สร้างใบเก็บซื้อ</button>
-    <button class="tab-btn" id="tab-pending-btn" onclick="switchTab('pending',this)">รอชำระ</button>
-    <button class="tab-btn" id="tab-history-btn" onclick="switchTab('history',this)">ประวัติการเก็บเงิน</button>
-    <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none">รายละเอียดการดำเนินการ</button>
-    <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none">📊 รายละเอียด</button>
+    <button class="tab-btn" onclick="switchTab('customers',this)" data-i18n="tab_customers">ข้อมูลลูกค้า</button>
+    <button class="tab-btn active" onclick="switchTab('create',this)" data-i18n="tab_create">+ สร้างใบเก็บซื้อ</button>
+    <button class="tab-btn" id="tab-pending-btn" onclick="switchTab('pending',this)" data-i18n="tab_pending">รอชำระ</button>
+    <button class="tab-btn" id="tab-history-btn" onclick="switchTab('history',this)" data-i18n="tab_history">ประวัติการเก็บเงิน</button>
+    <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none" data-i18n="tab_mywork">รายละเอียดการดำเนินการ</button>
+    <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
     <div style="flex:1"></div>
-    <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none">⚙ ตั้งค่า</button>
+    <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
   </div>
 
   <!-- TAB: CUSTOMERS -->
@@ -561,14 +570,14 @@ textarea{min-height:64px;resize:vertical}
       <div style="overflow-x:auto">
         <table class="order-table" style="min-width:900px">
           <thead><tr>
-            <th>รหัส</th>
-            <th>ชื่อลูกค้า / บริษัท</th>
-            <th>เบอร์โทร</th>
-            <th>ที่อยู่</th>
-            <th>รวม กก.</th>
-            <th>วันที่ล่าสุด</th>
-            <th>ยอดรวมทั้งหมด</th>
-            <th>จัดการ</th>
+            <th style="min-width:70px">รหัส</th>
+            <th style="min-width:100px">ชื่อลูกค้า</th>
+            <th style="min-width:90px">เบอร์โทร</th>
+            <th style="min-width:120px">ที่อยู่</th>
+            <th style="min-width:80px">รวม กก.</th>
+            <th style="min-width:80px">วันที่</th>
+            <th style="min-width:100px">ยอดรวม</th>
+            <th style="min-width:60px">จัดการ</th>
           </tr></thead>
           <tbody id="cust-body"></tbody>
         </table>
@@ -727,7 +736,7 @@ textarea{min-height:64px;resize:vertical}
     </div>
     <div id="search-info" style="font-size:.7rem;color:var(--muted);margin-bottom:.7rem;font-family:'IBM Plex Mono',monospace"></div>
     <div class="card">
-      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;-webkit-overflow-scrolling:touch"><table class="order-table" id="history-table" style="min-width:480px;width:100%">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%"><table class="order-table" id="history-table" style="min-width:600px">
         <thead><tr><th>เลขที่</th><th>ลูกค้า</th><th>วันที่</th><th>ยอดรวม</th><th>สถานะ</th><th id="last-col-header">การจัดการ</th><th>ดำเนินการ</th></tr></thead>
         <tbody id="history-body"></tbody>
       </table>
@@ -770,8 +779,8 @@ textarea{min-height:64px;resize:vertical}
       <div class="card-body">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.9rem">
           <div class="form-group"><label class="form-label">ชื่อแสดง (ภาษาไทย)</label><input type="text" id="new-displayname" placeholder="เช่น นายสมชาย ยางดี"></div>
-          <div class="form-group"><label class="form-label">ชื่อผู้ใช้</label><input type="text" id="new-username" placeholder="เช่น somchai01"></div>
-          <div class="form-group"><label class="form-label">รหัสผ่าน</label><input type="password" id="new-password" placeholder="ตั้งรหัสผ่าน"></div>
+          <div class="form-group"><label class="form-label" data-i18n="username">ชื่อผู้ใช้</label><input type="text" id="new-username" placeholder="เช่น somchai01"></div>
+          <div class="form-group"><label class="form-label" data-i18n="password">รหัสผ่าน</label><input type="password" id="new-password" placeholder="ตั้งรหัสผ่าน"></div>
           <div class="form-group"><label class="form-label">ตำแหน่ง</label>
             <select id="new-role">
               <option value="staff_biller">พนักงานจดบิล</option>
@@ -1100,6 +1109,8 @@ async function initApp(){
   updateCustomerDatalist();
   // Start real-time sync
   setTimeout(() => { startRealtimeSync(); addSyncIndicator(); }, 1000);
+  // Apply saved language
+  applyLang();
   const settingsBtn=document.getElementById("tab-settings-btn");
   const reportBtn=document.getElementById("tab-report-btn");
   const myworkBtn=document.getElementById("tab-mywork-btn");
@@ -1290,7 +1301,7 @@ async function handleSave(){
   renderCustomers();
 
   btn.disabled=false;btn.textContent="▶ บันทึกใบเก็บซื้อ";
-  showToast("บันทึก "+poNo+" เรียบร้อยแล้ว");
+  showToast(t("saved_ok")+" "+poNo);
   clearForm();
   renderHistory();renderPending();
   switchTab("history",document.querySelector('[onclick*="history"]'));
@@ -1550,7 +1561,7 @@ async function execPay(id,name){
   // 4. Update UI
   document.getElementById("pay-modal").style.display="none";
   renderHistory();renderPending();
-  showToast("✅ บันทึกการชำระโดย: "+name);
+  showToast("✅ "+t("pay_by")+name);
   if(document.getElementById("pane-detail").style.display!=="none")openDetail(id);
   // Resume sync after brief pause
   setTimeout(()=>{ _syncPaused=false; },1500);
@@ -1587,7 +1598,7 @@ async function confirmDelete(){
   localStorage.setItem("rubber_orders",JSON.stringify(orders));
   closeDelModal();
   renderHistory();renderPending();
-  showToast("ยกเลิกบิลแล้ว");
+  showToast(t("cancelled_ok"));
   if(document.getElementById("pane-detail").style.display!=="none")closeDetail();
 }
 
@@ -2426,6 +2437,358 @@ function addSyncIndicator() {
 }
 
 // Auto refresh handled by syncFromSupabase polling (10s)
+
+
+// ════════════════════════════════════
+// MULTI-LANGUAGE SYSTEM (i18n)
+// Supports: th (Thai), lo (Lao), en (English)
+// ════════════════════════════════════
+
+const LANG_DICT = {
+  th: {
+    // App
+    company_sub: "รัฐวิสาหกิจ KUBTHOR ยางพารา",
+    // Login
+    login_title: "เข้าสู่ระบบ",
+    username: "ชื่อผู้ใช้",
+    password: "รหัสผ่าน",
+    login_btn: "เข้าสู่ระบบ",
+    logout: "ออกจากระบบ",
+    login_err: "⚠ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+    // Tabs
+    tab_customers: "ข้อมูลลูกค้า",
+    tab_create: "+ สร้างใบเก็บซื้อ",
+    tab_pending: "รอชำระ",
+    tab_history: "ประวัติการเก็บเงิน",
+    tab_mywork: "รายละเอียดการดำเนินการ",
+    tab_report: "📊 รายละเอียด",
+    tab_settings: "⚙ ตั้งค่า",
+    // Customers
+    customers_title: "ข้อมูลลูกค้า",
+    add_customer: "เพิ่มลูกค้าใหม่",
+    cust_name: "ชื่อลูกค้า / บริษัท *",
+    cust_phone: "เบอร์โทรศัพท์",
+    cust_house: "บ้านเลขที่",
+    cust_sub: "แขวง / ตำบล",
+    cust_dist: "เมือง / อำเภอ",
+    cust_prov: "จังหวัด",
+    btn_add_cust: "+ เพิ่มลูกค้า",
+    cust_list: "รายชื่อลูกค้าทั้งหมด",
+    search_cust: "รหัส, ชื่อ หรือเบอร์โทร...",
+    col_code: "รหัส",
+    col_name: "ชื่อลูกค้า / บริษัท",
+    col_phone: "เบอร์โทร",
+    col_addr: "ที่อยู่",
+    col_kg: "รวม กก.",
+    col_last: "วันที่ล่าสุด",
+    col_total: "ยอดรวมทั้งหมด",
+    col_manage: "จัดการ",
+    btn_delete: "ลบ",
+    // Create bill
+    bill_title: "ใบเก็บซื้อสินค้ายางพารา",
+    cust_info: "ข้อมูลลูกค้า",
+    new_member: "สมาชิกใหม่",
+    old_member: "สมาชิกเก่า",
+    bill_date: "วันที่ออกใบเก็บซื้อ",
+    items_title: "รายการสินค้า",
+    btn_add_item: "+ เพิ่มรายการ",
+    col_product: "สินค้า",
+    col_qty: "จำนวน (กก.)",
+    col_price: "ราคา/กก. (กีบ)",
+    col_subtotal: "ยอดรวม",
+    note_label: "หมายเหตุ",
+    status_label: "สถานะ",
+    status_draft: "แบบร่าง",
+    status_sent: "รอชำระ",
+    status_paid: "ชำระแล้ว",
+    status_cancelled: "ยกเลิก",
+    btn_save: "▶ บันทึกใบเก็บซื้อ",
+    // History
+    history_title: "ประวัติใบเก็บซื้อ",
+    search_bill: "ค้นหาเลขที่ หรือชื่อลูกค้า...",
+    col_id: "เลขที่",
+    col_customer: "ลูกค้า",
+    col_date: "วันที่",
+    col_amount: "ยอดรวม",
+    col_status: "สถานะ",
+    col_action: "การจัดการ",
+    col_actor: "ดำเนินการ",
+    btn_view: "ดู",
+    btn_cancel: "ลบ",
+    btn_pay_select: "ชำระ",
+    // Pending
+    pending_title: "รายการรอชำระ",
+    btn_pay: "ชำระเงิน",
+    // Settings
+    settings_title: "ตั้งค่าบัญชีพนักงาน",
+    add_staff: "เพิ่มพนักงานใหม่",
+    staff_list: "รายชื่อพนักงานทั้งหมด",
+    staff_name: "ชื่อแสดง (Display Name)",
+    staff_user: "ชื่อผู้ใช้ (Username)",
+    staff_pass: "รหัสผ่าน",
+    staff_role: "บทบาท",
+    role_biller: "พนักงานจดบิล",
+    role_cashier: "พนักงานจ่ายเงิน",
+    btn_add_staff: "+ เพิ่มพนักงาน",
+    // Common
+    saving: "กำลังบันทึก...",
+    loading: "กำลังโหลด...",
+    empty: "ยังไม่มีข้อมูล",
+    confirm_cancel: "ยืนยันการยกเลิก",
+    cancel_reason: "เหตุผลการยกเลิก *",
+    btn_confirm: "ยืนยัน",
+    btn_close: "ปิด",
+    total_sum: "ยอดรวมเงินทั้งหมด",
+    total_kg: "ยอดรวมจำนวน (กก.) ทั้งหมด",
+    grand_total: "ยอดรวมทั้งสิ้น",
+    // Toast
+    saved_ok: "บันทึกสำเร็จแล้ว",
+    offline_save: "⚠ บันทึกสำเร็จ (ออฟไลน์)",
+    pay_by: "บันทึกการชำระโดย: ",
+    cancelled_ok: "ยกเลิกบิลแล้ว",
+    no_perm: "ไม่มีสิทธิ์เข้าถึงหน้านี้",
+  },
+
+  lo: {
+    company_sub: "ລັດວິສາຫະກິດ KUBTHOR ຢາງພາລາ",
+    login_title: "ເຂົ້າສູ່ລະບົບ",
+    username: "ຊື່ຜູ້ໃຊ້",
+    password: "ລະຫັດຜ່ານ",
+    login_btn: "ເຂົ້າສູ່ລະບົບ",
+    logout: "ອອກຈາກລະບົບ",
+    login_err: "⚠ ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ",
+    tab_customers: "ຂໍ້ມູນລູກຄ້າ",
+    tab_create: "+ ສ້າງໃບເກັບຊື້",
+    tab_pending: "ລໍຖ້າຊໍາລະ",
+    tab_history: "ປະຫວັດໃບເກັບ",
+    tab_mywork: "ລາຍລະອຽດການດຳເນີນ",
+    tab_report: "📊 ລາຍລະອຽດ",
+    tab_settings: "⚙ ຕັ້ງຄ່າ",
+    customers_title: "ຂໍ້ມູນລູກຄ້າ",
+    add_customer: "ເພີ່ມລູກຄ້າໃໝ່",
+    cust_name: "ຊື່ລູກຄ້າ / ບໍລິສັດ *",
+    cust_phone: "ເບີໂທລະສັບ",
+    cust_house: "ເລກທີ່ບ້ານ",
+    cust_sub: "ແຂວງ / ຕຳບົນ",
+    cust_dist: "ເມືອງ / ອຳເພີ",
+    cust_prov: "ແຂວງ",
+    btn_add_cust: "+ ເພີ່ມລູກຄ້າ",
+    cust_list: "ລາຍຊື່ລູກຄ້າທັງໝົດ",
+    search_cust: "ລະຫັດ, ຊື່ ຫຼື ເບີໂທ...",
+    col_code: "ລະຫັດ",
+    col_name: "ຊື່ລູກຄ້າ",
+    col_phone: "ເບີໂທ",
+    col_addr: "ທີ່ຢູ່",
+    col_kg: "ລວມ ກກ.",
+    col_last: "ວັນທີ່ຫຼ້າສຸດ",
+    col_total: "ຍອດລວມທັງໝົດ",
+    col_manage: "ຈັດການ",
+    btn_delete: "ລຶບ",
+    bill_title: "ໃບເກັບຊື້ສິນຄ້າຢາງພາລາ",
+    cust_info: "ຂໍ້ມູນລູກຄ້າ",
+    new_member: "ສະມາຊິກໃໝ່",
+    old_member: "ສະມາຊິກເກົ່າ",
+    bill_date: "ວັນທີ່ອອກໃບ",
+    items_title: "ລາຍການສິນຄ້າ",
+    btn_add_item: "+ ເພີ່ມລາຍການ",
+    col_product: "ສິນຄ້າ",
+    col_qty: "ຈຳນວນ (ກກ.)",
+    col_price: "ລາຄາ/ກກ. (₭)",
+    col_subtotal: "ຍອດລວມ",
+    note_label: "ໝາຍເຫດ",
+    status_label: "ສະຖານະ",
+    status_draft: "ແບບຮ່າງ",
+    status_sent: "ລໍຖ້າຊໍາລະ",
+    status_paid: "ຊໍາລະແລ້ວ",
+    status_cancelled: "ຍົກເລີກ",
+    btn_save: "▶ ບັນທຶກໃບເກັບ",
+    history_title: "ປະຫວັດໃບເກັບຊື້",
+    search_bill: "ຄົ້ນຫາເລກທີ ຫຼື ຊື່ລູກຄ້າ...",
+    col_id: "ເລກທີ",
+    col_customer: "ລູກຄ້າ",
+    col_date: "ວັນທີ",
+    col_amount: "ຍອດລວມ",
+    col_status: "ສະຖານະ",
+    col_action: "ຈັດການ",
+    col_actor: "ດຳເນີນການ",
+    btn_view: "ເບິ່ງ",
+    btn_cancel: "ລຶບ",
+    btn_pay_select: "ຊໍາລະ",
+    pending_title: "ລາຍການລໍຖ້າຊໍາລະ",
+    btn_pay: "ຊໍາລະເງິນ",
+    settings_title: "ຕັ້ງຄ່າບັນຊີພະນັກງານ",
+    add_staff: "ເພີ່ມພະນັກງານໃໝ່",
+    staff_list: "ລາຍຊື່ພະນັກງານທັງໝົດ",
+    staff_name: "ຊື່ສະແດງ",
+    staff_user: "ຊື່ຜູ້ໃຊ້",
+    staff_pass: "ລະຫັດຜ່ານ",
+    staff_role: "ບົດບາດ",
+    role_biller: "ພະນັກງານຈົດບິນ",
+    role_cashier: "ພະນັກງານຈ່າຍເງິນ",
+    btn_add_staff: "+ ເພີ່ມພະນັກງານ",
+    saving: "ກຳລັງບັນທຶກ...",
+    loading: "ກຳລັງໂຫລດ...",
+    empty: "ຍັງບໍ່ມີຂໍ້ມູນ",
+    confirm_cancel: "ຢືນຢັນການຍົກເລີກ",
+    cancel_reason: "ເຫດຜົນການຍົກເລີກ *",
+    btn_confirm: "ຢືນຢັນ",
+    btn_close: "ປິດ",
+    total_sum: "ຍອດລວມເງິນທັງໝົດ",
+    total_kg: "ຍອດລວມຈຳນວນ (ກກ.) ທັງໝົດ",
+    grand_total: "ຍອດລວມທັງໝົດ",
+    saved_ok: "ບັນທຶກສຳເລັດ",
+    offline_save: "⚠ ບັນທຶກສຳເລັດ (ອອຟລາຍ)",
+    pay_by: "ບັນທຶກການຊໍາລະໂດຍ: ",
+    cancelled_ok: "ຍົກເລີກບິນແລ້ວ",
+    no_perm: "ບໍ່ມີສິດເຂົ້າໜ້ານີ້",
+  },
+
+  en: {
+    company_sub: "KUBTHOR Rubber Enterprise",
+    login_title: "Sign In",
+    username: "Username",
+    password: "Password",
+    login_btn: "Sign In",
+    logout: "Sign Out",
+    login_err: "⚠ Invalid username or password",
+    tab_customers: "Customers",
+    tab_create: "+ Create Bill",
+    tab_pending: "Pending",
+    tab_history: "History",
+    tab_mywork: "My Activity",
+    tab_report: "📊 Reports",
+    tab_settings: "⚙ Settings",
+    customers_title: "Customer Data",
+    add_customer: "Add New Customer",
+    cust_name: "Customer Name / Company *",
+    cust_phone: "Phone Number",
+    cust_house: "House No.",
+    cust_sub: "District",
+    cust_dist: "Sub-district",
+    cust_prov: "Province",
+    btn_add_cust: "+ Add Customer",
+    cust_list: "All Customers",
+    search_cust: "Search by code, name or phone...",
+    col_code: "Code",
+    col_name: "Name",
+    col_phone: "Phone",
+    col_addr: "Address",
+    col_kg: "Total kg",
+    col_last: "Last Date",
+    col_total: "Total Amount",
+    col_manage: "Actions",
+    btn_delete: "Delete",
+    bill_title: "Rubber Purchase Order",
+    cust_info: "Customer Info",
+    new_member: "New Member",
+    old_member: "Existing Member",
+    bill_date: "Bill Date",
+    items_title: "Items",
+    btn_add_item: "+ Add Item",
+    col_product: "Product",
+    col_qty: "Quantity (kg)",
+    col_price: "Price/kg (₭)",
+    col_subtotal: "Subtotal",
+    note_label: "Note",
+    status_label: "Status",
+    status_draft: "Draft",
+    status_sent: "Pending",
+    status_paid: "Paid",
+    status_cancelled: "Cancelled",
+    btn_save: "▶ Save Bill",
+    history_title: "Purchase History",
+    search_bill: "Search by bill no. or customer...",
+    col_id: "Bill No.",
+    col_customer: "Customer",
+    col_date: "Date",
+    col_amount: "Amount",
+    col_status: "Status",
+    col_action: "Actions",
+    col_actor: "By",
+    btn_view: "View",
+    btn_cancel: "Cancel",
+    btn_pay_select: "Pay",
+    pending_title: "Pending Payments",
+    btn_pay: "Process Payment",
+    settings_title: "Staff Settings",
+    add_staff: "Add New Staff",
+    staff_list: "All Staff",
+    staff_name: "Display Name",
+    staff_user: "Username",
+    staff_pass: "Password",
+    staff_role: "Role",
+    role_biller: "Bill Creator",
+    role_cashier: "Cashier",
+    btn_add_staff: "+ Add Staff",
+    saving: "Saving...",
+    loading: "Loading...",
+    empty: "No data yet",
+    confirm_cancel: "Confirm Cancellation",
+    cancel_reason: "Cancellation reason *",
+    btn_confirm: "Confirm",
+    btn_close: "Close",
+    total_sum: "Total Amount",
+    total_kg: "Total Quantity (kg)",
+    grand_total: "Grand Total",
+    saved_ok: "Saved successfully",
+    offline_save: "⚠ Saved offline",
+    pay_by: "Payment recorded by: ",
+    cancelled_ok: "Bill cancelled",
+    no_perm: "Access denied",
+  }
+};
+
+let currentLang = localStorage.getItem("rl_lang") || "th";
+
+function t(key) {
+  return (LANG_DICT[currentLang] && LANG_DICT[currentLang][key]) ||
+         (LANG_DICT["th"] && LANG_DICT["th"][key]) ||
+         key;
+}
+
+function applyLang() {
+  // Update all data-i18n elements
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const val = t(key);
+    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+      el.placeholder = val;
+    } else if (el.tagName === "OPTION") {
+      el.textContent = val;
+    } else {
+      el.textContent = val;
+    }
+  });
+  // Update status badges in JS-rendered content
+  renderHistory();
+  renderPending();
+  renderCustomers();
+  // Update topbar
+  const langSel = document.getElementById("lang-select");
+  if (langSel) langSel.value = currentLang;
+  // Update document lang
+  document.documentElement.lang = currentLang === "lo" ? "lo" : currentLang === "en" ? "en" : "th";
+  // Update error message placeholder
+  const err = document.getElementById("ln-err");
+  if (err) err.textContent = t("login_err");
+  console.log("🌐 Language set to:", currentLang);
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem("rl_lang", lang);
+  applyLang();
+  showToast(lang === "th" ? "🇹🇭 เปลี่ยนภาษาไทย" : lang === "lo" ? "🇱🇦 ປ່ຽນພາສາລາວ" : "🇬🇧 Language: English", "info");
+}
+
+// Apply language on page load
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("rl_lang") || "th";
+  currentLang = saved;
+  const sel = document.getElementById("lang-select");
+  if (sel) sel.value = saved;
+  applyLang();
+});
 
 </script>
 </body>
