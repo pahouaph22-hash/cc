@@ -2003,7 +2003,7 @@ function printReceipt(){
 
   <!-- ຂໍ້ມູນໃບ -->
   <div class="row"><span class="label">ເລກທີໃບເກັບ:</span><span class="po-number">${o.poNo}</span></div>
-  <div class="row"><span class="label">ວັນທີ:</span><span class="bold">${laoDate("${o.date}")}</span></div>
+  <div class="row"><span class="label">ວັນທີ:</span><span class="bold">${laoDate(o.date)}</span></div>
   <div class="row"><span class="label">ຊື່ລູກຄ້າ:</span><span class="bold">${o.customer}</span></div>
   <div class="row"><span class="label">ຜູ້ຈົດບິນ:</span><span>${o.createdBy||"—"}</span></div>
   ${o.paidBy?`<div class="row"><span class="label">ຜູ້ຮັບເງິນ:</span><span>${o.paidBy}</span></div>`:""}
@@ -2058,7 +2058,7 @@ function printReceipt(){
     <div>ພິມວັນທີ: ${laoNow}</div>
   </div>
 
-  </body></html>\`);
+  </body></html>`);
   w.document.close();
   w.onload=()=>setTimeout(()=>w.print(),800);
 }
