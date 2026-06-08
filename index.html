@@ -3,17 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google" content="notranslate">
+<meta http-equiv="Content-Language" content="th">
 <title>RubberLedger</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Lao:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Phetsarath&display=swap" rel="stylesheet">
 <style>
 @font-face{
   font-family:'Phetsarath OT';
-  src:url('https://cdn.jsdelivr.net/gh/nicowillis/fonts@latest/PhetsarathOT.ttf') format('truetype');
-  font-weight:400 700;font-display:swap;
+  src:url('https://fonts.gstatic.com/ea/notosanslao/v4/NotoSansLao-Regular.woff2') format('woff2'),
+      url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-lao@4.5.0/files/noto-sans-lao-lao-400-normal.woff') format('woff');
+  font-weight:400;font-display:swap;
+}
+@font-face{
+  font-family:'Phetsarath OT';
+  src:url('https://fonts.gstatic.com/ea/notosanslao/v4/NotoSansLao-Bold.woff2') format('woff2');
+  font-weight:700;font-display:swap;
 }
 </style>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{font-family:'Phetsarath OT','Noto Sans Lao','IBM Plex Sans Thai',sans-serif}
 :root{
   --bg:#0e0e10;--surface:#17171a;--surface2:#1e1e23;--border:#2a2a2f;
   --text:#e8e2d9;--muted:#666;--accent:#c8451a;--green:#1a6b3a;--gold:#c9a227;--blue:#4a7fc1;
@@ -464,9 +473,14 @@ button{cursor:pointer;font-family:'Phetsarath OT','Noto Sans Lao','IBM Plex Sans
 .badge-counter{display:inline-block;margin-left:5px;background:var(--gold);color:#0e0e10;border-radius:10px;padding:1px 6px;font-size:.6rem;font-weight:700;vertical-align:middle}
 textarea{min-height:64px;resize:vertical}
 .empty-state{text-align:center;padding:2.5rem 1rem;color:#444}
+/* Suppress browser translate outlines */
+[class],[id]{outline:none!important}
+*:focus:not(input):not(textarea):not(select):not(button){outline:none!important}
+/* Suppress Edge/Chrome translate red borders */
+font{border:none!important;outline:none!important;display:inline!important}
 </style>
 </head>
-<body>
+<body translate="no">
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -2089,7 +2103,7 @@ function printReceipt(){
     .doc-title{font-size:13px;font-weight:700;letter-spacing:1px;margin:5px 0}
     .po-number{font-size:13px;font-weight:700;letter-spacing:1px}
   </style>
-  </head><body>
+  </head><body translate="no">
   <button class="btn-print no-print" onclick="window.print()">🖨 ພິມໃບເກັບຊື້</button>
 
   <!-- ຫົວໃບເກັບ -->
