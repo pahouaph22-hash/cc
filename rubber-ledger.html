@@ -1024,57 +1024,34 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div id="rsub-receipt" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--sky);">
         <span style="font-size:1.1rem">🧾</span>
-        <span style="font-weight:700;font-size:1rem;color:var(--sky-d)">รายละเอียดใบบิล / ใบเสร็จ</span>
+        <span style="font-weight:700;font-size:1rem;color:var(--sky-d)">รายละเอียดใบบิลของพนักงาน</span>
         <span style="font-size:.72rem;color:var(--muted);margin-left:auto">ออกโดยใคร เมื่อไร ที่ไหน</span>
       </div>
 
-      <!-- Filters -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-        <div style="position:relative;">
-          <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-          <input type="text" id="rc-search" placeholder="ค้นหาเลขที่/ลูกค้า/PO..." style="padding-left:2rem;width:220px;font-size:.78rem" oninput="renderReceipts()">
+      <!-- Date filter -->
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
+          <span style="font-size:.85rem">📅</span>
+          <span style="font-size:.72rem;color:var(--muted)">ช่วงเวลาออกบิล:</span>
+          <input type="date" id="rc-date-from" title="จากวันที่" style="width:130px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderReceipts()">
+          <span style="color:var(--muted);font-size:.75rem">–</span>
+          <input type="date" id="rc-date-to" title="ถึงวันที่" style="width:130px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderReceipts()">
+          <button onclick="rcClearFilters()" title="ล้างวันที่" style="font-size:.72rem;padding:.15rem .4rem;background:transparent;color:var(--muted);border:none;cursor:pointer;">✕</button>
         </div>
-        <select id="rc-filter-issuer" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderReceipts()">
-          <option value="">ทุกพนักงาน</option>
-        </select>
-        <input type="date" id="rc-date-from" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderReceipts()">
-        <span style="color:var(--muted);font-size:.8rem">ถึง</span>
-        <input type="date" id="rc-date-to" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderReceipts()">
-        <div style="position:relative;">
-          <span style="position:absolute;left:.5rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.75rem">📍</span>
-          <input type="text" id="rc-filter-location" placeholder="สถานที่..." style="padding-left:1.6rem;width:130px;font-size:.78rem;padding-top:.4rem;padding-bottom:.4rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" oninput="renderReceipts()">
-        </div>
-        <button onclick="rcClearFilters()" style="font-size:.75rem;padding:.35rem .7rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:6px;cursor:pointer;">✕ ล้าง</button>
-        <button onclick="rcExportCSV()" style="font-size:.75rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ CSV</button>
-        <span id="rc-count" style="font-size:.75rem;color:var(--muted);margin-left:auto;"></span>
+        <span id="rc-date-info" style="font-size:.72rem;color:var(--muted)"></span>
+        <button onclick="rcExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;margin-left:auto">⬇ CSV</button>
       </div>
 
-      <!-- Summary -->
-      <div id="rc-summary" style="font-size:.85rem;color:var(--text2);margin-bottom:12px;padding:.6rem 1rem;background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r);"></div>
+      <!-- Summary stat cards -->
+      <div class="stat-grid" id="rc-summary" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.4rem"></div>
 
-      <!-- Table -->
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div style="overflow-x:auto">
-          <table class="order-table" style="min-width:900px">
-            <thead>
-              <tr>
-                <th style="width:110px">เลขที่ใบเสร็จ</th>
-                <th style="width:90px">วันเวลา</th>
-                <th style="width:110px">ผู้จดใบเสร็จ</th>
-                <th style="width:110px">ลูกค้า</th>
-                <th style="width:90px">PO อ้างอิง</th>
-                <th style="width:160px">📍 สถานที่ออกใบเสร็จ</th>
-                <th style="width:80px">วิธีชำระ</th>
-                <th style="width:110px;text-align:right">จำนวนเงิน</th>
-              </tr>
-            </thead>
-            <tbody id="rc-body">
-              <tr><td colspan="8" class="empty-state">กำลังโหลด...</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div id="rc-pagination" style="display:flex;justify-content:center;gap:8px;padding:12px;"></div>
-      </div>
+      <!-- Staff sections (grouped, clickable) -->
+      <div id="rc-staff-sections"></div>
+
+      <!-- hidden inputs (kept for compatibility with deep-dive filters) -->
+      <input type="hidden" id="rc-search">
+      <input type="hidden" id="rc-filter-issuer">
+      <input type="hidden" id="rc-filter-location">
     </div>
   </div>
 
@@ -3970,80 +3947,106 @@ function rcClearFilters() {
 }
 
 function renderReceipts() {
-  const search   = (document.getElementById('rc-search')?.value || '').toLowerCase();
-  const issuer   = document.getElementById('rc-filter-issuer')?.value || '';
   const dateFrom = document.getElementById('rc-date-from')?.value || '';
   const dateTo   = document.getElementById('rc-date-to')?.value   || '';
-  const location = (document.getElementById('rc-filter-location')?.value || '').toLowerCase();
 
   let filtered = _receipts.filter(r => {
-    const issuerName = r.issued_by_name || r.issued_by;
-    if (issuer && issuerName !== issuer) return false;
-    if (dateFrom && (r.issued_at||'').slice(0,10) < dateFrom) return false;
-    if (dateTo   && (r.issued_at||'').slice(0,10) > dateTo)   return false;
-    if (location && !(r.work_location||'').toLowerCase().includes(location)) return false;
-    if (search) {
-      const hay = [r.receipt_no, r.po_no, r.customer, issuerName, r.note, r.work_location].join(' ').toLowerCase();
-      if (!hay.includes(search)) return false;
-    }
+    const d = (r.issued_at||'').slice(0,10);
+    if (dateFrom && d < dateFrom) return false;
+    if (dateTo   && d > dateTo)   return false;
     return true;
   });
 
-  const countEl = document.getElementById('rc-count');
-  if (countEl) countEl.textContent = `${filtered.length} ใบ`;
+  // date info
+  const di = document.getElementById('rc-date-info');
+  if (di) di.textContent = (dateFrom||dateTo) ? `📅 ${dateFrom||'...'} – ${dateTo||'...'} · ${filtered.length} ใบ` : '';
 
-  // สรุปยอด
+  // ===== Summary stat cards (4) =====
+  const totalAmt = filtered.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const totalQty = filtered.reduce((s,r)=>s+(parseFloat(r.total_qty)||0),0);
+  const issuers = new Set(filtered.map(r => r.issued_by_name || r.issued_by));
   const sumEl = document.getElementById('rc-summary');
   if (sumEl) {
-    const totalAmt = filtered.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
-    const totalQty = filtered.reduce((s,r)=>s+(parseFloat(r.total_qty)||0),0);
-    sumEl.innerHTML = `รวม <b style="color:var(--green)">₭${totalAmt.toLocaleString('th-TH')}</b> · <b style="color:var(--gold)">${totalQty.toLocaleString('th-TH',{maximumFractionDigits:1})} กก.</b>`;
+    sumEl.innerHTML = [
+      ['ผู้ออกใบบิล', issuers.size+' คน', 'var(--sky)'],
+      ['ใบบิลทั้งหมด', filtered.length+' ใบ', 'var(--violet)'],
+      ['ยอดรวม', '₭'+totalAmt.toLocaleString('th-TH',{maximumFractionDigits:0}), 'var(--green)'],
+      ['น้ำหนักรวม', totalQty.toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.', 'var(--gold)'],
+    ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
   }
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / RC_PER_PAGE));
-  if (_rcPage > totalPages) _rcPage = totalPages;
-  const page = filtered.slice((_rcPage-1)*RC_PER_PAGE, _rcPage*RC_PER_PAGE);
+  // ===== Group by issuer =====
+  const map = {};
+  filtered.forEach(r => {
+    const k = r.issued_by_name || r.issued_by || '—';
+    if (!map[k]) map[k] = { name:k, count:0, totalAmt:0, totalKg:0, receipts:[] };
+    map[k].count++;
+    map[k].totalAmt += parseFloat(r.amount)||0;
+    map[k].totalKg  += parseFloat(r.total_qty)||0;
+    map[k].receipts.push(r);
+  });
+  const staffData = Object.values(map).sort((a,b)=>b.count-a.count);
 
-  const tbody = document.getElementById('rc-body');
-  if (!tbody) return;
-
-  if (page.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">ไม่พบใบเสร็จ</td></tr>`;
-    document.getElementById('rc-pagination').innerHTML = '';
+  const sec = document.getElementById('rc-staff-sections');
+  if (!sec) return;
+  if (staffData.length === 0) {
+    sec.innerHTML = `<div class="card"><div class="empty-state"><div style="font-size:2rem">🧾</div><div>ยังไม่มีใบบิล</div></div></div>`;
     return;
   }
 
   const methodLabel = { cash:'💵 เงินสด', transfer:'🏦 โอน' };
 
-  tbody.innerHTML = page.map(r => {
-    const dt = new Date(r.issued_at);
-    const dateStr = dt.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'});
-    const timeStr = dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    const locParts = (r.work_location||'').split(',').map(s=>s.trim()).filter(Boolean);
-    const locHtml = locParts.length
-      ? `<div style="font-size:.7rem;color:var(--gold);">${locParts.join('<br>')}</div>`
-      : `<span style="color:var(--muted);font-size:.7rem;">—</span>`;
-    return `<tr>
-      <td style="font-family:'IBM Plex Mono',monospace;font-size:.74rem;font-weight:700;color:var(--sky-d);white-space:nowrap;">${r.receipt_no}</td>
-      <td style="font-size:.72rem;white-space:nowrap;">
-        <div style="color:var(--text)">${dateStr}</div>
-        <div style="color:var(--muted)">${timeStr}</div>
-      </td>
-      <td style="font-size:.76rem;font-weight:600;">${r.issued_by_name||r.issued_by}</td>
-      <td style="font-size:.76rem;color:var(--text2);">${r.customer||'—'}</td>
-      <td style="font-size:.72rem;color:var(--blue);">${r.po_no||'—'}</td>
-      <td>${locHtml}</td>
-      <td style="font-size:.72rem;white-space:nowrap;">${methodLabel[r.pay_method]||r.pay_method}</td>
-      <td style="text-align:right;font-weight:700;color:var(--green);white-space:nowrap;">₭${(parseFloat(r.amount)||0).toLocaleString('th-TH')}</td>
-    </tr>`;
+  sec.innerHTML = staffData.map(s => {
+    // ใบบิลล่าสุด 5 รายการ (เรียงใหม่→เก่า)
+    const sorted = s.receipts.slice().sort((a,b)=>(b.issued_at||'')<(a.issued_at||'')?-1:1);
+    const preview = sorted.slice(0,5);
+    const rows = preview.map(r => {
+      const dt = new Date(r.issued_at);
+      const dateStr = !isNaN(dt) ? dt.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
+      const timeStr = !isNaN(dt) ? dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) : '';
+      const locParts = (r.work_location||'').split(',').map(x=>x.trim()).filter(Boolean);
+      const locHtml = locParts.length ? `<span style="color:var(--gold);font-size:.72rem">${locParts.join(', ')}</span>` : '<span style="color:var(--muted2)">—</span>';
+      return `<tr>
+        <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${r.receipt_no||'—'}</td>
+        <td style="font-weight:600">${r.customer||'—'}</td>
+        <td style="font-size:.74rem"><div>${dateStr}</div><div style="color:var(--muted)">${timeStr}</div></td>
+        <td class="mono" style="text-align:right">${(parseFloat(r.total_qty)||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
+        <td>${locHtml}</td>
+        <td style="font-size:.72rem;color:var(--muted)">${methodLabel[r.pay_method]||r.pay_method||'—'}</td>
+        <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(parseFloat(r.amount)||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+      </tr>`;
+    }).join('');
+    const more = s.count>5 ? `<div style="text-align:center;padding:.5rem;font-size:.72rem;color:var(--sky);cursor:pointer" onclick="openStaffDetail('${s.name.replace(/'/g,"\\'")}','bill')">ดูทั้งหมด ${s.count} ใบ →</div>` : '';
+    return `
+    <div class="card" style="margin-bottom:1.2rem">
+      <div class="card-header" style="background:var(--surface2);cursor:pointer" onclick="openStaffDetail('${s.name.replace(/'/g,"\\'")}','bill')" title="คลิกดูรายละเอียดเชิงลึก">
+        <div style="display:flex;align-items:center;gap:1rem">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;flex-shrink:0">${s.name.charAt(0)}</div>
+          <div>
+            <div style="font-size:.95rem;font-weight:600;letter-spacing:.04em">${s.name} <span style="font-size:.62rem;color:var(--sky);font-weight:400">🔍 ดูเชิงลึก</span></div>
+            <div style="font-size:.65rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:1px">${s.count} ใบ · ₭${s.totalAmt.toLocaleString('th-TH',{maximumFractionDigits:0})} · ${s.totalKg.toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:1.5rem;text-align:right">
+          <div><div class="form-label">ยอดรวม</div><div class="bebas text-green" style="font-size:1.3rem">₭${s.totalAmt.toLocaleString('th-TH',{maximumFractionDigits:0})}</div></div>
+          <div><div class="form-label">น้ำหนัก</div><div class="bebas" style="font-size:1.3rem;color:var(--blue)">${s.totalKg.toLocaleString('th-TH',{maximumFractionDigits:2})}</div></div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div style="overflow-x:auto">
+          <table class="order-table" style="width:100%;min-width:700px">
+            <thead><tr>
+              <th>เลขที่ใบเสร็จ</th><th>ลูกค้า</th><th>วันที่-เวลา</th>
+              <th style="text-align:right">น้ำหนัก (กก.)</th><th>📍 สถานที่</th><th>วิธีชำระ</th>
+              <th style="text-align:right">จำนวนเงิน</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${more}
+      </div>
+    </div>`;
   }).join('');
-
-  const pagDiv = document.getElementById('rc-pagination');
-  if (pagDiv && totalPages > 1) {
-    pagDiv.innerHTML = Array.from({length: totalPages}, (_,i) => i+1).map(p =>
-      `<button onclick="_rcSetPage(${p})" style="padding:.25rem .55rem;font-size:.75rem;border-radius:4px;border:1px solid var(--border);background:${p===_rcPage?'var(--sky)':'var(--surface2)'};color:${p===_rcPage?'#fff':'var(--text)'};cursor:pointer;">${p}</button>`
-    ).join('');
-  } else if (pagDiv) { pagDiv.innerHTML = ''; }
 }
 
 function _rcSetPage(p) { _rcPage = p; renderReceipts(); }
