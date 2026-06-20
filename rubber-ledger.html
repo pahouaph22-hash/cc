@@ -197,6 +197,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 #tab-mywork-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-report-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-activitylog-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+#tab-receipts-btn.active{color:var(--sky);border-bottom-color:var(--sky)}
 #tab-settings-btn.active{color:var(--muted);border-bottom-color:var(--border2)}
 .tab-btn.active{font-weight:700;background:#fff;}
 
@@ -637,6 +638,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
     <div style="flex:1"></div>
     <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none">🕐 กิจกรรม</button>
+    <button class="tab-btn" id="tab-receipts-btn" onclick="switchTab('receipts',this)" style="display:none">🧾 ใบเสร็จ</button>
     <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
   </div>
 
@@ -908,6 +910,10 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div class="card-header" id="detail-header-items" data-i18n="items_title">รายการสินค้า</div>
       <div class="card-body" id="detail-items"></div>
     </div>
+    <div class="card" id="detail-receipt-card" style="display:none;border-left:4px solid var(--sky)">
+      <div class="card-header" style="color:var(--sky-d)">🧾 ข้อมูลใบเสร็จ / ใบวางบิล</div>
+      <div class="card-body" id="detail-receipt"></div>
+    </div>
     <div class="card" id="detail-note-card" style="display:none">
       <div class="card-header" id="detail-header-note" data-i18n="note_label">หมายเหตุ</div>
       <div class="card-body" id="detail-note" style="font-size:.85rem;color:#aaa;line-height:1.6"></div>
@@ -1073,15 +1079,106 @@ font{border:none!important;outline:none!important;display:inline!important}
     </div>
   </div>
 
+  <!-- TAB: RECEIPTS (ใบเสร็จ/ใบวางบิล) -->
+  <div class="tab-pane" id="pane-receipts">
+    <div style="text-align:center;margin-bottom:1.2rem">
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em">🧾 ตรวจสอบใบเสร็จ / ใบวางบิล</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">บันทึกการออกใบเสร็จทั้งหมด — ออกโดยใคร เมื่อไร ที่ไหน</div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
+        <input type="text" id="rc-search" placeholder="ค้นหาเลขที่/ลูกค้า/PO..." style="padding-left:2rem;width:220px;font-size:.78rem" oninput="renderReceipts()">
+      </div>
+      <select id="rc-filter-issuer" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderReceipts()">
+        <option value="">ทุกพนักงาน</option>
+      </select>
+      <input type="date" id="rc-date-from" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderReceipts()">
+      <span style="color:var(--muted);font-size:.8rem">ถึง</span>
+      <input type="date" id="rc-date-to" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderReceipts()">
+      <div style="position:relative;">
+        <span style="position:absolute;left:.5rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.75rem">📍</span>
+        <input type="text" id="rc-filter-location" placeholder="สถานที่..." style="padding-left:1.6rem;width:130px;font-size:.78rem;padding-top:.4rem;padding-bottom:.4rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" oninput="renderReceipts()">
+      </div>
+      <button onclick="rcClearFilters()" style="font-size:.75rem;padding:.35rem .7rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:6px;cursor:pointer;">✕ ล้าง</button>
+      <button onclick="rcExportCSV()" style="font-size:.75rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ CSV</button>
+      <span id="rc-count" style="font-size:.75rem;color:var(--muted);margin-left:auto;"></span>
+    </div>
+
+    <!-- Summary -->
+    <div id="rc-summary" style="font-size:.85rem;color:var(--text2);margin-bottom:12px;padding:.6rem 1rem;background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r);"></div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="overflow-x:auto">
+        <table class="order-table" style="min-width:900px">
+          <thead>
+            <tr>
+              <th style="width:110px">เลขที่ใบเสร็จ</th>
+              <th style="width:90px">วันเวลา</th>
+              <th style="width:110px">ผู้จดใบเสร็จ</th>
+              <th style="width:110px">ลูกค้า</th>
+              <th style="width:90px">PO อ้างอิง</th>
+              <th style="width:160px">📍 สถานที่ออกใบเสร็จ</th>
+              <th style="width:80px">วิธีชำระ</th>
+              <th style="width:110px;text-align:right">จำนวนเงิน</th>
+            </tr>
+          </thead>
+          <tbody id="rc-body">
+            <tr><td colspan="8" class="empty-state">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="rc-pagination" style="display:flex;justify-content:center;gap:8px;padding:12px;"></div>
+    </div>
+  </div>
+
 <!-- MODALS -->
 <div class="modal-overlay" id="pay-modal" style="display:none" onclick="if(event.target===this)closePayModal()">
-  <div class="modal-box">
-    <div class="bebas text-green" style="font-size:1.2rem;letter-spacing:.1em;margin-bottom:.3rem" data-i18n="btn_pay">ยืนยันการชำระ</div>
-    <div style="font-size:.78rem;color:var(--muted);margin-bottom:1.1rem" data-i18n="pay_by">กรุณาระบุชื่อผู้ชำระเงิน เพื่อบันทึกในประวัติ</div>
-    <div class="form-group"><label class="form-label" data-i18n="report_staff">ชื่อผู้ชำระ *</label><input type="text" id="payer-input" data-i18n-placeholder="ph_payer" placeholder="เช่น นายสมชาย ยางดี..." onkeydown="if(event.key==='Enter')confirmPay()"></div>
+  <div class="modal-box" style="max-width:480px">
+    <div class="bebas text-blue" style="font-size:1.3rem;letter-spacing:.1em;margin-bottom:.2rem">🧾 ออกใบเสร็จ / ใบวางบิล</div>
+    <div style="font-size:.76rem;color:var(--muted);margin-bottom:1rem">ระบบจะสร้างเลขที่ใบเสร็จและบันทึกวัน-เวลาให้อัตโนมัติ</div>
+
+    <!-- ข้อมูล auto (อ่านอย่างเดียว) -->
+    <div style="background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem .9rem;font-size:.76rem;">
+        <div><span style="color:var(--muted);">เลขที่ใบเสร็จ:</span><br><span id="rc-no-preview" style="font-weight:700;color:var(--sky-d);font-family:'IBM Plex Mono',monospace;">RC-........</span></div>
+        <div><span style="color:var(--muted);">วันที่-เวลา:</span><br><span id="rc-datetime-preview" style="font-weight:600;color:var(--text);"></span></div>
+        <div><span style="color:var(--muted);">ผู้จดใบเสร็จ:</span><br><span id="rc-issuer-preview" style="font-weight:600;color:var(--text);"></span></div>
+        <div><span style="color:var(--muted);">📍 สถานที่:</span><br><span id="rc-location-preview" style="font-weight:600;color:var(--gold);font-size:.72rem;"></span></div>
+      </div>
+    </div>
+
+    <!-- ผู้ชำระ (สำหรับ role อื่น) -->
+    <div class="form-group" id="payer-input-group">
+      <label class="form-label">ชื่อผู้ชำระเงิน *</label>
+      <input type="text" id="payer-input" placeholder="เช่น นายสมชาย ยางดี..." onkeydown="if(event.key==='Enter')confirmPay()">
+    </div>
+
+    <!-- วิธีชำระ -->
+    <div class="form-group">
+      <label class="form-label">วิธีชำระเงิน</label>
+      <select id="rc-pay-method">
+        <option value="cash">💵 เงินสด</option>
+        <option value="transfer">🏦 โอนเงิน</option>
+      </select>
+    </div>
+
+    <!-- หมายเหตุ -->
+    <div class="form-group">
+      <label class="form-label">หมายเหตุเพิ่มเติม</label>
+      <textarea id="rc-note" placeholder="หมายเหตุ (ถ้ามี)..." style="min-height:54px"></textarea>
+    </div>
+
+    <div id="rc-location-warn" style="display:none;font-size:.72rem;color:var(--orange-d);background:var(--orange-l);border:1px solid var(--orange-m);border-radius:var(--r-sm);padding:.5rem .7rem;margin-bottom:.8rem;">
+      ⚠ ยังไม่ได้ตั้งค่าสถานที่ประจำ — ไปที่ ⚙ ตั้งค่า เพื่อกำหนดสถานที่ปฏิบัติงาน
+    </div>
+
     <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.5rem">
-      <button class="btn-secondary" onclick="closePayModal()" data-i18n="btn_close">ยกเลิก</button>
-      <button class="btn-pay" onclick="confirmPay()" data-i18n="btn_confirm">✓ ยืนยันชำระแล้ว</button>
+      <button class="btn-secondary" onclick="closePayModal()">ยกเลิก</button>
+      <button class="btn-pay" onclick="confirmPay()">✓ ยืนยันชำระ + ออกใบเสร็จ</button>
     </div>
   </div>
 </div>
@@ -1343,7 +1440,7 @@ function doLogout(){
 
 // ── INIT ──
 async function initApp(){
-  await Promise.all([loadData(),loadAccounts(),loadCustomers(),loadActivityLogs()]);
+  await Promise.all([loadData(),loadAccounts(),loadCustomers(),loadActivityLogs(),loadReceipts()]);
   document.getElementById("form-date").value=nowISO();
   const fdo=document.getElementById("form-date-old");if(fdo)fdo.value=nowISO();
   addItemRow();
@@ -1366,12 +1463,16 @@ async function initApp(){
     reportBtn.style.display="";
     myworkBtn.style.display="none";
     if(activityLogBtn) activityLogBtn.style.display="";
+    const receiptsBtn=document.getElementById("tab-receipts-btn");
+    if(receiptsBtn) receiptsBtn.style.display="";
     renderStaffList();
   } else {
     settingsBtn.style.display="none";
     reportBtn.style.display="none";
     myworkBtn.style.display="";
     if(activityLogBtn) activityLogBtn.style.display="none";
+    const receiptsBtn=document.getElementById("tab-receipts-btn");
+    if(receiptsBtn) receiptsBtn.style.display="none";
   }
   // Show restriction notes per role
   const note=document.getElementById("role-restriction-note");
@@ -1620,6 +1721,7 @@ function switchTab(tab,btn){
   if(tab==="mywork")renderMyWork();
   if(tab==="dashboard")renderDashboard();
   if(tab==="activitylog")renderActivityLog();
+  if(tab==="receipts")renderReceipts();
 }
 
 // ── PENDING ──
@@ -1778,21 +1880,56 @@ let payTargetId=null;
 function openPayModal(id){
   payTargetId=id;
   if(currentUser?.role==="staff_biller"){showToast(t("no_perm"),"error");return;}
-  // Admin และ Staff cashier: ใช้ชื่อบัญชีอัตโนมัติ
+  const o=orders.find(x=>String(x.id)===String(id));
+  if(!o){showToast("ไม่พบรายการ","error");return;}
+
+  // เตรียม preview ข้อมูลใบเสร็จ
+  const loc=_getMyLocation();
+  const locFmt=_fmtLocation(loc);
+  const now=new Date();
+  document.getElementById("rc-no-preview").textContent=_genReceiptNo();
+  document.getElementById("rc-datetime-preview").textContent=
+    now.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+
+    now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById("rc-issuer-preview").textContent=currentUser.displayName||currentUser.username;
+  document.getElementById("rc-location-preview").textContent=locFmt||'— ยังไม่ตั้งค่า —';
+  document.getElementById("rc-location-warn").style.display=locFmt?'none':'block';
+
+  // ผู้ชำระ: admin/cashier เติมชื่อตัวเองอัตโนมัติ แต่ยังให้แก้ได้
+  const payerGroup=document.getElementById("payer-input-group");
+  const payerInput=document.getElementById("payer-input");
   if(currentUser?.role==="admin"||currentUser?.role==="staff_cashier"){
-    execPay(id,currentUser.displayName);return;
+    payerInput.value=currentUser.displayName||currentUser.username;
+  } else {
+    payerInput.value="";
   }
-  document.getElementById("payer-input").value="";
+  document.getElementById("rc-pay-method").value="cash";
+  document.getElementById("rc-note").value="";
+
   document.getElementById("pay-modal").style.display="flex";
-  setTimeout(()=>document.getElementById("payer-input").focus(),100);
+  setTimeout(()=>payerInput.focus(),100);
 }
 function closePayModal(){document.getElementById("pay-modal").style.display="none";payTargetId=null;}
 async function confirmPay(){
   const name=document.getElementById("payer-input").value.trim();
   if(!name){showToast("กรุณาระบุชื่อผู้ชำระ","error");return;}
-  await execPay(payTargetId,name);closePayModal();
+  const payMethod=document.getElementById("rc-pay-method").value;
+  const note=document.getElementById("rc-note").value.trim();
+  await execPay(payTargetId,name,{payMethod,note});
+  closePayModal();
 }
-async function execPay(id,name){
+
+// สร้างเลขที่ใบเสร็จอัตโนมัติ RC-YYMMxxxx
+function _genReceiptNo(){
+  const now=new Date();
+  const yy=String(now.getFullYear()).slice(2);
+  const mm=String(now.getMonth()+1).padStart(2,'0');
+  // counter จาก localStorage (sync กับ Supabase ทีหลัง)
+  let counter=parseInt(localStorage.getItem('rl_receipt_counter')||'0',10)+1;
+  return `RC-${yy}${mm}${String(counter).padStart(4,'0')}`;
+}
+async function execPay(id,name,opts){
+  opts=opts||{};
   const o=orders.find(x=>String(x.id)===String(id));
   if(!o){showToast("ไม่พบรายการ","error");return;}
   const nowISO = new Date().toISOString();
@@ -1818,6 +1955,8 @@ async function execPay(id,name){
   }catch(e){
     console.error("❌ execPay exception:",e);
   }
+  // 2b. สร้างใบเสร็จอัตโนมัติ
+  await createReceipt(o, name, opts);
   // 3. Update localStorage cache
   localStorage.setItem("rubber_orders",JSON.stringify(orders));
   // 4. Update UI
@@ -1882,6 +2021,32 @@ function openDetail(id){
   document.getElementById("detail-badge").innerHTML=`<span class="badge ${badgeCls}">${badgeLabel}</span>`;
   const fields=[[t("col_customer"),o.customer],[t("bill_date"),thaiLong(o.date)],...(o.createdBy?[[t("col_actor"),o.createdBy]]:[]),...(o.paidBy?[[t("col_pay"),o.paidBy]]:[]),...(o.cancelReason?[[t("cancel_reason").replace(" *",""),o.cancelReason]]:[])];
   document.getElementById("detail-info").innerHTML=fields.map(([l,v])=>`<div style="margin-bottom:.8rem"><div class="form-label">${l}</div><div style="font-size:.85rem">${v}</div></div>`).join("");
+
+  // แสดงข้อมูลใบเสร็จ (ถ้ามี)
+  const rcCard=document.getElementById("detail-receipt-card");
+  const rcBody=document.getElementById("detail-receipt");
+  const receipt=getReceiptForOrder(o.id);
+  if(receipt && rcCard && rcBody){
+    rcCard.style.display="block";
+    const dt=new Date(receipt.issued_at);
+    const dateStr=dt.toLocaleDateString('th-TH',{day:'2-digit',month:'long',year:'numeric'});
+    const timeStr=dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const methodLabel={cash:'💵 เงินสด',transfer:'🏦 โอนเงิน'}[receipt.pay_method]||receipt.pay_method;
+    const locFmt=receipt.work_location||'—';
+    rcBody.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem 1.2rem;">
+        <div><div class="form-label">เลขที่ใบเสร็จ</div><div style="font-size:.95rem;font-weight:700;color:var(--sky-d);font-family:'IBM Plex Mono',monospace">${receipt.receipt_no}</div></div>
+        <div><div class="form-label">วิธีชำระ</div><div style="font-size:.85rem">${methodLabel}</div></div>
+        <div><div class="form-label">📅 วันที่ออกใบเสร็จ</div><div style="font-size:.85rem">${dateStr}</div></div>
+        <div><div class="form-label">🕐 เวลา</div><div style="font-size:.85rem">${timeStr} น.</div></div>
+        <div><div class="form-label">👤 ผู้จดใบเสร็จ</div><div style="font-size:.85rem;font-weight:600">${receipt.issued_by_name||receipt.issued_by}</div></div>
+        <div><div class="form-label">📍 สถานที่ออกใบเสร็จ</div><div style="font-size:.82rem;color:var(--gold)">${locFmt}</div></div>
+      </div>
+      ${receipt.note?`<div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)"><div class="form-label">หมายเหตุ</div><div style="font-size:.82rem;color:var(--text2)">${receipt.note}</div></div>`:''}
+    `;
+  } else if(rcCard){
+    rcCard.style.display="none";
+  }
   const rubberQty=o.totalQty||0;
   const itemsHtml=o.items.map(it=>{
     const isS=it.productId==="SHIPPING";
@@ -3251,6 +3416,193 @@ document.addEventListener("DOMContentLoaded", () => {
   if (sel) sel.value = saved;
   applyLang();
 });
+
+// =====================================================
+// RECEIPTS (ใบเสร็จ / ใบวางบิล)
+// =====================================================
+let _receipts = [];
+let _rcPage = 1;
+const RC_PER_PAGE = 50;
+
+// สร้างใบเสร็จเมื่อชำระเงิน
+async function createReceipt(order, payerName, opts) {
+  opts = opts || {};
+  const loc = _getMyLocation();
+  const workLocation = _fmtLocation(loc);
+  const receiptNo = _genReceiptNo();
+  const nowISO = new Date().toISOString();
+
+  // เพิ่ม counter
+  let counter = parseInt(localStorage.getItem('rl_receipt_counter')||'0',10)+1;
+  localStorage.setItem('rl_receipt_counter', String(counter));
+
+  const receipt = {
+    receipt_no:     receiptNo,
+    order_id:       String(order.id),
+    po_no:          order.poNo || '',
+    customer:       order.customer || '',
+    amount:         order.grandTotal || 0,
+    total_qty:      order.totalQty || 0,
+    pay_method:     opts.payMethod || 'cash',
+    issued_by:      currentUser?.username || '',
+    issued_by_name: payerName || currentUser?.displayName || '',
+    issued_role:    currentUser?.role || '',
+    work_location:  workLocation,
+    note:           opts.note || '',
+    issued_at:      nowISO,
+    created_at:     nowISO
+  };
+
+  try {
+    const { error } = await _sb.from('receipts').insert(receipt);
+    if (error) {
+      console.error('createReceipt error:', error.message);
+    } else {
+      _receipts.unshift(receipt);
+      // sync counter ขึ้น Supabase
+      _sb.from('app_data').upsert({key:'receipt_counter',value:String(counter),updated_at:nowISO}).then(()=>{});
+    }
+  } catch(e) { console.warn('createReceipt:', e); }
+
+  return receipt;
+}
+
+async function loadReceipts() {
+  try {
+    const { data, error } = await _sb
+      .from('receipts')
+      .select('*')
+      .order('issued_at', { ascending: false })
+      .limit(500);
+    if (!error && data) {
+      _receipts = data;
+      // อัปเดต counter ให้ตรงกับล่าสุด
+      const cnt = parseInt(localStorage.getItem('rl_receipt_counter')||'0',10);
+      if (data.length > cnt) localStorage.setItem('rl_receipt_counter', String(data.length));
+      _rcPopulateIssuerFilter();
+    }
+  } catch(e) { console.warn('loadReceipts:', e); }
+}
+
+function _rcPopulateIssuerFilter() {
+  const sel = document.getElementById('rc-filter-issuer');
+  if (!sel) return;
+  const issuers = [...new Set(_receipts.map(r => r.issued_by_name||r.issued_by))].filter(Boolean).sort();
+  sel.innerHTML = '<option value="">ทุกพนักงาน</option>' +
+    issuers.map(a => `<option value="${a}">${a}</option>`).join('');
+}
+
+// ดึงใบเสร็จของ order (สำหรับหน้ารายละเอียด)
+function getReceiptForOrder(orderId) {
+  return _receipts.find(r => String(r.order_id) === String(orderId));
+}
+
+function rcClearFilters() {
+  ['rc-search','rc-filter-issuer','rc-date-from','rc-date-to','rc-filter-location'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  _rcPage = 1;
+  renderReceipts();
+}
+
+function renderReceipts() {
+  const search   = (document.getElementById('rc-search')?.value || '').toLowerCase();
+  const issuer   = document.getElementById('rc-filter-issuer')?.value || '';
+  const dateFrom = document.getElementById('rc-date-from')?.value || '';
+  const dateTo   = document.getElementById('rc-date-to')?.value   || '';
+  const location = (document.getElementById('rc-filter-location')?.value || '').toLowerCase();
+
+  let filtered = _receipts.filter(r => {
+    const issuerName = r.issued_by_name || r.issued_by;
+    if (issuer && issuerName !== issuer) return false;
+    if (dateFrom && (r.issued_at||'').slice(0,10) < dateFrom) return false;
+    if (dateTo   && (r.issued_at||'').slice(0,10) > dateTo)   return false;
+    if (location && !(r.work_location||'').toLowerCase().includes(location)) return false;
+    if (search) {
+      const hay = [r.receipt_no, r.po_no, r.customer, issuerName, r.note, r.work_location].join(' ').toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  const countEl = document.getElementById('rc-count');
+  if (countEl) countEl.textContent = `${filtered.length} ใบ`;
+
+  // สรุปยอด
+  const sumEl = document.getElementById('rc-summary');
+  if (sumEl) {
+    const totalAmt = filtered.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const totalQty = filtered.reduce((s,r)=>s+(parseFloat(r.total_qty)||0),0);
+    sumEl.innerHTML = `รวม <b style="color:var(--green)">₭${totalAmt.toLocaleString('th-TH')}</b> · <b style="color:var(--gold)">${totalQty.toLocaleString('th-TH',{maximumFractionDigits:1})} กก.</b>`;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / RC_PER_PAGE));
+  if (_rcPage > totalPages) _rcPage = totalPages;
+  const page = filtered.slice((_rcPage-1)*RC_PER_PAGE, _rcPage*RC_PER_PAGE);
+
+  const tbody = document.getElementById('rc-body');
+  if (!tbody) return;
+
+  if (page.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">ไม่พบใบเสร็จ</td></tr>`;
+    document.getElementById('rc-pagination').innerHTML = '';
+    return;
+  }
+
+  const methodLabel = { cash:'💵 เงินสด', transfer:'🏦 โอน' };
+
+  tbody.innerHTML = page.map(r => {
+    const dt = new Date(r.issued_at);
+    const dateStr = dt.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    const timeStr = dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const locParts = (r.work_location||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const locHtml = locParts.length
+      ? `<div style="font-size:.7rem;color:var(--gold);">${locParts.join('<br>')}</div>`
+      : `<span style="color:var(--muted);font-size:.7rem;">—</span>`;
+    return `<tr>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:.74rem;font-weight:700;color:var(--sky-d);white-space:nowrap;">${r.receipt_no}</td>
+      <td style="font-size:.72rem;white-space:nowrap;">
+        <div style="color:var(--text)">${dateStr}</div>
+        <div style="color:var(--muted)">${timeStr}</div>
+      </td>
+      <td style="font-size:.76rem;font-weight:600;">${r.issued_by_name||r.issued_by}</td>
+      <td style="font-size:.76rem;color:var(--text2);">${r.customer||'—'}</td>
+      <td style="font-size:.72rem;color:var(--blue);">${r.po_no||'—'}</td>
+      <td>${locHtml}</td>
+      <td style="font-size:.72rem;white-space:nowrap;">${methodLabel[r.pay_method]||r.pay_method}</td>
+      <td style="text-align:right;font-weight:700;color:var(--green);white-space:nowrap;">₭${(parseFloat(r.amount)||0).toLocaleString('th-TH')}</td>
+    </tr>`;
+  }).join('');
+
+  const pagDiv = document.getElementById('rc-pagination');
+  if (pagDiv && totalPages > 1) {
+    pagDiv.innerHTML = Array.from({length: totalPages}, (_,i) => i+1).map(p =>
+      `<button onclick="_rcSetPage(${p})" style="padding:.25rem .55rem;font-size:.75rem;border-radius:4px;border:1px solid var(--border);background:${p===_rcPage?'var(--sky)':'var(--surface2)'};color:${p===_rcPage?'#fff':'var(--text)'};cursor:pointer;">${p}</button>`
+    ).join('');
+  } else if (pagDiv) { pagDiv.innerHTML = ''; }
+}
+
+function _rcSetPage(p) { _rcPage = p; renderReceipts(); }
+
+function rcExportCSV() {
+  const BOM = '\uFEFF';
+  const headers = ['เลขที่ใบเสร็จ','วันที่','เวลา','ผู้จดใบเสร็จ','Role','ลูกค้า','PO','บ้าน/หมู่บ้าน','เขต','เมือง','แขวง/จังหวัด','วิธีชำระ','น้ำหนัก(กก.)','จำนวนเงิน','หมายเหตุ'];
+  const rows = _receipts.map(r => {
+    const dt = new Date(r.issued_at);
+    const locParts = (r.work_location||'').split(',').map(s=>s.trim());
+    return [
+      r.receipt_no, dt.toLocaleDateString('th-TH'), dt.toLocaleTimeString('th-TH'),
+      r.issued_by_name||r.issued_by, r.issued_role, r.customer||'', r.po_no||'',
+      locParts[0]||'', locParts[1]||'', locParts[2]||'', locParts[3]||'',
+      r.pay_method, r.total_qty||0, r.amount||0, r.note||''
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const csv = BOM + [headers.join(','), ...rows].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download = `receipts-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
 
 // =====================================================
 // ACTIVITY LOG
