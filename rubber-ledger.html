@@ -197,7 +197,6 @@ font{border:none!important;outline:none!important;display:inline!important}
 #tab-mywork-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-report-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-activitylog-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-#tab-billpending-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
 #tab-billhistory-btn.active{color:var(--sky);border-bottom-color:var(--sky)}
 #tab-settings-btn.active{color:var(--muted);border-bottom-color:var(--border2)}
 .tab-btn.active{font-weight:700;background:#fff;}
@@ -637,7 +636,6 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-history-btn" onclick="switchTab('history',this)" data-i18n="tab_history">ประวัติการเก็บเงิน</button>
     <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none" data-i18n="tab_mywork">รายละเอียดการดำเนินการ</button>
     <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
-    <button class="tab-btn" id="tab-billpending-btn" onclick="switchTab('billpending',this)" style="display:none" data-i18n="tab_billpending">⏳ บิลที่ยังไม่ชำระ</button>
     <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none" data-i18n="tab_billhistory">📚 ประวัติใบบิลที่ชำระแล้ว</button>
     <div style="flex:1"></div>
     <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none" data-i18n="tab_activitylog">🕐 กิจกรรม</button>
@@ -1026,43 +1024,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div id="rc-staff-sections" style="display:none"></div>
   </div>
 
-  <!-- TAB: BILL PENDING (บิลที่ยังไม่ชำระ) -->
-  <div class="tab-pane" id="pane-billpending">
-    <div style="text-align:center;margin-bottom:1.2rem">
-      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="bp_title">⏳ บิลที่ยังไม่ชำระ</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:4px" data-i18n="bp_sub">รายการบิลทั้งหมดที่ยังไม่ได้รับการชำระเงิน</div>
-    </div>
-
-    <!-- Filters -->
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-      <div style="position:relative;">
-        <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-        <input type="text" id="bp-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="renderBillPending()">
-      </div>
-      <button onclick="bpExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ Excel</button>
-      <button onclick="bpExportPDF()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨 PDF</button>
-      <span id="bp-count" style="font-size:.75rem;color:var(--muted);margin-left:auto;"></span>
-    </div>
-
-    <!-- Summary -->
-    <div class="stat-grid" id="bp-summary" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.2rem"></div>
-
-    <!-- Table -->
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div style="overflow-x:auto">
-        <table class="order-table" style="min-width:860px">
-          <thead><tr>
-            <th data-i18n="col_bill_no">เลขที่บิล</th><th data-i18n="col_customer">ลูกค้า</th><th data-i18n="col_issue_dt">วันเวลาออกบิล</th>
-            <th style="text-align:right" data-i18n="col_kg">น้ำหนัก (กก.)</th><th style="text-align:right" data-i18n="col_due_amt">ยอดต้องชำระ</th>
-            <th data-i18n="col_biller">ผู้จดบิล</th><th data-i18n="col_status">สถานะ</th>
-          </tr></thead>
-          <tbody id="bp-body"><tr><td colspan="7" class="empty-state">กำลังโหลด...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: BILL HISTORY (ประวัติใบบิล) -->
+    <!-- TAB: BILL HISTORY (ประวัติใบบิล) -->
   <div class="tab-pane" id="pane-billhistory">
     <div style="text-align:center;margin-bottom:1.2rem">
       <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="bh_title">📚 ประวัติใบบิลที่ชำระแล้ว</div>
@@ -1608,9 +1570,7 @@ async function initApp(){
     reportBtn.style.display="";
     myworkBtn.style.display="none";
     if(activityLogBtn) activityLogBtn.style.display="";
-    const bpBtn=document.getElementById("tab-billpending-btn");
     const bhBtn=document.getElementById("tab-billhistory-btn");
-    if(bpBtn) bpBtn.style.display="";
     if(bhBtn) bhBtn.style.display="";
     renderStaffList();
   } else {
@@ -1618,9 +1578,7 @@ async function initApp(){
     reportBtn.style.display="none";
     myworkBtn.style.display="";
     if(activityLogBtn) activityLogBtn.style.display="none";
-    const bpBtn=document.getElementById("tab-billpending-btn");
     const bhBtn=document.getElementById("tab-billhistory-btn");
-    if(bpBtn) bpBtn.style.display="none";
     if(bhBtn) bhBtn.style.display="none";
   }
   // Show restriction notes per role
@@ -1867,7 +1825,6 @@ function switchTab(tab,btn){
   if(tab==="customers"){renderCustomers();updateCustomerDatalist();}
   if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();}
   if(tab==="report"&&currentUser?.role==="admin")renderReport();
-  if(tab==="billpending"&&currentUser?.role==="admin")renderBillPending();
   if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
   if(tab==="mywork")renderMyWork();
   if(tab==="dashboard")renderDashboard();
@@ -2592,7 +2549,7 @@ function sdExportCSV(){
 }
 
 // =====================================================
-// บิลที่ยังไม่ชำระ (BILL PENDING) — status sent
+// Date-time helper (ใช้ร่วมในหลายส่วน)
 // =====================================================
 function _billDateTime(iso){
   if(!iso) return {d:'—',t:''};
@@ -2608,56 +2565,6 @@ function _billDateTime(iso){
   };
 }
 
-function renderBillPending(){
-  const q=(document.getElementById('bp-search')?.value||'').toLowerCase();
-  let list=orders.filter(o=>o.status==='sent').filter(o=>{
-    if(!q) return true;
-    return [o.poNo,o.customer,o.createdBy].join(' ').toLowerCase().includes(q);
-  });
-  // เรียงตามวันออกบิลล่าสุด
-  list.sort((a,b)=>((b.createdAt||b.date||'')<(a.createdAt||a.date||'')?-1:1));
-
-  const totKg=list.reduce((s,o)=>s+(o.totalQty||0),0);
-  const totAmt=list.reduce((s,o)=>s+(o.grandTotal||0),0);
-  document.getElementById('bp-summary').innerHTML=[
-    [t('bp_count'),list.length+' '+t('al_items'),'var(--orange)'],
-    [t('sd_total_weight'),totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' '+t('unit_kg'),'var(--gold)'],
-    [t('bp_total_due'),'₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
-  ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
-
-  document.getElementById('bp-count').textContent=`${list.length} ใบ`;
-  const tbody=document.getElementById('bp-body');
-  if(list.length===0){tbody.innerHTML=`<tr><td colspan="7" class="empty-state">${t('bp_empty')}</td></tr>`;return;}
-  tbody.innerHTML=list.map(o=>{
-    const dt=_billDateTime(o.createdAt||o.date);
-    return `<tr>
-      <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${o.poNo||'—'}</td>
-      <td style="font-weight:600">${o.customer||'—'}</td>
-      <td style="font-size:.74rem"><div>${dt.d}</div><div style="color:var(--muted)">${dt.t}</div></td>
-      <td class="mono" style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
-      <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
-      <td style="font-size:.78rem">${o.createdBy||'—'}</td>
-      <td><span class="badge badge-sent">${t('badge_pending')}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-function bpExportCSV(){
-  const q=(document.getElementById('bp-search')?.value||'').toLowerCase();
-  const list=orders.filter(o=>o.status==='sent').filter(o=>!q||[o.poNo,o.customer,o.createdBy].join(' ').toLowerCase().includes(q));
-  const BOM='\uFEFF';
-  const headers=['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','น้ำหนัก(กก.)','ยอดต้องชำระ','ผู้จดบิล','สถานะ'];
-  const rows=list.map(o=>[o.poNo,o.customer,(o.createdAt||o.date||''),o.totalQty||0,o.grandTotal||0,o.createdBy||'','รอชำระ'].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-  _downloadCSV(BOM+[headers.join(','),...rows].join('\r\n'),'bill-pending');
-}
-function bpExportPDF(){
-  const q=(document.getElementById('bp-search')?.value||'').toLowerCase();
-  const list=orders.filter(o=>o.status==='sent').filter(o=>!q||[o.poNo,o.customer,o.createdBy].join(' ').toLowerCase().includes(q));
-  const rows=list.map(o=>{const dt=_billDateTime(o.createdAt||o.date);return `<tr><td>${o.poNo||'—'}</td><td>${o.customer||'—'}</td><td>${dt.d} ${dt.t}</td><td style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td><td style="text-align:right">₭${(o.grandTotal||0).toLocaleString('th-TH')}</td><td>${o.createdBy||'—'}</td><td>รอชำระ</td></tr>`;}).join('');
-  _printPDF('บิลที่ยังไม่ชำระ',['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','น้ำหนัก(กก.)','ยอดต้องชำระ','ผู้จดบิล','สถานะ'],rows);
-}
-
-// =====================================================
 // ประวัติใบบิล (BILL HISTORY) — status paid
 // =====================================================
 function bhClearDates(){
@@ -3752,7 +3659,6 @@ const LANG_DICT = {
     ph_note: "เช่น คุณภาพยาง DRC ≥ 60%, เงื่อนไขพิเศษ...",
     tab_dashboard: "📊 แดชบอร์ด",
     tab_billhistory: "📚 ประวัติใบบิลที่ชำระแล้ว",
-    tab_billpending: "⏳ บิลที่ยังไม่ชำระ",
     tab_activitylog: "🕐 กิจกรรม",
     dash_total_buy: "ยอดซื้อรวม (จ่ายแล้ว)",
     dash_total_kg: "น้ำหนักยางรวม",
@@ -3764,11 +3670,6 @@ const LANG_DICT = {
     dash_by_staff: "ยอดรวมรายพนักงาน",
     dash_no_data: "ยังไม่มีข้อมูล",
     dash_loading: "กำลังโหลดข้อมูล...",
-    bp_title: "บิลที่ยังไม่ชำระ",
-    bp_sub: "รายการบิลทั้งหมดที่ยังไม่ได้รับการชำระเงิน",
-    bp_count: "บิลที่ยังไม่ชำระ",
-    bp_total_due: "ยอดต้องชำระรวม",
-    bp_empty: "ไม่มีบิลที่ยังไม่ชำระ",
     bh_title: "ประวัติใบบิลที่ชำระแล้ว",
     bh_sub: "ใบบิลที่ชำระเงินเรียบร้อยแล้ว — เรียงตามเวลาชำระล่าสุด",
     bh_paid_count: "ใบบิลชำระแล้ว",
@@ -3985,7 +3886,6 @@ const LANG_DICT = {
     ph_note: "ຕົວຢ່າງ: ຄຸນນະພາບຢາງ DRC ≥ 60%, ເງື່ອນໄຂພິເສດ...",
     tab_dashboard: "📊 ແດຊບອດ",
     tab_billhistory: "📚 ປະຫວັດໃບບິນທີ່ຊຳລະແລ້ວ",
-    tab_billpending: "⏳ ບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
     tab_activitylog: "🕐 ກິດຈະກຳ",
     dash_total_buy: "ຍອດຊື້ລວມ (ຈ່າຍແລ້ວ)",
     dash_total_kg: "ນ້ຳໜັກຢາງລວມ",
@@ -3997,11 +3897,6 @@ const LANG_DICT = {
     dash_by_staff: "ຍອດລວມລາຍພະນັກງານ",
     dash_no_data: "ຍັງບໍ່ມີຂໍ້ມູນ",
     dash_loading: "ກຳລັງໂຫຼດຂໍ້ມູນ...",
-    bp_title: "ບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
-    bp_sub: "ລາຍການບິນທັງໝົດທີ່ຍັງບໍ່ໄດ້ຮັບການຊຳລະເງິນ",
-    bp_count: "ບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
-    bp_total_due: "ຍອດຕ້ອງຊຳລະລວມ",
-    bp_empty: "ບໍ່ມີບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
     bh_title: "ປະຫວັດໃບບິນທີ່ຊຳລະແລ້ວ",
     bh_sub: "ໃບບິນທີ່ຊຳລະເງິນຮຽບຮ້ອຍແລ້ວ — ຮຽງຕາມເວລາຊຳລະຫຼ້າສຸດ",
     bh_paid_count: "ໃບບິນຊຳລະແລ້ວ",
@@ -4218,7 +4113,6 @@ const LANG_DICT = {
     ph_note: "e.g. DRC ≥ 60%, special conditions...",
     tab_dashboard: "📊 Dashboard",
     tab_billhistory: "📚 Paid Bill History",
-    tab_billpending: "⏳ Unpaid Bills",
     tab_activitylog: "🕐 Activity",
     dash_total_buy: "Total Purchases (Paid)",
     dash_total_kg: "Total Rubber Weight",
@@ -4230,11 +4124,6 @@ const LANG_DICT = {
     dash_by_staff: "Total by Staff",
     dash_no_data: "No data yet",
     dash_loading: "Loading data...",
-    bp_title: "Unpaid Bills",
-    bp_sub: "All bills that have not been paid",
-    bp_count: "Unpaid Bills",
-    bp_total_due: "Total Amount Due",
-    bp_empty: "No unpaid bills",
     bh_title: "Paid Bill History",
     bh_sub: "Bills that have been fully paid — sorted by latest payment",
     bh_paid_count: "Paid Bills",
@@ -4444,7 +4333,6 @@ function applyLang() {
     if (at === "dashboard" && typeof renderDashboard === "function") renderDashboard();
     if (at === "history" && typeof renderHistory === "function") renderHistory();
     if (at === "report" && typeof renderReport === "function") renderReport();
-    if (at === "billpending" && typeof renderBillPending === "function") renderBillPending();
     if (at === "billhistory" && typeof renderBillHistory === "function") renderBillHistory();
     if (at === "activitylog" && typeof renderActivityLog === "function") renderActivityLog();
     if (at === "mywork" && typeof renderMyWork === "function") renderMyWork();
