@@ -3156,8 +3156,9 @@ function renderReport(){
   ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join("");
 
   const sec=document.getElementById("report-staff-sections");
-  if(staffData.length===0){sec.innerHTML=`<div class="card"><div class="empty-state"><div style="font-size:2rem">📋</div><div>${t("empty")}</div></div></div>`;return;}
-  sec.innerHTML=staffData.map(s=>`
+  let _payHtml = staffData.length===0
+    ? `<div class="card"><div class="empty-state"><div style="font-size:2rem">📋</div><div>${t("empty")}</div></div></div>`
+    : staffData.map(s=>`
     <div class="card" style="margin-bottom:1.2rem">
       <div class="card-header" style="background:var(--surface2);cursor:pointer" onclick="openStaffDetail('${s.name.replace(/'/g,"\\'")}','pay')" title="คลิกดูรายละเอียดเชิงลึก">
         <div style="display:flex;align-items:center;gap:1rem">
@@ -3186,15 +3187,17 @@ function renderReport(){
       </div>
     </div>`).join("");
 
+  sec.innerHTML = _payHtml;
+
   // ===== พนักงานจดบิล (clickable) =====
   const billMap={};
-  orders.filter(o=>o.createdBy).filter(o=>{
+  orders.filter(o=>{
     const od=((o.createdAt||o.date||"")+"").slice(0,10);
     if(dFrom && od<dFrom) return false;
     if(dTo && od>dTo) return false;
     return true;
   }).forEach(o=>{
-    const k=o.createdBy;
+    const k=o.createdBy || "—";
     if(!billMap[k])billMap[k]={name:k,count:0,kg:0};
     billMap[k].count++; billMap[k].kg+=o.totalQty||0;
   });
@@ -3203,19 +3206,21 @@ function renderReport(){
     sec.innerHTML += `
       <div style="display:flex;align-items:center;gap:8px;margin:1.6rem 0 .8rem;padding-bottom:.5rem;border-bottom:2px solid var(--sky)">
         <span style="font-size:1rem">📝</span>
-        <span style="font-weight:700;font-size:.95rem;color:var(--sky-d)">พนักงานจดบิล — คลิกเพื่อดูเชิงลึก</span>
+        <span style="font-weight:700;font-size:.95rem;color:var(--sky-d)">${t('sd_billers')}</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
-        ${billers.map(b=>`
-          <div onclick="openStaffDetail('${b.name.replace(/'/g,"\\'")}','bill')" style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--sky);border-radius:var(--r);padding:.8rem 1rem;cursor:pointer;transition:all .15s" onmouseover="this.style.background='var(--sky-l)'" onmouseout="this.style.background='var(--surface)'">
+        ${billers.map(b=>{
+          const clickable = b.name!=="—";
+          return `
+          <div ${clickable?`onclick="openStaffDetail('${b.name.replace(/'/g,"\\'")}','bill')" style="cursor:pointer"`:'style="cursor:default"'} class="biller-card" style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--sky);border-radius:var(--r);padding:.8rem 1rem;transition:all .15s" ${clickable?`onmouseover="this.style.background='var(--sky-l)'" onmouseout="this.style.background='var(--surface)'"`:''}>
             <div style="display:flex;align-items:center;gap:.7rem">
-              <div style="width:32px;height:32px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:#fff;flex-shrink:0">${b.name.charAt(0)}</div>
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:#fff;flex-shrink:0">${(b.name||'?').charAt(0)}</div>
               <div style="min-width:0">
-                <div style="font-size:.85rem;font-weight:600">${b.name} <span style="font-size:.6rem;color:var(--sky)">🔍</span></div>
-                <div style="font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace">${b.count} ใบ · ${b.kg.toLocaleString("th-TH",{maximumFractionDigits:1})} กก.</div>
+                <div style="font-size:.85rem;font-weight:600">${b.name}${clickable?` <span style="font-size:.6rem;color:var(--sky)">🔍</span>`:''}</div>
+                <div style="font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace">${b.count} ${t('al_items')} · ${b.kg.toLocaleString("th-TH",{maximumFractionDigits:1})} ${t('unit_kg')}</div>
               </div>
             </div>
-          </div>`).join("")}
+          </div>`;}).join("")}
       </div>`;
   }
 }
