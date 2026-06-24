@@ -652,11 +652,11 @@ font{border:none!important;outline:none!important;display:inline!important}
       <!-- Row: กราฟรายเดือน + Top ลูกค้า -->
       <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:14px;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;">📈 ยอดซื้อรายเดือน (บาท)</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;" data-i18n="dash_monthly">📈 ยอดซื้อรายเดือน (บาท)</div>
           <canvas id="dash-chart-monthly" height="200"></canvas>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;">🏆 Top ลูกค้า (กก.)</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;" data-i18n="dash_top_cust">🏆 Top ลูกค้า (กก.)</div>
           <div id="dash-top-customers"></div>
         </div>
       </div>
@@ -664,11 +664,11 @@ font{border:none!important;outline:none!important;display:inline!important}
       <!-- Row: สถานะ + พนักงาน -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:14px;font-size:14px;">📋 สถานะใบเก็บซื้อ</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:14px;font-size:14px;" data-i18n="dash_status">📋 สถานะใบเก็บซื้อ</div>
           <canvas id="dash-chart-status" height="180"></canvas>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;">👤 ยอดรวมรายพนักงาน</div>
+          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;" data-i18n="dash_by_staff">👤 ยอดรวมรายพนักงาน</div>
           <div id="dash-staff-list"></div>
         </div>
       </div>
@@ -5192,10 +5192,10 @@ function renderDashboard() {
   if (kpiEl) {
     const fmt = n => n.toLocaleString('th-TH', {maximumFractionDigits: 2});
     kpiEl.innerHTML = `
-      ${_kpiCard('💰', 'ยอดซื้อรวม (จ่ายแล้ว)', fmt(totalAmt) + ' ฿', 'var(--green)')}
-      ${_kpiCard('⚖️', 'น้ำหนักยางรวม', fmt(totalKg) + ' กก.', 'var(--gold)')}
-      ${_kpiCard('📄', 'ใบรอชำระ', pending.length + ' ใบ / ' + fmt(pendingAmt) + ' ฿', 'var(--blue)')}
-      ${_kpiCard('📦', 'ใบทั้งหมด', orders.length + ' ใบ', 'var(--accent)')}
+      ${_kpiCard('💰', t('dash_total_buy'), fmt(totalAmt) + ' ฿', 'var(--green)')}
+      ${_kpiCard('⚖️', t('dash_total_kg'), fmt(totalKg) + ' '+t('unit_kg'), 'var(--gold)')}
+      ${_kpiCard('📄', t('dash_pending'), pending.length + ' ใบ / ' + fmt(pendingAmt) + ' ฿', 'var(--blue)')}
+      ${_kpiCard('📦', t('dash_all_bills'), orders.length + ' ใบ', 'var(--accent)')}
     `;
   }
 
@@ -5225,8 +5225,8 @@ function renderDashboard() {
       data: {
         labels: monthLabels,
         datasets: [
-          { label: 'บาท', data: amtVals, backgroundColor: 'rgba(26,107,58,0.75)', borderColor: 'var(--accent)', borderWidth: 1, yAxisID: 'y' },
-          { label: 'กก.', data: kgVals,  backgroundColor: 'rgba(201,162,39,0.55)', borderColor: '#c9a227', borderWidth: 1, yAxisID: 'y2', type: 'line', tension: 0.3, pointRadius: 3 }
+          { label: t('dash_monthly'), data: amtVals, backgroundColor: 'rgba(26,107,58,0.75)', borderColor: 'var(--accent)', borderWidth: 1, yAxisID: 'y' },
+          { label: t('unit_kg'), data: kgVals,  backgroundColor: 'rgba(201,162,39,0.55)', borderColor: '#c9a227', borderWidth: 1, yAxisID: 'y2', type: 'line', tension: 0.3, pointRadius: 3 }
         ]
       },
       options: {
@@ -5234,8 +5234,8 @@ function renderDashboard() {
         plugins: { legend: { labels: { color: 'var(--text)', font: { size: 12 } } } },
         scales: {
           x:  { ticks: { color: '#6B7280', font: { size: 11 } }, grid: { color: 'var(--border)' } },
-          y:  { ticks: { color: '#6B7280', font: { size: 11 } }, grid: { color: 'var(--border)' }, title: { display: true, text: 'บาท', color: '#6B7280' } },
-          y2: { position: 'right', ticks: { color: '#c9a227', font: { size: 11 } }, grid: { drawOnChartArea: false }, title: { display: true, text: 'กก.', color: '#c9a227' } }
+          y:  { ticks: { color: '#6B7280', font: { size: 11 } }, grid: { color: 'var(--border)' }, title: { display: true, text: t('dash_monthly'), color: '#6B7280' } },
+          y2: { position: 'right', ticks: { color: '#c9a227', font: { size: 11 } }, grid: { drawOnChartArea: false }, title: { display: true, text: t('unit_kg'), color: '#c9a227' } }
         }
       }
     });
@@ -5248,7 +5248,7 @@ function renderDashboard() {
     _dashChartStatus = new Chart(ctxS, {
       type: 'doughnut',
       data: {
-        labels: ['จ่ายแล้ว', 'รอชำระ', 'แบบร่าง', 'ยกเลิก'],
+        labels: [t('status_paid'), t('status_sent'), t('status_draft'), t('status_cancelled')],
         datasets: [{ data: [paid.length, pending.length, draft.length, cancelled.length],
           backgroundColor: ['var(--accent)', '#4a7fc1', '#555', '#c8451a'],
           borderColor: 'var(--surface)', borderWidth: 3 }]
@@ -5275,12 +5275,12 @@ function renderDashboard() {
   const maxKg = topCust[0]?.[1].kg || 1;
   const topEl = document.getElementById('dash-top-customers');
   if (topEl) {
-    topEl.innerHTML = topCust.length === 0 ? '<div style="color:var(--muted);font-size:13px;">ยังไม่มีข้อมูล</div>' :
+    topEl.innerHTML = topCust.length === 0 ? '<div style="color:var(--muted);font-size:13px;">'+t('dash_no_data')+'</div>' :
       topCust.map(([name, d], i) => `
         <div style="margin-bottom:10px;">
           <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text);margin-bottom:3px;">
             <span>${i+1}. ${name}</span>
-            <span style="color:var(--gold)">${d.kg.toLocaleString('th-TH',{maximumFractionDigits:1})} กก.</span>
+            <span style="color:var(--gold)">${d.kg.toLocaleString('th-TH',{maximumFractionDigits:1})} ${t('unit_kg')}</span>
           </div>
           <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;">
             <div style="background:var(--gold);width:${(d.kg/maxKg*100).toFixed(1)}%;height:100%;border-radius:4px;"></div>
@@ -5301,13 +5301,13 @@ function renderDashboard() {
   const staffList = Object.entries(staffMap).sort((a, b) => b[1].amt - a[1].amt);
   const staffEl = document.getElementById('dash-staff-list');
   if (staffEl) {
-    staffEl.innerHTML = staffList.length === 0 ? '<div style="color:var(--muted);font-size:13px;">ยังไม่มีข้อมูล</div>' :
+    staffEl.innerHTML = staffList.length === 0 ? '<div style="color:var(--muted);font-size:13px;">'+t('dash_no_data')+'</div>' :
       `<table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="color:var(--muted);border-bottom:1px solid var(--border);">
           <th style="padding:5px 6px;text-align:left;">พนักงาน</th>
           <th style="padding:5px 6px;text-align:right;">ใบ</th>
-          <th style="padding:5px 6px;text-align:right;">กก.</th>
-          <th style="padding:5px 6px;text-align:right;">บาท</th>
+          <th style="padding:5px 6px;text-align:right;">${t('unit_kg')}</th>
+          <th style="padding:5px 6px;text-align:right;">₭</th>
         </tr></thead>
         <tbody>
           ${staffList.map(([name, d]) => `
