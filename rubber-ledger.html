@@ -630,17 +630,17 @@ font{border:none!important;outline:none!important;display:inline!important}
   </div>
 
   <div id="tabs">
-    <button class="tab-btn" id="tab-dashboard-btn" onclick="switchTab('dashboard',this)" data-i18n="tab_dashboard">📊 Dashboard</button>
+    <button class="tab-btn" id="tab-dashboard-btn" onclick="switchTab('dashboard',this)" data-i18n="tab_dashboard">📊 แดชบอร์ด</button>
     <button class="tab-btn" id="tab-customers-btn" onclick="switchTab('customers',this)" data-i18n="tab_customers">ข้อมูลลูกค้า</button>
     <button class="tab-btn active" id="tab-create-btn" onclick="switchTab('create',this)" data-i18n="tab_create">+ สร้างใบเก็บซื้อ</button>
     <button class="tab-btn" id="tab-pending-btn" onclick="switchTab('pending',this)" data-i18n="tab_pending">รอชำระ</button>
     <button class="tab-btn" id="tab-history-btn" onclick="switchTab('history',this)" data-i18n="tab_history">ประวัติการเก็บเงิน</button>
     <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none" data-i18n="tab_mywork">รายละเอียดการดำเนินการ</button>
     <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
-    <button class="tab-btn" id="tab-billpending-btn" onclick="switchTab('billpending',this)" style="display:none">⏳ บิลที่ยังไม่ชำระ</button>
-    <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none">📚 ประวัติใบบิลที่ชำระแล้ว</button>
+    <button class="tab-btn" id="tab-billpending-btn" onclick="switchTab('billpending',this)" style="display:none" data-i18n="tab_billpending">⏳ บิลที่ยังไม่ชำระ</button>
+    <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none" data-i18n="tab_billhistory">📚 ประวัติใบบิลที่ชำระแล้ว</button>
     <div style="flex:1"></div>
-    <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none">🕐 กิจกรรม</button>
+    <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none" data-i18n="tab_activitylog">🕐 กิจกรรม</button>
     <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
   </div>
 
@@ -938,30 +938,30 @@ font{border:none!important;outline:none!important;display:inline!important}
 
     <!-- การ์ด: สถานที่ปฏิบัติงานประจำของตนเอง -->
     <div class="card" style="border-left:3px solid var(--gold);margin-bottom:1rem;">
-      <div class="card-header" style="color:var(--gold);">📍 สถานที่ปฏิบัติงานประจำ</div>
+      <div class="card-header" style="color:var(--gold);" data-i18n="loc_card_title">📍 สถานที่ปฏิบัติงานประจำ</div>
       <div class="card-body">
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.9rem;">ระบบจะนำข้อมูลนี้ไปบันทึกอัตโนมัติในทุกกิจกรรม จนกว่าจะเปลี่ยนใหม่</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.9rem;" data-i18n="loc_card_sub">ระบบจะนำข้อมูลนี้ไปบันทึกอัตโนมัติในทุกกิจกรรม จนกว่าจะเปลี่ยนใหม่</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.9rem;margin-bottom:.9rem;">
           <div class="form-group">
-            <label class="form-label">🏠 บ้าน / หมู่บ้าน</label>
+            <label class="form-label" data-i18n="loc_village">🏠 บ้าน / หมู่บ้าน</label>
             <input type="text" id="my-loc-village" placeholder="เช่น บ้านป่าตอง">
           </div>
           <div class="form-group">
-            <label class="form-label">🏘 เขต / ตำบล</label>
+            <label class="form-label" data-i18n="loc_district">🏘 เขต / ตำบล</label>
             <input type="text" id="my-loc-district" placeholder="เช่น เขตนาทอง">
           </div>
           <div class="form-group">
-            <label class="form-label">🏙 เมือง / อำเภอ</label>
+            <label class="form-label" data-i18n="loc_city">🏙 เมือง / อำเภอ</label>
             <input type="text" id="my-loc-city" placeholder="เช่น เมืองไซ">
           </div>
           <div class="form-group">
-            <label class="form-label">🗺 แขวง / จังหวัด</label>
+            <label class="form-label" data-i18n="loc_province">🗺 แขวง / จังหวัด</label>
             <input type="text" id="my-loc-province" placeholder="เช่น แขวงไซสมบูรณ์">
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:1rem;justify-content:flex-end;">
           <span id="my-loc-preview" style="font-size:.75rem;color:var(--muted);"></span>
-          <button class="btn-primary" onclick="saveMyLocation()" style="background:var(--gold);color:#111;">💾 บันทึกสถานที่</button>
+          <button class="btn-primary" onclick="saveMyLocation()" style="background:var(--gold);color:#111;" data-i18n="loc_save">💾 บันทึกสถานที่</button>
         </div>
       </div>
     </div>
@@ -1029,8 +1029,8 @@ font{border:none!important;outline:none!important;display:inline!important}
   <!-- TAB: BILL PENDING (บิลที่ยังไม่ชำระ) -->
   <div class="tab-pane" id="pane-billpending">
     <div style="text-align:center;margin-bottom:1.2rem">
-      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em">⏳ บิลที่ยังไม่ชำระ</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">รายการบิลทั้งหมดที่ยังไม่ได้รับการชำระเงิน</div>
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="bp_title">⏳ บิลที่ยังไม่ชำระ</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px" data-i18n="bp_sub">รายการบิลทั้งหมดที่ยังไม่ได้รับการชำระเงิน</div>
     </div>
 
     <!-- Filters -->
@@ -1052,9 +1052,9 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div style="overflow-x:auto">
         <table class="order-table" style="min-width:860px">
           <thead><tr>
-            <th>เลขที่บิล</th><th>ลูกค้า</th><th>วันเวลาออกบิล</th>
-            <th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ยอดต้องชำระ</th>
-            <th>ผู้จดบิล</th><th>สถานะ</th>
+            <th data-i18n="col_bill_no">เลขที่บิล</th><th data-i18n="col_customer">ลูกค้า</th><th data-i18n="col_issue_dt">วันเวลาออกบิล</th>
+            <th style="text-align:right" data-i18n="col_kg">น้ำหนัก (กก.)</th><th style="text-align:right" data-i18n="col_due_amt">ยอดต้องชำระ</th>
+            <th data-i18n="col_biller">ผู้จดบิล</th><th data-i18n="col_status">สถานะ</th>
           </tr></thead>
           <tbody id="bp-body"><tr><td colspan="7" class="empty-state">กำลังโหลด...</td></tr></tbody>
         </table>
@@ -1065,8 +1065,8 @@ font{border:none!important;outline:none!important;display:inline!important}
   <!-- TAB: BILL HISTORY (ประวัติใบบิล) -->
   <div class="tab-pane" id="pane-billhistory">
     <div style="text-align:center;margin-bottom:1.2rem">
-      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em">📚 ประวัติใบบิลที่ชำระแล้ว</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">ใบบิลที่ชำระเงินเรียบร้อยแล้ว — เรียงตามเวลาชำระล่าสุด</div>
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="bh_title">📚 ประวัติใบบิลที่ชำระแล้ว</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px" data-i18n="bh_sub">ใบบิลที่ชำระเงินเรียบร้อยแล้ว — เรียงตามเวลาชำระล่าสุด</div>
     </div>
 
     <!-- Filters -->
@@ -1083,8 +1083,8 @@ font{border:none!important;outline:none!important;display:inline!important}
         <button onclick="bhClearDates()" style="font-size:.72rem;padding:.15rem .4rem;background:transparent;color:var(--muted);border:none;cursor:pointer;">✕</button>
       </div>
       <select id="bh-sort" style="font-size:.76rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderBillHistory()">
-        <option value="desc">ชำระล่าสุด → เก่า</option>
-        <option value="asc">ชำระเก่า → ล่าสุด</option>
+        <option value="desc" data-i18n="bh_sort_new">ชำระล่าสุด → เก่า</option>
+        <option value="asc" data-i18n="bh_sort_old">ชำระเก่า → ล่าสุด</option>
       </select>
       <button onclick="bhExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ Excel</button>
       <button onclick="bhExportPDF()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨 PDF</button>
@@ -1099,9 +1099,9 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div style="overflow-x:auto">
         <table class="order-table" style="min-width:1250px">
           <thead><tr>
-            <th>เลขที่บิล</th><th>ลูกค้า</th><th>วันเวลาออกบิล</th><th>วันเวลาชำระ</th>
-            <th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ยอดชำระ</th>
-            <th>ผู้จดบิล</th><th>ผู้รับชำระ</th><th>📍 สถานที่</th><th>หมายเหตุ</th><th>สถานะ</th><th></th>
+            <th data-i18n="col_bill_no">เลขที่บิล</th><th data-i18n="col_customer">ลูกค้า</th><th data-i18n="col_issue_dt">วันเวลาออกบิล</th><th data-i18n="col_pay_dt">วันเวลาชำระ</th>
+            <th style="text-align:right" data-i18n="col_kg">น้ำหนัก (กก.)</th><th style="text-align:right" data-i18n="col_pay_amt">ยอดชำระ</th>
+            <th data-i18n="col_biller">ผู้จดบิล</th><th data-i18n="col_payer">ผู้รับชำระ</th><th data-i18n="col_location">📍 สถานที่</th><th data-i18n="col_note">หมายเหตุ</th><th data-i18n="col_status">สถานะ</th><th></th>
           </tr></thead>
           <tbody id="bh-body"><tr><td colspan="12" class="empty-state">กำลังโหลด...</td></tr></tbody>
         </table>
@@ -1137,8 +1137,8 @@ font{border:none!important;outline:none!important;display:inline!important}
   <!-- TAB: ACTIVITY LOG -->
   <div class="tab-pane" id="pane-activitylog">
     <div style="text-align:center;margin-bottom:1.2rem">
-      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em">🕐 บันทึกกิจกรรม</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">ประวัติการดำเนินงานทั้งหมดในระบบ</div>
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="al_title">🕐 บันทึกกิจกรรม</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px" data-i18n="al_sub">ประวัติการดำเนินงานทั้งหมดในระบบ</div>
     </div>
 
     <!-- Filters -->
@@ -1148,7 +1148,7 @@ font{border:none!important;outline:none!important;display:inline!important}
         <input type="text" id="al-search" placeholder="ค้นหา..." style="padding-left:2rem;width:200px;font-size:.78rem" oninput="renderActivityLog()">
       </div>
       <select id="al-filter-action" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderActivityLog()">
-        <option value="">ทุกกิจกรรม</option>
+        <option value="" data-i18n="al_all_actions">ทุกกิจกรรม</option>
         <option value="login">เข้าสู่ระบบ</option>
         <option value="logout">ออกจากระบบ</option>
         <option value="create_order">สร้างใบเก็บซื้อ</option>
@@ -1160,7 +1160,7 @@ font{border:none!important;outline:none!important;display:inline!important}
         <option value="delete_staff">ลบพนักงาน</option>
       </select>
       <select id="al-filter-actor" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderActivityLog()">
-        <option value="">ทุกผู้ใช้</option>
+        <option value="" data-i18n="al_all_users">ทุกผู้ใช้</option>
       </select>
       <input type="date" id="al-date-from" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderActivityLog()">
       <span style="color:var(--muted);font-size:.8rem">ถึง</span>
@@ -1180,13 +1180,13 @@ font{border:none!important;outline:none!important;display:inline!important}
         <table class="order-table" style="min-width:900px">
           <thead>
             <tr>
-              <th style="width:150px">วันเวลา</th>
-              <th style="width:110px">กิจกรรม</th>
-              <th style="width:110px">ผู้ดำเนินการ</th>
-              <th style="width:75px">Role</th>
-              <th style="width:180px">📍 สถานที่ปฏิบัติงาน</th>
-              <th style="width:100px">อ้างอิง</th>
-              <th>รายละเอียด</th>
+              <th style="width:150px" data-i18n="col_datetime">วันเวลา</th>
+              <th style="width:110px" data-i18n="col_activity">กิจกรรม</th>
+              <th style="width:110px" data-i18n="col_actor">ผู้ดำเนินการ</th>
+              <th style="width:75px" data-i18n="col_role">Role</th>
+              <th style="width:180px" data-i18n="col_location">📍 สถานที่ปฏิบัติงาน</th>
+              <th style="width:100px" data-i18n="col_ref">อ้างอิง</th>
+              <th data-i18n="col_detail">รายละเอียด</th>
             </tr>
           </thead>
           <tbody id="al-body">
@@ -1280,8 +1280,8 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div style="padding:1.3rem 1.5rem">
       <!-- Mode toggle -->
       <div id="sd-mode-toggle" style="display:flex;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:1.2rem;max-width:360px;">
-        <button id="sd-mode-pay-btn" onclick="sdSwitchMode('pay')" style="flex:1;padding:.5rem;font-size:.78rem;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;background:var(--green);color:#fff;">💚 งานรับชำระ</button>
-        <button id="sd-mode-bill-btn" onclick="sdSwitchMode('bill')" style="flex:1;padding:.5rem;font-size:.78rem;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;background:transparent;color:var(--muted);">📝 งานจดบิล</button>
+        <button id="sd-mode-pay-btn" onclick="sdSwitchMode('pay')" style="flex:1;padding:.5rem;font-size:.78rem;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;background:var(--green);color:#fff;" data-i18n="sd_mode_pay">💚 งานรับชำระ</button>
+        <button id="sd-mode-bill-btn" onclick="sdSwitchMode('bill')" style="flex:1;padding:.5rem;font-size:.78rem;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;background:transparent;color:var(--muted);" data-i18n="sd_mode_bill">📝 งานจดบิล</button>
       </div>
 
       <!-- Stat cards -->
@@ -1300,8 +1300,8 @@ font{border:none!important;outline:none!important;display:inline!important}
           <input type="date" id="sd-date-to" style="width:125px;font-size:.74rem;border:none;background:transparent;padding:.15rem" onchange="renderStaffDetailTable()">
         </div>
         <select id="sd-sort" style="font-size:.76rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderStaffDetailTable()">
-          <option value="desc">ใหม่ → เก่า</option>
-          <option value="asc">เก่า → ใหม่</option>
+          <option value="desc" data-i18n="sd_sort_new">ใหม่ → เก่า</option>
+          <option value="asc" data-i18n="sd_sort_old">เก่า → ใหม่</option>
         </select>
         <button onclick="sdClearFilters()" style="font-size:.74rem;padding:.35rem .65rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:6px;cursor:pointer;">✕ ล้าง</button>
         <button onclick="sdExportCSV()" style="font-size:.74rem;padding:.35rem .65rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ CSV</button>
@@ -2362,7 +2362,7 @@ function openStaffDetail(staffKey, preferMode) {
   // header
   document.getElementById('sd-avatar').textContent = (_sdStaff.displayName||'?').charAt(0);
   document.getElementById('sd-name').textContent = _sdStaff.displayName;
-  const roleLabel = {admin:'ผู้ดูแลระบบ',staff_biller:'พนักงานจดบิล',staff_cashier:'พนักงานรับชำระ'}[_sdStaff.role] || 'พนักงาน';
+  const roleLabel = {admin:t('sd_role_admin'),staff_biller:t('sd_role_biller'),staff_cashier:t('sd_role_cashier')}[_sdStaff.role] || t('sd_role_staff');
   const loc = _fmtLocation(_getStaffLocation(_sdStaff.username));
   document.getElementById('sd-meta').textContent = `${roleLabel}${loc?' · 📍 '+loc:''}`;
 
@@ -2469,14 +2469,14 @@ function renderStaffDetailTable() {
   const fmtD=(s)=>{if(!s||s==='—')return '—';const[y,m,d]=s.split('-');return `${d}/${m}/${(+y+543).toString().slice(2)}`;};
 
   document.getElementById('sd-stats').innerHTML=`
-    ${_sdStat('📦','รายการทั้งหมด',totItems+' รายการ','var(--sky)')}
-    ${_sdStat('👥','ลูกค้าทั้งหมด',custSet.size+' ราย','var(--violet)')}
-    ${_sdStat('⚖️','น้ำหนักรวม',totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.','var(--gold)')}
+    ${_sdStat('📦',t('sd_total_items'),totItems+' '+t('al_items'),'var(--sky)')}
+    ${_sdStat('👥',t('sd_total_cust'),custSet.size+' '+t('unit_person'),'var(--violet)')}
+    ${_sdStat('⚖️',t('sd_total_weight'),totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' '+t('unit_kg'),'var(--gold)')}
     ${_sdMode==='pay'
-      ? _sdStat('💰','ยอดชำระรวม','₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)')
-      : _sdStat('🧾','ใบบิลทั้งหมด',totBills+' ใบ','var(--green)')}
-    ${_sdStat('📅','รายการแรก',fmtD(firstD),'var(--muted)')}
-    ${_sdStat('📅','รายการล่าสุด',fmtD(lastD),'var(--muted)')}
+      ? _sdStat('💰',t('sd_total_pay'),'₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)')
+      : _sdStat('🧾',t('sd_total_bills'),totBills+' '+t('al_items'),'var(--green)')}
+    ${_sdStat('📅',t('sd_first'),fmtD(firstD),'var(--muted)')}
+    ${_sdStat('📅',t('sd_last'),fmtD(lastD),'var(--muted)')}
   `;
 
   document.getElementById('sd-count').textContent=`${totItems} รายการ`;
@@ -2484,15 +2484,15 @@ function renderStaffDetailTable() {
   // ===== Table head =====
   const thead=document.getElementById('sd-thead');
   if(_sdMode==='pay'){
-    thead.innerHTML=`<th>เลขที่</th><th>ลูกค้า</th><th>วันที่-เวลา</th><th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ยอดชำระ</th><th>📍 สถานที่</th><th>หมายเหตุ</th>`;
+    thead.innerHTML=`<th>${t('col_bill_no')}</th><th>${t('col_customer')}</th><th>${t('col_datetime')}</th><th style="text-align:right">${t('col_kg')}</th><th style="text-align:right">${t('col_pay_amt')}</th><th>${t('col_location')}</th><th>${t('col_note')}</th>`;
   } else {
-    thead.innerHTML=`<th>เลขที่</th><th>ลูกค้า</th><th>วันที่-เวลา</th><th style="text-align:right">น้ำหนัก (กก.)</th><th>เลขที่บิล</th><th>📍 สถานที่</th><th>หมายเหตุ</th>`;
+    thead.innerHTML=`<th>${t('col_bill_no')}</th><th>${t('col_customer')}</th><th>${t('col_datetime')}</th><th style="text-align:right">${t('col_kg')}</th><th>${t('col_bill_no')}</th><th>${t('col_location')}</th><th>${t('col_note')}</th>`;
   }
 
   // ===== Table body =====
   const tbody=document.getElementById('sd-tbody');
   if(list.length===0){
-    tbody.innerHTML=`<tr><td colspan="7" class="empty-state">ไม่พบรายการ</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="7" class="empty-state">${t('al_not_found')}</td></tr>`;
   } else {
     tbody.innerHTML=list.map(it=>{
       const o=it.o;
@@ -2549,11 +2549,11 @@ function _sdRenderPeriodic(list){
   el.innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
       <div class="card" style="margin-bottom:0">
-        <div class="card-header" style="color:var(--sky-d)">📆 สรุปรายวัน (10 วันล่าสุด)</div>
+        <div class="card-header" style="color:var(--sky-d)">${t('sd_daily')}</div>
         <div class="card-body" style="padding:.6rem 1rem">${days.map(([d,v])=>row(fmtD(d),v)).join('')||'<div class="empty-state">—</div>'}</div>
       </div>
       <div class="card" style="margin-bottom:0">
-        <div class="card-header" style="color:var(--violet-d)">🗓 สรุปรายเดือน</div>
+        <div class="card-header" style="color:var(--violet-d)">${t('sd_monthly')}</div>
         <div class="card-body" style="padding:.6rem 1rem">${months.map(([m,v])=>row(fmtM(m),v)).join('')||'<div class="empty-state">—</div>'}</div>
       </div>
     </div>`;
@@ -2620,14 +2620,14 @@ function renderBillPending(){
   const totKg=list.reduce((s,o)=>s+(o.totalQty||0),0);
   const totAmt=list.reduce((s,o)=>s+(o.grandTotal||0),0);
   document.getElementById('bp-summary').innerHTML=[
-    ['บิลที่ยังไม่ชำระ',list.length+' ใบ','var(--orange)'],
-    ['น้ำหนักรวม',totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.','var(--gold)'],
-    ['ยอดต้องชำระรวม','₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
+    [t('bp_count'),list.length+' '+t('al_items'),'var(--orange)'],
+    [t('sd_total_weight'),totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' '+t('unit_kg'),'var(--gold)'],
+    [t('bp_total_due'),'₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
   ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
 
   document.getElementById('bp-count').textContent=`${list.length} ใบ`;
   const tbody=document.getElementById('bp-body');
-  if(list.length===0){tbody.innerHTML=`<tr><td colspan="7" class="empty-state">ไม่มีบิลที่ยังไม่ชำระ</td></tr>`;return;}
+  if(list.length===0){tbody.innerHTML=`<tr><td colspan="7" class="empty-state">${t('bp_empty')}</td></tr>`;return;}
   tbody.innerHTML=list.map(o=>{
     const dt=_billDateTime(o.createdAt||o.date);
     return `<tr>
@@ -2637,7 +2637,7 @@ function renderBillPending(){
       <td class="mono" style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
       <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
       <td style="font-size:.78rem">${o.createdBy||'—'}</td>
-      <td><span class="badge badge-sent">⏳ รอชำระ</span></td>
+      <td><span class="badge badge-sent">${t('badge_pending')}</span></td>
     </tr>`;
   }).join('');
 }
@@ -2699,7 +2699,7 @@ function openBillDetail(orderId){
 
   document.getElementById('bd-pono').textContent=`เลขที่บิล: ${o.poNo||'—'}${rc?'  ·  ใบเสร็จ: '+rc.receipt_no:''}`;
 
-  const statusBadge={paid:'<span class="badge badge-paid">✅ ชำระแล้ว</span>',sent:'<span class="badge badge-sent">⏳ รอชำระ</span>',draft:'<span class="badge badge-draft">ร่าง</span>',cancelled:'<span class="badge badge-cancelled">ยกเลิก</span>'}[o.status]||o.status;
+  const statusBadge={paid:`<span class="badge badge-paid">${t('badge_paid')}</span>`,sent:`<span class="badge badge-sent">${t('badge_pending')}</span>`,draft:`<span class="badge badge-draft">${t('status_draft')}</span>`,cancelled:`<span class="badge badge-cancelled">${t('status_cancelled')}</span>`}[o.status]||o.status;
 
   const infoRow=(label,val)=>`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem"><span style="color:var(--muted)">${label}</span><span style="font-weight:600;text-align:right">${val}</span></div>`;
 
@@ -2708,7 +2708,7 @@ function openBillDetail(orderId){
   let itemsHtml='';
   if(items.length){
     itemsHtml=`
-    <div style="font-weight:700;font-size:.8rem;margin:1rem 0 .5rem;color:var(--text2)">📦 รายการในใบบิล (${items.length} รายการ)</div>
+    <div style="font-weight:700;font-size:.8rem;margin:1rem 0 .5rem;color:var(--text2)">📦 ${t('bd_items')} (${items.length})</div>
     <div style="overflow-x:auto"><table class="order-table" style="width:100%;min-width:380px">
       <thead><tr><th>#</th><th>สินค้า</th><th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ราคา/กก.</th><th style="text-align:right">รวม</th></tr></thead>
       <tbody>${items.map((it,i)=>`<tr>
@@ -2720,32 +2720,32 @@ function openBillDetail(orderId){
       </tr>`).join('')}</tbody>
     </table></div>`;
   } else {
-    itemsHtml=`<div style="margin:1rem 0;padding:.8rem;background:var(--surface2);border-radius:var(--r);font-size:.78rem;color:var(--muted);text-align:center">ไม่มีรายการสินค้าย่อย</div>`;
+    itemsHtml=`<div style="margin:1rem 0;padding:.8rem;background:var(--surface2);border-radius:var(--r);font-size:.78rem;color:var(--muted);text-align:center">${t('bd_no_items')}</div>`;
   }
 
   document.getElementById('bd-body').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:.5rem">
       <div>
-        ${infoRow('ลูกค้า', o.customer||'—')}
-        ${infoRow('สถานะ', statusBadge)}
-        ${infoRow('ผู้จดใบบิล', o.createdBy||'—')}
-        ${infoRow('ผู้ชำระเงิน', o.paidBy||'—')}
+        ${infoRow(t('col_customer'), o.customer||'—')}
+        ${infoRow(t('col_status'), statusBadge)}
+        ${infoRow(t('col_biller'), o.createdBy||'—')}
+        ${infoRow(t('col_payer'), o.paidBy||'—')}
       </div>
       <div>
-        ${infoRow('วันเวลาออกบิล', issued.d+' '+issued.t)}
-        ${infoRow('วันเวลาชำระ', o.status==='paid'?(paid.d+' '+paid.t):'—')}
-        ${infoRow('สถานที่ดำเนินการ', loc||'—')}
-        ${infoRow('วิธีชำระ', rc?({cash:'💵 เงินสด',transfer:'🏦 โอน'}[rc.pay_method]||rc.pay_method||'—'):'—')}
+        ${infoRow(t('col_issue_dt'), issued.d+' '+issued.t)}
+        ${infoRow(t('col_pay_dt'), o.status==='paid'?(paid.d+' '+paid.t):'—')}
+        ${infoRow(t('bd_location'), loc||'—')}
+        ${infoRow(t('bd_pay_method'), rc?({cash:t('pay_cash'),transfer:t('pay_transfer')}[rc.pay_method]||rc.pay_method||'—'):'—')}
       </div>
     </div>
     ${itemsHtml}
     <div style="margin-top:1rem;padding:.9rem 1.1rem;background:var(--green-l);border:1px solid var(--green-m);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center">
       <div>
-        <div style="font-size:.72rem;color:var(--muted)">น้ำหนักรวม</div>
+        <div style="font-size:.72rem;color:var(--muted)">${t('bd_weight_total')}</div>
         <div class="bebas" style="font-size:1.3rem;color:var(--blue)">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</div>
       </div>
       <div style="text-align:right">
-        <div style="font-size:.72rem;color:var(--muted)">ยอดเงินรวม</div>
+        <div style="font-size:.72rem;color:var(--muted)">${t('bd_amount_total')}</div>
         <div class="bebas text-green" style="font-size:1.5rem">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</div>
       </div>
     </div>
@@ -2765,15 +2765,15 @@ function renderBillHistory(){
   const totAmt=list.reduce((s,it)=>s+(it.o.grandTotal||0),0);
   const custSet=new Set(list.map(it=>it.o.customer));
   document.getElementById('bh-summary').innerHTML=[
-    ['ใบบิลชำระแล้ว',list.length+' ใบ','var(--sky)'],
-    ['ลูกค้าทั้งหมด',custSet.size+' ราย','var(--violet)'],
-    ['น้ำหนักรวม',totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.','var(--gold)'],
-    ['ยอดชำระรวม','₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
+    [t('bh_paid_count'),list.length+' '+t('al_items'),'var(--sky)'],
+    [t('bh_total_cust'),custSet.size+' '+t('unit_person'),'var(--violet)'],
+    [t('sd_total_weight'),totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' '+t('unit_kg'),'var(--gold)'],
+    [t('bh_total_paid'),'₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
   ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
 
   document.getElementById('bh-count').textContent=`${list.length} ใบ`;
   const tbody=document.getElementById('bh-body');
-  if(list.length===0){tbody.innerHTML=`<tr><td colspan="12" class="empty-state">ไม่พบใบบิล</td></tr>`;return;}
+  if(list.length===0){tbody.innerHTML=`<tr><td colspan="12" class="empty-state">${t('bh_empty')}</td></tr>`;return;}
   tbody.innerHTML=list.map(it=>{
     const o=it.o;
     const issued=_billDateTime(o.createdAt||o.date);
@@ -2791,8 +2791,8 @@ function renderBillHistory(){
       <td style="font-size:.76rem;color:var(--sky-d)">${o.paidBy||'—'}</td>
       <td>${locHtml}</td>
       <td style="font-size:.72rem;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(o.note||'').replace(/"/g,'&quot;')}">${o.note||'—'}</td>
-      <td><span class="badge badge-paid">✅ ชำระแล้ว</span></td>
-      <td><button onclick="openBillDetail('${o.id}')" style="font-size:.7rem;padding:.25rem .6rem;background:var(--sky);color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap">📄 ดูเต็ม</button></td>
+      <td><span class="badge badge-paid">${t('badge_paid')}</span></td>
+      <td><button onclick="openBillDetail('${o.id}')" style="font-size:.7rem;padding:.25rem .6rem;background:var(--sky);color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap">${t('btn_view_full')}</button></td>
     </tr>`;
   }).join('');
 }
@@ -3750,6 +3750,106 @@ const LANG_DICT = {
     mywork_all: "รายการทั้งหมด",
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
     ph_note: "เช่น คุณภาพยาง DRC ≥ 60%, เงื่อนไขพิเศษ...",
+    tab_dashboard: "📊 แดชบอร์ด",
+    tab_billhistory: "📚 ประวัติใบบิลที่ชำระแล้ว",
+    tab_billpending: "⏳ บิลที่ยังไม่ชำระ",
+    tab_activitylog: "🕐 กิจกรรม",
+    dash_total_buy: "ยอดซื้อรวม (จ่ายแล้ว)",
+    dash_total_kg: "น้ำหนักยางรวม",
+    dash_pending: "ใบรอชำระ",
+    dash_all_bills: "ใบทั้งหมด",
+    dash_monthly: "ยอดซื้อรายเดือน (บาท)",
+    dash_top_cust: "Top ลูกค้า (กก.)",
+    dash_status: "สถานะใบเก็บซื้อ",
+    dash_by_staff: "ยอดรวมรายพนักงาน",
+    dash_no_data: "ยังไม่มีข้อมูล",
+    dash_loading: "กำลังโหลดข้อมูล...",
+    bp_title: "บิลที่ยังไม่ชำระ",
+    bp_sub: "รายการบิลทั้งหมดที่ยังไม่ได้รับการชำระเงิน",
+    bp_count: "บิลที่ยังไม่ชำระ",
+    bp_total_due: "ยอดต้องชำระรวม",
+    bp_empty: "ไม่มีบิลที่ยังไม่ชำระ",
+    bh_title: "ประวัติใบบิลที่ชำระแล้ว",
+    bh_sub: "ใบบิลที่ชำระเงินเรียบร้อยแล้ว — เรียงตามเวลาชำระล่าสุด",
+    bh_paid_count: "ใบบิลชำระแล้ว",
+    bh_total_cust: "ลูกค้าทั้งหมด",
+    bh_total_paid: "ยอดชำระรวม",
+    bh_empty: "ไม่พบใบบิล",
+    bh_sort_new: "ชำระล่าสุด → เก่า",
+    bh_sort_old: "ชำระเก่า → ล่าสุด",
+    col_bill_no: "เลขที่บิล",
+    col_issue_dt: "วันเวลาออกบิล",
+    col_pay_dt: "วันเวลาชำระ",
+    col_pay_amt: "ยอดชำระ",
+    col_due_amt: "ยอดต้องชำระ",
+    col_biller: "ผู้จดบิล",
+    col_payer: "ผู้รับชำระ",
+    col_location: "📍 สถานที่",
+    col_note: "หมายเหตุ",
+    col_detail: "รายละเอียด",
+    btn_view_full: "📄 ดูเต็ม",
+    btn_print: "🖨 พิมพ์",
+    bd_title: "รายละเอียดใบบิล",
+    bd_items: "รายการในใบบิล",
+    bd_no_items: "ไม่มีรายการสินค้าย่อย",
+    bd_pay_method: "วิธีชำระ",
+    bd_location: "สถานที่ดำเนินการ",
+    bd_weight_total: "น้ำหนักรวม",
+    bd_amount_total: "ยอดเงินรวม",
+    pay_cash: "💵 เงินสด",
+    pay_transfer: "🏦 โอน",
+    badge_paid: "✅ ชำระแล้ว",
+    badge_pending: "⏳ รอชำระ",
+    al_title: "บันทึกกิจกรรม",
+    al_sub: "ประวัติการดำเนินงานทั้งหมดในระบบ",
+    al_all_actions: "ทุกกิจกรรม",
+    al_all_users: "ทุกผู้ใช้",
+    al_clear: "✕ ล้าง",
+    al_to: "ถึง",
+    al_not_found: "ไม่พบรายการ",
+    al_items: "รายการ",
+    col_datetime: "วันเวลา",
+    col_activity: "กิจกรรม",
+    col_role: "Role",
+    col_ref: "อ้างอิง",
+    act_login: "🔑 เข้าระบบ",
+    act_logout: "🚪 ออกระบบ",
+    act_create: "📝 สร้างใบ",
+    act_send: "📤 ส่งรอชำระ",
+    act_pay: "💚 ชำระแล้ว",
+    act_cancel: "🚫 ยกเลิก",
+    act_edit: "✏️ แก้ไขใบ",
+    act_add_staff: "👤+ เพิ่มพนักงาน",
+    act_del_staff: "👤- ลบพนักงาน",
+    loc_card_title: "📍 สถานที่ปฏิบัติงานประจำ",
+    loc_card_sub: "ระบบจะนำข้อมูลนี้ไปบันทึกอัตโนมัติในทุกกิจกรรม จนกว่าจะเปลี่ยนใหม่",
+    loc_village: "🏠 บ้าน / หมู่บ้าน",
+    loc_district: "🏘 เขต / ตำบล",
+    loc_city: "🏙 เมือง / อำเภอ",
+    loc_province: "🗺 แขวง / จังหวัด",
+    loc_save: "💾 บันทึกสถานที่",
+    loc_not_set: "ยังไม่ได้ตั้งค่า",
+    loc_saved: "✅ บันทึกสถานที่เรียบร้อย",
+    sd_role_admin: "ผู้ดูแลระบบ",
+    sd_role_biller: "พนักงานจดบิล",
+    sd_role_cashier: "พนักงานรับชำระ",
+    sd_role_staff: "พนักงาน",
+    sd_mode_pay: "💚 งานรับชำระ",
+    sd_mode_bill: "📝 งานจดบิล",
+    sd_total_items: "รายการทั้งหมด",
+    sd_total_cust: "ลูกค้าทั้งหมด",
+    sd_total_weight: "น้ำหนักรวม",
+    sd_total_pay: "ยอดชำระรวม",
+    sd_total_bills: "ใบบิลทั้งหมด",
+    sd_first: "รายการแรก",
+    sd_last: "รายการล่าสุด",
+    sd_daily: "📆 สรุปรายวัน (10 วันล่าสุด)",
+    sd_monthly: "🗓 สรุปรายเดือน",
+    sd_sort_new: "ใหม่ → เก่า",
+    sd_sort_old: "เก่า → ใหม่",
+    sd_billers: "พนักงานจดบิล — คลิกเพื่อดูเชิงลึก",
+    view_deep: "🔍 ดูเชิงลึก",
+    ph_note: "เช่น คุณภาพยาง DRC ≥ 60%, เงื่อนไขพิเศษ...",
   },
 
   lo: {
@@ -3882,6 +3982,106 @@ const LANG_DICT = {
     history_rubber: "ປະຫວັດການຂາຍຢາງ",
     mywork_all: "ລາຍການທັງໝົດ",
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
+    ph_note: "ຕົວຢ່າງ: ຄຸນນະພາບຢາງ DRC ≥ 60%, ເງື່ອນໄຂພິເສດ...",
+    tab_dashboard: "📊 ແດຊບອດ",
+    tab_billhistory: "📚 ປະຫວັດໃບບິນທີ່ຊຳລະແລ້ວ",
+    tab_billpending: "⏳ ບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
+    tab_activitylog: "🕐 ກິດຈະກຳ",
+    dash_total_buy: "ຍອດຊື້ລວມ (ຈ່າຍແລ້ວ)",
+    dash_total_kg: "ນ້ຳໜັກຢາງລວມ",
+    dash_pending: "ໃບລໍຖ້າຊຳລະ",
+    dash_all_bills: "ໃບທັງໝົດ",
+    dash_monthly: "ຍອດຊື້ລາຍເດືອນ (ບາດ)",
+    dash_top_cust: "Top ລູກຄ້າ (ກກ.)",
+    dash_status: "ສະຖານະໃບເກັບຊື້",
+    dash_by_staff: "ຍອດລວມລາຍພະນັກງານ",
+    dash_no_data: "ຍັງບໍ່ມີຂໍ້ມູນ",
+    dash_loading: "ກຳລັງໂຫຼດຂໍ້ມູນ...",
+    bp_title: "ບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
+    bp_sub: "ລາຍການບິນທັງໝົດທີ່ຍັງບໍ່ໄດ້ຮັບການຊຳລະເງິນ",
+    bp_count: "ບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
+    bp_total_due: "ຍອດຕ້ອງຊຳລະລວມ",
+    bp_empty: "ບໍ່ມີບິນທີ່ຍັງບໍ່ທັນຊຳລະ",
+    bh_title: "ປະຫວັດໃບບິນທີ່ຊຳລະແລ້ວ",
+    bh_sub: "ໃບບິນທີ່ຊຳລະເງິນຮຽບຮ້ອຍແລ້ວ — ຮຽງຕາມເວລາຊຳລະຫຼ້າສຸດ",
+    bh_paid_count: "ໃບບິນຊຳລະແລ້ວ",
+    bh_total_cust: "ລູກຄ້າທັງໝົດ",
+    bh_total_paid: "ຍອດຊຳລະລວມ",
+    bh_empty: "ບໍ່ພົບໃບບິນ",
+    bh_sort_new: "ຊຳລະຫຼ້າສຸດ → ເກົ່າ",
+    bh_sort_old: "ຊຳລະເກົ່າ → ຫຼ້າສຸດ",
+    col_bill_no: "ເລກທີບິນ",
+    col_issue_dt: "ວັນເວລາອອກບິນ",
+    col_pay_dt: "ວັນເວລາຊຳລະ",
+    col_pay_amt: "ຍອດຊຳລະ",
+    col_due_amt: "ຍອດຕ້ອງຊຳລະ",
+    col_biller: "ຜູ້ຈົດບິນ",
+    col_payer: "ຜູ້ຮັບຊຳລະ",
+    col_location: "📍 ສະຖານທີ່",
+    col_note: "ໝາຍເຫດ",
+    col_detail: "ລາຍລະອຽດ",
+    btn_view_full: "📄 ເບິ່ງເຕັມ",
+    btn_print: "🖨 ພິມ",
+    bd_title: "ລາຍລະອຽດໃບບິນ",
+    bd_items: "ລາຍການໃນໃບບິນ",
+    bd_no_items: "ບໍ່ມີລາຍການສິນຄ້າຍ່ອຍ",
+    bd_pay_method: "ວິທີຊຳລະ",
+    bd_location: "ສະຖານທີ່ດຳເນີນການ",
+    bd_weight_total: "ນ້ຳໜັກລວມ",
+    bd_amount_total: "ຍອດເງິນລວມ",
+    pay_cash: "💵 ເງິນສົດ",
+    pay_transfer: "🏦 ໂອນ",
+    badge_paid: "✅ ຊຳລະແລ້ວ",
+    badge_pending: "⏳ ລໍຖ້າຊຳລະ",
+    al_title: "ບັນທຶກກິດຈະກຳ",
+    al_sub: "ປະຫວັດການດຳເນີນງານທັງໝົດໃນລະບົບ",
+    al_all_actions: "ທຸກກິດຈະກຳ",
+    al_all_users: "ທຸກຜູ້ໃຊ້",
+    al_clear: "✕ ລ້າງ",
+    al_to: "ຫາ",
+    al_not_found: "ບໍ່ພົບລາຍການ",
+    al_items: "ລາຍການ",
+    col_datetime: "ວັນເວລາ",
+    col_activity: "ກິດຈະກຳ",
+    col_role: "Role",
+    col_ref: "ອ້າງອີງ",
+    act_login: "🔑 ເຂົ້າລະບົບ",
+    act_logout: "🚪 ອອກລະບົບ",
+    act_create: "📝 ສ້າງໃບ",
+    act_send: "📤 ສົ່ງລໍຊຳລະ",
+    act_pay: "💚 ຊຳລະແລ້ວ",
+    act_cancel: "🚫 ຍົກເລີກ",
+    act_edit: "✏️ ແກ້ໄຂໃບ",
+    act_add_staff: "👤+ ເພີ່ມພະນັກງານ",
+    act_del_staff: "👤- ລຶບພະນັກງານ",
+    loc_card_title: "📍 ສະຖານທີ່ປະຕິບັດງານປະຈຳ",
+    loc_card_sub: "ລະບົບຈະນຳຂໍ້ມູນນີ້ໄປບັນທຶກອັດຕະໂນມັດໃນທຸກກິດຈະກຳ ຈົນກວ່າຈະປ່ຽນໃໝ່",
+    loc_village: "🏠 ບ້ານ",
+    loc_district: "🏘 ເຂດ / ຕາແສງ",
+    loc_city: "🏙 ເມືອງ",
+    loc_province: "🗺 ແຂວງ",
+    loc_save: "💾 ບັນທຶກສະຖານທີ່",
+    loc_not_set: "ຍັງບໍ່ໄດ້ຕັ້ງຄ່າ",
+    loc_saved: "✅ ບັນທຶກສະຖານທີ່ຮຽບຮ້ອຍ",
+    sd_role_admin: "ຜູ້ດູແລລະບົບ",
+    sd_role_biller: "ພະນັກງານຈົດບິນ",
+    sd_role_cashier: "ພະນັກງານຮັບຊຳລະ",
+    sd_role_staff: "ພະນັກງານ",
+    sd_mode_pay: "💚 ວຽກຮັບຊຳລະ",
+    sd_mode_bill: "📝 ວຽກຈົດບິນ",
+    sd_total_items: "ລາຍການທັງໝົດ",
+    sd_total_cust: "ລູກຄ້າທັງໝົດ",
+    sd_total_weight: "ນ້ຳໜັກລວມ",
+    sd_total_pay: "ຍອດຊຳລະລວມ",
+    sd_total_bills: "ໃບບິນທັງໝົດ",
+    sd_first: "ລາຍການທຳອິດ",
+    sd_last: "ລາຍການຫຼ້າສຸດ",
+    sd_daily: "📆 ສະຫຼຸບລາຍວັນ (10 ວັນຫຼ້າສຸດ)",
+    sd_monthly: "🗓 ສະຫຼຸບລາຍເດືອນ",
+    sd_sort_new: "ໃໝ່ → ເກົ່າ",
+    sd_sort_old: "ເກົ່າ → ໃໝ່",
+    sd_billers: "ພະນັກງານຈົດບິນ — ຄລິກເພື່ອເບິ່ງເຈາະເລິກ",
+    view_deep: "🔍 ເບິ່ງເຈາະເລິກ",
     ph_note: "ຕົວຢ່າງ: ຄຸນນະພາບຢາງ DRC ≥ 60%, ເງື່ອນໄຂພິເສດ...",
   },
 
@@ -4016,6 +4216,106 @@ const LANG_DICT = {
     mywork_all: "All Records",
     ph_mywork_search: "Search bill no. or customer...",
     ph_note: "e.g. DRC ≥ 60%, special conditions...",
+    tab_dashboard: "📊 Dashboard",
+    tab_billhistory: "📚 Paid Bill History",
+    tab_billpending: "⏳ Unpaid Bills",
+    tab_activitylog: "🕐 Activity",
+    dash_total_buy: "Total Purchases (Paid)",
+    dash_total_kg: "Total Rubber Weight",
+    dash_pending: "Pending Bills",
+    dash_all_bills: "All Bills",
+    dash_monthly: "Monthly Purchases (THB)",
+    dash_top_cust: "Top Customers (kg)",
+    dash_status: "Bill Status",
+    dash_by_staff: "Total by Staff",
+    dash_no_data: "No data yet",
+    dash_loading: "Loading data...",
+    bp_title: "Unpaid Bills",
+    bp_sub: "All bills that have not been paid",
+    bp_count: "Unpaid Bills",
+    bp_total_due: "Total Amount Due",
+    bp_empty: "No unpaid bills",
+    bh_title: "Paid Bill History",
+    bh_sub: "Bills that have been fully paid — sorted by latest payment",
+    bh_paid_count: "Paid Bills",
+    bh_total_cust: "Total Customers",
+    bh_total_paid: "Total Paid",
+    bh_empty: "No bills found",
+    bh_sort_new: "Latest paid → oldest",
+    bh_sort_old: "Oldest paid → latest",
+    col_bill_no: "Bill No.",
+    col_issue_dt: "Issue Date-Time",
+    col_pay_dt: "Payment Date-Time",
+    col_pay_amt: "Amount Paid",
+    col_due_amt: "Amount Due",
+    col_biller: "Biller",
+    col_payer: "Cashier",
+    col_location: "📍 Location",
+    col_note: "Note",
+    col_detail: "Detail",
+    btn_view_full: "📄 View",
+    btn_print: "🖨 Print",
+    bd_title: "Bill Details",
+    bd_items: "Bill Items",
+    bd_no_items: "No line items",
+    bd_pay_method: "Payment Method",
+    bd_location: "Operation Location",
+    bd_weight_total: "Total Weight",
+    bd_amount_total: "Total Amount",
+    pay_cash: "💵 Cash",
+    pay_transfer: "🏦 Transfer",
+    badge_paid: "✅ Paid",
+    badge_pending: "⏳ Pending",
+    al_title: "Activity Log",
+    al_sub: "All system operation history",
+    al_all_actions: "All Actions",
+    al_all_users: "All Users",
+    al_clear: "✕ Clear",
+    al_to: "to",
+    al_not_found: "No records found",
+    al_items: "records",
+    col_datetime: "Date-Time",
+    col_activity: "Activity",
+    col_role: "Role",
+    col_ref: "Reference",
+    act_login: "🔑 Login",
+    act_logout: "🚪 Logout",
+    act_create: "📝 Create",
+    act_send: "📤 Send",
+    act_pay: "💚 Paid",
+    act_cancel: "🚫 Cancel",
+    act_edit: "✏️ Edit",
+    act_add_staff: "👤+ Add Staff",
+    act_del_staff: "👤- Remove Staff",
+    loc_card_title: "📍 Default Work Location",
+    loc_card_sub: "This will be auto-saved to every activity until you change it",
+    loc_village: "🏠 Village",
+    loc_district: "🏘 District",
+    loc_city: "🏙 City",
+    loc_province: "🗺 Province",
+    loc_save: "💾 Save Location",
+    loc_not_set: "Not set",
+    loc_saved: "✅ Location saved",
+    sd_role_admin: "Administrator",
+    sd_role_biller: "Biller Staff",
+    sd_role_cashier: "Cashier Staff",
+    sd_role_staff: "Staff",
+    sd_mode_pay: "💚 Payment Work",
+    sd_mode_bill: "📝 Billing Work",
+    sd_total_items: "Total Items",
+    sd_total_cust: "Total Customers",
+    sd_total_weight: "Total Weight",
+    sd_total_pay: "Total Paid",
+    sd_total_bills: "Total Bills",
+    sd_first: "First Record",
+    sd_last: "Latest Record",
+    sd_daily: "📆 Daily Summary (last 10 days)",
+    sd_monthly: "🗓 Monthly Summary",
+    sd_sort_new: "New → Old",
+    sd_sort_old: "Old → New",
+    sd_billers: "Biller Staff — click for deep view",
+    view_deep: "🔍 Deep View",
+    ph_note: "e.g. DRC ≥ 60%, special conditions...",
   }
 };
 
@@ -4138,6 +4438,18 @@ function applyLang() {
   if (typeof renderHistory === "function") renderHistory();
   if (typeof renderPending === "function") renderPending();
   if (typeof renderCustomers === "function") renderCustomers();
+  // re-render หน้าที่กำลังเปิดอยู่ (เพื่อให้ตาราง/สรุปที่สร้างด้วย JS เปลี่ยนภาษาด้วย)
+  try {
+    const at = (typeof activeTab !== "undefined") ? activeTab : null;
+    if (at === "dashboard" && typeof renderDashboard === "function") renderDashboard();
+    if (at === "history" && typeof renderHistory === "function") renderHistory();
+    if (at === "report" && typeof renderReport === "function") renderReport();
+    if (at === "billpending" && typeof renderBillPending === "function") renderBillPending();
+    if (at === "billhistory" && typeof renderBillHistory === "function") renderBillHistory();
+    if (at === "activitylog" && typeof renderActivityLog === "function") renderActivityLog();
+    if (at === "mywork" && typeof renderMyWork === "function") renderMyWork();
+    if (at === "settings" && typeof renderStaffList === "function") { renderStaffList(); if(typeof loadMyLocationToForm==="function") loadMyLocationToForm(); }
+  } catch(e) { console.warn("applyLang re-render:", e); }
 
   // 7. Meta
   document.documentElement.lang = lang === "lo" ? "lo" : lang === "en" ? "en" : "th";
@@ -4425,7 +4737,7 @@ async function saveMyLocation() {
   const preview = document.getElementById('my-loc-preview');
   const fmt = _fmtLocation(loc);
   if (preview) preview.textContent = fmt ? `📍 ${fmt}` : '';
-  showToast('✅ บันทึกสถานที่เรียบร้อย');
+  showToast(t('loc_saved'));
 }
 
 function loadMyLocationToForm() {
@@ -4437,7 +4749,7 @@ function loadMyLocationToForm() {
   f('my-loc-province', loc.province);
   const preview = document.getElementById('my-loc-preview');
   const fmt = _fmtLocation(loc);
-  if (preview) preview.textContent = fmt ? `📍 ${fmt}` : 'ยังไม่ได้ตั้งค่า';
+  if (preview) preview.textContent = fmt ? `📍 ${fmt}` : t('loc_not_set');
 }
 
 // บันทึก activity ลง Supabase
@@ -4480,7 +4792,7 @@ function _alPopulateActorFilter() {
   const sel = document.getElementById('al-filter-actor');
   if (!sel) return;
   const actors = [...new Set(_activityLogs.map(l => l.actor))].sort();
-  sel.innerHTML = '<option value="">ทุกผู้ใช้</option>' +
+  sel.innerHTML = '<option value="" data-i18n="al_all_users">ทุกผู้ใช้</option>' +
     actors.map(a => `<option value="${a}">${a}</option>`).join('');
 }
 
@@ -4513,7 +4825,7 @@ function renderActivityLog() {
   });
 
   const countEl = document.getElementById('al-count');
-  if (countEl) countEl.textContent = `${filtered.length} รายการ`;
+  if (countEl) countEl.textContent = `${filtered.length} ${t('al_items')}`;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / AL_PER_PAGE));
   if (_alPage > totalPages) _alPage = totalPages;
@@ -4523,17 +4835,17 @@ function renderActivityLog() {
   if (!tbody) return;
 
   if (page.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">ไม่พบรายการ</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${t('al_not_found')}</td></tr>`;
     document.getElementById('al-pagination').innerHTML = '';
     return;
   }
 
   const actionLabel = {
-    login:'🔑 เข้าระบบ', logout:'🚪 ออกระบบ',
-    create_order:'📝 สร้างใบ', send_order:'📤 ส่งรอชำระ',
-    pay_order:'💚 ชำระแล้ว', cancel_order:'🚫 ยกเลิก',
-    edit_order:'✏️ แก้ไขใบ', add_staff:'👤+ เพิ่มพนักงาน',
-    delete_staff:'👤- ลบพนักงาน'
+    login:t('act_login'), logout:t('act_logout'),
+    create_order:t('act_create'), send_order:t('act_send'),
+    pay_order:t('act_pay'), cancel_order:t('act_cancel'),
+    edit_order:t('act_edit'), add_staff:t('act_add_staff'),
+    delete_staff:t('act_del_staff')
   };
   const actionColor = {
     login:'var(--blue)', logout:'var(--muted)',
