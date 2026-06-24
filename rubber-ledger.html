@@ -197,6 +197,8 @@ font{border:none!important;outline:none!important;display:inline!important}
 #tab-mywork-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-report-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-activitylog-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+#tab-billpending-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
+#tab-billhistory-btn.active{color:var(--sky);border-bottom-color:var(--sky)}
 #tab-settings-btn.active{color:var(--muted);border-bottom-color:var(--border2)}
 .tab-btn.active{font-weight:700;background:#fff;}
 
@@ -635,6 +637,8 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-history-btn" onclick="switchTab('history',this)" data-i18n="tab_history">ประวัติการเก็บเงิน</button>
     <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none" data-i18n="tab_mywork">รายละเอียดการดำเนินการ</button>
     <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
+    <button class="tab-btn" id="tab-billpending-btn" onclick="switchTab('billpending',this)" style="display:none">⏳ บิลที่ยังไม่ชำระ</button>
+    <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none">📚 ประวัติใบบิลที่ชำระแล้ว</button>
     <div style="flex:1"></div>
     <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none">🕐 กิจกรรม</button>
     <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
@@ -990,16 +994,10 @@ font{border:none!important;outline:none!important;display:inline!important}
   <!-- TAB: REPORT -->
   <div class="tab-pane" id="pane-report">
     <div style="text-align:center;margin-bottom:1.4rem">
-      <div class="bebas" id="report-page-title" style="font-size:1.8rem;letter-spacing:.08em">รายละเอียดทั้งหมด</div>
+      <div class="bebas" id="report-page-title" style="font-size:1.8rem;letter-spacing:.08em">รายละเอียดการชำระเงิน</div>
     </div>
 
-    <!-- Sub-tab toggle -->
-    <div style="display:flex;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:1.4rem;max-width:440px;margin-left:auto;margin-right:auto;">
-      <button id="rsub-payment-btn" onclick="switchReportSub('payment')" style="flex:1;padding:.55rem 1rem;font-size:.8rem;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;background:var(--green);color:#fff;transition:all .15s;">💚 รายละเอียดการชำระเงิน</button>
-      <button id="rsub-receipt-btn" onclick="switchReportSub('receipt')" style="flex:1;padding:.55rem 1rem;font-size:.8rem;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;">🧾 รายละเอียดใบบิล</button>
-    </div>
-
-    <!-- ════ SECTION 1: รายละเอียดการชำระเงิน ════ -->
+    <!-- ════ รายละเอียดการชำระเงิน ════ -->
     <div id="rsub-payment">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--green);">
         <span style="font-size:1.1rem">💚</span>
@@ -1020,40 +1018,97 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div id="report-staff-sections"></div>
     </div>
 
-    <!-- ════ SECTION 2: รายละเอียดใบบิล ════ -->
-    <div id="rsub-receipt" style="display:none">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--sky);">
-        <span style="font-size:1.1rem">🧾</span>
-        <span style="font-weight:700;font-size:1rem;color:var(--sky-d)">รายละเอียดใบบิลของพนักงาน</span>
-        <span style="font-size:.72rem;color:var(--muted);margin-left:auto">ออกโดยใคร เมื่อไร ที่ไหน</span>
+    <!-- hidden inputs (kept for deep-dive modal compatibility) -->
+    <input type="hidden" id="rc-date-from"><input type="hidden" id="rc-date-to">
+    <input type="hidden" id="rc-search"><input type="hidden" id="rc-filter-issuer"><input type="hidden" id="rc-filter-location">
+    <span id="rc-date-info" style="display:none"></span>
+    <div id="rc-summary" style="display:none"></div>
+    <div id="rc-staff-sections" style="display:none"></div>
+  </div>
+
+  <!-- TAB: BILL PENDING (บิลที่ยังไม่ชำระ) -->
+  <div class="tab-pane" id="pane-billpending">
+    <div style="text-align:center;margin-bottom:1.2rem">
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em">⏳ บิลที่ยังไม่ชำระ</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">รายการบิลทั้งหมดที่ยังไม่ได้รับการชำระเงิน</div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
+        <input type="text" id="bp-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="renderBillPending()">
       </div>
+      <button onclick="bpExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ Excel</button>
+      <button onclick="bpExportPDF()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨 PDF</button>
+      <span id="bp-count" style="font-size:.75rem;color:var(--muted);margin-left:auto;"></span>
+    </div>
 
-      <!-- Date filter -->
-      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
-          <span style="font-size:.85rem">📅</span>
-          <span style="font-size:.72rem;color:var(--muted)">ช่วงเวลาออกบิล:</span>
-          <input type="date" id="rc-date-from" title="จากวันที่" style="width:130px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderReceipts()">
-          <span style="color:var(--muted);font-size:.75rem">–</span>
-          <input type="date" id="rc-date-to" title="ถึงวันที่" style="width:130px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderReceipts()">
-          <button onclick="rcClearFilters()" title="ล้างวันที่" style="font-size:.72rem;padding:.15rem .4rem;background:transparent;color:var(--muted);border:none;cursor:pointer;">✕</button>
-        </div>
-        <span id="rc-date-info" style="font-size:.72rem;color:var(--muted)"></span>
-        <button onclick="rcExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;margin-left:auto">⬇ CSV</button>
+    <!-- Summary -->
+    <div class="stat-grid" id="bp-summary" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.2rem"></div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="overflow-x:auto">
+        <table class="order-table" style="min-width:860px">
+          <thead><tr>
+            <th>เลขที่บิล</th><th>ลูกค้า</th><th>วันเวลาออกบิล</th>
+            <th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ยอดต้องชำระ</th>
+            <th>ผู้จดบิล</th><th>สถานะ</th>
+          </tr></thead>
+          <tbody id="bp-body"><tr><td colspan="7" class="empty-state">กำลังโหลด...</td></tr></tbody>
+        </table>
       </div>
-
-      <!-- Summary stat cards -->
-      <div class="stat-grid" id="rc-summary" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.4rem"></div>
-
-      <!-- Staff sections (grouped, clickable) -->
-      <div id="rc-staff-sections"></div>
-
-      <!-- hidden inputs (kept for compatibility with deep-dive filters) -->
-      <input type="hidden" id="rc-search">
-      <input type="hidden" id="rc-filter-issuer">
-      <input type="hidden" id="rc-filter-location">
     </div>
   </div>
+
+  <!-- TAB: BILL HISTORY (ประวัติใบบิล) -->
+  <div class="tab-pane" id="pane-billhistory">
+    <div style="text-align:center;margin-bottom:1.2rem">
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em">📚 ประวัติใบบิลที่ชำระแล้ว</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px">ใบบิลที่ชำระเงินเรียบร้อยแล้ว — เรียงตามเวลาชำระล่าสุด</div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
+        <input type="text" id="bh-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="renderBillHistory()">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
+        <span style="font-size:.85rem">📅</span>
+        <input type="date" id="bh-date-from" title="จากวันที่ชำระ" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderBillHistory()">
+        <span style="color:var(--muted);font-size:.75rem">–</span>
+        <input type="date" id="bh-date-to" title="ถึงวันที่ชำระ" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderBillHistory()">
+        <button onclick="bhClearDates()" style="font-size:.72rem;padding:.15rem .4rem;background:transparent;color:var(--muted);border:none;cursor:pointer;">✕</button>
+      </div>
+      <select id="bh-sort" style="font-size:.76rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderBillHistory()">
+        <option value="desc">ชำระล่าสุด → เก่า</option>
+        <option value="asc">ชำระเก่า → ล่าสุด</option>
+      </select>
+      <button onclick="bhExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ Excel</button>
+      <button onclick="bhExportPDF()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🖨 PDF</button>
+      <span id="bh-count" style="font-size:.75rem;color:var(--muted);margin-left:auto;"></span>
+    </div>
+
+    <!-- Summary -->
+    <div class="stat-grid" id="bh-summary" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.2rem"></div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="overflow-x:auto">
+        <table class="order-table" style="min-width:1250px">
+          <thead><tr>
+            <th>เลขที่บิล</th><th>ลูกค้า</th><th>วันเวลาออกบิล</th><th>วันเวลาชำระ</th>
+            <th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ยอดชำระ</th>
+            <th>ผู้จดบิล</th><th>ผู้รับชำระ</th><th>📍 สถานที่</th><th>หมายเหตุ</th><th>สถานะ</th><th></th>
+          </tr></thead>
+          <tbody id="bh-body"><tr><td colspan="12" class="empty-state">กำลังโหลด...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 
   <!-- TAB: MY WORK -->
   <div class="tab-pane" id="pane-mywork">
@@ -1269,6 +1324,20 @@ font{border:none!important;outline:none!important;display:inline!important}
   </div>
 </div>
 
+<!-- BILL DETAIL MODAL (ดูรายละเอียดใบบิลแบบเต็ม) -->
+<div class="modal-overlay" id="bill-detail-modal" style="display:none" onclick="if(event.target===this)closeBillDetail()">
+  <div class="modal-box" style="max-width:680px;width:96%;max-height:92vh;overflow-y:auto;padding:0">
+    <div style="background:linear-gradient(135deg,#0284C7 0%,#0EA5E9 100%);padding:1.1rem 1.4rem;border-radius:var(--r-lg) var(--r-lg) 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5">
+      <div>
+        <div style="font-size:1.05rem;font-weight:700;color:#fff">📄 รายละเอียดใบบิล</div>
+        <div id="bd-pono" style="font-size:.74rem;color:rgba(255,255,255,.85);margin-top:2px;font-family:'IBM Plex Mono',monospace"></div>
+      </div>
+      <button onclick="closeBillDetail()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer">✕</button>
+    </div>
+    <div id="bd-body" style="padding:1.3rem 1.4rem"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- Supabase CDN -->
@@ -1335,7 +1404,7 @@ async function loadData(){
   try{
     const {data,error}=await _sb
       .from("orders")
-      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,cancel_reason,created_at,updated_at")
+      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,paid_at,sent_at,cancel_reason,created_at,updated_at")
       .order("created_at",{ascending:false})
       .limit(500);
     if(!error&&data){
@@ -1360,6 +1429,8 @@ async function loadData(){
         paidBy:o.paid_by||"",
         cancelReason:o.cancel_reason||"",
         createdAt:o.created_at,
+        paidAt:o.paid_at||"",
+        sentAt:o.sent_at||"",
         items:allItems
           .filter(it=>String(it.order_id)===String(o.id))
           .sort((a,b)=>a.sort_order-b.sort_order)
@@ -1537,12 +1608,20 @@ async function initApp(){
     reportBtn.style.display="";
     myworkBtn.style.display="none";
     if(activityLogBtn) activityLogBtn.style.display="";
+    const bpBtn=document.getElementById("tab-billpending-btn");
+    const bhBtn=document.getElementById("tab-billhistory-btn");
+    if(bpBtn) bpBtn.style.display="";
+    if(bhBtn) bhBtn.style.display="";
     renderStaffList();
   } else {
     settingsBtn.style.display="none";
     reportBtn.style.display="none";
     myworkBtn.style.display="";
     if(activityLogBtn) activityLogBtn.style.display="none";
+    const bpBtn=document.getElementById("tab-billpending-btn");
+    const bhBtn=document.getElementById("tab-billhistory-btn");
+    if(bpBtn) bpBtn.style.display="none";
+    if(bhBtn) bhBtn.style.display="none";
   }
   // Show restriction notes per role
   const note=document.getElementById("role-restriction-note");
@@ -1787,7 +1866,9 @@ function switchTab(tab,btn){
   if(tab==="pending")renderPending();
   if(tab==="customers"){renderCustomers();updateCustomerDatalist();}
   if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();}
-  if(tab==="report"&&currentUser?.role==="admin"){renderReport();renderReceipts();switchReportSub('payment');}
+  if(tab==="report"&&currentUser?.role==="admin")renderReport();
+  if(tab==="billpending"&&currentUser?.role==="admin")renderBillPending();
+  if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
   if(tab==="mywork")renderMyWork();
   if(tab==="dashboard")renderDashboard();
   if(tab==="activitylog")renderActivityLog();
@@ -2510,26 +2591,257 @@ function sdExportCSV(){
   a.click();
 }
 
-function switchReportSub(which){
-  const payDiv = document.getElementById('rsub-payment');
-  const rcDiv  = document.getElementById('rsub-receipt');
-  const payBtn = document.getElementById('rsub-payment-btn');
-  const rcBtn  = document.getElementById('rsub-receipt-btn');
-  if(!payDiv||!rcDiv) return;
-  if(which==='receipt'){
-    payDiv.style.display='none';
-    rcDiv.style.display='block';
-    rcBtn.style.background='var(--sky)';  rcBtn.style.color='#fff';
-    payBtn.style.background='transparent'; payBtn.style.color='var(--muted)';
-    renderReceipts();
-  } else {
-    payDiv.style.display='block';
-    rcDiv.style.display='none';
-    payBtn.style.background='var(--green)'; payBtn.style.color='#fff';
-    rcBtn.style.background='transparent';   rcBtn.style.color='var(--muted)';
-    renderReport();
+// =====================================================
+// บิลที่ยังไม่ชำระ (BILL PENDING) — status sent
+// =====================================================
+function _billDateTime(iso){
+  if(!iso) return {d:'—',t:''};
+  const dt=new Date(iso);
+  if(isNaN(dt)){
+    const s=(iso+'').slice(0,10);
+    if(s){const[y,m,d]=s.split('-');return {d:`${d}/${m}/${(+y+543).toString().slice(2)}`,t:''};}
+    return {d:'—',t:''};
   }
+  return {
+    d:dt.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'}),
+    t:dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})
+  };
 }
+
+function renderBillPending(){
+  const q=(document.getElementById('bp-search')?.value||'').toLowerCase();
+  let list=orders.filter(o=>o.status==='sent').filter(o=>{
+    if(!q) return true;
+    return [o.poNo,o.customer,o.createdBy].join(' ').toLowerCase().includes(q);
+  });
+  // เรียงตามวันออกบิลล่าสุด
+  list.sort((a,b)=>((b.createdAt||b.date||'')<(a.createdAt||a.date||'')?-1:1));
+
+  const totKg=list.reduce((s,o)=>s+(o.totalQty||0),0);
+  const totAmt=list.reduce((s,o)=>s+(o.grandTotal||0),0);
+  document.getElementById('bp-summary').innerHTML=[
+    ['บิลที่ยังไม่ชำระ',list.length+' ใบ','var(--orange)'],
+    ['น้ำหนักรวม',totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.','var(--gold)'],
+    ['ยอดต้องชำระรวม','₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
+  ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
+
+  document.getElementById('bp-count').textContent=`${list.length} ใบ`;
+  const tbody=document.getElementById('bp-body');
+  if(list.length===0){tbody.innerHTML=`<tr><td colspan="7" class="empty-state">ไม่มีบิลที่ยังไม่ชำระ</td></tr>`;return;}
+  tbody.innerHTML=list.map(o=>{
+    const dt=_billDateTime(o.createdAt||o.date);
+    return `<tr>
+      <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${o.poNo||'—'}</td>
+      <td style="font-weight:600">${o.customer||'—'}</td>
+      <td style="font-size:.74rem"><div>${dt.d}</div><div style="color:var(--muted)">${dt.t}</div></td>
+      <td class="mono" style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
+      <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+      <td style="font-size:.78rem">${o.createdBy||'—'}</td>
+      <td><span class="badge badge-sent">⏳ รอชำระ</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function bpExportCSV(){
+  const q=(document.getElementById('bp-search')?.value||'').toLowerCase();
+  const list=orders.filter(o=>o.status==='sent').filter(o=>!q||[o.poNo,o.customer,o.createdBy].join(' ').toLowerCase().includes(q));
+  const BOM='\uFEFF';
+  const headers=['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','น้ำหนัก(กก.)','ยอดต้องชำระ','ผู้จดบิล','สถานะ'];
+  const rows=list.map(o=>[o.poNo,o.customer,(o.createdAt||o.date||''),o.totalQty||0,o.grandTotal||0,o.createdBy||'','รอชำระ'].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  _downloadCSV(BOM+[headers.join(','),...rows].join('\r\n'),'bill-pending');
+}
+function bpExportPDF(){
+  const q=(document.getElementById('bp-search')?.value||'').toLowerCase();
+  const list=orders.filter(o=>o.status==='sent').filter(o=>!q||[o.poNo,o.customer,o.createdBy].join(' ').toLowerCase().includes(q));
+  const rows=list.map(o=>{const dt=_billDateTime(o.createdAt||o.date);return `<tr><td>${o.poNo||'—'}</td><td>${o.customer||'—'}</td><td>${dt.d} ${dt.t}</td><td style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td><td style="text-align:right">₭${(o.grandTotal||0).toLocaleString('th-TH')}</td><td>${o.createdBy||'—'}</td><td>รอชำระ</td></tr>`;}).join('');
+  _printPDF('บิลที่ยังไม่ชำระ',['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','น้ำหนัก(กก.)','ยอดต้องชำระ','ผู้จดบิล','สถานะ'],rows);
+}
+
+// =====================================================
+// ประวัติใบบิล (BILL HISTORY) — status paid
+// =====================================================
+function bhClearDates(){
+  ['bh-date-from','bh-date-to'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderBillHistory();
+}
+
+function _bhGetList(){
+  const q=(document.getElementById('bh-search')?.value||'').toLowerCase();
+  const dFrom=document.getElementById('bh-date-from')?.value||'';
+  const dTo=document.getElementById('bh-date-to')?.value||'';
+  const sort=document.getElementById('bh-sort')?.value||'desc';
+  let list=orders.filter(o=>o.status==='paid').map(o=>{
+    const loc=(typeof _getOrderLocation==='function')?_getOrderLocation(o.id,'pay_order'):'';
+    return {o,loc,paidKey:((o.paidAt||o.date||'')+'')};
+  });
+  list=list.filter(it=>{
+    const pd=it.paidKey.slice(0,10);
+    if(dFrom && pd<dFrom) return false;
+    if(dTo && pd>dTo) return false;
+    if(q){
+      const hay=[it.o.poNo,it.o.customer,it.o.createdBy,it.o.paidBy,it.loc].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  list.sort((a,b)=> sort==='asc' ? (a.paidKey<b.paidKey?-1:1) : (a.paidKey>b.paidKey?-1:1));
+  return list;
+}
+
+// ── ดูรายละเอียดใบบิลแบบเต็ม ──
+function openBillDetail(orderId){
+  const o=orders.find(x=>String(x.id)===String(orderId));
+  if(!o){showToast('ไม่พบใบบิล','error');return;}
+  const issued=_billDateTime(o.createdAt||o.date);
+  const paid=_billDateTime(o.paidAt||o.date);
+  const loc=(typeof _getOrderLocation==='function')?_getOrderLocation(o.id,'pay_order'):'';
+  const rc=(typeof getReceiptForOrder==='function')?getReceiptForOrder(o.id):null;
+
+  document.getElementById('bd-pono').textContent=`เลขที่บิล: ${o.poNo||'—'}${rc?'  ·  ใบเสร็จ: '+rc.receipt_no:''}`;
+
+  const statusBadge={paid:'<span class="badge badge-paid">✅ ชำระแล้ว</span>',sent:'<span class="badge badge-sent">⏳ รอชำระ</span>',draft:'<span class="badge badge-draft">ร่าง</span>',cancelled:'<span class="badge badge-cancelled">ยกเลิก</span>'}[o.status]||o.status;
+
+  const infoRow=(label,val)=>`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem"><span style="color:var(--muted)">${label}</span><span style="font-weight:600;text-align:right">${val}</span></div>`;
+
+  // รายการสินค้า
+  const items=o.items||[];
+  let itemsHtml='';
+  if(items.length){
+    itemsHtml=`
+    <div style="font-weight:700;font-size:.8rem;margin:1rem 0 .5rem;color:var(--text2)">📦 รายการในใบบิล (${items.length} รายการ)</div>
+    <div style="overflow-x:auto"><table class="order-table" style="width:100%;min-width:380px">
+      <thead><tr><th>#</th><th>สินค้า</th><th style="text-align:right">น้ำหนัก (กก.)</th><th style="text-align:right">ราคา/กก.</th><th style="text-align:right">รวม</th></tr></thead>
+      <tbody>${items.map((it,i)=>`<tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td>${it.productId||'ยางพารา'}</td>
+        <td class="mono" style="text-align:right">${(it.qty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
+        <td class="mono" style="text-align:right">₭${(it.price||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+        <td class="mono fw6" style="text-align:right">₭${((it.qty||0)*(it.price||0)).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } else {
+    itemsHtml=`<div style="margin:1rem 0;padding:.8rem;background:var(--surface2);border-radius:var(--r);font-size:.78rem;color:var(--muted);text-align:center">ไม่มีรายการสินค้าย่อย</div>`;
+  }
+
+  document.getElementById('bd-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:.5rem">
+      <div>
+        ${infoRow('ลูกค้า', o.customer||'—')}
+        ${infoRow('สถานะ', statusBadge)}
+        ${infoRow('ผู้จดใบบิล', o.createdBy||'—')}
+        ${infoRow('ผู้ชำระเงิน', o.paidBy||'—')}
+      </div>
+      <div>
+        ${infoRow('วันเวลาออกบิล', issued.d+' '+issued.t)}
+        ${infoRow('วันเวลาชำระ', o.status==='paid'?(paid.d+' '+paid.t):'—')}
+        ${infoRow('สถานที่ดำเนินการ', loc||'—')}
+        ${infoRow('วิธีชำระ', rc?({cash:'💵 เงินสด',transfer:'🏦 โอน'}[rc.pay_method]||rc.pay_method||'—'):'—')}
+      </div>
+    </div>
+    ${itemsHtml}
+    <div style="margin-top:1rem;padding:.9rem 1.1rem;background:var(--green-l);border:1px solid var(--green-m);border-radius:var(--r);display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:.72rem;color:var(--muted)">น้ำหนักรวม</div>
+        <div class="bebas" style="font-size:1.3rem;color:var(--blue)">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:.72rem;color:var(--muted)">ยอดเงินรวม</div>
+        <div class="bebas text-green" style="font-size:1.5rem">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</div>
+      </div>
+    </div>
+    ${o.note?`<div style="margin-top:.8rem;padding:.7rem 1rem;background:var(--surface2);border-radius:var(--r);font-size:.8rem"><span style="color:var(--muted)">📝 หมายเหตุ: </span>${o.note}</div>`:''}
+    <div style="margin-top:1rem;text-align:right">
+      <button onclick="window.print()" style="font-size:.76rem;padding:.45rem .9rem;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer">🖨 พิมพ์</button>
+      <button onclick="closeBillDetail()" style="font-size:.76rem;padding:.45rem .9rem;background:var(--sky);color:#fff;border:none;border-radius:var(--r-sm);cursor:pointer;margin-left:6px">ปิด</button>
+    </div>`;
+
+  document.getElementById('bill-detail-modal').style.display='flex';
+}
+function closeBillDetail(){document.getElementById('bill-detail-modal').style.display='none';}
+
+function renderBillHistory(){
+  const list=_bhGetList();
+  const totKg=list.reduce((s,it)=>s+(it.o.totalQty||0),0);
+  const totAmt=list.reduce((s,it)=>s+(it.o.grandTotal||0),0);
+  const custSet=new Set(list.map(it=>it.o.customer));
+  document.getElementById('bh-summary').innerHTML=[
+    ['ใบบิลชำระแล้ว',list.length+' ใบ','var(--sky)'],
+    ['ลูกค้าทั้งหมด',custSet.size+' ราย','var(--violet)'],
+    ['น้ำหนักรวม',totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.','var(--gold)'],
+    ['ยอดชำระรวม','₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--green)'],
+  ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
+
+  document.getElementById('bh-count').textContent=`${list.length} ใบ`;
+  const tbody=document.getElementById('bh-body');
+  if(list.length===0){tbody.innerHTML=`<tr><td colspan="12" class="empty-state">ไม่พบใบบิล</td></tr>`;return;}
+  tbody.innerHTML=list.map(it=>{
+    const o=it.o;
+    const issued=_billDateTime(o.createdAt||o.date);
+    const paid=_billDateTime(o.paidAt||o.date);
+    const locParts=(it.loc||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const locHtml=locParts.length?`<span style="color:var(--gold);font-size:.72rem">${locParts.join(', ')}</span>`:'<span style="color:var(--muted2)">—</span>';
+    return `<tr>
+      <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${o.poNo||'—'}</td>
+      <td style="font-weight:600">${o.customer||'—'}</td>
+      <td style="font-size:.72rem"><div>${issued.d}</div><div style="color:var(--muted)">${issued.t}</div></td>
+      <td style="font-size:.72rem"><div style="color:var(--green-d)">${paid.d}</div><div style="color:var(--muted)">${paid.t}</div></td>
+      <td class="mono" style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
+      <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+      <td style="font-size:.76rem">${o.createdBy||'—'}</td>
+      <td style="font-size:.76rem;color:var(--sky-d)">${o.paidBy||'—'}</td>
+      <td>${locHtml}</td>
+      <td style="font-size:.72rem;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(o.note||'').replace(/"/g,'&quot;')}">${o.note||'—'}</td>
+      <td><span class="badge badge-paid">✅ ชำระแล้ว</span></td>
+      <td><button onclick="openBillDetail('${o.id}')" style="font-size:.7rem;padding:.25rem .6rem;background:var(--sky);color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap">📄 ดูเต็ม</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function bhExportCSV(){
+  const list=_bhGetList();
+  const BOM='\uFEFF';
+  const headers=['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','วันเวลาชำระ','น้ำหนัก(กก.)','ยอดชำระ','ผู้จดบิล','ผู้รับชำระ','สถานที่','หมายเหตุ','สถานะ'];
+  const rows=list.map(it=>{const o=it.o;return [o.poNo,o.customer,(o.createdAt||o.date||''),(o.paidAt||o.date||''),o.totalQty||0,o.grandTotal||0,o.createdBy||'',o.paidBy||'',it.loc||'',o.note||'','ชำระแล้ว'].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');});
+  _downloadCSV(BOM+[headers.join(','),...rows].join('\r\n'),'bill-history');
+}
+function bhExportPDF(){
+  const list=_bhGetList();
+  const rows=list.map(it=>{const o=it.o;const i=_billDateTime(o.createdAt||o.date);const p=_billDateTime(o.paidAt||o.date);return `<tr><td>${o.poNo||'—'}</td><td>${o.customer||'—'}</td><td>${i.d} ${i.t}</td><td>${p.d} ${p.t}</td><td style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td><td style="text-align:right">₭${(o.grandTotal||0).toLocaleString('th-TH')}</td><td>${o.createdBy||'—'}</td><td>${o.paidBy||'—'}</td><td>${it.loc||'—'}</td><td>${o.note||'—'}</td><td>ชำระแล้ว</td></tr>`;}).join('');
+  _printPDF('ประวัติใบบิลที่ชำระแล้ว',['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','วันเวลาชำระ','น้ำหนัก(กก.)','ยอดชำระ','ผู้จดบิล','ผู้รับชำระ','สถานที่','หมายเหตุ','สถานะ'],rows);
+}
+
+// ── Export helpers ──
+function _downloadCSV(csv,prefix){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`${prefix}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+function _printPDF(title,headers,rowsHtml){
+  const w=window.open('','_blank');
+  if(!w){showToast('กรุณาอนุญาต popup เพื่อพิมพ์ PDF','error');return;}
+  const today=new Date().toLocaleString('th-TH');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>
+    *{font-family:'Sarabun','Phetsarath OT',sans-serif}
+    body{padding:24px;color:#111}
+    h1{font-size:18px;margin:0 0 4px}
+    .meta{font-size:11px;color:#666;margin-bottom:14px}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th{background:#0F172A;color:#fff;padding:7px 8px;text-align:left;font-weight:600}
+    td{padding:6px 8px;border-bottom:1px solid #ddd}
+    tr:nth-child(even){background:#f7f8fa}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <h1>${title}</h1>
+  <div class="meta">RubberLedger · พิมพ์เมื่อ ${today} · ${rowsHtml.split('<tr>').length-1} รายการ</div>
+  <table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table>
+  <script>window.onload=()=>{window.print();}<\\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+
 
 function repClearDates(){
   const f=document.getElementById("rep-date-from");
@@ -3161,7 +3473,7 @@ async function syncFromSupabase(silent=false, force=false) {
 
     const { data, error } = await _sb
       .from("orders")
-      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,cancel_reason,created_at,updated_at")
+      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,paid_at,sent_at,cancel_reason,created_at,updated_at")
       .gte("updated_at", since)
       .order("updated_at", { ascending: false });
 
@@ -3182,6 +3494,8 @@ async function syncFromSupabase(silent=false, force=false) {
         if (o.status !== row.status || o.paidBy !== row.paid_by) {
           o.status = row.status;
           o.paidBy = row.paid_by || o.paidBy;
+          o.paidAt = row.paid_at || o.paidAt;
+          o.sentAt = row.sent_at || o.sentAt;
           o.cancelReason = row.cancel_reason || "";
           changed = true;
           if (!silent && row.status === "paid") {
@@ -3264,6 +3578,8 @@ function mapRow(row, items) {
     paidBy: row.paid_by || "",
     cancelReason: row.cancel_reason || "",
     createdAt: row.created_at,
+    paidAt: row.paid_at || "",
+    sentAt: row.sent_at || "",
     items: items.map(it => ({
       productId: it.product_id,
       qty: it.qty,
