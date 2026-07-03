@@ -6,17 +6,16 @@
 <meta name="google" content="notranslate">
 <meta http-equiv="Content-Language" content="th">
 <title>RubberLedger</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Phetsarath&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Lao:wght@400;700&family=Sarabun:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Phetsarath&display=swap" rel="stylesheet">
 <style>
 @font-face{
   font-family:'Phetsarath OT';
-  src:url('https://fonts.gstatic.com/ea/notosanslao/v4/NotoSansLao-Regular.woff2') format('woff2'),
-      url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-lao@4.5.0/files/noto-sans-lao-lao-400-normal.woff') format('woff');
+  src:url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-lao@4.5.0/files/noto-sans-lao-lao-400-normal.woff') format('woff');
   font-weight:400;font-display:swap;
 }
 @font-face{
   font-family:'Phetsarath OT';
-  src:url('https://fonts.gstatic.com/ea/notosanslao/v4/NotoSansLao-Bold.woff2') format('woff2');
+  src:url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-lao@4.5.0/files/noto-sans-lao-lao-700-normal.woff') format('woff');
   font-weight:700;font-display:swap;
 }
 </style>
@@ -647,23 +646,8 @@ font{border:none!important;outline:none!important;display:inline!important}
   <div class="tab-pane" id="pane-dashboard">
     <div style="padding:8px 0 16px;">
 
-      <!-- AI Smart Summary -->
-      <div id="dash-ai-panel" style="background:linear-gradient(135deg,#EDE9FE 0%,#F5F3FF 55%,#FAF5FF 100%);border:1px solid var(--violet-m);border-radius:14px;padding:18px;margin-bottom:20px;position:relative;overflow:hidden;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--violet) 0%,var(--violet-d) 100%);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 3px 10px rgba(139,92,246,.35)">🤖</div>
-            <div>
-              <div style="font-weight:700;font-size:1.02rem;color:var(--violet-d)" data-i18n="ai_title">🤖 สรุปอัจฉริยะด้วย AI</div>
-              <div style="font-size:.74rem;color:var(--violet)" data-i18n="ai_sub">วิเคราะห์ข้อมูลและแนวโน้มสำคัญโดยอัตโนมัติ</div>
-            </div>
-          </div>
-          <button id="ai-gen-btn" onclick="generateAISummary()" style="background:linear-gradient(135deg,var(--violet) 0%,var(--violet-d) 100%);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(139,92,246,.3);white-space:nowrap" data-i18n="ai_generate">✨ วิเคราะห์ข้อมูล</button>
-        </div>
-        <div id="dash-ai-content" style="font-size:.86rem;line-height:1.7;color:var(--text);">
-          <div style="color:var(--violet-d);opacity:.75;font-size:.82rem;padding:6px 2px" data-i18n="ai_empty">กดปุ่ม "วิเคราะห์ข้อมูล" เพื่อให้ AI สรุปภาพรวมธุรกิจให้คุณ</div>
-        </div>
-        <div id="dash-ai-disclaimer" style="display:none;font-size:.68rem;color:var(--violet);opacity:.7;margin-top:10px;padding-top:8px;border-top:1px solid var(--violet-m)" data-i18n="ai_disclaimer">สรุปโดย AI — โปรดตรวจสอบข้อมูลก่อนตัดสินใจ</div>
-      </div>
+      <!-- AI Smart Summary — ปิดชั่วคราว (รอทำ backend proxy เพื่อเลี่ยง CORS)
+           โค้ดฟังก์ชัน generateAISummary/_collectDashboardStats/_renderAISummary ยังเก็บไว้ใน JS -->
 
       <!-- KPI Cards -->
       <div id="dash-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
@@ -1350,6 +1334,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 <!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://jvraxijtgzahflkohdsf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_sclOoiWbDHWLe3xPIy5vMw_MqjHrfnH';
@@ -1392,7 +1377,7 @@ async function saveAccounts(){
 // ── STORAGE (Supabase) ──
 async function sg(k){
   try{
-    const {data,error}=await _sb.from("app_data").select("value").eq("key",k).single();
+    const {data,error}=await _sb.from("app_data").select("value").eq("key",k).maybeSingle();
     if(error)return localStorage.getItem(k);
     return data?data.value:null;
   }catch(e){return localStorage.getItem(k);}
@@ -1561,7 +1546,7 @@ async function doLogin(){
   // Check Supabase accounts first, fallback to local
   let acc=null;
   try{
-    const {data}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).single();
+    const {data}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).maybeSingle();
     if(data)acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name};
   }catch(e){}
   // Fallback to local ACCOUNTS
@@ -2691,6 +2676,63 @@ async function _btWrite(bytes){
 }
 
 // ── สร้างใบเสร็จเป็น canvas (รองรับไทย/ลาวเต็มที่) ──
+// ── สร้างข้อมูลสรุปใบเสร็จสำหรับ QR (อ่านได้ทันทีแม้ไม่มีเน็ต) ──
+function _buildReceiptQRData(o){
+  const rc=(typeof getReceiptForOrder==='function')?getReceiptForOrder(o.id):null;
+  const issued=_billDateTime(o.createdAt||o.date);
+  const paid=_billDateTime(o.paidAt||o.date);
+  const items=(o.items||[]).map(it=>`${it.productId||'ยาง'} ${(it.qty||0)}kg x${(it.price||0)}`).join(' | ');
+  // รูปแบบข้อความอ่านง่าย สแกนแล้วเห็นเลย
+  const lines=[
+    'KUBTHOR ใบเสร็จ/ໃບບິນ',
+    rc?('เลขที่ใบเสร็จ: '+rc.receipt_no):('เลขที่บิล: '+(o.poNo||'-')),
+    'บิล: '+(o.poNo||'-'),
+    'ลูกค้า: '+(o.customer||'-'),
+    'ออกบิล: '+issued.d+' '+issued.t,
+    (o.status==='paid'?('ชำระ: '+paid.d+' '+paid.t):''),
+    'น้ำหนัก: '+(o.totalQty||0)+' กก.',
+    'ยอดเงิน: ₭'+(o.grandTotal||0).toLocaleString('th-TH'),
+    'ผู้จด: '+(o.createdBy||'-'),
+    (o.paidBy?('ผู้รับชำระ: '+o.paidBy):''),
+    (items?('รายการ: '+items):''),
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+// ── สร้าง QR เป็น canvas (offline, ใช้ qrcode-generator) ──
+function _makeQRCanvas(text, sizePx){
+  if(typeof qrcode==='undefined') return null;
+  try{
+    // type 0 = auto, ECC level M
+    const qr=qrcode(0,'M');
+    qr.addData(text);
+    qr.make();
+    const count=qr.getModuleCount();
+    const cell=Math.max(2, Math.floor(sizePx/(count+2)));
+    const margin=cell; // quiet zone
+    const dim=count*cell+margin*2;
+    const cv=document.createElement('canvas');
+    cv.width=dim; cv.height=dim;
+    const ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,dim,dim);
+    ctx.fillStyle='#000';
+    for(let r=0;r<count;r++){
+      for(let c=0;c<count;c++){
+        if(qr.isDark(r,c)){
+          ctx.fillRect(margin+c*cell, margin+r*cell, cell, cell);
+        }
+      }
+    }
+    return cv;
+  }catch(e){ console.warn('QR:', e); return null; }
+}
+
+// ── สร้าง QR เป็น dataURL (สำหรับ HTML fallback print) ──
+function _makeQRDataURL(text, sizePx){
+  const cv=_makeQRCanvas(text, sizePx||160);
+  return cv? cv.toDataURL('image/png') : '';
+}
+
 function renderReceiptCanvas(o){
   const widthPx = _printerWidth===80 ? 576 : 384; // 203dpi
   const pad = 12;
@@ -2723,6 +2765,9 @@ function renderReceiptCanvas(o){
   h += 10;
   h += lineH*2;             // รวม
   if(o.note) h += lineH*2;
+  h += 10;
+  const _qrSize = _printerWidth===80 ? 200 : 150;
+  h += _qrSize + lineH;     // QR + label
   h += lineH*2;             // ขอบคุณ
   h += pad*3;
 
@@ -2769,6 +2814,17 @@ function renderReceiptCanvas(o){
   lr('ยอดเงินรวม', '₭'+(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0}), fHd);
   if(o.note){ hr(); left('หมายเหตุ: '+o.note, fSm); }
   hr();
+  // ── QR Code (ฝังข้อมูลใบเสร็จ อ่านได้แม้ไม่มีเน็ต) ──
+  const _qrCv = _makeQRCanvas(_buildReceiptQRData(o), _qrSize);
+  if(_qrCv){
+    ctx.textAlign='center';
+    ctx.font=fSm+' '+fam;
+    ctx.fillText('สแกนตรวจสอบใบเสร็จ / ສະແກນກວດສອບ', widthPx/2, y);
+    y+=8;
+    const qx=Math.round((widthPx-_qrCv.width)/2);
+    ctx.drawImage(_qrCv, qx, y);
+    y+=_qrCv.height+6;
+  }
   y+=lineH*0.3;
   center('ຂອບໃຈ / ขอบคุณครับ', fTx);
   center(new Date().toLocaleString('th-TH'), fSm);
@@ -2840,6 +2896,7 @@ function _fallbackPrintReceipt(o){
     ? items.map((it,i)=>`<div class="row"><span>${i+1}. ${it.productId||'ยางพารา'}</span></div><div class="row sm"><span>&nbsp;&nbsp;${(it.qty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก. x ${(it.price||0).toLocaleString('th-TH')}</span><span>₭${((it.qty||0)*(it.price||0)).toLocaleString('th-TH',{maximumFractionDigits:0})}</span></div>`).join('')
     : `<div class="row"><span>ยางพารา</span><span>${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</span></div>`;
 
+  const _qrURL = _makeQRDataURL(_buildReceiptQRData(o), 180);
   const w=window.open('','_blank');
   if(!w){ showToast('กรุณาอนุญาต popup เพื่อพิมพ์','error'); return; }
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -2875,6 +2932,7 @@ function _fallbackPrintReceipt(o){
     <div class="row tot"><span>ยอดเงินรวม</span><span>₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</span></div>
     ${o.note?`<div class="hr"></div><div class="sm">หมายเหตุ: ${o.note}</div>`:''}
     <div class="hr"></div>
+    ${_qrURL?`<div class="c" style="margin:6px 0"><div class="sm" style="margin-bottom:4px">สแกนตรวจสอบใบเสร็จ / ສະແກນກວດສອບ</div><img src="${_qrURL}" style="width:${_printerWidth===80?'46mm':'36mm'};height:auto;image-rendering:pixelated"></div><div class="hr"></div>`:''}
     <div class="c">ຂອບໃຈ / ขอบคุณครับ</div>
     <div class="c sm">${new Date().toLocaleString('th-TH')}</div>
     <script>window.onload=()=>{setTimeout(()=>window.print(),300);}<\/script>
@@ -3039,6 +3097,9 @@ function openBillDetail(orderId){
       </div>
     </div>
     ${o.note?`<div style="margin-top:.8rem;padding:.7rem 1rem;background:var(--surface2);border-radius:var(--r);font-size:.8rem"><span style="color:var(--muted)">📝 หมายเหตุ: </span>${o.note}</div>`:''}
+    <div style="margin-top:1rem;text-align:center">
+      ${(function(){const u=_makeQRDataURL(_buildReceiptQRData(o),170);return u?`<img src="${u}" style="width:150px;height:150px;image-rendering:pixelated;border:1px solid var(--border);border-radius:8px;padding:6px;background:#fff"><div style="font-size:.68rem;color:var(--muted);margin-top:4px">📱 สแกนเพื่อตรวจสอบใบเสร็จ</div>`:'';})()}
+    </div>
     <div style="margin-top:1rem;text-align:right">
       <button onclick="thermalPrint('${o.id}')" style="font-size:.76rem;padding:.45rem .9rem;background:var(--sky);color:#fff;border:none;border-radius:var(--r-sm);cursor:pointer">🖨 พิมพ์ใบเสร็จ</button>
       <button onclick="reprintBill('${o.id}')" style="font-size:.76rem;padding:.45rem .9rem;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;margin-left:6px">🔄 พิมพ์ซ้ำ</button>
@@ -3660,7 +3721,7 @@ async function lockBill(orderId) {
   };
   try {
     // Check if already locked by someone else
-    const { data } = await _sb.from("app_data").select("value").eq("key", lockKey).single();
+    const { data } = await _sb.from("app_data").select("value").eq("key", lockKey).maybeSingle();
     if (data) {
       const existing = JSON.parse(data.value);
       if (existing.expires > Date.now() && existing.lockedBy !== currentUser?.displayName) {
@@ -3686,7 +3747,7 @@ async function unlockBill(orderId) {
 
 async function checkLock(orderId) {
   try {
-    const { data } = await _sb.from("app_data").select("value").eq("key", `lock_order_${orderId}`).single();
+    const { data } = await _sb.from("app_data").select("value").eq("key", `lock_order_${orderId}`).maybeSingle();
     if (!data) return null;
     const lock = JSON.parse(data.value);
     if (lock.expires < Date.now()) {
@@ -3709,7 +3770,7 @@ openPayModal = async function(id) {
   }
   // Verify order status from Supabase (latest)
   try {
-    const { data } = await _sb.from("orders").select("status").eq("id", id).single();
+    const { data } = await _sb.from("orders").select("status").eq("id", id).maybeSingle();
     if (data && data.status === "paid") {
       showToast("⚠ บิลนี้ชำระแล้ว", "error");
       await loadData(); renderHistory(); renderPending();
@@ -5266,6 +5327,11 @@ function _collectDashboardStats(){
 }
 
 async function generateAISummary(){
+  // ── ปิดชั่วคราว: การเรียก api.anthropic.com ตรงจากเบราว์เซอร์ถูก CORS block
+  //    เมื่อทำ backend proxy แล้ว ให้ลบ return บรรทัดล่างและปรับ URL ใน fetch เป็น endpoint proxy
+  showToast('ℹ ระบบ AI จะเปิดใช้งานภายหลัง (รอตั้งค่า backend)');
+  return;
+  /* eslint-disable no-unreachable */
   const contentEl=document.getElementById('dash-ai-content');
   const btn=document.getElementById('ai-gen-btn');
   const disc=document.getElementById('dash-ai-disclaimer');
@@ -5329,6 +5395,7 @@ ${JSON.stringify(stats, null, 2)}
   }finally{
     if(btn){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';}
   }
+  /* eslint-enable no-unreachable */
 }
 
 function _renderAISummary(d){
