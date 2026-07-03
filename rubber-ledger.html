@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0EA5E9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="RubberLedger">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230EA5E9'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E🌳%3C/text%3E%3C/svg%3E">
 <meta name="google" content="notranslate">
 <meta http-equiv="Content-Language" content="th">
 <title>RubberLedger</title>
@@ -614,6 +619,7 @@ font{border:none!important;outline:none!important;display:inline!important}
   <div id="topbar">
     <div class="logo"><span class="logo-dot"></span>RUBBERLEDGER</div>
     <div id="sync-indicator-wrap" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.3)"></div>
+    <span id="net-status" style="font-size:.68rem;font-weight:600;background:rgba(255,255,255,.9);padding:.15rem .5rem;border-radius:999px;white-space:nowrap;flex-shrink:0"></span>
     <div style="display:flex;align-items:center;gap:.6rem;margin-left:auto">
       <select id="lang-select" onchange="setLang(this.value)" title="เปลี่ยนภาษา">
         <option value="th">TH ไทย</option>
@@ -964,6 +970,14 @@ font{border:none!important;outline:none!important;display:inline!important}
           <span id="my-loc-preview" style="font-size:.75rem;color:var(--muted);"></span>
           <button class="btn-primary" onclick="saveMyLocation()" style="background:var(--gold);color:#111;" data-i18n="loc_save">💾 บันทึกสถานที่</button>
         </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--violet);margin-bottom:1rem;">
+      <div class="card-header" style="color:var(--violet-d);">📲 ติดตั้งเป็นแอป (ใช้งานออฟไลน์)</div>
+      <div class="card-body">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.9rem;">ติดตั้ง RubberLedger เป็นแอปบนมือถือ/คอม เพื่อเปิดใช้ได้เร็วขึ้นและทำงานได้แม้เน็ตไม่เสถียร — บิลที่บันทึกตอนออฟไลน์จะซิงค์อัตโนมัติเมื่อกลับมามีเน็ต</div>
+        <button id="pwa-install-btn" class="btn-primary" onclick="installPWA()" style="background:var(--violet)" data-i18n="pwa_install">📲 ติดตั้งแอป</button>
       </div>
     </div>
 
@@ -1354,6 +1368,85 @@ let _btDevice = null;       // BluetoothDevice
 let _btChar = null;         // write characteristic
 let _printerWidth = parseInt(localStorage.getItem('rl_printer_width')||'58',10); // 58 | 80
 
+// ── Offline sync queue ──
+let _isOnline = (typeof navigator!=='undefined') ? navigator.onLine : true;
+let _syncQueue = JSON.parse(localStorage.getItem('rl_sync_queue')||'[]'); // [{type:'order', data:{...}}]
+let _syncing = false;
+
+// =====================================================
+// OFFLINE QUEUE — บันทึกงานที่ sync ไม่สำเร็จ แล้ว sync เมื่อกลับมาออนไลน์
+// =====================================================
+function _saveQueue(){ localStorage.setItem('rl_sync_queue', JSON.stringify(_syncQueue)); }
+
+function _enqueueSync(type, data){
+  // แทนที่รายการเดิมของ order เดียวกัน (กันซ้ำ)
+  if(type==='order'){
+    _syncQueue = _syncQueue.filter(q=>!(q.type==='order' && q.data && q.data.id===data.id));
+  }
+  _syncQueue.push({type, data, ts:Date.now()});
+  _saveQueue();
+  _updateNetUI();
+}
+
+async function _flushQueue(){
+  if(_syncing || !_isOnline || _syncQueue.length===0) return;
+  _syncing = true;
+  _updateNetUI();
+  const remaining = [];
+  for(const job of _syncQueue){
+    try{
+      if(job.type==='order'){
+        const ok = await persistOrder(job.data, true); // true = skip re-queue
+        if(!ok) remaining.push(job);
+      } else if(job.type==='receipt'){
+        await _sb.from('receipts').insert(job.data);
+      } else if(job.type==='customer'){
+        await _sb.from('customers').upsert(job.data,{onConflict:'id'});
+      }
+    }catch(e){ console.warn('flush job failed:', e); remaining.push(job); }
+  }
+  _syncQueue = remaining;
+  _saveQueue();
+  _syncing = false;
+  _updateNetUI();
+  if(remaining.length===0 && typeof showToast==='function') showToast(t('net_synced'));
+}
+
+function _updateNetUI(){
+  const badge = document.getElementById('net-status');
+  if(!badge) return;
+  const pending = _syncQueue.length;
+  if(_syncing){
+    badge.textContent = t('net_syncing');
+    badge.style.color = 'var(--gold-d)';
+  } else if(!_isOnline){
+    badge.textContent = t('net_offline') + (pending?` (${pending})`:'');
+    badge.style.color = 'var(--red-d)';
+  } else if(pending>0){
+    badge.textContent = `${t('net_pending_count')}: ${pending}`;
+    badge.style.color = 'var(--gold-d)';
+  } else {
+    badge.textContent = t('net_online');
+    badge.style.color = 'var(--green-d)';
+  }
+}
+
+function _initNetworkMonitor(){
+  if(typeof window==='undefined') return;
+  window.addEventListener('online', ()=>{
+    _isOnline = true; _updateNetUI();
+    if(typeof showToast==='function') showToast(t('net_online'));
+    _flushQueue();
+  });
+  window.addEventListener('offline', ()=>{
+    _isOnline = false; _updateNetUI();
+    if(typeof showToast==='function') showToast(t('net_offline'),'error');
+  });
+  // ลอง flush เป็นระยะ (เผื่อ event ไม่ยิง)
+  setInterval(()=>{ if(_isOnline && _syncQueue.length>0) _flushQueue(); }, 30000);
+  _updateNetUI();
+}
+
 // Supabase ready
 
 async function loadAccounts(){
@@ -1467,7 +1560,13 @@ async function persist(){
 }
 
 // Save a single order + its items directly to Supabase
-async function persistOrder(order){
+async function persistOrder(order, _fromQueue){
+  // ถ้า offline → เก็บเข้า queue ทันที (ไม่ต้องลอง network)
+  if(!_isOnline && !_fromQueue){
+    _enqueueSync('order', order);
+    if(typeof showToast==='function') showToast(t('net_queued'));
+    return true; // ถือว่าสำเร็จ (บันทึกในเครื่องแล้ว)
+  }
   try{
     const payload={
       id:String(order.id),
@@ -1481,13 +1580,16 @@ async function persistOrder(order){
       grand_total:parseFloat(order.grandTotal)||0,
       created_by:order.createdBy||"",
       paid_by:order.paidBy||null,
+      paid_at:order.paidAt||null,
+      sent_at:order.sentAt||null,
       cancel_reason:order.cancelReason||null,
       updated_at:new Date().toISOString()
     };
     const {error:oErr}=await _sb.from("orders").upsert(payload,{onConflict:"id"});
     if(oErr){
       console.error("❌ Order upsert error:",JSON.stringify(oErr));
-      showToast("⚠ ข้อผิดพลาด Supabase: "+oErr.message,"error");
+      // ถ้าไม่ได้มาจาก queue → เก็บเข้า queue เพื่อลองใหม่
+      if(!_fromQueue){ _enqueueSync('order', order); showToast(t('net_queued')); return true; }
       return false;
     }
     // Save items
@@ -1506,6 +1608,8 @@ async function persistOrder(order){
     return true;
   }catch(e){
     console.error("❌ persistOrder exception:",e);
+    // network error → เก็บเข้า queue
+    if(!_fromQueue){ _enqueueSync('order', order); if(typeof showToast==='function') showToast(t('net_queued')); return true; }
     return false;
   }
 }
@@ -1593,6 +1697,9 @@ async function initApp(){
   updateCustomerDatalist();
   // Start real-time sync
   setTimeout(() => { startRealtimeSync(); addSyncIndicator(); }, 1000);
+  // Offline queue + network monitor
+  _initNetworkMonitor();
+  setTimeout(() => { if(_isOnline) _flushQueue(); }, 1500);
   // Apply saved language
   applyLang();
   const settingsBtn=document.getElementById("tab-settings-btn");
@@ -4105,6 +4212,14 @@ const LANG_DICT = {
     history_rubber: "ประวัติการขายยาง",
     mywork_all: "รายการทั้งหมด",
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
+    net_online: "🟢 ออนไลน์",
+    net_offline: "🔴 ออฟไลน์ — บันทึกในเครื่อง",
+    net_syncing: "🔄 กำลังซิงค์...",
+    net_synced: "✅ ซิงค์ข้อมูลครบแล้ว",
+    net_queued: "📥 บันทึกไว้ในเครื่อง จะซิงค์เมื่อมีเน็ต",
+    net_pending_count: "รอซิงค์",
+    pwa_install: "📲 ติดตั้งแอป",
+    pwa_installed: "ติดตั้งแอปเรียบร้อย",
     ai_title: "🤖 สรุปอัจฉริยะด้วย AI",
     ai_sub: "วิเคราะห์ข้อมูลและแนวโน้มสำคัญโดยอัตโนมัติ",
     ai_generate: "✨ วิเคราะห์ข้อมูล",
@@ -4340,6 +4455,14 @@ const LANG_DICT = {
     history_rubber: "ປະຫວັດການຂາຍຢາງ",
     mywork_all: "ລາຍການທັງໝົດ",
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
+    net_online: "🟢 ອອນລາຍ",
+    net_offline: "🔴 ອອບລາຍ — ບັນທຶກໃນເຄື່ອງ",
+    net_syncing: "🔄 ກຳລັງຊິງຄ໌...",
+    net_synced: "✅ ຊິງຄ໌ຂໍ້ມູນຄົບແລ້ວ",
+    net_queued: "📥 ບັນທຶກໄວ້ໃນເຄື່ອງ ຈະຊິງຄ໌ເມື່ອມີເນັດ",
+    net_pending_count: "ລໍຊິງຄ໌",
+    pwa_install: "📲 ຕິດຕັ້ງແອັບ",
+    pwa_installed: "ຕິດຕັ້ງແອັບຮຽບຮ້ອຍ",
     ai_title: "🤖 ສະຫຼຸບອັດສະລິຍະດ້ວຍ AI",
     ai_sub: "ວິເຄາະຂໍ້ມູນ ແລະ ແນວໂນ້ມສຳຄັນໂດຍອັດຕະໂນມັດ",
     ai_generate: "✨ ວິເຄາະຂໍ້ມູນ",
@@ -4575,6 +4698,14 @@ const LANG_DICT = {
     history_rubber: "Rubber Sale History",
     mywork_all: "All Records",
     ph_mywork_search: "Search bill no. or customer...",
+    net_online: "🟢 Online",
+    net_offline: "🔴 Offline — saved locally",
+    net_syncing: "🔄 Syncing...",
+    net_synced: "✅ All data synced",
+    net_queued: "📥 Saved locally, will sync when online",
+    net_pending_count: "pending sync",
+    pwa_install: "📲 Install App",
+    pwa_installed: "App installed",
     ai_title: "🤖 AI Smart Summary",
     ai_sub: "Automatically analyze key data and trends",
     ai_generate: "✨ Analyze Data",
@@ -4845,7 +4976,93 @@ document.addEventListener("DOMContentLoaded", () => {
   const sel = document.getElementById("lang-select");
   if (sel) sel.value = saved;
   applyLang();
+  _setupPWA();
 });
+
+// =====================================================
+// PWA — ติดตั้งเป็นแอป + Service Worker (offline cache)
+// =====================================================
+let _deferredInstallPrompt = null;
+
+function _setupPWA(){
+  // 1) Manifest แบบ inline (blob)
+  try{
+    const icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230EA5E9'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E";
+    const manifest = {
+      name: "RubberLedger", short_name: "RubberLedger",
+      start_url: ".", scope: ".", display: "standalone",
+      background_color: "#ffffff", theme_color: "#0EA5E9",
+      description: "ระบบจัดการรับซื้อยางพารา",
+      icons: [
+        { src: icon, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+        { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+      ]
+    };
+    const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+    const mURL = URL.createObjectURL(mBlob);
+    let link = document.querySelector('link[rel="manifest"]');
+    if(!link){ link=document.createElement('link'); link.rel='manifest'; document.head.appendChild(link); }
+    link.href = mURL;
+  }catch(e){ console.warn('manifest:', e); }
+
+  // 2) Service Worker (offline shell cache) — เฉพาะเมื่อเปิดผ่าน https/localhost
+  if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+    const swCode = `
+      const CACHE='rubberledger-v1';
+      self.addEventListener('install', e=>{ self.skipWaiting(); });
+      self.addEventListener('activate', e=>{ e.waitUntil(clients.claim()); });
+      self.addEventListener('fetch', e=>{
+        const req=e.request;
+        if(req.method!=='GET') return;
+        const url=new URL(req.url);
+        // ไม่ cache Supabase/API — ให้ผ่านตรง (offline queue จัดการเอง)
+        if(url.hostname.includes('supabase') || url.hostname.includes('anthropic')) return;
+        e.respondWith(
+          caches.open(CACHE).then(cache=>
+            cache.match(req).then(hit=>{
+              const net=fetch(req).then(res=>{
+                if(res && res.status===200 && (url.protocol==='https:'||url.protocol==='http:')){
+                  try{ cache.put(req, res.clone()); }catch(_){}
+                }
+                return res;
+              }).catch(()=>hit);
+              return hit || net;
+            })
+          )
+        );
+      });
+    `;
+    try{
+      const swBlob = new Blob([swCode], {type:'text/javascript'});
+      const swURL = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swURL).catch(err=>console.warn('SW reg:', err));
+    }catch(e){ console.warn('SW:', e); }
+  }
+
+  // 3) ปุ่มติดตั้ง (Android/Chrome)
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+    const btn = document.getElementById('pwa-install-btn');
+    if(btn) btn.style.display='';
+  });
+  window.addEventListener('appinstalled', ()=>{
+    _deferredInstallPrompt=null;
+    const btn=document.getElementById('pwa-install-btn');
+    if(btn) btn.style.display='none';
+    if(typeof showToast==='function') showToast(t('pwa_installed'));
+  });
+}
+
+async function installPWA(){
+  if(!_deferredInstallPrompt){
+    showToast(t('pwa_install')+' — ' + (/iPhone|iPad/i.test(navigator.userAgent)?'Safari: แชร์ > เพิ่มไปหน้าจอโฮม':'เมนูเบราว์เซอร์ > ติดตั้งแอป'));
+    return;
+  }
+  _deferredInstallPrompt.prompt();
+  await _deferredInstallPrompt.userChoice;
+  _deferredInstallPrompt=null;
+}
 
 // =====================================================
 // RECEIPTS (ใบเสร็จ / ใบวางบิล)
