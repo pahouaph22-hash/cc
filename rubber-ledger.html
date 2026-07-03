@@ -156,6 +156,7 @@ font{border:none!important;outline:none!important;display:inline!important}
   box-shadow:0 0 0 3px rgba(255,255,255,.3);
   animation:pulse-dot 2.5s ease-in-out infinite;
 }
+@keyframes aispin{to{transform:rotate(360deg)}}
 @keyframes pulse-dot{
   0%,100%{box-shadow:0 0 0 3px rgba(255,255,255,.3)}
   50%{box-shadow:0 0 0 5px rgba(255,255,255,.1)}
@@ -645,6 +646,24 @@ font{border:none!important;outline:none!important;display:inline!important}
   <!-- TAB: DASHBOARD -->
   <div class="tab-pane" id="pane-dashboard">
     <div style="padding:8px 0 16px;">
+
+      <!-- AI Smart Summary -->
+      <div id="dash-ai-panel" style="background:linear-gradient(135deg,#EDE9FE 0%,#F5F3FF 55%,#FAF5FF 100%);border:1px solid var(--violet-m);border-radius:14px;padding:18px;margin-bottom:20px;position:relative;overflow:hidden;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--violet) 0%,var(--violet-d) 100%);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 3px 10px rgba(139,92,246,.35)">🤖</div>
+            <div>
+              <div style="font-weight:700;font-size:1.02rem;color:var(--violet-d)" data-i18n="ai_title">🤖 สรุปอัจฉริยะด้วย AI</div>
+              <div style="font-size:.74rem;color:var(--violet)" data-i18n="ai_sub">วิเคราะห์ข้อมูลและแนวโน้มสำคัญโดยอัตโนมัติ</div>
+            </div>
+          </div>
+          <button id="ai-gen-btn" onclick="generateAISummary()" style="background:linear-gradient(135deg,var(--violet) 0%,var(--violet-d) 100%);color:#fff;border:none;border-radius:9px;padding:.55rem 1.1rem;font-size:.82rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(139,92,246,.3);white-space:nowrap" data-i18n="ai_generate">✨ วิเคราะห์ข้อมูล</button>
+        </div>
+        <div id="dash-ai-content" style="font-size:.86rem;line-height:1.7;color:var(--text);">
+          <div style="color:var(--violet-d);opacity:.75;font-size:.82rem;padding:6px 2px" data-i18n="ai_empty">กดปุ่ม "วิเคราะห์ข้อมูล" เพื่อให้ AI สรุปภาพรวมธุรกิจให้คุณ</div>
+        </div>
+        <div id="dash-ai-disclaimer" style="display:none;font-size:.68rem;color:var(--violet);opacity:.7;margin-top:10px;padding-top:8px;border-top:1px solid var(--violet-m)" data-i18n="ai_disclaimer">สรุปโดย AI — โปรดตรวจสอบข้อมูลก่อนตัดสินใจ</div>
+      </div>
 
       <!-- KPI Cards -->
       <div id="dash-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
@@ -4025,6 +4044,14 @@ const LANG_DICT = {
     history_rubber: "ประวัติการขายยาง",
     mywork_all: "รายการทั้งหมด",
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
+    ai_title: "🤖 สรุปอัจฉริยะด้วย AI",
+    ai_sub: "วิเคราะห์ข้อมูลและแนวโน้มสำคัญโดยอัตโนมัติ",
+    ai_generate: "✨ วิเคราะห์ข้อมูล",
+    ai_regenerate: "🔄 วิเคราะห์ใหม่",
+    ai_loading: "กำลังวิเคราะห์ข้อมูล...",
+    ai_error: "วิเคราะห์ไม่สำเร็จ ลองใหม่อีกครั้ง",
+    ai_empty: "กดปุ่ม \"วิเคราะห์ข้อมูล\" เพื่อให้ AI สรุปภาพรวมธุรกิจให้คุณ",
+    ai_disclaimer: "สรุปโดย AI — โปรดตรวจสอบข้อมูลก่อนตัดสินใจ",
     ph_note: "เช่น คุณภาพยาง DRC ≥ 60%, เงื่อนไขพิเศษ...",
     tab_dashboard: "📊 แดชบอร์ด",
     tab_billhistory: "📚 ประวัติใบบิลที่ชำระแล้ว",
@@ -4252,6 +4279,14 @@ const LANG_DICT = {
     history_rubber: "ປະຫວັດການຂາຍຢາງ",
     mywork_all: "ລາຍການທັງໝົດ",
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
+    ai_title: "🤖 ສະຫຼຸບອັດສະລິຍະດ້ວຍ AI",
+    ai_sub: "ວິເຄາະຂໍ້ມູນ ແລະ ແນວໂນ້ມສຳຄັນໂດຍອັດຕະໂນມັດ",
+    ai_generate: "✨ ວິເຄາະຂໍ້ມູນ",
+    ai_regenerate: "🔄 ວິເຄາະໃໝ່",
+    ai_loading: "ກຳລັງວິເຄາະຂໍ້ມູນ...",
+    ai_error: "ວິເຄາະບໍ່ສຳເລັດ ລອງໃໝ່ອີກຄັ້ງ",
+    ai_empty: "ກົດປຸ່ມ \"ວິເຄາະຂໍ້ມູນ\" ເພື່ອໃຫ້ AI ສະຫຼຸບພາບລວມທຸລະກິດໃຫ້ທ່ານ",
+    ai_disclaimer: "ສະຫຼຸບໂດຍ AI — ກະລຸນາກວດສອບຂໍ້ມູນກ່ອນຕັດສິນໃຈ",
     ph_note: "ຕົວຢ່າງ: ຄຸນນະພາບຢາງ DRC ≥ 60%, ເງື່ອນໄຂພິເສດ...",
     tab_dashboard: "📊 ແດຊບອດ",
     tab_billhistory: "📚 ປະຫວັດໃບບິນທີ່ຊຳລະແລ້ວ",
@@ -4479,6 +4514,14 @@ const LANG_DICT = {
     history_rubber: "Rubber Sale History",
     mywork_all: "All Records",
     ph_mywork_search: "Search bill no. or customer...",
+    ai_title: "🤖 AI Smart Summary",
+    ai_sub: "Automatically analyze key data and trends",
+    ai_generate: "✨ Analyze Data",
+    ai_regenerate: "🔄 Re-analyze",
+    ai_loading: "Analyzing data...",
+    ai_error: "Analysis failed, please try again",
+    ai_empty: "Click \"Analyze Data\" to let AI summarize your business overview",
+    ai_disclaimer: "AI-generated summary — please verify before deciding",
     ph_note: "e.g. DRC ≥ 60%, special conditions...",
     tab_dashboard: "📊 Dashboard",
     tab_billhistory: "📚 Paid Bill History",
@@ -5174,6 +5217,144 @@ function alExportCSV() {
 // =====================================================
 let _dashChartMonthly = null;
 let _dashChartStatus = null;
+
+// =====================================================
+// AI SMART SUMMARY — วิเคราะห์ข้อมูลด้วย Claude API
+// =====================================================
+let _aiSummaryCache = null;
+
+// รวบรวมสถิติสำคัญเพื่อป้อนให้ AI
+function _collectDashboardStats(){
+  const paid = orders.filter(o=>o.status==='paid');
+  const pending = orders.filter(o=>o.status==='sent');
+  const draft = orders.filter(o=>o.status==='draft');
+  const cancelled = orders.filter(o=>o.status==='cancelled');
+  const totalAmt = paid.reduce((s,o)=>s+(o.grandTotal||0),0);
+  const totalKg = paid.reduce((s,o)=>s+(o.totalQty||0),0);
+  const pendingAmt = pending.reduce((s,o)=>s+(o.grandTotal||0),0);
+
+  // รายเดือน
+  const monthMap={};
+  paid.forEach(o=>{
+    const m=((o.paidAt||o.date||'')+'').slice(0,7);
+    if(m){if(!monthMap[m])monthMap[m]={amt:0,kg:0,count:0};monthMap[m].amt+=o.grandTotal||0;monthMap[m].kg+=o.totalQty||0;monthMap[m].count++;}
+  });
+  const months=Object.entries(monthMap).sort((a,b)=>a[0]<b[0]?-1:1);
+
+  // Top ลูกค้า
+  const custMap={};
+  paid.forEach(o=>{const c=o.customer||'-';if(!custMap[c])custMap[c]={kg:0,amt:0,count:0};custMap[c].kg+=o.totalQty||0;custMap[c].amt+=o.grandTotal||0;custMap[c].count++;});
+  const topCust=Object.entries(custMap).sort((a,b)=>b[1].kg-a[1].kg).slice(0,5);
+
+  // รายพนักงาน (ผู้รับชำระ)
+  const staffMap={};
+  paid.forEach(o=>{if(o.paidBy){if(!staffMap[o.paidBy])staffMap[o.paidBy]={amt:0,count:0};staffMap[o.paidBy].amt+=o.grandTotal||0;staffMap[o.paidBy].count++;}});
+  const topStaff=Object.entries(staffMap).sort((a,b)=>b[1].amt-a[1].amt).slice(0,5);
+
+  return {
+    generatedAt:new Date().toLocaleString('th-TH'),
+    totalOrders:orders.length,
+    paidCount:paid.length, pendingCount:pending.length, draftCount:draft.length, cancelledCount:cancelled.length,
+    totalAmount:Math.round(totalAmt), totalKg:Math.round(totalKg*100)/100,
+    pendingAmount:Math.round(pendingAmt),
+    avgPerBill: paid.length? Math.round(totalAmt/paid.length):0,
+    totalCustomers:Object.keys(custMap).length,
+    monthly:months.map(([m,v])=>({month:m,amount:Math.round(v.amt),kg:Math.round(v.kg*100)/100,bills:v.count})),
+    topCustomers:topCust.map(([c,v])=>({name:c,kg:Math.round(v.kg*100)/100,amount:Math.round(v.amt),bills:v.count})),
+    topStaff:topStaff.map(([s,v])=>({name:s,amount:Math.round(v.amt),bills:v.count})),
+  };
+}
+
+async function generateAISummary(){
+  const contentEl=document.getElementById('dash-ai-content');
+  const btn=document.getElementById('ai-gen-btn');
+  const disc=document.getElementById('dash-ai-disclaimer');
+  if(!contentEl) return;
+
+  if(!orders || orders.length===0){
+    contentEl.innerHTML=`<div style="color:var(--violet-d);opacity:.75;font-size:.82rem;padding:6px 2px">${t('dash_no_data')}</div>`;
+    return;
+  }
+
+  const stats=_collectDashboardStats();
+  const langName = currentLang==='lo' ? 'ภาษาลาว (Lao)' : currentLang==='en' ? 'English' : 'ภาษาไทย (Thai)';
+
+  // loading
+  contentEl.innerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:8px 2px;color:var(--violet-d)">
+    <div class="ai-spinner" style="width:18px;height:18px;border:2.5px solid var(--violet-m);border-top-color:var(--violet-d);border-radius:50%;animation:aispin .7s linear infinite"></div>
+    <span style="font-size:.84rem">${t('ai_loading')}</span></div>`;
+  if(btn){btn.disabled=true;btn.style.opacity='.6';btn.style.cursor='wait';}
+
+  const prompt = `คุณเป็นนักวิเคราะห์ธุรกิจสำหรับกิจการรับซื้อยางพารา (KUBTHOR รัฐวิสาหกิจลาว) ต่อไปนี้คือข้อมูลสรุปจากระบบ:
+
+${JSON.stringify(stats, null, 2)}
+
+หมายเหตุ: จำนวนเงินหน่วยเป็นกีบ (₭/Kip), น้ำหนักหน่วยเป็นกิโลกรัม (กก.)
+
+กรุณาวิเคราะห์และสรุปเป็น${langName} โดยตอบเป็น JSON เท่านั้น (ไม่มีข้อความอื่นนอก JSON, ไม่มี markdown) ในรูปแบบนี้:
+{
+  "headline": "ประโยคสรุปภาพรวมสั้นๆ 1 ประโยค",
+  "insights": [
+    {"icon":"emoji", "title":"หัวข้อสั้น", "detail":"รายละเอียดเชิงลึก 1-2 ประโยค พร้อมตัวเลขจริง"}
+  ],
+  "trend": {"direction":"up|down|flat", "text":"อธิบายแนวโน้มยอดซื้อ 1 ประโยค"},
+  "recommendations": ["คำแนะนำที่ปฏิบัติได้จริง 1 ประโยค", "..."]
+}
+
+ให้ insights 3-4 ข้อ (เจาะประเด็น: ยอดขาย, ลูกค้าหลัก, บิลค้างชำระ, ผลงานพนักงาน), recommendations 2-3 ข้อ ใช้ตัวเลขจริงจากข้อมูล กระชับ ตรงประเด็น ภาษาที่เข้าใจง่าย`;
+
+  try{
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1500,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const data = await resp.json();
+    let text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    // ตัด markdown fences ถ้ามี
+    text = text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    const parsed = JSON.parse(text);
+    _aiSummaryCache = parsed;
+    _renderAISummary(parsed);
+    if(disc) disc.style.display='block';
+    if(btn){ btn.textContent=t('ai_regenerate'); }
+  }catch(e){
+    console.warn('AI summary:', e);
+    contentEl.innerHTML=`<div style="color:var(--red-d);font-size:.82rem;padding:6px 2px">⚠ ${t('ai_error')}</div>`;
+  }finally{
+    if(btn){btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';}
+  }
+}
+
+function _renderAISummary(d){
+  const el=document.getElementById('dash-ai-content');
+  if(!el||!d) return;
+  const trendIcon = d.trend?.direction==='up'?'📈':d.trend?.direction==='down'?'📉':'➡️';
+  const trendColor = d.trend?.direction==='up'?'var(--green-d)':d.trend?.direction==='down'?'var(--red-d)':'var(--muted)';
+  el.innerHTML = `
+    ${d.headline?`<div style="font-size:.95rem;font-weight:700;color:var(--violet-d);margin-bottom:12px;line-height:1.5">"${d.headline}"</div>`:''}
+    ${d.trend?.text?`<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.6);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.84rem"><span style="font-size:1.1rem">${trendIcon}</span><span style="color:${trendColor};font-weight:600">${d.trend.text}</span></div>`:''}
+    ${Array.isArray(d.insights)&&d.insights.length?`
+      <div style="display:grid;gap:8px;margin-bottom:12px">
+        ${d.insights.map(i=>`<div style="display:flex;gap:10px;background:rgba(255,255,255,.55);border-radius:8px;padding:9px 12px">
+          <span style="font-size:1.1rem;flex-shrink:0">${i.icon||'•'}</span>
+          <div><span style="font-weight:700;color:var(--violet-d)">${i.title||''}</span> <span style="color:var(--text2)">${i.detail||''}</span></div>
+        </div>`).join('')}
+      </div>`:''}
+    ${Array.isArray(d.recommendations)&&d.recommendations.length?`
+      <div style="background:rgba(255,255,255,.6);border-radius:8px;padding:10px 12px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--violet-d);margin-bottom:6px;letter-spacing:.04em">💡 ${currentLang==='lo'?'ຄຳແນະນຳ':currentLang==='en'?'RECOMMENDATIONS':'คำแนะนำ'}</div>
+        <ul style="margin:0;padding-left:18px;font-size:.82rem;color:var(--text2);line-height:1.6">
+          ${d.recommendations.map(r=>`<li>${r}</li>`).join('')}
+        </ul>
+      </div>`:''}
+  `;
+}
 
 function renderDashboard() {
   if (!orders || orders.length === 0) { _dashLoadingState(); return; }
