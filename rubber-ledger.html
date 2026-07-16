@@ -1764,6 +1764,24 @@ function showToast(msg,type="success"){
 }
 
 // ── LOGIN ──
+// ── ตรวจว่าฐานข้อมูลมีคอลัมน์ is_active หรือยัง ──
+let _hasActiveColumn = null; // null=ยังไม่ตรวจ, true=มี, false=ไม่มี
+async function _checkActiveColumn(){
+  try{
+    const {error}=await _sb.from("accounts").select("is_active").limit(1);
+    _hasActiveColumn = !error;
+    if(error) console.warn("⚠️ ไม่พบคอลัมน์ is_active — กรุณารัน accounts-active-schema.sql ใน Supabase");
+    else console.log("✅ คอลัมน์ is_active พร้อมใช้งาน");
+  }catch(e){ _hasActiveColumn=false; }
+  return _hasActiveColumn;
+}
+
+// แปลงค่า is_active จาก DB เป็น boolean (รองรับทุกรูปแบบ)
+function _accIsActive(v){
+  if(v===false || v===0 || v==='false' || v==='f' || v===null) return false;
+  return true; // undefined (ไม่มีคอลัมน์) หรือ true → ถือว่าเปิดใช้งาน
+}
+
 async function doLogin(){
   const u=document.getElementById("ln-user").value.trim();
   const p=document.getElementById("ln-pass").value;
@@ -1773,20 +1791,28 @@ async function doLogin(){
   // ── ตรวจสอบบัญชีจาก Supabase (แหล่งความจริง) ──
   let acc=null, suspended=false, sbReachable=false;
   try{
-    const {data}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).maybeSingle();
-    sbReachable=true;
+    const {data,error}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).maybeSingle();
+    if(!error) sbReachable=true;
     if(data){
-      // บัญชีถูกปิดใช้งาน → ห้ามเข้า
-      if(data.is_active===false){ suspended=true; }
-      else acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name,isActive:true};
+      // ตรวจสถานะบัญชีทุกครั้ง (ไม่ใช่แค่รหัสผ่าน)
+      if(!_accIsActive(data.is_active)){
+        suspended=true;
+      } else {
+        acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name,isActive:true};
+      }
+      // เตือน admin ถ้ายังไม่ได้ตั้งค่าคอลัมน์
+      if(data.is_active===undefined && data.role==="admin"){
+        _hasActiveColumn=false;
+        setTimeout(()=>{ try{ showToast(t('acc_col_missing'),'error'); }catch(e){} }, 1200);
+      }
     }
   }catch(e){ sbReachable=false; }
 
   btn.disabled=false;btn.textContent="เข้าสู่ระบบ";
 
-  // บัญชีถูกระงับ
+  // บัญชีถูกปิดใช้งาน → ห้ามเข้าเด็ดขาด
   if(suspended){
-    err.textContent=t('acc_suspended_msg');
+    err.textContent=t('acc_deactivated_msg');
     err.style.display="block";
     return;
   }
@@ -1843,6 +1869,10 @@ async function initApp(){
   _initNetworkMonitor();
   // Session guard — เช็คว่าบัญชียังใช้งานได้
   _startSessionGuard();
+  // ตรวจว่าฐานข้อมูลพร้อมสำหรับระบบเปิด/ปิดบัญชีไหม
+  if(currentUser?.role==="admin"){
+    _checkActiveColumn().then(ok=>{ if(ok===false) showToast(t('acc_col_missing'),'error'); });
+  }
   setTimeout(() => { if(_isOnline) _flushQueue(); }, 1500);
   // Apply saved language
   applyLang();
@@ -2541,7 +2571,16 @@ async function toggleStaffActive(username, makeActive){
       ? { is_active:true, deactivated_at:null, deactivated_by:null }
       : { is_active:false, deactivated_at:new Date().toISOString(), deactivated_by:currentUser.username };
     const {error}=await _sb.from("accounts").update(payload).eq("username",username);
-    if(error){ showToast("⚠ "+error.message,"error"); return; }
+    if(error){
+      // คอลัมน์ยังไม่มี → เตือนให้รัน SQL
+      if(/is_active|column/i.test(error.message||'')){
+        _hasActiveColumn=false;
+        showToast(t('acc_col_missing'),"error");
+        renderStaffList();
+      } else showToast("⚠ "+error.message,"error");
+      return;
+    }
+    _hasActiveColumn=true;
   }catch(e){ showToast("⚠ "+(e.message||''),"error"); return; }
   // อัปเดตในหน่วยความจำ
   const a=ACCOUNTS.find(x=>x.username===username);
@@ -2576,12 +2615,13 @@ async function _validateSession(){
   if(!currentUser || currentUser.role==='admin') return; // admin ไม่ต้องเช็ค
   if(!_isOnline) return; // ออฟไลน์ข้ามไปก่อน
   try{
-    const {data}=await _sb.from("accounts").select("username,is_active")
+    const {data,error}=await _sb.from("accounts").select("*")
       .eq("username",currentUser.username).maybeSingle();
-    // บัญชีถูกลบ หรือ ถูกปิดใช้งาน
-    if(!data || data.is_active===false){
-      _forceLogout(t('acc_force_logout'));
-    }
+    if(error) return; // query ผิดพลาด (คอลัมน์หาย?) — ข้าม
+    // บัญชีถูกลบ
+    if(!data){ _forceLogout(t('acc_deleted_msg')); return; }
+    // บัญชีถูกปิดใช้งาน
+    if(!_accIsActive(data.is_active)){ _forceLogout(t('acc_deactivated_msg')); return; }
   }catch(e){ /* network error — ข้าม */ }
 }
 
@@ -2613,10 +2653,14 @@ function renderStaffList(){
   const staffs=ACCOUNTS.filter(a=>a.role==="staff"||a.role==="staff_biller"||a.role==="staff_cashier");
   const el=document.getElementById("staff-list");
   if(!el)return;
-  if(staffs.length===0){el.innerHTML=`<div class="empty-state"><div>${t("empty")}</div></div>`;return;}
+  // แบนเนอร์เตือนถ้ายังไม่ได้ตั้งค่าฐานข้อมูล
+  const warnBanner = (_hasActiveColumn===false)
+    ? `<div style="background:var(--red-l);border:1.5px solid var(--red-m);border-radius:var(--r);padding:.7rem 1rem;margin-bottom:.9rem;font-size:.78rem;color:var(--red-d);line-height:1.5">${t('acc_col_missing')}</div>`
+    : '';
+  if(staffs.length===0){el.innerHTML=warnBanner+`<div class="empty-state"><div>${t("empty")}</div></div>`;return;}
   const roleLabel=()=>({staff_biller:t("role_biller"),staff_cashier:t("role_cashier"),staff:t("role_biller")});
   const roleBadge={staff_biller:"badge-sent",staff_cashier:"badge-paid",staff:"badge-sent"};
-  el.innerHTML=`<div style="overflow-x:auto"><table class="order-table" style="min-width:760px"><thead><tr><th>${t("staff_name")}</th><th>${t("staff_user")}</th><th>${t("staff_pass")}</th><th>${t("staff_role")}</th><th>${t("acc_status")}</th><th>${t("col_manage")}</th></tr></thead><tbody>`+
+  el.innerHTML=warnBanner+`<div style="overflow-x:auto"><table class="order-table" style="min-width:760px"><thead><tr><th>${t("staff_name")}</th><th>${t("staff_user")}</th><th>${t("staff_pass")}</th><th>${t("staff_role")}</th><th>${t("acc_status")}</th><th>${t("col_manage")}</th></tr></thead><tbody>`+
     staffs.map(a=>{
       const active = a.isActive!==false;
       return `<tr style="${active?'':'opacity:.55;background:var(--red-l)'}">
@@ -4645,6 +4689,8 @@ const LANG_DICT = {
     history_rubber: "ประวัติการขายยาง",
     mywork_all: "รายการทั้งหมด",
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
+    acc_col_missing: "⚠️ ยังไม่ได้ตั้งค่าฐานข้อมูล: กรุณารัน accounts-active-schema.sql ใน Supabase ก่อน ไม่เช่นนั้นระบบเปิด/ปิดบัญชีจะไม่ทำงาน",
+    acc_deactivated_msg: "บัญชีของคุณถูกปิดใช้งานโดยผู้ดูแลระบบ กรุณาติดต่อผู้ดูแลระบบเพื่อขอความช่วยเหลือ",
     acc_status: "สถานะ",
     acc_active: "✅ เปิดใช้งาน",
     acc_inactive: "❌ ปิดใช้งาน",
@@ -4919,6 +4965,8 @@ const LANG_DICT = {
     history_rubber: "ປະຫວັດການຂາຍຢາງ",
     mywork_all: "ລາຍການທັງໝົດ",
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
+    acc_col_missing: "⚠️ ຍັງບໍ່ໄດ້ຕັ້ງຄ່າຖານຂໍ້ມູນ: ກະລຸນາຣັນ accounts-active-schema.sql ໃນ Supabase ກ່ອນ ບໍ່ດັ່ງນັ້ນລະບົບເປີດ/ປິດບັນຊີຈະບໍ່ເຮັດວຽກ",
+    acc_deactivated_msg: "ບັນຊີຂອງທ່ານຖືກປິດໃຊ້ງານໂດຍຜູ້ດູແລລະບົບ ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອ",
     acc_status: "ສະຖານະ",
     acc_active: "✅ ເປີດໃຊ້ງານ",
     acc_inactive: "❌ ປິດໃຊ້ງານ",
@@ -5193,6 +5241,8 @@ const LANG_DICT = {
     history_rubber: "Rubber Sale History",
     mywork_all: "All Records",
     ph_mywork_search: "Search bill no. or customer...",
+    acc_col_missing: "⚠️ Database not configured: please run accounts-active-schema.sql in Supabase first, otherwise account enable/disable will not work",
+    acc_deactivated_msg: "Your account has been deactivated by the administrator. Please contact the administrator for assistance.",
     acc_status: "Status",
     acc_active: "✅ Active",
     acc_inactive: "❌ Inactive",
