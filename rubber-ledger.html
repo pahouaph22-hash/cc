@@ -203,6 +203,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 #tab-report-btn.active{color:var(--violet);border-bottom-color:var(--violet)}
 #tab-activitylog-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 #tab-billhistory-btn.active{color:var(--sky);border-bottom-color:var(--sky)}
+#tab-cancelled-btn.active{color:var(--red-d);border-bottom-color:var(--red)}
 #tab-settings-btn.active{color:var(--muted);border-bottom-color:var(--border2)}
 .tab-btn.active{font-weight:700;background:#fff;}
 
@@ -643,6 +644,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none" data-i18n="tab_mywork">รายละเอียดการดำเนินการ</button>
     <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
     <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none" data-i18n="tab_billhistory">📚 ประวัติใบบิลที่ชำระแล้ว</button>
+    <button class="tab-btn" id="tab-cancelled-btn" onclick="switchTab('cancelled',this)" style="display:none" data-i18n="tab_cancelled">🚫 ใบบิลที่ยกเลิก</button>
     <div style="flex:1"></div>
     <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none" data-i18n="tab_activitylog">🕐 กิจกรรม</button>
     <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
@@ -1038,24 +1040,50 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div class="bebas" id="report-page-title" style="font-size:1.8rem;letter-spacing:.08em">รายละเอียดการชำระเงิน</div>
     </div>
 
+    <!-- ════ SEARCH & FILTER PANEL ════ -->
+    <div class="card" style="margin-bottom:1.4rem;border-left:3px solid var(--sky)">
+      <div class="card-body" style="padding:.9rem 1rem">
+        <!-- Quick date presets -->
+        <div id="rep-presets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.7rem;">
+          <button class="rep-preset" data-preset="all" onclick="repSetDateRange('all')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:var(--sky);color:#fff;cursor:pointer;font-weight:600" data-i18n="dr_all">ทั้งหมด</button>
+          <button class="rep-preset" data-preset="today" onclick="repSetDateRange('today')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_today">วันนี้</button>
+          <button class="rep-preset" data-preset="yesterday" onclick="repSetDateRange('yesterday')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_yesterday">เมื่อวาน</button>
+          <button class="rep-preset" data-preset="7days" onclick="repSetDateRange('7days')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_7days">7 วันล่าสุด</button>
+          <button class="rep-preset" data-preset="thismonth" onclick="repSetDateRange('thismonth')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_thismonth">เดือนนี้</button>
+        </div>
+
+        <!-- Filters row -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="position:relative;flex:1;min-width:220px">
+            <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
+            <input type="text" id="rep-search" placeholder="ค้นหาพนักงาน / ลูกค้า / เลขที่บิล..." data-i18n-placeholder="rep_search_ph" style="padding-left:2rem;width:100%;font-size:.78rem" oninput="renderReport()">
+          </div>
+          <select id="rep-status" style="font-size:.76rem;padding:.45rem .6rem;background:var(--surface2);color:var(--text);border:1.5px solid var(--border);border-radius:var(--r-sm);" onchange="renderReport()">
+            <option value="" data-i18n="rep_status_all">ทุกสถานะ</option>
+            <option value="paid" data-i18n="status_paid">ชำระแล้ว</option>
+            <option value="sent" data-i18n="status_sent">รอชำระ</option>
+            <option value="draft" data-i18n="status_draft">แบบร่าง</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
+            <span style="font-size:.85rem">📅</span>
+            <input type="date" id="rep-date-from" title="จากวันที่" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="repSetDateRange('custom')">
+            <span style="color:var(--muted);font-size:.75rem">–</span>
+            <input type="date" id="rep-date-to" title="ถึงวันที่" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="repSetDateRange('custom')">
+          </div>
+          <button onclick="repResetFilters()" style="font-size:.74rem;padding:.4rem .7rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;white-space:nowrap" data-i18n="rep_reset">✕ ล้างตัวกรอง</button>
+        </div>
+        <div id="rep-date-info" style="font-size:.72rem;color:var(--sky-d);margin-top:.6rem;font-weight:600"></div>
+      </div>
+    </div>
+
     <!-- ════ รายละเอียดการชำระเงิน ════ -->
     <div id="rsub-payment">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--green);">
         <span style="font-size:1.1rem">💚</span>
         <span style="font-weight:700;font-size:1rem;color:var(--green-d)">รายละเอียดการชำระเงินของพนักงาน</span>
       </div>
-      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
-          <span style="font-size:.85rem">📅</span>
-          <span style="font-size:.72rem;color:var(--muted)">ช่วงเวลาชำระ:</span>
-          <input type="date" id="rep-date-from" title="จากวันที่" style="width:130px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderReport()">
-          <span style="color:var(--muted);font-size:.75rem">–</span>
-          <input type="date" id="rep-date-to" title="ถึงวันที่" style="width:130px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderReport()">
-          <button onclick="repClearDates()" title="ล้างวันที่" style="font-size:.72rem;padding:.15rem .4rem;background:transparent;color:var(--muted);border:none;cursor:pointer;">✕</button>
-        </div>
-        <span id="rep-date-info" style="font-size:.72rem;color:var(--muted)"></span>
-      </div>
-      <div class="stat-grid" id="report-summary" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.4rem"></div>
+      <div class="stat-grid" id="report-summary" style="grid-template-columns:repeat(3,1fr);margin-bottom:.5rem"></div>
+      <div style="font-size:.68rem;color:var(--muted);margin-bottom:1.2rem;font-style:italic" data-i18n="note_excl_cancelled">* ไม่รวมใบบิลที่ยกเลิก</div>
       <div id="report-staff-sections"></div>
     </div>
 
@@ -1115,20 +1143,102 @@ font{border:none!important;outline:none!important;display:inline!important}
   </div>
 
 
+  <!-- TAB: CANCELLED BILLS (ใบบิลที่ยกเลิก) -->
+  <div class="tab-pane" id="pane-cancelled">
+    <div style="text-align:center;margin-bottom:1.2rem">
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="cx_title">🚫 ประวัติใบบิลที่ยกเลิก</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px" data-i18n="cx_sub">ใบบิลที่ถูกยกเลิก — ไม่นำมาคำนวณในรายงานหลัก</div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
+        <input type="text" id="cx-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="renderCancelled()">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
+        <span style="font-size:.85rem">📅</span>
+        <input type="date" id="cx-date-from" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderCancelled()">
+        <span style="color:var(--muted);font-size:.75rem">–</span>
+        <input type="date" id="cx-date-to" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="renderCancelled()">
+        <button onclick="cxClearDates()" style="font-size:.72rem;padding:.15rem .4rem;background:transparent;color:var(--muted);border:none;cursor:pointer;">✕</button>
+      </div>
+      <button onclick="cxExportCSV()" style="font-size:.74rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ Excel</button>
+      <span id="cx-count" style="font-size:.75rem;color:var(--muted);margin-left:auto;"></span>
+    </div>
+
+    <!-- Summary -->
+    <div class="stat-grid" id="cx-summary" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.2rem"></div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="overflow-x:auto">
+        <table class="order-table" style="min-width:1000px">
+          <thead><tr>
+            <th data-i18n="col_bill_no">เลขที่บิล</th><th data-i18n="col_customer">ลูกค้า</th>
+            <th data-i18n="col_issue_dt">วันเวลาออกบิล</th>
+            <th style="text-align:right" data-i18n="col_kg">น้ำหนัก (กก.)</th>
+            <th style="text-align:right">มูลค่า</th>
+            <th data-i18n="col_biller">ผู้จดบิล</th>
+            <th data-i18n="cx_reason">เหตุผลยกเลิก</th>
+            <th data-i18n="col_status">สถานะ</th><th></th>
+          </tr></thead>
+          <tbody id="cx-body"><tr><td colspan="9" class="empty-state">—</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
   <!-- TAB: MY WORK -->
   <div class="tab-pane" id="pane-mywork">
     <div style="text-align:center;margin-bottom:1.2rem">
       <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" id="mywork-title">รายละเอียดการดำเนินการ</div>
       <div style="font-size:.75rem;color:var(--muted);margin-top:4px" id="mywork-subtitle"></div>
     </div>
-    <div class="stat-grid" id="mywork-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.4rem"></div>
+
+    <!-- ════ SEARCH & FILTER PANEL ════ -->
+    <div class="card" style="margin-bottom:1.4rem;border-left:3px solid var(--violet)">
+      <div class="card-body" style="padding:.9rem 1rem">
+        <!-- Quick date presets -->
+        <div id="mw-presets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.7rem;">
+          <button class="mw-preset" data-preset="all" onclick="mwSetDateRange('all')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:var(--violet);color:#fff;cursor:pointer;font-weight:600" data-i18n="dr_all">ทั้งหมด</button>
+          <button class="mw-preset" data-preset="today" onclick="mwSetDateRange('today')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_today">วันนี้</button>
+          <button class="mw-preset" data-preset="yesterday" onclick="mwSetDateRange('yesterday')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_yesterday">เมื่อวาน</button>
+          <button class="mw-preset" data-preset="7days" onclick="mwSetDateRange('7days')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_7days">7 วันล่าสุด</button>
+          <button class="mw-preset" data-preset="thismonth" onclick="mwSetDateRange('thismonth')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_thismonth">เดือนนี้</button>
+        </div>
+
+        <!-- Filters row -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div style="position:relative;flex:1;min-width:220px">
+            <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
+            <input type="text" id="mywork-search" placeholder="ค้นหาพนักงาน / ลูกค้า / เลขที่บิล..." data-i18n-placeholder="rep_search_ph" style="padding-left:2rem;width:100%;font-size:.78rem" oninput="renderMyWork()">
+          </div>
+          <select id="mw-status" style="font-size:.76rem;padding:.45rem .6rem;background:var(--surface2);color:var(--text);border:1.5px solid var(--border);border-radius:var(--r-sm);" onchange="renderMyWork()">
+            <option value="" data-i18n="rep_status_all">ทุกสถานะ</option>
+            <option value="paid" data-i18n="status_paid">ชำระแล้ว</option>
+            <option value="sent" data-i18n="status_sent">รอชำระ</option>
+            <option value="draft" data-i18n="status_draft">แบบร่าง</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
+            <span style="font-size:.85rem">📅</span>
+            <input type="date" id="mw-date-from" title="จากวันที่" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="mwSetDateRange('custom')">
+            <span style="color:var(--muted);font-size:.75rem">–</span>
+            <input type="date" id="mw-date-to" title="ถึงวันที่" style="width:128px;font-size:.76rem;border:none;background:transparent;padding:.2rem" onchange="mwSetDateRange('custom')">
+          </div>
+          <button onclick="mwResetFilters()" style="font-size:.74rem;padding:.4rem .7rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;white-space:nowrap" data-i18n="rep_reset">✕ ล้างตัวกรอง</button>
+        </div>
+        <div id="mw-date-info" style="font-size:.72rem;color:var(--violet-d);margin-top:.6rem;font-weight:600"></div>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="mywork-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:.5rem"></div>
+    <div style="font-size:.68rem;color:var(--muted);margin-bottom:1.2rem;font-style:italic" data-i18n="note_excl_cancelled">* ไม่รวมใบบิลที่ยกเลิก</div>
     <div class="card">
       <div class="card-header">
         <span id="mywork-table-title">รายการทั้งหมด</span>
-        <div style="position:relative">
-          <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-          <input type="text" id="mywork-search" placeholder="ค้นหาเลขที่หรือลูกค้า..." style="width:220px;padding-left:2rem;font-size:.78rem" oninput="renderMyWork()">
-        </div>
+        <span id="mw-count" style="font-size:.72rem;color:var(--muted);font-weight:400"></span>
       </div>
       <div style="overflow-x:auto">
         <table class="order-table" style="min-width:700px">
@@ -1290,7 +1400,17 @@ font{border:none!important;outline:none!important;display:inline!important}
       </div>
 
       <!-- Stat cards -->
-      <div id="sd-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.2rem;"></div>
+      <div id="sd-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:.5rem;"></div>
+      <div style="font-size:.68rem;color:var(--muted);margin-bottom:1rem;font-style:italic" data-i18n="note_excl_cancelled">* ไม่รวมใบบิลที่ยกเลิก</div>
+
+      <!-- Quick date presets -->
+      <div id="sd-presets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.7rem;">
+        <button class="sd-preset" data-preset="all" onclick="sdSetDateRange('all')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:var(--sky);color:#fff;cursor:pointer;font-weight:600" data-i18n="dr_all">ทั้งหมด</button>
+        <button class="sd-preset" data-preset="today" onclick="sdSetDateRange('today')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_today">วันนี้</button>
+        <button class="sd-preset" data-preset="yesterday" onclick="sdSetDateRange('yesterday')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_yesterday">เมื่อวาน</button>
+        <button class="sd-preset" data-preset="7days" onclick="sdSetDateRange('7days')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_7days">7 วันล่าสุด</button>
+        <button class="sd-preset" data-preset="thismonth" onclick="sdSetDateRange('thismonth')" style="font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;background:#fff;color:var(--text2);cursor:pointer" data-i18n="dr_thismonth">เดือนนี้</button>
+      </div>
 
       <!-- Filters -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
@@ -1300,9 +1420,9 @@ font{border:none!important;outline:none!important;display:inline!important}
         </div>
         <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.2rem .5rem;">
           <span style="font-size:.8rem">📅</span>
-          <input type="date" id="sd-date-from" style="width:125px;font-size:.74rem;border:none;background:transparent;padding:.15rem" onchange="renderStaffDetailTable()">
+          <input type="date" id="sd-date-from" style="width:125px;font-size:.74rem;border:none;background:transparent;padding:.15rem" onchange="sdSetDateRange('custom')">
           <span style="color:var(--muted);font-size:.72rem">–</span>
-          <input type="date" id="sd-date-to" style="width:125px;font-size:.74rem;border:none;background:transparent;padding:.15rem" onchange="renderStaffDetailTable()">
+          <input type="date" id="sd-date-to" style="width:125px;font-size:.74rem;border:none;background:transparent;padding:.15rem" onchange="sdSetDateRange('custom')">
         </div>
         <select id="sd-sort" style="font-size:.76rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderStaffDetailTable()">
           <option value="desc" data-i18n="sd_sort_new">ใหม่ → เก่า</option>
@@ -1713,6 +1833,8 @@ async function initApp(){
     if(activityLogBtn) activityLogBtn.style.display="";
     const bhBtn=document.getElementById("tab-billhistory-btn");
     if(bhBtn) bhBtn.style.display="";
+    const cxBtn=document.getElementById("tab-cancelled-btn");
+    if(cxBtn) cxBtn.style.display="";
     renderStaffList();
   } else {
     settingsBtn.style.display="none";
@@ -1721,6 +1843,8 @@ async function initApp(){
     if(activityLogBtn) activityLogBtn.style.display="none";
     const bhBtn=document.getElementById("tab-billhistory-btn");
     if(bhBtn) bhBtn.style.display="none";
+    const cxBtn=document.getElementById("tab-cancelled-btn");
+    if(cxBtn) cxBtn.style.display="none";
   }
   // Show restriction notes per role
   const note=document.getElementById("role-restriction-note");
@@ -1967,6 +2091,7 @@ function switchTab(tab,btn){
   if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();_updatePrinterUI();}
   if(tab==="report"&&currentUser?.role==="admin")renderReport();
   if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
+  if(tab==="cancelled"&&currentUser?.role==="admin")renderCancelled();
   if(tab==="mywork")renderMyWork();
   if(tab==="dashboard")renderDashboard();
   if(tab==="activitylog")renderActivityLog();
@@ -2504,13 +2629,43 @@ function _sdUpdateModeButtons() {
   }
 }
 
+// ── ปุ่มลัดช่วงวันที่ ──
+function _ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+function sdSetDateRange(preset){
+  const from=document.getElementById('sd-date-from');
+  const to=document.getElementById('sd-date-to');
+  const now=new Date();
+  if(preset==='all'){ from.value=''; to.value=''; }
+  else if(preset==='today'){ const s=_ymd(now); from.value=s; to.value=s; }
+  else if(preset==='yesterday'){ const y=new Date(now); y.setDate(y.getDate()-1); const s=_ymd(y); from.value=s; to.value=s; }
+  else if(preset==='7days'){ const s=new Date(now); s.setDate(s.getDate()-6); from.value=_ymd(s); to.value=_ymd(now); }
+  else if(preset==='thismonth'){ from.value=_ymd(new Date(now.getFullYear(),now.getMonth(),1)); to.value=_ymd(now); }
+  // 'custom' = ใช้ค่าที่ผู้ใช้เลือกเอง ไม่แตะ input
+  _sdHighlightPreset(preset);
+  renderStaffDetailTable();
+}
+
+function _sdHighlightPreset(active){
+  document.querySelectorAll('#sd-presets .sd-preset').forEach(b=>{
+    const on = b.dataset.preset===active;
+    b.style.background = on ? 'var(--sky)' : '#fff';
+    b.style.color = on ? '#fff' : 'var(--text2)';
+    b.style.fontWeight = on ? '600' : '400';
+  });
+}
+
 function sdClearFilters(silent) {
   ['sd-search','sd-date-from','sd-date-to'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   const s=document.getElementById('sd-sort'); if(s)s.value='desc';
+  _sdHighlightPreset('all');
   if(!silent) renderStaffDetailTable();
 }
 
 // ดึง orders ของพนักงานตาม mode
+// ── ใบบิลที่นับในรายงาน (ตัดใบยกเลิกออกเสมอ) ──
+function _isCountable(o){ return o && o.status !== 'cancelled'; }
+
 function _sdGetOrders() {
   if(!_sdStaff) return [];
   const k=_sdStaff.key, u=_sdStaff.username, d=_sdStaff.displayName;
@@ -2518,7 +2673,8 @@ function _sdGetOrders() {
   if(_sdMode==='pay'){
     return orders.filter(o=>o.status==='paid' && match(o.paidBy));
   } else {
-    return orders.filter(o=>match(o.createdBy));
+    // งานจดบิล — ไม่นับใบที่ถูกยกเลิก
+    return orders.filter(o=>match(o.createdBy) && _isCountable(o));
   }
 }
 
@@ -3096,6 +3252,75 @@ async function printerTest(){
   }catch(e){ showToast('❌ ทดสอบไม่สำเร็จ: '+(e.message||''),'error'); }
 }
 
+// =====================================================
+// ใบบิลที่ยกเลิก (CANCELLED) — แยกจากรายงานหลัก
+// =====================================================
+function cxClearDates(){
+  ['cx-date-from','cx-date-to'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderCancelled();
+}
+
+function _cxGetList(){
+  const q=(document.getElementById('cx-search')?.value||'').toLowerCase();
+  const dFrom=document.getElementById('cx-date-from')?.value||'';
+  const dTo=document.getElementById('cx-date-to')?.value||'';
+  let list=orders.filter(o=>o.status==='cancelled').map(o=>({o, key:((o.createdAt||o.date||'')+'')}));
+  list=list.filter(it=>{
+    const d=it.key.slice(0,10);
+    if(dFrom && d<dFrom) return false;
+    if(dTo && d>dTo) return false;
+    if(q){
+      const hay=[it.o.poNo,it.o.customer,it.o.createdBy,it.o.cancelReason].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  list.sort((a,b)=>(a.key>b.key?-1:1)); // ล่าสุดก่อน
+  return list;
+}
+
+function renderCancelled(){
+  const list=_cxGetList();
+  const totKg=list.reduce((s,it)=>s+(it.o.totalQty||0),0);
+  const totAmt=list.reduce((s,it)=>s+(it.o.grandTotal||0),0);
+  const sum=document.getElementById('cx-summary');
+  if(sum) sum.innerHTML=[
+    [t('cx_count'),list.length+' '+t('al_items'),'var(--red)'],
+    [t('sd_total_weight'),totKg.toLocaleString('th-TH',{maximumFractionDigits:2})+' '+t('unit_kg'),'var(--muted)'],
+    ['มูลค่าที่ยกเลิก','₭'+totAmt.toLocaleString('th-TH',{maximumFractionDigits:0}),'var(--muted)'],
+  ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join('');
+
+  const cnt=document.getElementById('cx-count');
+  if(cnt) cnt.textContent=`${list.length} ${t('al_items')}`;
+
+  const tbody=document.getElementById('cx-body');
+  if(!tbody) return;
+  if(list.length===0){ tbody.innerHTML=`<tr><td colspan="9" class="empty-state">${t('cx_empty')}</td></tr>`; return; }
+  tbody.innerHTML=list.map(it=>{
+    const o=it.o;
+    const dt=_billDateTime(o.createdAt||o.date);
+    return `<tr style="opacity:.85">
+      <td class="mono" style="font-size:.74rem;text-decoration:line-through;color:var(--muted)">${o.poNo||'—'}</td>
+      <td style="font-weight:600">${o.customer||'—'}</td>
+      <td style="font-size:.74rem"><div>${dt.d}</div><div style="color:var(--muted)">${dt.t}</div></td>
+      <td class="mono" style="text-align:right;color:var(--muted)">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
+      <td class="mono" style="text-align:right;color:var(--muted);text-decoration:line-through">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
+      <td style="font-size:.78rem">${o.createdBy||'—'}</td>
+      <td style="font-size:.72rem;color:var(--red-d);max-width:180px">${o.cancelReason||'—'}</td>
+      <td><span class="badge badge-cancelled">${t('status_cancelled')}</span></td>
+      <td><button onclick="openBillDetail('${o.id}')" style="font-size:.7rem;padding:.25rem .6rem;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:5px;cursor:pointer;white-space:nowrap">${t('btn_view_full')}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function cxExportCSV(){
+  const list=_cxGetList();
+  const BOM='\uFEFF';
+  const headers=['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','น้ำหนัก(กก.)','มูลค่า','ผู้จดบิล','เหตุผลยกเลิก','สถานะ'];
+  const rows=list.map(it=>{const o=it.o;return [o.poNo,o.customer,(o.createdAt||o.date||''),o.totalQty||0,o.grandTotal||0,o.createdBy||'',o.cancelReason||'','ยกเลิก'].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');});
+  _downloadCSV(BOM+[headers.join(','),...rows].join('\r\n'),'cancelled-bills');
+}
+
 // Date-time helper (ใช้ร่วมในหลายส่วน)
 // =====================================================
 function _billDateTime(iso){
@@ -3301,27 +3526,84 @@ function _printPDF(title,headers,rowsHtml){
 
 
 
-function repClearDates(){
-  const f=document.getElementById("rep-date-from");
-  const tt=document.getElementById("rep-date-to");
-  if(f)f.value="";
-  if(tt)tt.value="";
+// ── ตัวกรองหน้ารายละเอียด ──
+function _repGetFilters(){
+  return {
+    q:      (document.getElementById('rep-search')?.value||'').trim().toLowerCase(),
+    dFrom:  document.getElementById('rep-date-from')?.value||'',
+    dTo:    document.getElementById('rep-date-to')?.value||'',
+    status: document.getElementById('rep-status')?.value||'',
+  };
+}
+
+// ตรวจว่า order ผ่านตัวกรองไหม (dateField: 'paid' ใช้ paidAt, 'created' ใช้ createdAt)
+function _repMatch(o, f, dateField){
+  // ตัดใบยกเลิกออกเสมอ
+  if(!_isCountable(o)) return false;
+  // สถานะ
+  if(f.status && o.status!==f.status) return false;
+  // ช่วงวันที่
+  const raw = dateField==='paid' ? (o.paidAt||o.date||'') : (o.createdAt||o.date||'');
+  const od = (raw+'').slice(0,10);
+  if(f.dFrom && od<f.dFrom) return false;
+  if(f.dTo && od>f.dTo) return false;
+  // ค้นหา: พนักงาน / ลูกค้า / เลขที่บิล
+  if(f.q){
+    const hay=[o.poNo,o.customer,o.createdBy,o.paidBy,o.note].filter(Boolean).join(' ').toLowerCase();
+    if(!hay.includes(f.q)) return false;
+  }
+  return true;
+}
+
+function repSetDateRange(preset){
+  const from=document.getElementById('rep-date-from');
+  const to=document.getElementById('rep-date-to');
+  const now=new Date();
+  if(preset==='all'){ from.value=''; to.value=''; }
+  else if(preset==='today'){ const s=_ymd(now); from.value=s; to.value=s; }
+  else if(preset==='yesterday'){ const y=new Date(now); y.setDate(y.getDate()-1); const s=_ymd(y); from.value=s; to.value=s; }
+  else if(preset==='7days'){ const s=new Date(now); s.setDate(s.getDate()-6); from.value=_ymd(s); to.value=_ymd(now); }
+  else if(preset==='thismonth'){ from.value=_ymd(new Date(now.getFullYear(),now.getMonth(),1)); to.value=_ymd(now); }
+  _repHighlightPreset(preset);
   renderReport();
 }
 
+function _repHighlightPreset(active){
+  document.querySelectorAll('#rep-presets .rep-preset').forEach(b=>{
+    const on = b.dataset.preset===active;
+    b.style.background = on ? 'var(--sky)' : '#fff';
+    b.style.color = on ? '#fff' : 'var(--text2)';
+    b.style.fontWeight = on ? '600' : '400';
+  });
+}
+
+function repResetFilters(){
+  ['rep-search','rep-date-from','rep-date-to'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const st=document.getElementById('rep-status'); if(st) st.value='';
+  _repHighlightPreset('all');
+  renderReport();
+}
+
+// เก็บไว้เพื่อความเข้ากันได้
+function repClearDates(){ repResetFilters(); }
+
 function renderReport(){
-  const dFrom=document.getElementById("rep-date-from")?.value||"";
-  const dTo=document.getElementById("rep-date-to")?.value||"";
-  const paidOrders=orders.filter(o=>o.status==="paid"&&o.paidBy)
-    .filter(o=>{
-      const od=((o.paidAt||o.date||"")+"").slice(0,10);
-      if(dFrom && od<dFrom) return false;
-      if(dTo && od>dTo) return false;
-      return true;
-    });
-  // date info
+  const f = _repGetFilters();
+  const dFrom=f.dFrom, dTo=f.dTo;
+
+  // ── ส่วนพนักงานรับชำระ ──
+  // ถ้าเลือกสถานะที่ไม่ใช่ paid → ส่วนนี้จะว่าง (เพราะเป็นข้อมูลการชำระ)
+  const paidOrders = orders.filter(o=>o.status==="paid" && o.paidBy && _repMatch(o, f, 'paid'));
+
+  // แสดงข้อมูลตัวกรองที่ใช้อยู่
   const di=document.getElementById("rep-date-info");
-  if(di) di.textContent=(dFrom||dTo)?`📅 ${dFrom||'...'} – ${dTo||'...'} · ${paidOrders.length} รายการ`:"";
+  if(di){
+    const parts=[];
+    if(dFrom||dTo) parts.push(`📅 ${dFrom||'...'} – ${dTo||'...'}`);
+    if(f.q) parts.push(`🔍 "${f.q}"`);
+    if(f.status) parts.push(`📋 ${t('status_'+f.status)}`);
+    di.textContent = parts.length ? `${t('rep_filtered')}: ${parts.join('  ·  ')}` : '';
+  }
   // group by paidBy
   const map={};
   paidOrders.forEach(o=>{
@@ -3376,14 +3658,9 @@ function renderReport(){
 
   sec.innerHTML = _payHtml;
 
-  // ===== พนักงานจดบิล (clickable) =====
+  // ===== พนักงานจดบิล (clickable) — ใช้ตัวกรองเดียวกัน ไม่นับใบที่ยกเลิก =====
   const billMap={};
-  orders.filter(o=>{
-    const od=((o.createdAt||o.date||"")+"").slice(0,10);
-    if(dFrom && od<dFrom) return false;
-    if(dTo && od>dTo) return false;
-    return true;
-  }).forEach(o=>{
+  orders.filter(o=>_repMatch(o, f, 'created')).forEach(o=>{
     const k=o.createdBy || "—";
     if(!billMap[k])billMap[k]={name:k,count:0,kg:0};
     billMap[k].count++; billMap[k].kg+=o.totalQty||0;
@@ -3587,6 +3864,45 @@ function updateCustomerDatalist(){
 }
 
 // ── MY WORK ──
+// ── ตัวกรองหน้ารายละเอียดการดำเนินการ ──
+function _mwGetFilters(){
+  return {
+    q:      (document.getElementById('mywork-search')?.value||'').trim().toLowerCase(),
+    dFrom:  document.getElementById('mw-date-from')?.value||'',
+    dTo:    document.getElementById('mw-date-to')?.value||'',
+    status: document.getElementById('mw-status')?.value||'',
+  };
+}
+
+function mwSetDateRange(preset){
+  const from=document.getElementById('mw-date-from');
+  const to=document.getElementById('mw-date-to');
+  const now=new Date();
+  if(preset==='all'){ from.value=''; to.value=''; }
+  else if(preset==='today'){ const s=_ymd(now); from.value=s; to.value=s; }
+  else if(preset==='yesterday'){ const y=new Date(now); y.setDate(y.getDate()-1); const s=_ymd(y); from.value=s; to.value=s; }
+  else if(preset==='7days'){ const s=new Date(now); s.setDate(s.getDate()-6); from.value=_ymd(s); to.value=_ymd(now); }
+  else if(preset==='thismonth'){ from.value=_ymd(new Date(now.getFullYear(),now.getMonth(),1)); to.value=_ymd(now); }
+  _mwHighlightPreset(preset);
+  renderMyWork();
+}
+
+function _mwHighlightPreset(active){
+  document.querySelectorAll('#mw-presets .mw-preset').forEach(b=>{
+    const on = b.dataset.preset===active;
+    b.style.background = on ? 'var(--violet)' : '#fff';
+    b.style.color = on ? '#fff' : 'var(--text2)';
+    b.style.fontWeight = on ? '600' : '400';
+  });
+}
+
+function mwResetFilters(){
+  ['mywork-search','mw-date-from','mw-date-to'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const st=document.getElementById('mw-status'); if(st) st.value='';
+  _mwHighlightPreset('all');
+  renderMyWork();
+}
+
 function renderMyWork(){
   if(!currentUser)return;
   const isBiller=currentUser.role==="staff_biller";
@@ -3597,31 +3913,45 @@ function renderMyWork(){
   document.getElementById("mywork-title").textContent=isBiller?t("mywork_title"):t("report_title");
   document.getElementById("mywork-subtitle").textContent=name;
 
-  const q=(document.getElementById("mywork-search")?.value||"").trim().toLowerCase();
+  const f=_mwGetFilters();
 
+  // งานของฉัน (ตัดใบยกเลิกออกเสมอ)
   let myOrders=[];
   if(isBiller){
-    myOrders=orders.filter(o=>o.createdBy===name);
+    myOrders=orders.filter(o=>o.createdBy===name && _isCountable(o));
   } else if(isCashier){
-    myOrders=orders.filter(o=>o.paidBy===name);
+    myOrders=orders.filter(o=>o.paidBy===name && _isCountable(o));
   }
 
-  // filter search
-  const filtered=myOrders.filter(o=>!q||o.poNo.toLowerCase().includes(q)||o.customer.toLowerCase().includes(q));
+  // ใช้ตัวกรองเดียวกับหน้ารายละเอียด (ค้นหา/สถานะ/ช่วงวันที่)
+  const dateField = isCashier ? 'paid' : 'created';
+  const filtered = myOrders.filter(o=>_repMatch(o, f, dateField));
 
-  // stats
-  const totalKg=myOrders.reduce((a,o)=>a+(o.totalQty||0),0);
-  const totalAmt=myOrders.reduce((a,o)=>a+o.grandTotal,0);
+  // แสดงเงื่อนไขที่ใช้อยู่
+  const di=document.getElementById("mw-date-info");
+  if(di){
+    const parts=[];
+    if(f.dFrom||f.dTo) parts.push(`📅 ${f.dFrom||'...'} – ${f.dTo||'...'}`);
+    if(f.q) parts.push(`🔍 "${f.q}"`);
+    if(f.status) parts.push(`📋 ${t('status_'+f.status)}`);
+    di.textContent = parts.length ? `${t('rep_filtered')}: ${parts.join('  ·  ')}` : '';
+  }
+  const cntEl=document.getElementById("mw-count");
+  if(cntEl) cntEl.textContent=`${filtered.length} ${t('al_items')}`;
+
+  // stats — คำนวณจากข้อมูลที่กรองแล้ว
+  const totalKg=filtered.reduce((a,o)=>a+(o.totalQty||0),0);
+  const totalAmt=filtered.reduce((a,o)=>a+(o.grandTotal||0),0);
   const statEl=document.getElementById("mywork-stats");
   if(isBiller){
     statEl.innerHTML=[
-      [t("report_orders"),myOrders.length+" "+t("unit_item"),"var(--blue)"],
+      [t("report_orders"),filtered.length+" "+t("unit_item"),"var(--blue)"],
       [t("col_kg"),totalKg.toLocaleString("th-TH",{maximumFractionDigits:2})+" "+t("unit_kg"),"var(--accent)"],
       [t("report_total_amt"),"₭"+totalAmt.toLocaleString("th-TH",{maximumFractionDigits:0}),"var(--green)"],
     ].map(([l,v,c])=>`<div class="stat-box"><div class="form-label">${l}</div><div class="bebas" style="font-size:1.4rem;color:${c}">${v}</div></div>`).join("");
   } else {
-    const paidOrders=myOrders.filter(o=>o.status==="paid");
-    const paidAmt=paidOrders.reduce((a,o)=>a+o.grandTotal,0);
+    const paidOrders=filtered.filter(o=>o.status==="paid");
+    const paidAmt=paidOrders.reduce((a,o)=>a+(o.grandTotal||0),0);
     statEl.innerHTML=[
       [t("report_orders"),paidOrders.length+" "+t("unit_item"),"var(--green)"],
       [t("report_total_kg"),totalKg.toLocaleString("th-TH",{maximumFractionDigits:2})+" "+t("unit_kg"),"var(--blue)"],
@@ -4212,6 +4542,26 @@ const LANG_DICT = {
     history_rubber: "ประวัติการขายยาง",
     mywork_all: "รายการทั้งหมด",
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
+    rep_search_ph: "ค้นหาพนักงาน / ลูกค้า / เลขที่บิล...",
+    rep_status_all: "ทุกสถานะ",
+    rep_reset: "✕ ล้างตัวกรอง",
+    rep_filtered: "ผลการค้นหา",
+    rep_date_label: "ช่วงวันที่:",
+    dr_today: "วันนี้",
+    dr_yesterday: "เมื่อวาน",
+    dr_7days: "7 วันล่าสุด",
+    dr_thismonth: "เดือนนี้",
+    dr_custom: "กำหนดเอง",
+    dr_all: "ทั้งหมด",
+    tab_cancelled: "🚫 ใบบิลที่ยกเลิก",
+    cx_title: "🚫 ประวัติใบบิลที่ยกเลิก",
+    cx_sub: "ใบบิลที่ถูกยกเลิก — ไม่นำมาคำนวณในรายงานหลัก",
+    cx_count: "ใบที่ยกเลิก",
+    cx_empty: "ไม่มีใบบิลที่ยกเลิก",
+    cx_reason: "เหตุผลยกเลิก",
+    cx_by: "ยกเลิกโดย",
+    cx_at: "วันเวลายกเลิก",
+    note_excl_cancelled: "* ไม่รวมใบบิลที่ยกเลิก",
     net_online: "🟢 ออนไลน์",
     net_offline: "🔴 ออฟไลน์ — บันทึกในเครื่อง",
     net_syncing: "🔄 กำลังซิงค์...",
@@ -4455,6 +4805,26 @@ const LANG_DICT = {
     history_rubber: "ປະຫວັດການຂາຍຢາງ",
     mywork_all: "ລາຍການທັງໝົດ",
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
+    rep_search_ph: "ຄົ້ນຫາພະນັກງານ / ລູກຄ້າ / ເລກທີບິນ...",
+    rep_status_all: "ທຸກສະຖານະ",
+    rep_reset: "✕ ລ້າງຕົວກອງ",
+    rep_filtered: "ຜົນການຄົ້ນຫາ",
+    rep_date_label: "ຊ່ວງວັນທີ:",
+    dr_today: "ມື້ນີ້",
+    dr_yesterday: "ມື້ວານ",
+    dr_7days: "7 ມື້ຫຼ້າສຸດ",
+    dr_thismonth: "ເດືອນນີ້",
+    dr_custom: "ກຳນົດເອງ",
+    dr_all: "ທັງໝົດ",
+    tab_cancelled: "🚫 ໃບບິນທີ່ຍົກເລີກ",
+    cx_title: "🚫 ປະຫວັດໃບບິນທີ່ຍົກເລີກ",
+    cx_sub: "ໃບບິນທີ່ຖືກຍົກເລີກ — ບໍ່ນຳມາຄິດໄລ່ໃນລາຍງານຫຼັກ",
+    cx_count: "ໃບທີ່ຍົກເລີກ",
+    cx_empty: "ບໍ່ມີໃບບິນທີ່ຍົກເລີກ",
+    cx_reason: "ເຫດຜົນຍົກເລີກ",
+    cx_by: "ຍົກເລີກໂດຍ",
+    cx_at: "ວັນເວລາຍົກເລີກ",
+    note_excl_cancelled: "* ບໍ່ລວມໃບບິນທີ່ຍົກເລີກ",
     net_online: "🟢 ອອນລາຍ",
     net_offline: "🔴 ອອບລາຍ — ບັນທຶກໃນເຄື່ອງ",
     net_syncing: "🔄 ກຳລັງຊິງຄ໌...",
@@ -4698,6 +5068,26 @@ const LANG_DICT = {
     history_rubber: "Rubber Sale History",
     mywork_all: "All Records",
     ph_mywork_search: "Search bill no. or customer...",
+    rep_search_ph: "Search staff / customer / bill no...",
+    rep_status_all: "All statuses",
+    rep_reset: "✕ Reset filters",
+    rep_filtered: "Search results",
+    rep_date_label: "Date range:",
+    dr_today: "Today",
+    dr_yesterday: "Yesterday",
+    dr_7days: "Last 7 days",
+    dr_thismonth: "This month",
+    dr_custom: "Custom",
+    dr_all: "All",
+    tab_cancelled: "🚫 Cancelled Bills",
+    cx_title: "🚫 Cancelled Bill History",
+    cx_sub: "Cancelled bills — excluded from main reports",
+    cx_count: "Cancelled",
+    cx_empty: "No cancelled bills",
+    cx_reason: "Cancel Reason",
+    cx_by: "Cancelled by",
+    cx_at: "Cancelled at",
+    note_excl_cancelled: "* Excluding cancelled bills",
     net_online: "🟢 Online",
     net_offline: "🔴 Offline — saved locally",
     net_syncing: "🔄 Syncing...",
@@ -4938,6 +5328,7 @@ function applyLang() {
     if (at === "history" && typeof renderHistory === "function") renderHistory();
     if (at === "report" && typeof renderReport === "function") renderReport();
     if (at === "billhistory" && typeof renderBillHistory === "function") renderBillHistory();
+    if (at === "cancelled" && typeof renderCancelled === "function") renderCancelled();
     if (at === "activitylog" && typeof renderActivityLog === "function") renderActivityLog();
     if (at === "mywork" && typeof renderMyWork === "function") renderMyWork();
     if (at === "settings" && typeof renderStaffList === "function") { renderStaffList(); if(typeof loadMyLocationToForm==="function") loadMyLocationToForm(); }
