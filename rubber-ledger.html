@@ -1573,7 +1573,10 @@ async function loadAccounts(){
   try{
     const {data}=await _sb.from("accounts").select("*");
     if(data&&data.length>0){
-      ACCOUNTS=[...DEFAULT_ACCOUNTS,...data.filter(a=>a.username!=="admin").map(a=>({username:a.username,password:a.password,role:a.role,displayName:a.display_name}))];
+      ACCOUNTS=[...DEFAULT_ACCOUNTS,...data.filter(a=>a.username!=="admin").map(a=>({
+        username:a.username,password:a.password,role:a.role,displayName:a.display_name,
+        isActive: a.is_active!==false
+      }))];
     }
   }catch(e){
     const r=await sg("rubber_accounts");
@@ -1767,16 +1770,35 @@ async function doLogin(){
   const err=document.getElementById("ln-err");
   const btn=document.getElementById("login-btn");
   btn.disabled=true;btn.textContent="กำลังตรวจสอบ...";
-  // Check Supabase accounts first, fallback to local
-  let acc=null;
+  // ── ตรวจสอบบัญชีจาก Supabase (แหล่งความจริง) ──
+  let acc=null, suspended=false, sbReachable=false;
   try{
     const {data}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).maybeSingle();
-    if(data)acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name};
-  }catch(e){}
-  // Fallback to local ACCOUNTS
-  if(!acc)acc=ACCOUNTS.find(a=>a.username===u&&a.password===p);
+    sbReachable=true;
+    if(data){
+      // บัญชีถูกปิดใช้งาน → ห้ามเข้า
+      if(data.is_active===false){ suspended=true; }
+      else acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name,isActive:true};
+    }
+  }catch(e){ sbReachable=false; }
+
   btn.disabled=false;btn.textContent="เข้าสู่ระบบ";
-  if(!acc){err.style.display="block";return;}
+
+  // บัญชีถูกระงับ
+  if(suspended){
+    err.textContent=t('acc_suspended_msg');
+    err.style.display="block";
+    return;
+  }
+
+  // Fallback: ใช้ได้เฉพาะกรณี Supabase ติดต่อไม่ได้ (offline) และเฉพาะบัญชี admin ในเครื่อง
+  // ป้องกันบัญชีที่ถูกลบ/ระงับเข้าระบบผ่าน cache เก่า
+  if(!acc && !sbReachable){
+    const local=ACCOUNTS.find(a=>a.username===u&&a.password===p&&a.isActive!==false);
+    if(local && local.role==="admin") acc=local;
+  }
+
+  if(!acc){ err.textContent=t("login_err"); err.style.display="block"; return; }
   err.style.display="none";
   currentUser=acc;
   document.getElementById("login-screen").style.display="none";
@@ -1819,6 +1841,8 @@ async function initApp(){
   setTimeout(() => { startRealtimeSync(); addSyncIndicator(); }, 1000);
   // Offline queue + network monitor
   _initNetworkMonitor();
+  // Session guard — เช็คว่าบัญชียังใช้งานได้
+  _startSessionGuard();
   setTimeout(() => { if(_isOnline) _flushQueue(); }, 1500);
   // Apply saved language
   applyLang();
@@ -2495,9 +2519,12 @@ async function addStaffAccount(){
   if(!dn||!un||!pw){showToast(t("saving"),"error");return;}
   if(ACCOUNTS.find(a=>a.username===un)){showToast(t("login_err"),"error");return;}
   const role=document.getElementById("new-role")?.value||"staff_biller";
-  ACCOUNTS.push({username:un,password:pw,role,displayName:dn});
+  ACCOUNTS.push({username:un,password:pw,role,displayName:dn,isActive:true});
   // Save to Supabase
-  try{await _sb.from("accounts").insert({username:un,password:pw,role,display_name:dn});}catch(e){}
+  try{
+    const {error}=await _sb.from("accounts").insert({username:un,password:pw,role,display_name:dn,is_active:true});
+    if(error){ showToast("⚠ "+error.message,"error"); ACCOUNTS=ACCOUNTS.filter(a=>a.username!==un); return; }
+  }catch(e){ showToast("⚠ เพิ่มไม่สำเร็จ (ออฟไลน์?)","error"); ACCOUNTS=ACCOUNTS.filter(a=>a.username!==un); return; }
   await saveAccounts();
   logActivity('add_staff', un, un, `เพิ่มพนักงาน role:${role}`);
   document.getElementById("new-displayname").value="";
@@ -2505,14 +2532,82 @@ async function addStaffAccount(){
   document.getElementById("new-password").value="";
   renderStaffList();showToast(t("saved_ok"));
 }
+// ── เปิด/ปิดใช้งานบัญชีพนักงาน ──
+async function toggleStaffActive(username, makeActive){
+  if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
+  if(username==="admin"){showToast(t("no_perm"),"error");return;}
+  try{
+    const payload = makeActive
+      ? { is_active:true, deactivated_at:null, deactivated_by:null }
+      : { is_active:false, deactivated_at:new Date().toISOString(), deactivated_by:currentUser.username };
+    const {error}=await _sb.from("accounts").update(payload).eq("username",username);
+    if(error){ showToast("⚠ "+error.message,"error"); return; }
+  }catch(e){ showToast("⚠ "+(e.message||''),"error"); return; }
+  // อัปเดตในหน่วยความจำ
+  const a=ACCOUNTS.find(x=>x.username===username);
+  if(a) a.isActive=!!makeActive;
+  await saveAccounts();
+  logActivity(makeActive?'activate_staff':'deactivate_staff', username, username,
+              makeActive?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
+  renderStaffList();
+  showToast(makeActive?t('acc_activated_ok'):t('acc_deactivated_ok'));
+}
+
 async function removeStaffAccount(username){
   if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
   if(username==="admin"){showToast(t("no_perm"),"error");return;}
+  if(!confirm(t('acc_confirm_delete'))) return;
   ACCOUNTS=ACCOUNTS.filter(a=>a.username!==username);
-  try{await _sb.from("accounts").delete().eq("username",username);}catch(e){}
+  try{
+    const {error}=await _sb.from("accounts").delete().eq("username",username);
+    if(error){ showToast("⚠ "+error.message,"error"); return; }
+  }catch(e){ showToast("⚠ ลบไม่สำเร็จ (ออฟไลน์?)","error"); return; }
   await saveAccounts();
-  logActivity('delete_staff', username, username, `ลบพนักงาน`);
+  logActivity('delete_staff', username, username, `ลบพนักงาน (ประวัติงานยังเก็บไว้)`);
   renderStaffList();showToast(t("cancelled_ok"));
+}
+
+// =====================================================
+// SESSION GUARD — ตรวจว่าบัญชียังใช้งานได้ ถ้าไม่ → บังคับออกจากระบบ
+// =====================================================
+let _sessionGuardTimer = null;
+
+async function _validateSession(){
+  if(!currentUser || currentUser.role==='admin') return; // admin ไม่ต้องเช็ค
+  if(!_isOnline) return; // ออฟไลน์ข้ามไปก่อน
+  try{
+    const {data}=await _sb.from("accounts").select("username,is_active")
+      .eq("username",currentUser.username).maybeSingle();
+    // บัญชีถูกลบ หรือ ถูกปิดใช้งาน
+    if(!data || data.is_active===false){
+      _forceLogout(t('acc_force_logout'));
+    }
+  }catch(e){ /* network error — ข้าม */ }
+}
+
+function _forceLogout(msg){
+  try{ if(_sessionGuardTimer) clearInterval(_sessionGuardTimer); }catch(e){}
+  _sessionGuardTimer=null;
+  const user = currentUser?.username || '';
+  currentUser=null;
+  // แสดงข้อความบนหน้า login
+  const app=document.getElementById("app");
+  const login=document.getElementById("login-screen");
+  if(app) app.style.display="none";
+  if(login) login.style.display="flex";
+  const err=document.getElementById("ln-err");
+  if(err){ err.textContent=msg||t('acc_force_logout'); err.style.display="block"; }
+  const uEl=document.getElementById("ln-user"); if(uEl) uEl.value=user;
+  const pEl=document.getElementById("ln-pass"); if(pEl) pEl.value="";
+  try{ showToast(msg||t('acc_force_logout'),'error'); }catch(e){}
+}
+
+function _startSessionGuard(){
+  if(_sessionGuardTimer) clearInterval(_sessionGuardTimer);
+  // ตรวจทุก 20 วินาที
+  _sessionGuardTimer = setInterval(_validateSession, 20000);
+  // ตรวจทันทีเมื่อกลับมาที่หน้าจอ
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) _validateSession(); });
 }
 function renderStaffList(){
   const staffs=ACCOUNTS.filter(a=>a.role==="staff"||a.role==="staff_biller"||a.role==="staff_cashier");
@@ -2521,15 +2616,23 @@ function renderStaffList(){
   if(staffs.length===0){el.innerHTML=`<div class="empty-state"><div>${t("empty")}</div></div>`;return;}
   const roleLabel=()=>({staff_biller:t("role_biller"),staff_cashier:t("role_cashier"),staff:t("role_biller")});
   const roleBadge={staff_biller:"badge-sent",staff_cashier:"badge-paid",staff:"badge-sent"};
-  el.innerHTML=`<table class="order-table"><thead><tr><th>${t("staff_name")}</th><th>${t("staff_user")}</th><th>${t("staff_pass")}</th><th>${t("staff_role")}</th><th>Role</th><th>${t("col_manage")}</th></tr></thead><tbody>`+
-    staffs.map(a=>`<tr>
+  el.innerHTML=`<div style="overflow-x:auto"><table class="order-table" style="min-width:760px"><thead><tr><th>${t("staff_name")}</th><th>${t("staff_user")}</th><th>${t("staff_pass")}</th><th>${t("staff_role")}</th><th>${t("acc_status")}</th><th>${t("col_manage")}</th></tr></thead><tbody>`+
+    staffs.map(a=>{
+      const active = a.isActive!==false;
+      return `<tr style="${active?'':'opacity:.55;background:var(--red-l)'}">
       <td style="font-weight:600">${a.displayName}</td>
       <td class="mono" style="color:var(--muted)">${a.username}</td>
       <td class="mono" style="color:var(--muted)">${a.password}</td>
-      <td style="font-size:.82rem">${roleLabel()[a.role]||t("role_biller")}</td>
       <td><span class="badge ${roleBadge[a.role]||"badge-sent"}" style="font-size:.58rem">${(a.role==="staff_cashier"?t("role_cashier"):t("role_biller")).toUpperCase()}</span></td>
-      <td><button class="btn-danger" onclick="removeStaffAccount('${a.username}')">${t("btn_delete")}</button></td>
-    </tr>`).join("")+`</tbody></table>`;
+      <td><span class="badge ${active?'badge-paid':'badge-cancelled'}" style="font-size:.6rem">${active?t('acc_active'):t('acc_inactive')}</span></td>
+      <td style="white-space:nowrap">
+        <button onclick="toggleStaffActive('${a.username}',${active?'false':'true'})" title="${active?t('acc_deactivate'):t('acc_activate')}"
+          style="font-size:.7rem;padding:.25rem .6rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:4px">
+          ${active?'⏸ '+t('acc_deactivate'):'▶ '+t('acc_activate')}
+        </button>
+        <button class="btn-danger" onclick="removeStaffAccount('${a.username}')">${t("btn_delete")}</button>
+      </td>
+    </tr>`;}).join("")+`</tbody></table></div>`;
 }
 
 // ── REPORT ──
@@ -4542,6 +4645,17 @@ const LANG_DICT = {
     history_rubber: "ประวัติการขายยาง",
     mywork_all: "รายการทั้งหมด",
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
+    acc_status: "สถานะ",
+    acc_active: "✅ เปิดใช้งาน",
+    acc_inactive: "❌ ปิดใช้งาน",
+    acc_activate: "เปิดใช้งาน",
+    acc_deactivate: "ปิดใช้งาน",
+    acc_suspended_msg: "บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ",
+    acc_deleted_msg: "บัญชีนี้ถูกลบออกจากระบบแล้ว",
+    acc_force_logout: "บัญชีของคุณถูกระงับ/ลบ — ระบบออกจากระบบอัตโนมัติ",
+    acc_activated_ok: "เปิดใช้งานบัญชีแล้ว",
+    acc_deactivated_ok: "ปิดใช้งานบัญชีแล้ว",
+    acc_confirm_delete: "ลบบัญชีนี้ถาวร? พนักงานจะเข้าระบบไม่ได้อีก (ประวัติการทำงานยังเก็บไว้)",
     rep_search_ph: "ค้นหาพนักงาน / ลูกค้า / เลขที่บิล...",
     rep_status_all: "ทุกสถานะ",
     rep_reset: "✕ ล้างตัวกรอง",
@@ -4805,6 +4919,17 @@ const LANG_DICT = {
     history_rubber: "ປະຫວັດການຂາຍຢາງ",
     mywork_all: "ລາຍການທັງໝົດ",
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
+    acc_status: "ສະຖານະ",
+    acc_active: "✅ ເປີດໃຊ້ງານ",
+    acc_inactive: "❌ ປິດໃຊ້ງານ",
+    acc_activate: "ເປີດໃຊ້ງານ",
+    acc_deactivate: "ປິດໃຊ້ງານ",
+    acc_suspended_msg: "ບັນຊີຂອງທ່ານຖືກລະງັບການໃຊ້ງານ ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບ",
+    acc_deleted_msg: "ບັນຊີນີ້ຖືກລຶບອອກຈາກລະບົບແລ້ວ",
+    acc_force_logout: "ບັນຊີຂອງທ່ານຖືກລະງັບ/ລຶບ — ລະບົບອອກຈາກລະບົບອັດຕະໂນມັດ",
+    acc_activated_ok: "ເປີດໃຊ້ງານບັນຊີແລ້ວ",
+    acc_deactivated_ok: "ປິດໃຊ້ງານບັນຊີແລ້ວ",
+    acc_confirm_delete: "ລຶບບັນຊີນີ້ຖາວອນ? ພະນັກງານຈະເຂົ້າລະບົບບໍ່ໄດ້ອີກ (ປະຫວັດການເຮັດວຽກຍັງເກັບໄວ້)",
     rep_search_ph: "ຄົ້ນຫາພະນັກງານ / ລູກຄ້າ / ເລກທີບິນ...",
     rep_status_all: "ທຸກສະຖານະ",
     rep_reset: "✕ ລ້າງຕົວກອງ",
@@ -5068,6 +5193,17 @@ const LANG_DICT = {
     history_rubber: "Rubber Sale History",
     mywork_all: "All Records",
     ph_mywork_search: "Search bill no. or customer...",
+    acc_status: "Status",
+    acc_active: "✅ Active",
+    acc_inactive: "❌ Inactive",
+    acc_activate: "Activate",
+    acc_deactivate: "Deactivate",
+    acc_suspended_msg: "Your account has been suspended. Please contact the administrator.",
+    acc_deleted_msg: "This account has been removed from the system",
+    acc_force_logout: "Your account was suspended/deleted — logging out automatically",
+    acc_activated_ok: "Account activated",
+    acc_deactivated_ok: "Account deactivated",
+    acc_confirm_delete: "Permanently delete this account? The staff can no longer log in (work history is kept)",
     rep_search_ph: "Search staff / customer / bill no...",
     rep_status_all: "All statuses",
     rep_reset: "✕ Reset filters",
@@ -5814,7 +5950,9 @@ function renderActivityLog() {
     create_order:t('act_create'), send_order:t('act_send'),
     pay_order:t('act_pay'), cancel_order:t('act_cancel'),
     edit_order:t('act_edit'), add_staff:t('act_add_staff'),
-    delete_staff:t('act_del_staff')
+    delete_staff:t('act_del_staff'),
+    activate_staff:'✅ '+t('acc_activate'), deactivate_staff:'⏸ '+t('acc_deactivate'),
+    print_bill:'🖨 '+t('btn_print')
   };
   const actionColor = {
     login:'var(--blue)', logout:'var(--muted)',
