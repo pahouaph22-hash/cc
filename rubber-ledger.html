@@ -1029,7 +1029,10 @@ font{border:none!important;outline:none!important;display:inline!important}
       </div>
     </div>
     <div class="card">
-      <div class="card-header" data-i18n="staff_list">รายชื่อพนักงานทั้งหมด</div>
+      <div class="card-header" data-i18n="staff_list" style="display:flex;align-items:center;justify-content:space-between">
+        <span data-i18n="staff_list">รายชื่อพนักงานทั้งหมด</span>
+        <button onclick="diagnoseAccounts()" style="font-size:.68rem;padding:.25rem .6rem;background:var(--sky-l);color:var(--sky-d);border:1px solid var(--sky-m);border-radius:5px;cursor:pointer;font-weight:600">🔧 ตรวจสอบระบบ</button>
+      </div>
       <div class="card-body" id="staff-list"></div>
     </div>
   </div>
@@ -1482,6 +1485,8 @@ const DEFAULT_ACCOUNTS=[
   {username:"admin",password:"admin1234",role:"admin",displayName:"admin"},
 ];
 let ACCOUNTS=[...DEFAULT_ACCOUNTS];
+const APP_VERSION = "2026.07.16-0259";
+console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // ── Bluetooth Thermal Printer state ──
 let _btDevice = null;       // BluetoothDevice
@@ -1794,6 +1799,7 @@ async function doLogin(){
     const {data,error}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).maybeSingle();
     if(!error) sbReachable=true;
     if(data){
+      console.log('🔐 Login check:', data.username, '| is_active =', data.is_active, '(type:', typeof data.is_active, ')');
       // ตรวจสถานะบัญชีทุกครั้ง (ไม่ใช่แค่รหัสผ่าน)
       if(!_accIsActive(data.is_active)){
         suspended=true;
@@ -2566,30 +2572,58 @@ async function addStaffAccount(){
 async function toggleStaffActive(username, makeActive){
   if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
   if(username==="admin"){showToast(t("no_perm"),"error");return;}
+  const want = !!makeActive;
   try{
-    const payload = makeActive
+    const payload = want
       ? { is_active:true, deactivated_at:null, deactivated_by:null }
       : { is_active:false, deactivated_at:new Date().toISOString(), deactivated_by:currentUser.username };
-    const {error}=await _sb.from("accounts").update(payload).eq("username",username);
+
+    // ⚠ ต้องใส่ .select() เพื่อยืนยันว่าเขียนสำเร็จจริง
+    // (ถ้าไม่ใส่ Supabase จะคืน error:null แม้ไม่มีแถวไหนถูกอัปเดต)
+    const {data,error}=await _sb.from("accounts").update(payload).eq("username",username).select();
+
     if(error){
-      // คอลัมน์ยังไม่มี → เตือนให้รัน SQL
-      if(/is_active|column/i.test(error.message||'')){
+      console.error('toggleStaffActive error:', error);
+      if(/is_active|column|does not exist|schema cache/i.test(error.message||'')){
         _hasActiveColumn=false;
         showToast(t('acc_col_missing'),"error");
         renderStaffList();
       } else showToast("⚠ "+error.message,"error");
       return;
     }
+
+    // ไม่มีแถวถูกอัปเดต → ติดสิทธิ์ RLS หรือหา username ไม่เจอ
+    if(!data || data.length===0){
+      console.error('toggleStaffActive: 0 rows updated for', username);
+      showToast(t('acc_update_failed'),"error");
+      return;
+    }
+
+    // ยืนยันค่าที่บันทึกจริงในฐานข้อมูล
+    const saved = data[0];
+    if(saved.is_active === undefined){
+      _hasActiveColumn=false;
+      showToast(t('acc_col_missing'),"error");
+      renderStaffList();
+      return;
+    }
+    if(_accIsActive(saved.is_active) !== want){
+      console.error('toggleStaffActive: value mismatch. want=',want,'got=',saved.is_active);
+      showToast(t('acc_update_failed'),"error");
+      return;
+    }
     _hasActiveColumn=true;
-  }catch(e){ showToast("⚠ "+(e.message||''),"error"); return; }
+    console.log('✅ '+username+' is_active =', saved.is_active);
+  }catch(e){ console.error(e); showToast("⚠ "+(e.message||''),"error"); return; }
+
   // อัปเดตในหน่วยความจำ
   const a=ACCOUNTS.find(x=>x.username===username);
-  if(a) a.isActive=!!makeActive;
+  if(a) a.isActive=want;
   await saveAccounts();
-  logActivity(makeActive?'activate_staff':'deactivate_staff', username, username,
-              makeActive?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
+  logActivity(want?'activate_staff':'deactivate_staff', username, username,
+              want?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
   renderStaffList();
-  showToast(makeActive?t('acc_activated_ok'):t('acc_deactivated_ok'));
+  showToast(want?t('acc_activated_ok'):t('acc_deactivated_ok'));
 }
 
 async function removeStaffAccount(username){
@@ -2607,8 +2641,67 @@ async function removeStaffAccount(username){
 }
 
 // =====================================================
-// SESSION GUARD — ตรวจว่าบัญชียังใช้งานได้ ถ้าไม่ → บังคับออกจากระบบ
+// DIAGNOSE — ตรวจสอบระบบบัญชี (หาสาเหตุเมื่อปิดใช้งานไม่ทำงาน)
 // =====================================================
+async function diagnoseAccounts(){
+  if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
+  const lines=[];
+  const ok=(s)=>'✅ '+s, bad=(s)=>'❌ '+s, warn=(s)=>'⚠️ '+s;
+
+  // 1) คอลัมน์ is_active มีไหม
+  let hasCol=false;
+  try{
+    const {error}=await _sb.from("accounts").select("is_active").limit(1);
+    hasCol=!error;
+    lines.push(hasCol ? ok('คอลัมน์ is_active: มีในฐานข้อมูล')
+                      : bad('คอลัมน์ is_active: ไม่มี → ต้องรัน accounts-active-schema.sql'));
+    if(error) lines.push('   ('+error.message+')');
+  }catch(e){ lines.push(bad('เชื่อมต่อฐานข้อมูลไม่ได้: '+(e.message||''))); }
+
+  // 2) อ่านบัญชีทั้งหมด
+  let rows=[];
+  try{
+    const {data,error}=await _sb.from("accounts").select("*").order("username");
+    if(error){ lines.push(bad('อ่านตาราง accounts ไม่ได้: '+error.message)); }
+    else { rows=data||[]; lines.push(ok('อ่านบัญชีได้ '+rows.length+' รายการ')); }
+  }catch(e){ lines.push(bad('อ่านบัญชีไม่ได้')); }
+
+  // 3) ทดสอบสิทธิ์เขียน (เขียนค่าเดิมกลับไป — ไม่เปลี่ยนแปลงอะไร)
+  const target = rows.find(r=>r.username!=="admin");
+  if(target && hasCol){
+    try{
+      const cur = target.is_active;
+      const {data,error}=await _sb.from("accounts")
+        .update({is_active: cur===false?false:true}).eq("username",target.username).select();
+      if(error) lines.push(bad('สิทธิ์เขียน (UPDATE): ไม่ผ่าน → '+error.message));
+      else if(!data||data.length===0) lines.push(bad('สิทธิ์เขียน (UPDATE): 0 แถวถูกอัปเดต → ติด RLS/Grant'));
+      else lines.push(ok('สิทธิ์เขียน (UPDATE): ผ่าน'));
+    }catch(e){ lines.push(bad('ทดสอบเขียนไม่สำเร็จ: '+(e.message||''))); }
+  } else if(!target){
+    lines.push(warn('ยังไม่มีบัญชีพนักงานให้ทดสอบ'));
+  }
+
+  // 4) สถานะบัญชีแต่ละคน
+  if(rows.length){
+    lines.push('');
+    lines.push('📋 สถานะบัญชีในฐานข้อมูล:');
+    rows.forEach(r=>{
+      const st = r.is_active===undefined ? '(ไม่มีคอลัมน์)'
+               : _accIsActive(r.is_active) ? '✅ เปิดใช้งาน' : '❌ ปิดใช้งาน';
+      lines.push(`   • ${r.username} (${r.role||'-'}) → ${st}  [is_active=${JSON.stringify(r.is_active)}]`);
+    });
+  }
+
+  // 5) เวอร์ชันไฟล์
+  lines.push('');
+  lines.push('📦 เวอร์ชันไฟล์: '+APP_VERSION);
+  lines.push('🌐 URL: '+location.href.split('?')[0]);
+
+  const msg = lines.join('\n');
+  console.log('%c=== ตรวจสอบระบบบัญชี ===','font-weight:bold;color:#0EA5E9');
+  console.log(msg);
+  alert(msg);
+}
 let _sessionGuardTimer = null;
 
 async function _validateSession(){
@@ -4691,6 +4784,7 @@ const LANG_DICT = {
     ph_mywork_search: "ค้นหาเลขที่หรือลูกค้า...",
     acc_col_missing: "⚠️ ยังไม่ได้ตั้งค่าฐานข้อมูล: กรุณารัน accounts-active-schema.sql ใน Supabase ก่อน ไม่เช่นนั้นระบบเปิด/ปิดบัญชีจะไม่ทำงาน",
     acc_deactivated_msg: "บัญชีของคุณถูกปิดใช้งานโดยผู้ดูแลระบบ กรุณาติดต่อผู้ดูแลระบบเพื่อขอความช่วยเหลือ",
+    acc_update_failed: "❌ บันทึกไม่สำเร็จ — ไม่มีสิทธิ์แก้ไข (ตรวจสอบ RLS/Grant ใน Supabase) หรือไม่พบบัญชี",
     acc_status: "สถานะ",
     acc_active: "✅ เปิดใช้งาน",
     acc_inactive: "❌ ปิดใช้งาน",
@@ -4967,6 +5061,7 @@ const LANG_DICT = {
     ph_mywork_search: "ຄົ້ນຫາເລກທີ ຫຼື ລູກຄ້າ...",
     acc_col_missing: "⚠️ ຍັງບໍ່ໄດ້ຕັ້ງຄ່າຖານຂໍ້ມູນ: ກະລຸນາຣັນ accounts-active-schema.sql ໃນ Supabase ກ່ອນ ບໍ່ດັ່ງນັ້ນລະບົບເປີດ/ປິດບັນຊີຈະບໍ່ເຮັດວຽກ",
     acc_deactivated_msg: "ບັນຊີຂອງທ່ານຖືກປິດໃຊ້ງານໂດຍຜູ້ດູແລລະບົບ ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອ",
+    acc_update_failed: "❌ ບັນທຶກບໍ່ສຳເລັດ — ບໍ່ມີສິດແກ້ໄຂ (ກວດສອບ RLS/Grant ໃນ Supabase) ຫຼືບໍ່ພົບບັນຊີ",
     acc_status: "ສະຖານະ",
     acc_active: "✅ ເປີດໃຊ້ງານ",
     acc_inactive: "❌ ປິດໃຊ້ງານ",
@@ -5243,6 +5338,7 @@ const LANG_DICT = {
     ph_mywork_search: "Search bill no. or customer...",
     acc_col_missing: "⚠️ Database not configured: please run accounts-active-schema.sql in Supabase first, otherwise account enable/disable will not work",
     acc_deactivated_msg: "Your account has been deactivated by the administrator. Please contact the administrator for assistance.",
+    acc_update_failed: "❌ Update failed — no permission (check RLS/Grant in Supabase) or account not found",
     acc_status: "Status",
     acc_active: "✅ Active",
     acc_inactive: "❌ Inactive",
