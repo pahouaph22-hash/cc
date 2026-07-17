@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#16A34A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KUBTHOR สมาชิก">
+<meta name="google" content="notranslate">
+<title>KUBTHOR — ระบบสมาชิกลูกค้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Lao:wght@400;700&family=Sarabun:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316A34A'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle'%3E🌳%3C/text%3E%3C/svg%3E">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{font-family:'Sarabun','Phetsarath OT','Noto Sans Lao',sans-serif}
+:root{
+  --bg:#F8FAFC; --surface:#FFFFFF; --surface2:#F1F5F9;
+  --border:#E2E8F0; --border2:#CBD5E1;
+  --text:#0F172A; --text2:#334155; --muted:#64748B; --muted2:#94A3B8;
+  --green:#16A34A; --green-d:#15803D; --green-l:#DCFCE7; --green-m:#BBF7D0;
+  --sky:#0EA5E9; --sky-d:#0284C7; --sky-l:#E0F2FE; --sky-m:#BAE6FD;
+  --orange:#F97316; --orange-d:#EA580C; --orange-l:#FFF7ED; --orange-m:#FED7AA;
+  --violet:#8B5CF6; --violet-d:#7C3AED; --violet-l:#EDE9FE;
+  --red:#EF4444; --red-d:#DC2626; --red-l:#FEF2F2; --red-m:#FCA5A5;
+  --gold:#D97706; --gold-l:#FEF3C7;
+  --r:12px; --r-sm:8px; --r-lg:16px;
+  --shadow:0 4px 14px rgba(15,23,42,.08);
+  --shadow-lg:0 10px 30px rgba(15,23,42,.14);
+}
+body{background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+body.lang-lo *{font-family:'Phetsarath OT','Noto Sans Lao',sans-serif!important}
+button{cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+input,select,textarea{font-family:inherit;font-size:16px;width:100%;padding:.75rem .9rem;border:1.5px solid var(--border);border-radius:var(--r-sm);outline:none;background:#fff;color:var(--text)}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(22,163,74,.14)}
+.mono{font-family:'IBM Plex Mono',monospace}
+.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.05em}
+body.lang-lo .bebas{font-family:'Phetsarath OT',sans-serif!important;letter-spacing:0}
+
+/* ── LOGIN ── */
+#auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.1rem;
+  background:linear-gradient(160deg,#16A34A 0%,#15803D 45%,#0F172A 100%)}
+.auth-card{background:#fff;width:100%;max-width:420px;border-radius:var(--r-lg);padding:1.8rem 1.5rem;box-shadow:var(--shadow-lg)}
+.auth-logo{text-align:center;margin-bottom:1.4rem}
+.auth-logo .icon{font-size:2.6rem;line-height:1}
+.auth-logo .name{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.12em;color:var(--green-d);margin-top:.2rem}
+.auth-logo .sub{font-size:.8rem;color:var(--muted)}
+.tabs-auth{display:flex;background:var(--surface2);border-radius:var(--r-sm);padding:4px;margin-bottom:1.2rem}
+.tabs-auth button{flex:1;padding:.6rem;border-radius:6px;font-size:.86rem;font-weight:700;background:transparent;color:var(--muted)}
+.tabs-auth button.on{background:var(--green);color:#fff}
+.field{margin-bottom:.9rem}
+.label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:.35rem}
+.btn-main{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--green) 0%,#22C55E 100%);color:#fff;
+  border-radius:var(--r-sm);font-size:1rem;font-weight:700;box-shadow:0 3px 10px rgba(22,163,74,.3)}
+.btn-main:hover{background:linear-gradient(135deg,var(--green-d) 0%,var(--green) 100%)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed}
+.msg{display:none;padding:.7rem .9rem;border-radius:var(--r-sm);font-size:.82rem;margin-bottom:.9rem;line-height:1.5}
+.msg.err{display:block;background:var(--red-l);color:var(--red-d);border:1px solid var(--red-m)}
+.msg.ok{display:block;background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m)}
+
+/* ── APP ── */
+#app{display:none;padding-bottom:80px}
+#topbar{background:linear-gradient(135deg,var(--green-d) 0%,var(--green) 60%,#22C55E 100%);
+  color:#fff;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  position:sticky;top:0;z-index:40;box-shadow:0 2px 12px rgba(22,163,74,.3)}
+#topbar .who{min-width:0}
+#topbar .who .n{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .who .c{font-size:.68rem;opacity:.9;font-family:'IBM Plex Mono',monospace}
+#lang-sel{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;
+  font-size:.72rem;padding:.3rem .4rem;width:auto;border-radius:6px}
+#lang-sel option{background:var(--green-d);color:#fff}
+.icon-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;
+  width:34px;height:34px;border-radius:50%;font-size:.95rem;flex-shrink:0}
+.wrap{max-width:760px;margin:0 auto;padding:1rem}
+
+/* ── BOTTOM NAV ── */
+#nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);
+  display:flex;z-index:45;box-shadow:0 -2px 14px rgba(15,23,42,.07);padding-bottom:env(safe-area-inset-bottom)}
+#nav button{flex:1;padding:.6rem .2rem;background:transparent;color:var(--muted);font-size:.66rem;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:2px;border-top:3px solid transparent}
+#nav button .ic{font-size:1.25rem;line-height:1}
+#nav button.on{color:var(--green-d);border-top-color:var(--green)}
+
+.page{display:none}.page.on{display:block}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:1rem;overflow:hidden}
+.card-h{padding:.75rem 1rem;border-bottom:1px solid var(--border);font-weight:700;font-size:.9rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--surface2)}
+.card-b{padding:1rem}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:.85rem;box-shadow:var(--shadow)}
+.stat-box .ic{font-size:1.3rem;margin-bottom:.2rem}
+.stat-box .lb{font-size:.7rem;color:var(--muted)}
+.stat-box .vl{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.02em;margin-top:.15rem}
+body.lang-lo .stat-box .vl{font-family:'Phetsarath OT',sans-serif!important;font-size:1.2rem}
+.hero{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;border-radius:var(--r);
+  padding:1.2rem;margin-bottom:1rem;box-shadow:0 6px 20px rgba(22,163,74,.28)}
+.hero .lb{font-size:.76rem;opacity:.9}
+.hero .vl{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;letter-spacing:.02em;line-height:1.1}
+body.lang-lo .hero .vl{font-family:'Phetsarath OT',sans-serif!important;font-size:1.7rem}
+
+/* ── LIST ITEMS ── */
+.bill{border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.7rem;background:#fff;
+  box-shadow:var(--shadow);border-left:4px solid var(--green);cursor:pointer}
+.bill:active{background:var(--surface2)}
+.bill.pending{border-left-color:var(--orange)}
+.bill-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.bill-no{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted)}
+.bill-amt{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--green-d);white-space:nowrap}
+body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-size:1.05rem}
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:999px;font-size:.62rem;font-weight:700}
+.b-paid{background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m)}
+.b-sent{background:var(--orange-l);color:var(--orange-d);border:1px solid var(--orange-m)}
+.b-draft{background:var(--surface2);color:var(--muted);border:1px solid var(--border2)}
+.news-item{border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:.7rem;background:#fff;box-shadow:var(--shadow)}
+.news-item.pin{border-left:4px solid var(--gold);background:linear-gradient(90deg,var(--gold-l) 0%,#fff 12%)}
+.news-cat{display:inline-block;font-size:.6rem;font-weight:700;padding:.12rem .5rem;border-radius:999px}
+.cat-general{background:var(--sky-l);color:var(--sky-d)}
+.cat-price{background:var(--green-l);color:var(--green-d)}
+.cat-urgent{background:var(--red-l);color:var(--red-d)}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.empty .ic{font-size:2.4rem;opacity:.5;margin-bottom:.4rem}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;z-index:100}
+.overlay.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;
+  border-radius:var(--r-lg) var(--r-lg) 0 0;padding:0}
+@media(min-width:640px){.overlay{align-items:center}.sheet{border-radius:var(--r-lg)}}
+.sheet-h{position:sticky;top:0;background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;
+  padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;z-index:2}
+
+/* ── FILTER CHIPS ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem}
+.chip{padding:.35rem .8rem;border:1px solid var(--border);border-radius:999px;background:#fff;
+  color:var(--text2);font-size:.74rem;font-weight:600}
+.chip.on{background:var(--green);color:#fff;border-color:var(--green)}
+
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#fff;
+  padding:.7rem 1.2rem;border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:200;display:none;
+  font-size:.85rem;max-width:90%;text-align:center;border-left:4px solid var(--green)}
+#toast.err{border-left-color:var(--red)}
+.spin{width:18px;height:18px;border:2.5px solid var(--green-m);border-top-color:var(--green-d);
+  border-radius:50%;animation:sp .7s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+.row{display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.86rem;gap:.6rem}
+.row:last-child{border-bottom:none}
+.row .k{color:var(--muted);flex-shrink:0}
+.row .v{font-weight:600;text-align:right;word-break:break-word}
+</style>
+</head>
+<body class="lang-th" translate="no">
+
+<!-- ══════ AUTH ══════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon">🌳</div>
+      <div class="name">KUBTHOR</div>
+      <div class="sub" data-i18n="portal_sub">ระบบสมาชิกลูกค้ายางพารา</div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.8rem">
+      <select id="lang-auth" onchange="setLang(this.value)" style="width:auto;font-size:.76rem;padding:.35rem .5rem">
+        <option value="th">TH ไทย</option>
+        <option value="lo">LA ລາວ</option>
+      </select>
+    </div>
+
+    <div class="tabs-auth">
+      <button id="tab-login" class="on" onclick="switchAuth('login')" data-i18n="tab_login">เข้าสู่ระบบ</button>
+      <button id="tab-reg" onclick="switchAuth('reg')" data-i18n="tab_register">สมัครสมาชิก</button>
+    </div>
+
+    <div id="auth-msg" class="msg"></div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="field">
+        <label class="label" data-i18n="lb_identifier">เบอร์โทร / รหัสลูกค้า / ชื่อบัญชี</label>
+        <input type="text" id="li-id" placeholder="020xxxxxxx หรือ CUS-123456" autocomplete="username">
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_pin">รหัส PIN</label>
+        <input type="password" id="li-pin" inputmode="numeric" placeholder="••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-main" id="btn-login" onclick="doLogin()" data-i18n="btn_login">เข้าสู่ระบบ</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="form-reg" style="display:none">
+      <div style="background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r-sm);padding:.6rem .8rem;font-size:.75rem;color:var(--sky-d);margin-bottom:.9rem;line-height:1.5" data-i18n="reg_note">
+        ℹ️ ต้องเป็นลูกค้าที่เคยขายยางกับเราแล้ว — ใช้ชื่อเดียวกับที่ลงทะเบียนไว้ที่จุดรับซื้อ
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_name">ชื่อ-นามสกุล (ตามที่ลงทะเบียนไว้) *</label>
+        <input type="text" id="rg-name" placeholder="เช่น สมชาย ใจดี">
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_phone">เบอร์โทรศัพท์</label>
+        <input type="tel" id="rg-phone" inputmode="tel" placeholder="020xxxxxxx">
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_username">ชื่อบัญชี (ไม่บังคับ)</label>
+        <input type="text" id="rg-user" placeholder="เช่น somchai">
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_pin_new">ตั้งรหัส PIN (4-6 หลัก) *</label>
+        <input type="password" id="rg-pin" inputmode="numeric" placeholder="••••••">
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_pin_confirm">ยืนยันรหัส PIN *</label>
+        <input type="password" id="rg-pin2" inputmode="numeric" placeholder="••••••">
+      </div>
+      <button class="btn-main" id="btn-reg" onclick="doRegister()" data-i18n="btn_register">สมัครสมาชิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ APP ══════ -->
+<div id="app">
+  <div id="topbar">
+    <div class="who">
+      <div class="n" id="me-name">—</div>
+      <div class="c" id="me-code">—</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
+      <select id="lang-sel" onchange="setLang(this.value)">
+        <option value="th">TH</option>
+        <option value="lo">ລາວ</option>
+      </select>
+      <button class="icon-btn" onclick="openSettings()" title="ตั้งค่า">⚙</button>
+      <button class="icon-btn" onclick="doLogout()" title="ออกจากระบบ">⏻</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- PAGE: HOME -->
+    <div class="page on" id="pg-home">
+      <div class="hero">
+        <div class="lb" data-i18n="hero_total">ยอดขายรวมที่ได้รับแล้ว</div>
+        <div class="vl" id="h-amt">₭0</div>
+        <div style="font-size:.76rem;opacity:.92;margin-top:.3rem" id="h-sub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-box"><div class="ic">📦</div><div class="lb" data-i18n="st_bills">ใบที่ขายแล้ว</div><div class="vl" id="s-cnt" style="color:var(--sky-d)">0</div></div>
+        <div class="stat-box"><div class="ic">⚖️</div><div class="lb" data-i18n="st_kg">น้ำหนักรวม</div><div class="vl" id="s-kg" style="color:var(--gold)">0</div></div>
+        <div class="stat-box"><div class="ic">⏳</div><div class="lb" data-i18n="st_pending">รอรับเงิน</div><div class="vl" id="s-pend" style="color:var(--orange-d)">₭0</div></div>
+        <div class="stat-box"><div class="ic">📅</div><div class="lb" data-i18n="st_last">ขายล่าสุด</div><div class="vl" id="s-last" style="color:var(--violet-d);font-size:1.05rem">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h">
+          <span data-i18n="recent_bills">🧾 รายการล่าสุด</span>
+          <button onclick="go('bills')" style="background:transparent;color:var(--green-d);font-size:.74rem;font-weight:700" data-i18n="see_all">ดูทั้งหมด →</button>
+        </div>
+        <div class="card-b" id="home-bills" style="padding:.7rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span data-i18n="latest_news">📢 ข่าวสารล่าสุด</span>
+          <button onclick="go('news')" style="background:transparent;color:var(--green-d);font-size:.74rem;font-weight:700" data-i18n="see_all">ดูทั้งหมด →</button>
+        </div>
+        <div class="card-b" id="home-news" style="padding:.7rem"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: BILLS -->
+    <div class="page" id="pg-bills">
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:.8rem" data-i18n="nav_bills">🧾 ประวัติการขาย</div>
+      <div class="chips" id="bill-chips">
+        <button class="chip on" data-f="" onclick="filterBills('')" data-i18n="f_all">ทั้งหมด</button>
+        <button class="chip" data-f="paid" onclick="filterBills('paid')" data-i18n="f_paid">✅ รับเงินแล้ว</button>
+        <button class="chip" data-f="sent" onclick="filterBills('sent')" data-i18n="f_pending">⏳ รอรับเงิน</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:.9rem">
+        <input type="date" id="bf-from" onchange="loadBills()" style="font-size:.8rem;padding:.5rem">
+        <input type="date" id="bf-to" onchange="loadBills()" style="font-size:.8rem;padding:.5rem">
+        <button onclick="clearDates()" style="background:var(--surface2);color:var(--muted);padding:.5rem .7rem;border-radius:var(--r-sm);font-size:.8rem;flex-shrink:0">✕</button>
+      </div>
+      <div id="bills-sum" style="font-size:.78rem;color:var(--muted);margin-bottom:.7rem;font-weight:600"></div>
+      <div id="bills-list"></div>
+    </div>
+
+    <!-- PAGE: NEWS -->
+    <div class="page" id="pg-news">
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:.8rem" data-i18n="nav_news">📢 ข่าวสาร & ประกาศ</div>
+      <div id="news-list"></div>
+    </div>
+
+    <!-- PAGE: PROFILE -->
+    <div class="page" id="pg-me">
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:.8rem" data-i18n="nav_me">👤 ข้อมูลบัญชี</div>
+      <div class="card"><div class="card-b" id="me-info"></div></div>
+      <div class="card">
+        <div class="card-h" data-i18n="change_pin">🔒 เปลี่ยนรหัส PIN</div>
+        <div class="card-b">
+          <div class="field"><label class="label" data-i18n="lb_pin_old">PIN เดิม</label><input type="password" id="cp-old" inputmode="numeric"></div>
+          <div class="field"><label class="label" data-i18n="lb_pin_new2">PIN ใหม่</label><input type="password" id="cp-new" inputmode="numeric"></div>
+          <button class="btn-main" onclick="changePin()" data-i18n="btn_save">บันทึก</button>
+        </div>
+      </div>
+      <button onclick="doLogout()" style="width:100%;padding:.8rem;background:var(--red-l);color:var(--red-d);border:1px solid var(--red-m);border-radius:var(--r-sm);font-weight:700" data-i18n="btn_logout">⏻ ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div id="nav">
+    <button class="on" data-p="home" onclick="go('home')"><span class="ic">🏠</span><span data-i18n="nav_home">หน้าแรก</span></button>
+    <button data-p="bills" onclick="go('bills')"><span class="ic">🧾</span><span data-i18n="nav_bills_s">การขาย</span></button>
+    <button data-p="news" onclick="go('news')"><span class="ic">📢</span><span data-i18n="nav_news_s">ข่าวสาร</span></button>
+    <button data-p="me" onclick="go('me')"><span class="ic">👤</span><span data-i18n="nav_me_s">บัญชี</span></button>
+  </div>
+</div>
+
+<!-- BILL DETAIL SHEET -->
+<div class="overlay" id="sheet-bill" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="sheet-h">
+      <div>
+        <div style="font-weight:700" data-i18n="bill_detail">📄 รายละเอียดใบขาย</div>
+        <div id="sb-po" class="mono" style="font-size:.72rem;opacity:.9"></div>
+      </div>
+      <button class="icon-btn" onclick="closeSheet()">✕</button>
+    </div>
+    <div style="padding:1.2rem" id="sb-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://jvraxijtgzahflkohdsf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_sclOoiWbDHWLe3xPIy5vMw_MqjHrfnH';
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const APP_VERSION = '1.0.0';
+console.log('%cKUBTHOR Customer Portal v'+APP_VERSION,'background:#16A34A;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold');
+
+let TOKEN = localStorage.getItem('cp_token') || '';
+let ME = null;
+let ORDERS = [];
+let NEWS = [];
+let curFilter = '';
+let curLang = localStorage.getItem('cp_lang') || 'th';
+
+// ═══════════════════════════════════════
+// i18n
+// ═══════════════════════════════════════
+const L = {
+th:{
+  portal_sub:"ระบบสมาชิกลูกค้ายางพารา", tab_login:"เข้าสู่ระบบ", tab_register:"สมัครสมาชิก",
+  lb_identifier:"เบอร์โทร / รหัสลูกค้า / ชื่อบัญชี", lb_pin:"รหัส PIN", btn_login:"เข้าสู่ระบบ",
+  reg_note:"ℹ️ ต้องเป็นลูกค้าที่เคยขายยางกับเราแล้ว — ใช้ชื่อเดียวกับที่ลงทะเบียนไว้ที่จุดรับซื้อ",
+  lb_name:"ชื่อ-นามสกุล (ตามที่ลงทะเบียนไว้) *", lb_phone:"เบอร์โทรศัพท์", lb_username:"ชื่อบัญชี (ไม่บังคับ)",
+  lb_pin_new:"ตั้งรหัส PIN (4-6 หลัก) *", lb_pin_confirm:"ยืนยันรหัส PIN *", btn_register:"สมัครสมาชิก",
+  hero_total:"ยอดขายรวมที่ได้รับแล้ว", st_bills:"ใบที่ขายแล้ว", st_kg:"น้ำหนักรวม",
+  st_pending:"รอรับเงิน", st_last:"ขายล่าสุด",
+  recent_bills:"🧾 รายการล่าสุด", latest_news:"📢 ข่าวสารล่าสุด", see_all:"ดูทั้งหมด →",
+  nav_home:"หน้าแรก", nav_bills_s:"การขาย", nav_news_s:"ข่าวสาร", nav_me_s:"บัญชี",
+  nav_bills:"🧾 ประวัติการขาย", nav_news:"📢 ข่าวสาร & ประกาศ", nav_me:"👤 ข้อมูลบัญชี",
+  f_all:"ทั้งหมด", f_paid:"✅ รับเงินแล้ว", f_pending:"⏳ รอรับเงิน",
+  change_pin:"🔒 เปลี่ยนรหัส PIN", lb_pin_old:"PIN เดิม", lb_pin_new2:"PIN ใหม่",
+  btn_save:"บันทึก", btn_logout:"⏻ ออกจากระบบ", bill_detail:"📄 รายละเอียดใบขาย",
+  st_paid:"รับเงินแล้ว", st_sent:"รอรับเงิน", st_draft:"ร่าง",
+  no_bills:"ยังไม่มีรายการขาย", no_news:"ยังไม่มีข่าวสาร",
+  c_name:"ชื่อ", c_code:"รหัสลูกค้า", c_phone:"เบอร์โทร", c_user:"ชื่อบัญชี", c_addr:"ที่อยู่",
+  c_first:"ขายครั้งแรก", c_last:"ขายล่าสุด",
+  b_date:"วันที่ขาย", b_paid_date:"วันที่รับเงิน", b_kg:"น้ำหนัก", b_amt:"จำนวนเงิน",
+  b_status:"สถานะ", b_receipt:"เลขที่ใบเสร็จ", b_note:"หมายเหตุ", b_items:"รายการ",
+  qr_hint:"📱 สแกนเพื่อตรวจสอบใบเสร็จ", kg:"กก.", items_unit:"ใบ",
+  pin_changed:"เปลี่ยน PIN เรียบร้อย", pin_mismatch:"PIN ไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
+  reg_ok:"สมัครสำเร็จ! รหัสลูกค้าของคุณคือ", logging_in:"กำลังเข้าสู่ระบบ...", loading:"กำลังโหลด...",
+  found:"พบ", session_exp:"เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่",
+},
+lo:{
+  portal_sub:"ລະບົບສະມາຊິກລູກຄ້າຢາງພາລາ", tab_login:"ເຂົ້າສູ່ລະບົບ", tab_register:"ສະໝັກສະມາຊິກ",
+  lb_identifier:"ເບີໂທ / ລະຫັດລູກຄ້າ / ຊື່ບັນຊີ", lb_pin:"ລະຫັດ PIN", btn_login:"ເຂົ້າສູ່ລະບົບ",
+  reg_note:"ℹ️ ຕ້ອງເປັນລູກຄ້າທີ່ເຄີຍຂາຍຢາງກັບເຮົາແລ້ວ — ໃຊ້ຊື່ດຽວກັບທີ່ລົງທະບຽນໄວ້ທີ່ຈຸດຮັບຊື້",
+  lb_name:"ຊື່-ນາມສະກຸນ (ຕາມທີ່ລົງທະບຽນໄວ້) *", lb_phone:"ເບີໂທລະສັບ", lb_username:"ຊື່ບັນຊີ (ບໍ່ບັງຄັບ)",
+  lb_pin_new:"ຕັ້ງລະຫັດ PIN (4-6 ໂຕ) *", lb_pin_confirm:"ຢືນຢັນລະຫັດ PIN *", btn_register:"ສະໝັກສະມາຊິກ",
+  hero_total:"ຍອດຂາຍລວມທີ່ໄດ້ຮັບແລ້ວ", st_bills:"ໃບທີ່ຂາຍແລ້ວ", st_kg:"ນ້ຳໜັກລວມ",
+  st_pending:"ລໍຮັບເງິນ", st_last:"ຂາຍຫຼ້າສຸດ",
+  recent_bills:"🧾 ລາຍການຫຼ້າສຸດ", latest_news:"📢 ຂ່າວສານຫຼ້າສຸດ", see_all:"ເບິ່ງທັງໝົດ →",
+  nav_home:"ໜ້າຫຼັກ", nav_bills_s:"ການຂາຍ", nav_news_s:"ຂ່າວສານ", nav_me_s:"ບັນຊີ",
+  nav_bills:"🧾 ປະຫວັດການຂາຍ", nav_news:"📢 ຂ່າວສານ & ປະກາດ", nav_me:"👤 ຂໍ້ມູນບັນຊີ",
+  f_all:"ທັງໝົດ", f_paid:"✅ ຮັບເງິນແລ້ວ", f_pending:"⏳ ລໍຮັບເງິນ",
+  change_pin:"🔒 ປ່ຽນລະຫັດ PIN", lb_pin_old:"PIN ເດີມ", lb_pin_new2:"PIN ໃໝ່",
+  btn_save:"ບັນທຶກ", btn_logout:"⏻ ອອກຈາກລະບົບ", bill_detail:"📄 ລາຍລະອຽດໃບຂາຍ",
+  st_paid:"ຮັບເງິນແລ້ວ", st_sent:"ລໍຮັບເງິນ", st_draft:"ຮ່າງ",
+  no_bills:"ຍັງບໍ່ມີລາຍການຂາຍ", no_news:"ຍັງບໍ່ມີຂ່າວສານ",
+  c_name:"ຊື່", c_code:"ລະຫັດລູກຄ້າ", c_phone:"ເບີໂທ", c_user:"ຊື່ບັນຊີ", c_addr:"ທີ່ຢູ່",
+  c_first:"ຂາຍຄັ້ງທຳອິດ", c_last:"ຂາຍຫຼ້າສຸດ",
+  b_date:"ວັນທີຂາຍ", b_paid_date:"ວັນທີຮັບເງິນ", b_kg:"ນ້ຳໜັກ", b_amt:"ຈຳນວນເງິນ",
+  b_status:"ສະຖານະ", b_receipt:"ເລກທີໃບບິນ", b_note:"ໝາຍເຫດ", b_items:"ລາຍການ",
+  qr_hint:"📱 ສະແກນເພື່ອກວດສອບໃບບິນ", kg:"ກກ.", items_unit:"ໃບ",
+  pin_changed:"ປ່ຽນ PIN ຮຽບຮ້ອຍ", pin_mismatch:"PIN ບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
+  reg_ok:"ສະໝັກສຳເລັດ! ລະຫັດລູກຄ້າຂອງທ່ານແມ່ນ", logging_in:"ກຳລັງເຂົ້າສູ່ລະບົບ...", loading:"ກຳລັງໂຫຼດ...",
+  found:"ພົບ", session_exp:"ເຊສຊັນໝົດອາຍຸ ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່",
+}};
+function t(k){ return (L[curLang]&&L[curLang][k]) || L.th[k] || k; }
+
+function setLang(l){
+  curLang = l; localStorage.setItem('cp_lang', l);
+  document.body.className = 'lang-'+l;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{ const v=t(e.dataset.i18n); if(v) e.textContent=v; });
+  ['lang-auth','lang-sel'].forEach(id=>{const e=document.getElementById(id); if(e)e.value=l;});
+  if(ME){ renderHome(); renderBills(); renderNews(); renderProfile(); }
+}
+
+// ═══════════════════════════════════════
+// UTIL
+// ═══════════════════════════════════════
+function toast(msg, isErr){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className=isErr?'err':'';
+  el.style.display='block';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none', 3200);
+}
+function money(n){ return '₭'+Math.round(n||0).toLocaleString('th-TH'); }
+function kg(n){ return (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:2}); }
+function fmtDate(s){
+  if(!s) return '—';
+  const d=new Date(s);
+  if(isNaN(d)){ const p=(s+'').slice(0,10).split('-'); return p.length===3?`${p[2]}/${p[1]}/${(+p[0]+543).toString().slice(2)}`:'—'; }
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'});
+}
+function fmtDT(s){
+  if(!s) return '—';
+  const d=new Date(s); if(isNaN(d)) return fmtDate(s);
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+
+         d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function rpc(fn, args){
+  const {data, error} = await _sb.rpc(fn, args||{});
+  if(error){ console.error(fn, error); return {ok:false, error:error.message}; }
+  return data;
+}
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function switchAuth(w){
+  document.getElementById('tab-login').classList.toggle('on', w==='login');
+  document.getElementById('tab-reg').classList.toggle('on', w==='reg');
+  document.getElementById('form-login').style.display = w==='login'?'':'none';
+  document.getElementById('form-reg').style.display   = w==='reg'?'':'none';
+  document.getElementById('auth-msg').className='msg';
+}
+function authMsg(text, ok){
+  const el=document.getElementById('auth-msg');
+  el.textContent=text; el.className='msg '+(ok?'ok':'err');
+}
+
+async function doLogin(){
+  const id=document.getElementById('li-id').value.trim();
+  const pin=document.getElementById('li-pin').value.trim();
+  if(!id||!pin){ authMsg(t('fill_all')); return; }
+  const btn=document.getElementById('btn-login');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
+  const r = await rpc('customer_login', {p_identifier:id, p_pin:pin});
+  btn.disabled=false; btn.textContent=t('btn_login');
+  if(!r||!r.ok){ authMsg(r?.error||'เข้าสู่ระบบไม่สำเร็จ'); return; }
+  TOKEN=r.token; localStorage.setItem('cp_token', TOKEN);
+  await enterApp();
+}
+
+async function doRegister(){
+  const name=document.getElementById('rg-name').value.trim();
+  const phone=document.getElementById('rg-phone').value.trim();
+  const user=document.getElementById('rg-user').value.trim();
+  const pin=document.getElementById('rg-pin').value.trim();
+  const pin2=document.getElementById('rg-pin2').value.trim();
+  if(!name||!pin||!pin2){ authMsg(t('fill_all')); return; }
+  if(pin!==pin2){ authMsg(t('pin_mismatch')); return; }
+  if(pin.length<4){ authMsg('PIN ต้องมีอย่างน้อย 4 หลัก'); return; }
+  const btn=document.getElementById('btn-reg');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
+  const r = await rpc('customer_register', {p_name:name, p_phone:phone||null, p_pin:pin, p_username:user||null});
+  btn.disabled=false; btn.textContent=t('btn_register');
+  if(!r||!r.ok){ authMsg(r?.error||'สมัครไม่สำเร็จ'); return; }
+  authMsg(t('reg_ok')+' '+r.customer_code, true);
+  setTimeout(()=>{
+    switchAuth('login');
+    document.getElementById('li-id').value = phone || r.customer_code;
+    authMsg(t('reg_ok')+' '+r.customer_code, true);
+  }, 1800);
+}
+
+async function doLogout(){
+  try{ await rpc('customer_logout', {p_token:TOKEN}); }catch(e){}
+  TOKEN=''; ME=null; localStorage.removeItem('cp_token');
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('li-pin').value='';
+}
+
+async function enterApp(){
+  const p = await rpc('customer_profile', {p_token:TOKEN});
+  if(!p||!p.ok){ TOKEN=''; localStorage.removeItem('cp_token'); authMsg(p?.error||t('session_exp')); return; }
+  ME=p;
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('me-name').textContent=p.name;
+  document.getElementById('me-code').textContent=p.customer_code;
+  await Promise.all([loadBills(), loadNews()]);
+  renderHome(); renderProfile();
+}
+
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.p===p));
+  window.scrollTo(0,0);
+}
+function openSettings(){ go('me'); }
+
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+async function loadBills(){
+  const from=document.getElementById('bf-from')?.value||null;
+  const to=document.getElementById('bf-to')?.value||null;
+  const r = await rpc('customer_orders', {p_token:TOKEN, p_from:from, p_to:to, p_status:curFilter||null});
+  if(!r||!r.ok){ if(r?.error) toast(r.error,true); return; }
+  ORDERS = r.orders||[];
+  renderBills();
+  if(document.getElementById('pg-home').classList.contains('on')) renderHome();
+}
+async function loadNews(){
+  const r = await rpc('customer_news', {p_limit:30});
+  if(r&&r.ok) NEWS=r.news||[];
+  renderNews();
+}
+function filterBills(f){
+  curFilter=f;
+  document.querySelectorAll('#bill-chips .chip').forEach(c=>c.classList.toggle('on', c.dataset.f===f));
+  loadBills();
+}
+function clearDates(){
+  document.getElementById('bf-from').value='';
+  document.getElementById('bf-to').value='';
+  loadBills();
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function badge(st){
+  const m={paid:['b-paid',t('st_paid')], sent:['b-sent',t('st_sent')], draft:['b-draft',t('st_draft')]};
+  const [c,l]=m[st]||['b-draft',st];
+  return `<span class="badge ${c}">${l}</span>`;
+}
+
+function billCard(o){
+  return `<div class="bill ${o.status==='sent'?'pending':''}" onclick="openBill('${esc(o.id)}')">
+    <div class="bill-top">
+      <div style="min-width:0">
+        <div class="bill-no">${esc(o.po_no||'—')}</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:.15rem">${fmtDate(o.paid_at||o.date)} · ${kg(o.total_qty)} ${t('kg')}</div>
+        <div style="margin-top:.3rem">${badge(o.status)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="bill-amt">${money(o.grand_total)}</div>
+        ${o.receipt_no?`<div class="mono" style="font-size:.62rem;color:var(--sky-d);margin-top:.1rem">${esc(o.receipt_no)}</div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderHome(){
+  if(!ME) return;
+  const s=ME.stats||{};
+  document.getElementById('h-amt').textContent=money(s.paid_amount);
+  document.getElementById('h-sub').textContent=`${s.paid_count||0} ${t('items_unit')} · ${kg(s.paid_kg)} ${t('kg')}`;
+  document.getElementById('s-cnt').textContent=(s.paid_count||0);
+  document.getElementById('s-kg').textContent=kg(s.paid_kg);
+  document.getElementById('s-pend').textContent=money(s.pending_amount);
+  document.getElementById('s-last').textContent=fmtDate(s.last_sale);
+  const hb=document.getElementById('home-bills');
+  const top=ORDERS.slice(0,3);
+  hb.innerHTML = top.length ? top.map(billCard).join('') : `<div class="empty"><div class="ic">🧾</div><div>${t('no_bills')}</div></div>`;
+  const hn=document.getElementById('home-news');
+  const tn=NEWS.slice(0,2);
+  hn.innerHTML = tn.length ? tn.map(newsCard).join('') : `<div class="empty"><div class="ic">📢</div><div>${t('no_news')}</div></div>`;
+}
+
+function renderBills(){
+  const el=document.getElementById('bills-list');
+  if(!el) return;
+  const totKg=ORDERS.reduce((a,o)=>a+(Number(o.total_qty)||0),0);
+  const totAmt=ORDERS.reduce((a,o)=>a+(Number(o.grand_total)||0),0);
+  document.getElementById('bills-sum').textContent =
+    `${t('found')} ${ORDERS.length} ${t('items_unit')} · ${kg(totKg)} ${t('kg')} · ${money(totAmt)}`;
+  el.innerHTML = ORDERS.length ? ORDERS.map(billCard).join('')
+    : `<div class="empty"><div class="ic">🧾</div><div>${t('no_bills')}</div></div>`;
+}
+
+function newsCard(n){
+  const cat={general:'cat-general',price:'cat-price',urgent:'cat-urgent'}[n.category]||'cat-general';
+  const catLb={general:'ทั่วไป',price:'ราคายาง',urgent:'ด่วน'}[n.category]||n.category;
+  return `<div class="news-item ${n.is_pinned?'pin':''}">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.3rem">
+      <span class="news-cat ${cat}">${n.is_pinned?'📌 ':''}${catLb}</span>
+      <span style="font-size:.66rem;color:var(--muted2)">${fmtDate(n.published_at)}</span>
+    </div>
+    <div style="font-weight:700;font-size:.92rem;margin-bottom:.25rem">${esc(n.title)}</div>
+    ${n.body?`<div style="font-size:.82rem;color:var(--text2);white-space:pre-wrap">${esc(n.body)}</div>`:''}
+  </div>`;
+}
+function renderNews(){
+  const el=document.getElementById('news-list');
+  if(!el) return;
+  el.innerHTML = NEWS.length ? NEWS.map(newsCard).join('')
+    : `<div class="empty"><div class="ic">📢</div><div>${t('no_news')}</div></div>`;
+}
+
+function renderProfile(){
+  if(!ME) return;
+  const a=ME.address||{};
+  const addr=[a.house,a.subdistrict,a.district,a.province].filter(Boolean).join(', ')||'—';
+  const s=ME.stats||{};
+  const row=(k,v)=>`<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  document.getElementById('me-info').innerHTML =
+    row(t('c_name'), esc(ME.name)) +
+    row(t('c_code'), `<span class="mono">${esc(ME.customer_code)}</span>`) +
+    (ME.phone?row(t('c_phone'), esc(ME.phone)):'') +
+    (ME.username?row(t('c_user'), esc(ME.username)):'') +
+    row(t('c_addr'), esc(addr)) +
+    row(t('c_first'), fmtDate(s.first_sale)) +
+    row(t('c_last'), fmtDate(s.last_sale));
+}
+
+// ═══════════════════════════════════════
+// BILL DETAIL + QR
+// ═══════════════════════════════════════
+function qrData(o){
+  return ['KUBTHOR ໃບບິນ/ใบเสร็จ',
+    o.receipt_no?('ใบเสร็จ: '+o.receipt_no):('บิล: '+(o.po_no||'-')),
+    'ลูกค้า: '+(ME?.name||'-'),
+    'วันที่: '+fmtDate(o.date),
+    (o.paid_at?('ชำระ: '+fmtDT(o.paid_at)):''),
+    'น้ำหนัก: '+kg(o.total_qty)+' กก.',
+    'ยอดเงิน: '+money(o.grand_total),
+  ].filter(Boolean).join('\n');
+}
+function qrURL(text){
+  if(typeof qrcode==='undefined') return '';
+  try{
+    const q=qrcode(0,'M'); q.addData(text); q.make();
+    const c=q.getModuleCount(), cell=4, m=cell*2, dim=c*cell+m*2;
+    const cv=document.createElement('canvas'); cv.width=dim; cv.height=dim;
+    const x=cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,dim,dim); x.fillStyle='#000';
+    for(let r=0;r<c;r++) for(let k=0;k<c;k++) if(q.isDark(r,k)) x.fillRect(m+k*cell, m+r*cell, cell, cell);
+    return cv.toDataURL('image/png');
+  }catch(e){ return ''; }
+}
+function openBill(id){
+  const o=ORDERS.find(x=>String(x.id)===String(id));
+  if(!o) return;
+  document.getElementById('sb-po').textContent=o.po_no||'';
+  const row=(k,v)=>`<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  const items=(o.items||[]);
+  const itemsHtml = items.length ? `
+    <div style="font-weight:700;font-size:.82rem;margin:1rem 0 .4rem">${t('b_items')} (${items.length})</div>
+    <div style="border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden">
+    ${items.map((it,i)=>`<div style="display:flex;justify-content:space-between;padding:.55rem .8rem;font-size:.82rem;${i%2?'background:var(--surface2)':''}">
+      <span>${i+1}. ${esc(it.product||'ยางพารา')}</span>
+      <span class="mono">${kg(it.qty)} × ${money(it.price)}</span>
+    </div>`).join('')}
+    </div>` : '';
+  const q=qrURL(qrData(o));
+  document.getElementById('sb-body').innerHTML =
+    row(t('b_status'), badge(o.status)) +
+    row(t('b_date'), fmtDate(o.date)) +
+    (o.paid_at?row(t('b_paid_date'), fmtDT(o.paid_at)):'') +
+    (o.receipt_no?row(t('b_receipt'), `<span class="mono" style="color:var(--sky-d)">${esc(o.receipt_no)}</span>`):'') +
+    row(t('b_kg'), kg(o.total_qty)+' '+t('kg')) +
+    itemsHtml +
+    `<div style="margin-top:1rem;padding:1rem;background:var(--green-l);border:1px solid var(--green-m);border-radius:var(--r);text-align:center">
+      <div style="font-size:.75rem;color:var(--green-d)">${t('b_amt')}</div>
+      <div class="bebas" style="font-size:2rem;color:var(--green-d)">${money(o.grand_total)}</div>
+    </div>` +
+    (o.note?`<div style="margin-top:.8rem;padding:.7rem .9rem;background:var(--surface2);border-radius:var(--r-sm);font-size:.8rem"><b>${t('b_note')}:</b> ${esc(o.note)}</div>`:'') +
+    (q?`<div style="text-align:center;margin-top:1.2rem">
+        <img src="${q}" style="width:170px;height:170px;image-rendering:pixelated;border:1px solid var(--border);border-radius:var(--r-sm);padding:6px;background:#fff">
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.35rem">${t('qr_hint')}</div>
+      </div>`:'');
+  document.getElementById('sheet-bill').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  document.getElementById('sheet-bill').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+// ═══════════════════════════════════════
+// CHANGE PIN
+// ═══════════════════════════════════════
+async function changePin(){
+  const o=document.getElementById('cp-old').value.trim();
+  const n=document.getElementById('cp-new').value.trim();
+  if(!o||!n){ toast(t('fill_all'),true); return; }
+  const r=await rpc('customer_change_pin',{p_token:TOKEN,p_old:o,p_new:n});
+  if(!r||!r.ok){ toast(r?.error||'ไม่สำเร็จ',true); return; }
+  document.getElementById('cp-old').value='';
+  document.getElementById('cp-new').value='';
+  toast(t('pin_changed'));
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async ()=>{
+  setLang(curLang);
+  ['li-pin','li-id'].forEach(id=>{
+    document.getElementById(id).addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+  });
+  if(TOKEN){ await enterApp(); }
+  // PWA
+  if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
+    const sw=`self.addEventListener('install',e=>self.skipWaiting());
+      self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
+      self.addEventListener('fetch',e=>{const u=new URL(e.request.url);
+        if(e.request.method!=='GET'||u.hostname.includes('supabase'))return;
+        e.respondWith(caches.open('kubthor-cp-v1').then(c=>c.match(e.request).then(h=>{
+          const n=fetch(e.request).then(r=>{if(r&&r.status===200)try{c.put(e.request,r.clone())}catch(_){}; return r;}).catch(()=>h);
+          return h||n;})));});`;
+    try{
+      const url=URL.createObjectURL(new Blob([sw],{type:'text/javascript'}));
+      navigator.serviceWorker.register(url).catch(()=>{});
+    }catch(e){}
+    try{
+      const icon="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316A34A'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E";
+      const man={name:"KUBTHOR สมาชิก",short_name:"KUBTHOR",start_url:".",scope:".",display:"standalone",
+        background_color:"#ffffff",theme_color:"#16A34A",
+        icons:[{src:icon,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},
+               {src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+      const l=document.createElement('link'); l.rel='manifest';
+      l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));
+      document.head.appendChild(l);
+    }catch(e){}
+  }
+});
+</script>
+</body>
+</html>

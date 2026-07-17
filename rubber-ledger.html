@@ -204,6 +204,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 #tab-activitylog-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 #tab-billhistory-btn.active{color:var(--sky);border-bottom-color:var(--sky)}
 #tab-cancelled-btn.active{color:var(--red-d);border-bottom-color:var(--red)}
+#tab-portal-btn.active{color:var(--green-d);border-bottom-color:var(--green)}
 #tab-settings-btn.active{color:var(--muted);border-bottom-color:var(--border2)}
 .tab-btn.active{font-weight:700;background:#fff;}
 
@@ -647,6 +648,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-cancelled-btn" onclick="switchTab('cancelled',this)" style="display:none" data-i18n="tab_cancelled">🚫 ใบบิลที่ยกเลิก</button>
     <div style="flex:1"></div>
     <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none" data-i18n="tab_activitylog">🕐 กิจกรรม</button>
+    <button class="tab-btn" id="tab-portal-btn" onclick="switchTab('portal',this)" style="display:none" data-i18n="tab_portal">🌐 ลูกค้าออนไลน์</button>
     <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
   </div>
 
@@ -938,6 +940,90 @@ font{border:none!important;outline:none!important;display:inline!important}
     </div>
   </div>
 </div>
+
+  <!-- TAB: CUSTOMER PORTAL ADMIN -->
+  <div class="tab-pane" id="pane-portal">
+    <div style="text-align:center;margin-bottom:1.2rem">
+      <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="px_title">🌐 ระบบลูกค้าออนไลน์</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:4px" data-i18n="px_sub">จัดการข่าวสารและบัญชีสมาชิกลูกค้า</div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--sky)">
+      <div class="card-body" style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
+        <span style="font-size:.8rem;font-weight:700;color:var(--sky-d)" data-i18n="px_portal_url">🔗 ลิงก์สำหรับลูกค้า</span>
+        <input type="text" id="portal-url" readonly style="flex:1;min-width:220px;font-size:.78rem;background:var(--surface2)">
+        <button onclick="copyPortalUrl()" class="btn-secondary" style="white-space:nowrap">📋 คัดลอก</button>
+      </div>
+    </div>
+
+    <!-- NEWS -->
+    <div class="card">
+      <div class="card-header" style="color:var(--gold);display:flex;justify-content:space-between;align-items:center">
+        <span data-i18n="px_news">📢 ข่าวสาร / ประกาศ</span>
+        <button onclick="pxToggleForm()" style="font-size:.72rem;padding:.3rem .7rem;background:var(--green);color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:600" data-i18n="px_add_news">+ เพิ่มข่าว</button>
+      </div>
+      <div class="card-body">
+        <div id="px-form" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:1rem">
+          <input type="hidden" id="px-id">
+          <div class="form-group">
+            <label class="form-label" data-i18n="px_news_title">หัวข้อข่าว</label>
+            <input type="text" id="px-title" placeholder="เช่น ราคายางวันนี้ 15,000 กีบ/กก.">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="px_news_body">เนื้อหา</label>
+            <textarea id="px-body" rows="4" placeholder="รายละเอียดข่าวสาร..."></textarea>
+          </div>
+          <div class="grid2">
+            <div class="form-group">
+              <label class="form-label" data-i18n="px_news_cat">หมวดหมู่</label>
+              <select id="px-cat">
+                <option value="general" data-i18n="px_cat_general">ทั่วไป</option>
+                <option value="price" data-i18n="px_cat_price">ราคายาง</option>
+                <option value="urgent" data-i18n="px_cat_urgent">ด่วน</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end;gap:.5rem">
+              <label style="display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer">
+                <input type="checkbox" id="px-pin" style="width:auto"> <span data-i18n="px_pin_news">ปักหมุดไว้บนสุด</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer">
+                <input type="checkbox" id="px-pub" checked style="width:auto"> <span data-i18n="px_publish">เผยแพร่</span>
+              </label>
+            </div>
+          </div>
+          <div style="display:flex;gap:.5rem;margin-top:.5rem">
+            <button class="btn-primary" onclick="pxSaveNews()">💾 บันทึก</button>
+            <button class="btn-secondary" onclick="pxToggleForm(false)">ยกเลิก</button>
+          </div>
+        </div>
+        <div id="px-news-list"></div>
+      </div>
+    </div>
+
+    <!-- CUSTOMER ACCOUNTS -->
+    <div class="card">
+      <div class="card-header" style="color:var(--violet-d);display:flex;justify-content:space-between;align-items:center">
+        <span data-i18n="px_accounts">👥 บัญชีสมาชิกลูกค้า</span>
+        <span id="px-acc-count" style="font-size:.72rem;color:var(--muted);font-weight:400"></span>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div style="overflow-x:auto">
+          <table class="order-table" style="min-width:820px">
+            <thead><tr>
+              <th data-i18n="col_customer">ลูกค้า</th>
+              <th>รหัสลูกค้า</th>
+              <th data-i18n="lb_phone">เบอร์โทร</th>
+              <th>ชื่อบัญชี</th>
+              <th data-i18n="px_last_login">เข้าใช้ล่าสุด</th>
+              <th data-i18n="acc_status">สถานะ</th>
+              <th data-i18n="col_manage">จัดการ</th>
+            </tr></thead>
+            <tbody id="px-acc-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- TAB: SETTINGS -->
   <div class="tab-pane" id="pane-settings">
@@ -1895,6 +1981,8 @@ async function initApp(){
     if(bhBtn) bhBtn.style.display="";
     const cxBtn=document.getElementById("tab-cancelled-btn");
     if(cxBtn) cxBtn.style.display="";
+    const pxBtn=document.getElementById("tab-portal-btn");
+    if(pxBtn) pxBtn.style.display="";
     renderStaffList();
   } else {
     settingsBtn.style.display="none";
@@ -1905,6 +1993,8 @@ async function initApp(){
     if(bhBtn) bhBtn.style.display="none";
     const cxBtn=document.getElementById("tab-cancelled-btn");
     if(cxBtn) cxBtn.style.display="none";
+    const pxBtn=document.getElementById("tab-portal-btn");
+    if(pxBtn) pxBtn.style.display="none";
   }
   // Show restriction notes per role
   const note=document.getElementById("role-restriction-note");
@@ -2152,6 +2242,7 @@ function switchTab(tab,btn){
   if(tab==="report"&&currentUser?.role==="admin")renderReport();
   if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
   if(tab==="cancelled"&&currentUser?.role==="admin")renderCancelled();
+  if(tab==="portal"&&currentUser?.role==="admin")renderPortal();
   if(tab==="mywork")renderMyWork();
   if(tab==="dashboard")renderDashboard();
   if(tab==="activitylog")renderActivityLog();
@@ -2638,6 +2729,193 @@ async function removeStaffAccount(username){
   await saveAccounts();
   logActivity('delete_staff', username, username, `ลบพนักงาน (ประวัติงานยังเก็บไว้)`);
   renderStaffList();showToast(t("cancelled_ok"));
+}
+
+// =====================================================
+// CUSTOMER PORTAL ADMIN — ข่าวสาร + บัญชีลูกค้า
+// =====================================================
+let _pxNews = [], _pxAccounts = [];
+
+function copyPortalUrl(){
+  const el=document.getElementById('portal-url');
+  if(!el) return;
+  el.select(); el.setSelectionRange(0,99999);
+  try{ navigator.clipboard.writeText(el.value); showToast('📋 คัดลอกลิงก์แล้ว'); }
+  catch(e){ document.execCommand('copy'); showToast('📋 คัดลอกลิงก์แล้ว'); }
+}
+
+function pxToggleForm(show){
+  const f=document.getElementById('px-form');
+  if(!f) return;
+  const willShow = (show===undefined) ? f.style.display==='none' : !!show;
+  f.style.display = willShow ? 'block' : 'none';
+  if(!willShow) pxClearForm();
+}
+function pxClearForm(){
+  ['px-id','px-title','px-body'].forEach(id=>{const e=document.getElementById(id); if(e)e.value='';});
+  const c=document.getElementById('px-cat'); if(c)c.value='general';
+  const p=document.getElementById('px-pin'); if(p)p.checked=false;
+  const u=document.getElementById('px-pub'); if(u)u.checked=true;
+}
+
+async function renderPortal(){
+  const url = location.href.replace(/rubber-ledger\.html.*$/, 'customer-portal.html');
+  const uEl = document.getElementById('portal-url');
+  if(uEl) uEl.value = url;
+  await Promise.all([pxLoadNews(), pxLoadAccounts()]);
+}
+
+// ── NEWS ──
+async function pxLoadNews(){
+  try{
+    const {data,error}=await _sb.from('news').select('*').order('is_pinned',{ascending:false}).order('published_at',{ascending:false});
+    if(error){ console.warn('news:',error); showToast('⚠ โหลดข่าวไม่ได้ — รัน customer-portal-schema.sql หรือยัง?','error'); _pxNews=[]; }
+    else _pxNews = data||[];
+  }catch(e){ _pxNews=[]; }
+  pxRenderNews();
+}
+
+function pxRenderNews(){
+  const el=document.getElementById('px-news-list');
+  if(!el) return;
+  if(_pxNews.length===0){ el.innerHTML=`<div class="empty-state"><div style="font-size:2rem">📢</div><div>${t('px_no_news')}</div></div>`; return; }
+  const catColor={general:'var(--sky)',price:'var(--green)',urgent:'var(--red)'};
+  const catLabel={general:t('px_cat_general'),price:t('px_cat_price'),urgent:t('px_cat_urgent')};
+  el.innerHTML = _pxNews.map(n=>`
+    <div style="border:1px solid var(--border);border-left:3px solid ${catColor[n.category]||'var(--sky)'};border-radius:var(--r);padding:.8rem 1rem;margin-bottom:.7rem;background:#fff;${n.is_published?'':'opacity:.55'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;flex-wrap:wrap">
+        <div style="min-width:0;flex:1">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.25rem">
+            ${n.is_pinned?'<span style="font-size:.68rem">📌</span>':''}
+            <span style="font-size:.6rem;font-weight:700;padding:.1rem .5rem;border-radius:999px;background:${catColor[n.category]||'var(--sky)'};color:#fff">${catLabel[n.category]||n.category}</span>
+            ${n.is_published?'':'<span class="badge badge-draft" style="font-size:.58rem">ไม่เผยแพร่</span>'}
+            <span style="font-size:.66rem;color:var(--muted2)">${_billDateTime(n.published_at).d}</span>
+          </div>
+          <div style="font-weight:700;font-size:.88rem">${(n.title||'').replace(/</g,'&lt;')}</div>
+          ${n.body?`<div style="font-size:.78rem;color:var(--text2);margin-top:.2rem;white-space:pre-wrap;max-height:60px;overflow:hidden">${(n.body||'').replace(/</g,'&lt;')}</div>`:''}
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button onclick="pxEditNews(${n.id})" style="font-size:.7rem;padding:.25rem .55rem;background:var(--sky-l);color:var(--sky-d);border:1px solid var(--sky-m);border-radius:5px;cursor:pointer">✏️</button>
+          <button class="btn-danger" onclick="pxDeleteNews(${n.id})">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function pxEditNews(id){
+  const n=_pxNews.find(x=>x.id===id);
+  if(!n) return;
+  document.getElementById('px-id').value=n.id;
+  document.getElementById('px-title').value=n.title||'';
+  document.getElementById('px-body').value=n.body||'';
+  document.getElementById('px-cat').value=n.category||'general';
+  document.getElementById('px-pin').checked=!!n.is_pinned;
+  document.getElementById('px-pub').checked=n.is_published!==false;
+  pxToggleForm(true);
+  document.getElementById('px-form').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+async function pxSaveNews(){
+  const id=document.getElementById('px-id').value;
+  const title=document.getElementById('px-title').value.trim();
+  if(!title){ showToast('กรุณากรอกหัวข้อข่าว','error'); return; }
+  const payload={
+    title,
+    body: document.getElementById('px-body').value.trim(),
+    category: document.getElementById('px-cat').value,
+    is_pinned: document.getElementById('px-pin').checked,
+    is_published: document.getElementById('px-pub').checked,
+    created_by: currentUser?.displayName||''
+  };
+  try{
+    let res;
+    if(id){ res = await _sb.from('news').update(payload).eq('id', id).select(); }
+    else   { payload.published_at=new Date().toISOString(); res = await _sb.from('news').insert(payload).select(); }
+    if(res.error){ showToast('⚠ '+res.error.message,'error'); return; }
+    if(!res.data || res.data.length===0){ showToast('⚠ บันทึกไม่สำเร็จ (สิทธิ์?)','error'); return; }
+  }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
+  pxToggleForm(false);
+  await pxLoadNews();
+  showToast(t('px_saved'));
+  logActivity('news_save', id||'', title, id?'แก้ไขข่าว':'เพิ่มข่าว');
+}
+
+async function pxDeleteNews(id){
+  if(!confirm('ลบข่าวนี้?')) return;
+  try{
+    const {error}=await _sb.from('news').delete().eq('id',id);
+    if(error){ showToast('⚠ '+error.message,'error'); return; }
+  }catch(e){ showToast('⚠ ลบไม่สำเร็จ','error'); return; }
+  await pxLoadNews();
+  showToast(t('px_deleted'));
+  logActivity('news_delete', String(id), '', 'ลบข่าว');
+}
+
+// ── CUSTOMER ACCOUNTS ──
+async function pxLoadAccounts(){
+  try{
+    const {data,error}=await _sb.rpc('admin_list_customer_accounts');
+    if(error||!data||!data.ok){ _pxAccounts=[]; }
+    else _pxAccounts = data.accounts||[];
+  }catch(e){ _pxAccounts=[]; }
+  pxRenderAccounts();
+}
+
+function pxRenderAccounts(){
+  const tb=document.getElementById('px-acc-body');
+  if(!tb) return;
+  const cnt=document.getElementById('px-acc-count');
+  if(cnt) cnt.textContent=`${_pxAccounts.length} ${t('al_items')}`;
+  if(_pxAccounts.length===0){ tb.innerHTML=`<tr><td colspan="7" class="empty-state">${t('px_no_acc')}</td></tr>`; return; }
+  tb.innerHTML=_pxAccounts.map(a=>{
+    const active=a.is_active!==false;
+    return `<tr style="${active?'':'opacity:.55;background:var(--red-l)'}">
+      <td style="font-weight:600">${(a.customer_name||'').replace(/</g,'&lt;')}</td>
+      <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${a.customer_code||'—'}</td>
+      <td class="mono" style="font-size:.76rem">${a.phone||'—'}</td>
+      <td style="font-size:.78rem">${a.username||'—'}</td>
+      <td style="font-size:.74rem;color:var(--muted)">${a.last_login?_billDateTime(a.last_login).d+' '+_billDateTime(a.last_login).t:t('px_never')}</td>
+      <td><span class="badge ${active?'badge-paid':'badge-cancelled'}" style="font-size:.6rem">${active?t('acc_active'):t('acc_inactive')}</span></td>
+      <td style="white-space:nowrap">
+        <button onclick="pxToggleAcc('${a.customer_code}',${active?'false':'true'})" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:3px">${active?'⏸':'▶'}</button>
+        <button onclick="pxResetPin('${a.customer_code}')" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid var(--sky-m);background:var(--sky-l);color:var(--sky-d);margin-right:3px" title="${t('px_reset_pin')}">🔑</button>
+        <button class="btn-danger" onclick="pxDeleteAcc('${a.customer_code}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function pxToggleAcc(code, makeActive){
+  try{
+    const {data,error}=await _sb.rpc('admin_set_customer_active',{p_code:code,p_active:makeActive});
+    if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
+  }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
+  await pxLoadAccounts();
+  showToast(makeActive?t('acc_activated_ok'):t('acc_deactivated_ok'));
+  logActivity(makeActive?'activate_staff':'deactivate_staff', code, code, 'บัญชีลูกค้า');
+}
+
+async function pxResetPin(code){
+  const pin=prompt('ตั้ง PIN ใหม่ (4-6 หลัก) สำหรับ '+code);
+  if(!pin) return;
+  if(pin.length<4){ showToast('PIN ต้องมีอย่างน้อย 4 หลัก','error'); return; }
+  try{
+    const {data,error}=await _sb.rpc('admin_reset_customer_pin',{p_code:code,p_new_pin:pin});
+    if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
+  }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
+  showToast(t('px_pin_reset_ok')+pin);
+  logActivity('reset_customer_pin', code, code, 'รีเซ็ต PIN ลูกค้า');
+}
+
+async function pxDeleteAcc(code){
+  if(!confirm('ลบบัญชีสมาชิกนี้? (ประวัติการขายยังคงอยู่)')) return;
+  try{
+    const {data,error}=await _sb.rpc('admin_delete_customer_account',{p_code:code});
+    if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
+  }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
+  await pxLoadAccounts();
+  showToast(t('cancelled_ok'));
+  logActivity('delete_customer_account', code, code, 'ลบบัญชีลูกค้า');
 }
 
 // =====================================================
@@ -4785,6 +5063,29 @@ const LANG_DICT = {
     acc_col_missing: "⚠️ ยังไม่ได้ตั้งค่าฐานข้อมูล: กรุณารัน accounts-active-schema.sql ใน Supabase ก่อน ไม่เช่นนั้นระบบเปิด/ปิดบัญชีจะไม่ทำงาน",
     acc_deactivated_msg: "บัญชีของคุณถูกปิดใช้งานโดยผู้ดูแลระบบ กรุณาติดต่อผู้ดูแลระบบเพื่อขอความช่วยเหลือ",
     acc_update_failed: "❌ บันทึกไม่สำเร็จ — ไม่มีสิทธิ์แก้ไข (ตรวจสอบ RLS/Grant ใน Supabase) หรือไม่พบบัญชี",
+    tab_portal: "🌐 ลูกค้าออนไลน์",
+    px_title: "🌐 ระบบลูกค้าออนไลน์",
+    px_sub: "จัดการข่าวสารและบัญชีสมาชิกลูกค้า",
+    px_news: "📢 ข่าวสาร / ประกาศ",
+    px_accounts: "👥 บัญชีสมาชิกลูกค้า",
+    px_add_news: "+ เพิ่มข่าว",
+    px_news_title: "หัวข้อข่าว",
+    px_news_body: "เนื้อหา",
+    px_news_cat: "หมวดหมู่",
+    px_cat_general: "ทั่วไป",
+    px_cat_price: "ราคายาง",
+    px_cat_urgent: "ด่วน",
+    px_pin_news: "ปักหมุดไว้บนสุด",
+    px_publish: "เผยแพร่",
+    px_saved: "บันทึกข่าวแล้ว",
+    px_deleted: "ลบข่าวแล้ว",
+    px_no_news: "ยังไม่มีข่าวสาร",
+    px_no_acc: "ยังไม่มีลูกค้าสมัครสมาชิก",
+    px_reset_pin: "รีเซ็ต PIN",
+    px_pin_reset_ok: "รีเซ็ต PIN แล้ว: ",
+    px_last_login: "เข้าใช้ล่าสุด",
+    px_never: "ยังไม่เคยเข้า",
+    px_portal_url: "🔗 ลิงก์สำหรับลูกค้า",
     acc_status: "สถานะ",
     acc_active: "✅ เปิดใช้งาน",
     acc_inactive: "❌ ปิดใช้งาน",
@@ -5062,6 +5363,29 @@ const LANG_DICT = {
     acc_col_missing: "⚠️ ຍັງບໍ່ໄດ້ຕັ້ງຄ່າຖານຂໍ້ມູນ: ກະລຸນາຣັນ accounts-active-schema.sql ໃນ Supabase ກ່ອນ ບໍ່ດັ່ງນັ້ນລະບົບເປີດ/ປິດບັນຊີຈະບໍ່ເຮັດວຽກ",
     acc_deactivated_msg: "ບັນຊີຂອງທ່ານຖືກປິດໃຊ້ງານໂດຍຜູ້ດູແລລະບົບ ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອ",
     acc_update_failed: "❌ ບັນທຶກບໍ່ສຳເລັດ — ບໍ່ມີສິດແກ້ໄຂ (ກວດສອບ RLS/Grant ໃນ Supabase) ຫຼືບໍ່ພົບບັນຊີ",
+    tab_portal: "🌐 ລູກຄ້າອອນລາຍ",
+    px_title: "🌐 ລະບົບລູກຄ້າອອນລາຍ",
+    px_sub: "ຈັດການຂ່າວສານ ແລະ ບັນຊີສະມາຊິກລູກຄ້າ",
+    px_news: "📢 ຂ່າວສານ / ປະກາດ",
+    px_accounts: "👥 ບັນຊີສະມາຊິກລູກຄ້າ",
+    px_add_news: "+ ເພີ່ມຂ່າວ",
+    px_news_title: "ຫົວຂໍ້ຂ່າວ",
+    px_news_body: "ເນື້ອຫາ",
+    px_news_cat: "ໝວດໝູ່",
+    px_cat_general: "ທົ່ວໄປ",
+    px_cat_price: "ລາຄາຢາງ",
+    px_cat_urgent: "ດ່ວນ",
+    px_pin_news: "ປັກໝຸດໄວ້ເທິງສຸດ",
+    px_publish: "ເຜີຍແຜ່",
+    px_saved: "ບັນທຶກຂ່າວແລ້ວ",
+    px_deleted: "ລຶບຂ່າວແລ້ວ",
+    px_no_news: "ຍັງບໍ່ມີຂ່າວສານ",
+    px_no_acc: "ຍັງບໍ່ມີລູກຄ້າສະໝັກສະມາຊິກ",
+    px_reset_pin: "ຣີເຊັດ PIN",
+    px_pin_reset_ok: "ຣີເຊັດ PIN ແລ້ວ: ",
+    px_last_login: "ເຂົ້າໃຊ້ຫຼ້າສຸດ",
+    px_never: "ຍັງບໍ່ເຄີຍເຂົ້າ",
+    px_portal_url: "🔗 ລິ້ງສຳລັບລູກຄ້າ",
     acc_status: "ສະຖານະ",
     acc_active: "✅ ເປີດໃຊ້ງານ",
     acc_inactive: "❌ ປິດໃຊ້ງານ",
@@ -5339,6 +5663,29 @@ const LANG_DICT = {
     acc_col_missing: "⚠️ Database not configured: please run accounts-active-schema.sql in Supabase first, otherwise account enable/disable will not work",
     acc_deactivated_msg: "Your account has been deactivated by the administrator. Please contact the administrator for assistance.",
     acc_update_failed: "❌ Update failed — no permission (check RLS/Grant in Supabase) or account not found",
+    tab_portal: "🌐 Customer Portal",
+    px_title: "🌐 Customer Portal Admin",
+    px_sub: "Manage news and customer member accounts",
+    px_news: "📢 News / Announcements",
+    px_accounts: "👥 Customer Accounts",
+    px_add_news: "+ Add News",
+    px_news_title: "Title",
+    px_news_body: "Content",
+    px_news_cat: "Category",
+    px_cat_general: "General",
+    px_cat_price: "Rubber Price",
+    px_cat_urgent: "Urgent",
+    px_pin_news: "Pin to top",
+    px_publish: "Publish",
+    px_saved: "News saved",
+    px_deleted: "News deleted",
+    px_no_news: "No news yet",
+    px_no_acc: "No customer accounts yet",
+    px_reset_pin: "Reset PIN",
+    px_pin_reset_ok: "PIN reset: ",
+    px_last_login: "Last login",
+    px_never: "Never",
+    px_portal_url: "🔗 Customer portal link",
     acc_status: "Status",
     acc_active: "✅ Active",
     acc_inactive: "❌ Inactive",
@@ -5611,6 +5958,7 @@ function applyLang() {
     if (at === "report" && typeof renderReport === "function") renderReport();
     if (at === "billhistory" && typeof renderBillHistory === "function") renderBillHistory();
     if (at === "cancelled" && typeof renderCancelled === "function") renderCancelled();
+    if (at === "portal" && typeof renderPortal === "function") renderPortal();
     if (at === "activitylog" && typeof renderActivityLog === "function") renderActivityLog();
     if (at === "mywork" && typeof renderMyWork === "function") renderMyWork();
     if (at === "settings" && typeof renderStaffList === "function") { renderStaffList(); if(typeof loadMyLocationToForm==="function") loadMyLocationToForm(); }
