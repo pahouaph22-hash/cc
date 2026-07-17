@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#16A34A">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="KUBTHOR สมาชิก">
+<meta name="apple-mobile-web-app-title" content="KUBTHOR">
 <meta name="google" content="notranslate">
 <title>KUBTHOR — ระบบสมาชิกลูกค้า</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Lao:wght@400;700&family=Sarabun:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Lao:wght@400;700&family=Sarabun:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316A34A'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle'%3E🌳%3C/text%3E%3C/svg%3E">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 *{font-family:'Sarabun','Phetsarath OT','Noto Sans Lao',sans-serif}
 :root{
-  --bg:#F8FAFC; --surface:#FFFFFF; --surface2:#F1F5F9;
+  --bg:#F1F5F9; --surface:#FFFFFF; --surface2:#F8FAFC;
   --border:#E2E8F0; --border2:#CBD5E1;
   --text:#0F172A; --text2:#334155; --muted:#64748B; --muted2:#94A3B8;
   --green:#16A34A; --green-d:#15803D; --green-l:#DCFCE7; --green-m:#BBF7D0;
@@ -24,31 +24,28 @@
   --orange:#F97316; --orange-d:#EA580C; --orange-l:#FFF7ED; --orange-m:#FED7AA;
   --violet:#8B5CF6; --violet-d:#7C3AED; --violet-l:#EDE9FE;
   --red:#EF4444; --red-d:#DC2626; --red-l:#FEF2F2; --red-m:#FCA5A5;
-  --gold:#D97706; --gold-l:#FEF3C7;
+  --gold:#D97706; --gold-d:#B45309; --gold-l:#FEF3C7;
   --r:12px; --r-sm:8px; --r-lg:16px;
-  --shadow:0 4px 14px rgba(15,23,42,.08);
-  --shadow-lg:0 10px 30px rgba(15,23,42,.14);
+  --shadow:0 2px 10px rgba(15,23,42,.07);
+  --shadow-lg:0 10px 30px rgba(15,23,42,.16);
 }
 body{background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
 body.lang-lo *{font-family:'Phetsarath OT','Noto Sans Lao',sans-serif!important}
 button{cursor:pointer;border:none;font-family:inherit;transition:all .15s}
-input,select,textarea{font-family:inherit;font-size:16px;width:100%;padding:.75rem .9rem;border:1.5px solid var(--border);border-radius:var(--r-sm);outline:none;background:#fff;color:var(--text)}
+input,select,textarea{font-family:inherit;font-size:16px;width:100%;padding:.7rem .85rem;border:1.5px solid var(--border);border-radius:var(--r-sm);outline:none;background:#fff;color:var(--text)}
 input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(22,163,74,.14)}
 .mono{font-family:'IBM Plex Mono',monospace}
-.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.05em}
+.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em}
 body.lang-lo .bebas{font-family:'Phetsarath OT',sans-serif!important;letter-spacing:0}
 
-/* ── LOGIN ── */
+/* ── AUTH ── */
 #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.1rem;
   background:linear-gradient(160deg,#16A34A 0%,#15803D 45%,#0F172A 100%)}
 .auth-card{background:#fff;width:100%;max-width:420px;border-radius:var(--r-lg);padding:1.8rem 1.5rem;box-shadow:var(--shadow-lg)}
-.auth-logo{text-align:center;margin-bottom:1.4rem}
+.auth-logo{text-align:center;margin-bottom:1.3rem}
 .auth-logo .icon{font-size:2.6rem;line-height:1}
 .auth-logo .name{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.12em;color:var(--green-d);margin-top:.2rem}
 .auth-logo .sub{font-size:.8rem;color:var(--muted)}
-.tabs-auth{display:flex;background:var(--surface2);border-radius:var(--r-sm);padding:4px;margin-bottom:1.2rem}
-.tabs-auth button{flex:1;padding:.6rem;border-radius:6px;font-size:.86rem;font-weight:700;background:transparent;color:var(--muted)}
-.tabs-auth button.on{background:var(--green);color:#fff}
 .field{margin-bottom:.9rem}
 .label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:.35rem}
 .btn-main{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--green) 0%,#22C55E 100%);color:#fff;
@@ -59,67 +56,104 @@ body.lang-lo .bebas{font-family:'Phetsarath OT',sans-serif!important;letter-spac
 .msg.err{display:block;background:var(--red-l);color:var(--red-d);border:1px solid var(--red-m)}
 .msg.ok{display:block;background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m)}
 
-/* ── APP ── */
-#app{display:none;padding-bottom:80px}
-#topbar{background:linear-gradient(135deg,var(--green-d) 0%,var(--green) 60%,#22C55E 100%);
-  color:#fff;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;
-  position:sticky;top:0;z-index:40;box-shadow:0 2px 12px rgba(22,163,74,.3)}
-#topbar .who{min-width:0}
-#topbar .who .n{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#topbar .who .c{font-size:.68rem;opacity:.9;font-family:'IBM Plex Mono',monospace}
-#lang-sel{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;
-  font-size:.72rem;padding:.3rem .4rem;width:auto;border-radius:6px}
+/* ── APP SHELL ── */
+#app{display:none}
+#topbar{background:linear-gradient(135deg,var(--green-d) 0%,var(--green) 70%,#22C55E 100%);
+  color:#fff;padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  box-shadow:0 2px 10px rgba(22,163,74,.25)}
+.brand{display:flex;align-items:center;gap:.5rem;min-width:0}
+.brand .lg{font-size:1.3rem}
+.brand .tx{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.1em}
+body.lang-lo .brand .tx{font-family:'Phetsarath OT',sans-serif!important;font-size:.95rem}
+.me-chip{display:flex;align-items:center;gap:.45rem;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:.2rem .6rem .2rem .2rem;min-width:0}
+.me-chip img,.me-chip .ph{width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:.8rem}
+.me-chip .nm{font-size:.76rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+#lang-sel{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;
+  font-size:.7rem;padding:.25rem .35rem;width:auto;border-radius:6px}
 #lang-sel option{background:var(--green-d);color:#fff}
-.icon-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;
-  width:34px;height:34px;border-radius:50%;font-size:.95rem;flex-shrink:0}
-.wrap{max-width:760px;margin:0 auto;padding:1rem}
 
-/* ── BOTTOM NAV ── */
-#nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);
-  display:flex;z-index:45;box-shadow:0 -2px 14px rgba(15,23,42,.07);padding-bottom:env(safe-area-inset-bottom)}
-#nav button{flex:1;padding:.6rem .2rem;background:transparent;color:var(--muted);font-size:.66rem;font-weight:600;
-  display:flex;flex-direction:column;align-items:center;gap:2px;border-top:3px solid transparent}
-#nav button .ic{font-size:1.25rem;line-height:1}
-#nav button.on{color:var(--green-d);border-top-color:var(--green)}
+/* ── TOP MENU BAR ── */
+#menubar{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40;
+  box-shadow:0 1px 6px rgba(15,23,42,.05)}
+#menubar .inner{max-width:1100px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#menubar .inner::-webkit-scrollbar{display:none}
+.mi{flex:0 0 auto;padding:.6rem .85rem;background:transparent;color:var(--muted);font-size:.78rem;font-weight:600;
+  border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.mi:hover{color:var(--text2);background:var(--surface2)}
+.mi.on{color:var(--green-d);border-bottom-color:var(--green);background:var(--green-l)}
+.mi.danger{color:var(--red-d);margin-left:auto}
+.mi.danger:hover{background:var(--red-l)}
 
+.wrap{max-width:1100px;margin:0 auto;padding:1.1rem 1rem 3rem}
 .page{display:none}.page.on{display:block}
+.h1{font-weight:700;font-size:1.15rem;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
 
 /* ── CARDS ── */
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:1rem;overflow:hidden}
-.card-h{padding:.75rem 1rem;border-bottom:1px solid var(--border);font-weight:700;font-size:.9rem;
-  display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--surface2)}
+.card-h{padding:.7rem 1rem;border-bottom:1px solid var(--border);font-weight:700;font-size:.86rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--surface2);flex-wrap:wrap}
 .card-b{padding:1rem}
-.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
-.stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:.85rem;box-shadow:var(--shadow)}
-.stat-box .ic{font-size:1.3rem;margin-bottom:.2rem}
-.stat-box .lb{font-size:.7rem;color:var(--muted)}
-.stat-box .vl{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.02em;margin-top:.15rem}
-body.lang-lo .stat-box .vl{font-family:'Phetsarath OT',sans-serif!important;font-size:1.2rem}
 .hero{background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;border-radius:var(--r);
-  padding:1.2rem;margin-bottom:1rem;box-shadow:0 6px 20px rgba(22,163,74,.28)}
-.hero .lb{font-size:.76rem;opacity:.9}
-.hero .vl{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;letter-spacing:.02em;line-height:1.1}
-body.lang-lo .hero .vl{font-family:'Phetsarath OT',sans-serif!important;font-size:1.7rem}
+  padding:1.2rem;margin-bottom:1rem;box-shadow:0 6px 20px rgba(22,163,74,.25)}
+.hero .lb{font-size:.76rem;opacity:.92}
+.hero .vl{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.02em;line-height:1.15}
+body.lang-lo .hero .vl{font-family:'Phetsarath OT',sans-serif!important;font-size:1.6rem}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1rem}
+.sb{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:.8rem;box-shadow:var(--shadow)}
+.sb .ic{font-size:1.2rem}
+.sb .lb{font-size:.68rem;color:var(--muted)}
+.sb .vl{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;margin-top:.1rem}
+body.lang-lo .sb .vl{font-family:'Phetsarath OT',sans-serif!important;font-size:1.1rem}
 
-/* ── LIST ITEMS ── */
-.bill{border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.7rem;background:#fff;
-  box-shadow:var(--shadow);border-left:4px solid var(--green);cursor:pointer}
-.bill:active{background:var(--surface2)}
-.bill.pending{border-left-color:var(--orange)}
-.bill-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
-.bill-no{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--muted)}
-.bill-amt{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--green-d);white-space:nowrap}
-body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-size:1.05rem}
-.badge{display:inline-block;padding:.15rem .55rem;border-radius:999px;font-size:.62rem;font-weight:700}
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.dt{width:100%;border-collapse:collapse;min-width:640px}
+table.dt thead tr{background:linear-gradient(90deg,#0F172A,#1E293B)}
+table.dt th{padding:.6rem .8rem;text-align:left;font-size:.66rem;font-weight:700;letter-spacing:.05em;
+  color:#94A3B8;white-space:nowrap;text-transform:uppercase;cursor:pointer;user-select:none}
+table.dt th:hover{color:#fff}
+table.dt th .ar{opacity:.4;font-size:.6rem}
+table.dt th.sorted .ar{opacity:1;color:var(--sky-m)}
+table.dt td{padding:.65rem .8rem;border-bottom:1px solid var(--border);font-size:.82rem}
+table.dt tbody tr:nth-child(even){background:var(--surface2)}
+table.dt tbody tr:hover{background:var(--sky-l);cursor:pointer}
+table.dt tbody tr:last-child td{border-bottom:none}
+.num{text-align:right;font-family:'IBM Plex Mono',monospace}
+
+.badge{display:inline-block;padding:.14rem .5rem;border-radius:999px;font-size:.6rem;font-weight:700;white-space:nowrap}
 .b-paid{background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m)}
 .b-sent{background:var(--orange-l);color:var(--orange-d);border:1px solid var(--orange-m)}
 .b-draft{background:var(--surface2);color:var(--muted);border:1px solid var(--border2)}
+
+/* ── CHIPS / FILTERS ── */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:.32rem .75rem;border:1px solid var(--border);border-radius:999px;background:#fff;
+  color:var(--text2);font-size:.73rem;font-weight:600}
+.chip.on{background:var(--green);color:#fff;border-color:var(--green)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.8rem}
+.btn-sm{padding:.42rem .75rem;border-radius:var(--r-sm);font-size:.74rem;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--text2)}
+.btn-sm:hover{background:var(--surface2)}
+.btn-xl{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-rd{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── PROFILE ── */
+.pf-head{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.av-wrap{position:relative;flex-shrink:0}
+.av{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--green-m);background:var(--green-l);
+  display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--green-d)}
+.av-btn{position:absolute;bottom:0;right:0;width:30px;height:30px;border-radius:50%;background:var(--green);
+  color:#fff;font-size:.85rem;border:2px solid #fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
+.row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem;gap:.7rem}
+.row:last-child{border-bottom:none}
+.row .k{color:var(--muted);flex-shrink:0}
+.row .v{font-weight:600;text-align:right;word-break:break-word}
+
+/* ── NEWS ── */
 .news-item{border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:.7rem;background:#fff;box-shadow:var(--shadow)}
 .news-item.pin{border-left:4px solid var(--gold);background:linear-gradient(90deg,var(--gold-l) 0%,#fff 12%)}
-.news-cat{display:inline-block;font-size:.6rem;font-weight:700;padding:.12rem .5rem;border-radius:999px}
-.cat-general{background:var(--sky-l);color:var(--sky-d)}
-.cat-price{background:var(--green-l);color:var(--green-d)}
-.cat-urgent{background:var(--red-l);color:var(--red-d)}
+.news-cat{display:inline-block;font-size:.6rem;font-weight:700;padding:.1rem .5rem;border-radius:999px;color:#fff}
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
 .empty .ic{font-size:2.4rem;opacity:.5;margin-bottom:.4rem}
 
@@ -127,29 +161,26 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
 .overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);
   display:none;align-items:flex-end;justify-content:center;z-index:100}
 .overlay.on{display:flex}
-.sheet{background:#fff;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;
-  border-radius:var(--r-lg) var(--r-lg) 0 0;padding:0}
+.sheet{background:#fff;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;border-radius:var(--r-lg) var(--r-lg) 0 0}
 @media(min-width:640px){.overlay{align-items:center}.sheet{border-radius:var(--r-lg)}}
 .sheet-h{position:sticky;top:0;background:linear-gradient(135deg,var(--green-d),var(--green));color:#fff;
-  padding:1rem 1.2rem;display:flex;justify-content:space-between;align-items:center;z-index:2}
+  padding:.9rem 1.2rem;display:flex;justify-content:space-between;align-items:center;z-index:2;gap:.5rem}
+.icon-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;
+  width:32px;height:32px;border-radius:50%;font-size:.9rem;flex-shrink:0}
 
-/* ── FILTER CHIPS ── */
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem}
-.chip{padding:.35rem .8rem;border:1px solid var(--border);border-radius:999px;background:#fff;
-  color:var(--text2);font-size:.74rem;font-weight:600}
-.chip.on{background:var(--green);color:#fff;border-color:var(--green)}
-
-#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#fff;
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#fff;
   padding:.7rem 1.2rem;border-radius:var(--r);box-shadow:var(--shadow-lg);z-index:200;display:none;
   font-size:.85rem;max-width:90%;text-align:center;border-left:4px solid var(--green)}
 #toast.err{border-left-color:var(--red)}
 .spin{width:18px;height:18px;border:2.5px solid var(--green-m);border-top-color:var(--green-d);
   border-radius:50%;animation:sp .7s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
-.row{display:flex;justify-content:space-between;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.86rem;gap:.6rem}
-.row:last-child{border-bottom:none}
-.row .k{color:var(--muted);flex-shrink:0}
-.row .v{font-weight:600;text-align:right;word-break:break-word}
+@media(max-width:640px){
+  .wrap{padding:.9rem .7rem 3rem}
+  .mi{padding:.55rem .6rem;font-size:.72rem}
+  .hero .vl{font-size:1.8rem}
+}
+@media print{#menubar,#topbar,.toolbar,#toast{display:none!important}}
 </style>
 </head>
 <body class="lang-th" translate="no">
@@ -162,20 +193,17 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
       <div class="name">KUBTHOR</div>
       <div class="sub" data-i18n="portal_sub">ระบบสมาชิกลูกค้ายางพารา</div>
     </div>
-
     <div style="display:flex;justify-content:flex-end;margin-bottom:.8rem">
       <select id="lang-auth" onchange="setLang(this.value)" style="width:auto;font-size:.76rem;padding:.35rem .5rem">
         <option value="th">TH ไทย</option>
         <option value="lo">LA ລາວ</option>
       </select>
     </div>
-
     <div id="auth-msg" class="msg"></div>
 
-    <!-- ── LOGIN ── -->
     <div id="form-login">
       <div style="background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r-sm);padding:.7rem .9rem;font-size:.76rem;color:var(--sky-d);margin-bottom:1rem;line-height:1.6" data-i18n="login_hint">
-        ℹ️ <b>เข้าครั้งแรก?</b><br>ชื่อผู้ใช้ = ชื่อของท่านที่ลงทะเบียนไว้<br>รหัสผ่าน = <b>เลขที่บิลการขายครั้งล่าสุด</b>
+        ℹ️ เข้าครั้งแรก? ชื่อผู้ใช้ = ชื่อของท่านที่ลงทะเบียนไว้ · รหัสผ่าน = เลขที่บิลการขายครั้งล่าสุด
       </div>
       <div class="field">
         <label class="label" data-i18n="lb_username2">ชื่อผู้ใช้ (ชื่อของท่าน)</label>
@@ -188,11 +216,10 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
       </div>
       <button class="btn-main" id="btn-login" onclick="doLogin()" data-i18n="btn_login">เข้าสู่ระบบ</button>
       <div style="text-align:center;margin-top:1rem;font-size:.74rem;color:var(--muted);line-height:1.6" data-i18n="help_text">
-        ไม่ทราบเลขที่บิล? กรุณาติดต่อจุดรับซื้อ<br>หรือดูจากใบเสร็จการขายครั้งล่าสุด
+        ไม่ทราบเลขที่บิล? กรุณาติดต่อจุดรับซื้อ หรือดูจากใบเสร็จการขายครั้งล่าสุด
       </div>
     </div>
 
-    <!-- ── FORCE SET PASSWORD ── -->
     <div id="form-setpw" style="display:none">
       <div style="background:var(--orange-l);border:1px solid var(--orange-m);border-radius:var(--r-sm);padding:.8rem .9rem;font-size:.8rem;color:var(--orange-d);margin-bottom:1rem;line-height:1.6">
         <b data-i18n="setpw_title">🔐 ตั้งรหัสผ่านใหม่</b><br>
@@ -204,11 +231,11 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
       </div>
       <div class="field">
         <label class="label" data-i18n="lb_pw_new">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว) *</label>
-        <input type="password" id="sp-new" placeholder="••••••" autocomplete="new-password">
+        <input type="password" id="sp-new" autocomplete="new-password">
       </div>
       <div class="field">
         <label class="label" data-i18n="lb_pw_confirm">ยืนยันรหัสผ่านใหม่ *</label>
-        <input type="password" id="sp-new2" placeholder="••••••" autocomplete="new-password">
+        <input type="password" id="sp-new2" autocomplete="new-password">
       </div>
       <button class="btn-main" id="btn-setpw" onclick="doSetPassword()" data-i18n="btn_setpw">บันทึกรหัสผ่านใหม่</button>
       <button onclick="doLogout()" style="width:100%;margin-top:.6rem;padding:.6rem;background:transparent;color:var(--muted);font-size:.8rem" data-i18n="btn_cancel">ยกเลิก</button>
@@ -219,107 +246,184 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
 <!-- ══════ APP ══════ -->
 <div id="app">
   <div id="topbar">
-    <div class="who">
-      <div class="n" id="me-name">—</div>
-      <div class="c" id="me-code">—</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
+    <div class="brand"><span class="lg">🌳</span><span class="tx">KUBTHOR</span></div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+      <div class="me-chip" onclick="go('me')" style="cursor:pointer">
+        <span id="tb-av" class="ph">👤</span>
+        <span class="nm" id="tb-name">—</span>
+      </div>
       <select id="lang-sel" onchange="setLang(this.value)">
-        <option value="th">TH</option>
-        <option value="lo">ລາວ</option>
+        <option value="th">TH</option><option value="lo">ລາວ</option>
       </select>
-      <button class="icon-btn" onclick="openSettings()" title="ตั้งค่า">⚙</button>
-      <button class="icon-btn" onclick="doLogout()" title="ออกจากระบบ">⏻</button>
     </div>
   </div>
 
+  <!-- TOP MENU -->
+  <div id="menubar"><div class="inner" id="menu-inner">
+    <button class="mi on" data-p="home"    onclick="go('home')">🏠 <span data-i18n="nav_home">หน้าหลัก</span></button>
+    <button class="mi"    data-p="me"      onclick="go('me')">👤 <span data-i18n="nav_profile">โปรไฟล์</span></button>
+    <button class="mi"    data-p="bills"   onclick="go('bills')">🧾 <span data-i18n="nav_bills">ประวัติการขาย</span></button>
+    <button class="mi"    data-p="report"  onclick="go('report')">📊 <span data-i18n="nav_report">รายงานรายได้</span></button>
+    <button class="mi"    data-p="news"    onclick="go('news')">📢 <span data-i18n="nav_news">ข่าวสาร</span></button>
+    <button class="mi"    data-p="pw"      onclick="go('pw')">🔒 <span data-i18n="nav_pw">เปลี่ยนรหัสผ่าน</span></button>
+    <button class="mi danger" onclick="doLogout()">⏻ <span data-i18n="nav_logout">ออกจากระบบ</span></button>
+  </div></div>
+
   <div class="wrap">
-    <!-- PAGE: HOME -->
+    <!-- HOME -->
     <div class="page on" id="pg-home">
       <div class="hero">
         <div class="lb" data-i18n="hero_total">ยอดขายรวมที่ได้รับแล้ว</div>
         <div class="vl" id="h-amt">₭0</div>
-        <div style="font-size:.76rem;opacity:.92;margin-top:.3rem" id="h-sub">—</div>
+        <div style="font-size:.76rem;opacity:.92;margin-top:.25rem" id="h-sub">—</div>
       </div>
       <div class="stat">
-        <div class="stat-box"><div class="ic">📦</div><div class="lb" data-i18n="st_bills">ใบที่ขายแล้ว</div><div class="vl" id="s-cnt" style="color:var(--sky-d)">0</div></div>
-        <div class="stat-box"><div class="ic">⚖️</div><div class="lb" data-i18n="st_kg">น้ำหนักรวม</div><div class="vl" id="s-kg" style="color:var(--gold)">0</div></div>
-        <div class="stat-box"><div class="ic">⏳</div><div class="lb" data-i18n="st_pending">รอรับเงิน</div><div class="vl" id="s-pend" style="color:var(--orange-d)">₭0</div></div>
-        <div class="stat-box"><div class="ic">📅</div><div class="lb" data-i18n="st_last">ขายล่าสุด</div><div class="vl" id="s-last" style="color:var(--violet-d);font-size:1.05rem">—</div></div>
+        <div class="sb"><div class="ic">📦</div><div class="lb" data-i18n="st_bills">ใบที่ขายแล้ว</div><div class="vl" id="s-cnt" style="color:var(--sky-d)">0</div></div>
+        <div class="sb"><div class="ic">⚖️</div><div class="lb" data-i18n="st_kg">น้ำหนักรวม</div><div class="vl" id="s-kg" style="color:var(--gold)">0</div></div>
+        <div class="sb"><div class="ic">⏳</div><div class="lb" data-i18n="st_pending">รอรับเงิน</div><div class="vl" id="s-pend" style="color:var(--orange-d)">₭0</div></div>
+        <div class="sb"><div class="ic">📅</div><div class="lb" data-i18n="st_last">ขายล่าสุด</div><div class="vl" id="s-last" style="color:var(--violet-d);font-size:1rem">—</div></div>
       </div>
       <div class="card">
-        <div class="card-h">
-          <span data-i18n="recent_bills">🧾 รายการล่าสุด</span>
-          <button onclick="go('bills')" style="background:transparent;color:var(--green-d);font-size:.74rem;font-weight:700" data-i18n="see_all">ดูทั้งหมด →</button>
-        </div>
-        <div class="card-b" id="home-bills" style="padding:.7rem"></div>
+        <div class="card-h"><span data-i18n="recent_bills">🧾 รายการล่าสุด</span>
+          <button class="btn-sm" onclick="go('bills')" data-i18n="see_all">ดูทั้งหมด →</button></div>
+        <div class="tbl-wrap"><table class="dt"><thead><tr>
+          <th data-i18n="c_bill">เลขที่บิล</th><th data-i18n="c_date">วันที่</th>
+          <th class="num" data-i18n="c_kg">น้ำหนัก</th><th class="num" data-i18n="c_net">ยอดรับสุทธิ</th>
+          <th data-i18n="c_status">สถานะ</th></tr></thead>
+          <tbody id="home-rows"></tbody></table></div>
       </div>
       <div class="card">
         <div class="card-h"><span data-i18n="latest_news">📢 ข่าวสารล่าสุด</span>
-          <button onclick="go('news')" style="background:transparent;color:var(--green-d);font-size:.74rem;font-weight:700" data-i18n="see_all">ดูทั้งหมด →</button>
-        </div>
+          <button class="btn-sm" onclick="go('news')" data-i18n="see_all">ดูทั้งหมด →</button></div>
         <div class="card-b" id="home-news" style="padding:.7rem"></div>
       </div>
     </div>
 
-    <!-- PAGE: BILLS -->
-    <div class="page" id="pg-bills">
-      <div style="font-weight:700;font-size:1.1rem;margin-bottom:.8rem" data-i18n="nav_bills">🧾 ประวัติการขาย</div>
-      <div class="chips" id="bill-chips">
-        <button class="chip on" data-f="" onclick="filterBills('')" data-i18n="f_all">ทั้งหมด</button>
-        <button class="chip" data-f="paid" onclick="filterBills('paid')" data-i18n="f_paid">✅ รับเงินแล้ว</button>
-        <button class="chip" data-f="sent" onclick="filterBills('sent')" data-i18n="f_pending">⏳ รอรับเงิน</button>
+    <!-- PROFILE -->
+    <div class="page" id="pg-me">
+      <div class="h1">👤 <span data-i18n="nav_profile">โปรไฟล์</span></div>
+      <div class="card">
+        <div class="card-b">
+          <div class="pf-head">
+            <div class="av-wrap">
+              <div class="av" id="pf-av">👤</div>
+              <button class="av-btn" onclick="document.getElementById('av-file').click()" title="เปลี่ยนรูป">📷</button>
+              <input type="file" id="av-file" accept="image/*" style="display:none" onchange="onAvatarPick(event)">
+            </div>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:1.25rem;font-weight:700" id="pf-name">—</div>
+              <div class="mono" style="font-size:.78rem;color:var(--sky-d)" id="pf-code">—</div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:.15rem" id="pf-joined">—</div>
+              <button id="av-del" onclick="removeAvatar()" class="btn-sm" style="margin-top:.5rem;display:none;font-size:.7rem" data-i18n="av_remove">🗑 ลบรูป</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:.9rem">
-        <input type="date" id="bf-from" onchange="loadBills()" style="font-size:.8rem;padding:.5rem">
-        <input type="date" id="bf-to" onchange="loadBills()" style="font-size:.8rem;padding:.5rem">
-        <button onclick="clearDates()" style="background:var(--surface2);color:var(--muted);padding:.5rem .7rem;border-radius:var(--r-sm);font-size:.8rem;flex-shrink:0">✕</button>
+
+      <div class="card">
+        <div class="card-h" data-i18n="pf_info">📋 ข้อมูลสมาชิก</div>
+        <div class="card-b" id="pf-info"></div>
       </div>
-      <div id="bills-sum" style="font-size:.78rem;color:var(--muted);margin-bottom:.7rem;font-weight:600"></div>
-      <div id="bills-list"></div>
+
+      <div class="card">
+        <div class="card-h" data-i18n="pf_edit">✏️ แก้ไขข้อมูลส่วนตัว</div>
+        <div class="card-b">
+          <div style="background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r-sm);padding:.6rem .8rem;font-size:.74rem;color:var(--sky-d);margin-bottom:.9rem" data-i18n="pf_edit_note">
+            ℹ️ ชื่อและที่อยู่แก้ไขได้ที่จุดรับซื้อเท่านั้น (เพราะผูกกับใบบิล)
+          </div>
+          <div class="field">
+            <label class="label" data-i18n="lb_phone">เบอร์โทรศัพท์</label>
+            <input type="tel" id="pf-phone" inputmode="tel" placeholder="020xxxxxxx">
+          </div>
+          <button class="btn-main" onclick="saveProfile()" data-i18n="btn_save">บันทึก</button>
+        </div>
+      </div>
     </div>
 
-    <!-- PAGE: NEWS -->
+    <!-- BILLS -->
+    <div class="page" id="pg-bills">
+      <div class="h1">🧾 <span data-i18n="nav_bills">ประวัติการขาย</span></div>
+      <div class="toolbar">
+        <div class="chips" id="bill-chips">
+          <button class="chip on" data-f="" onclick="filterBills('')" data-i18n="f_all">ทั้งหมด</button>
+          <button class="chip" data-f="paid" onclick="filterBills('paid')" data-i18n="f_paid">✅ รับเงินแล้ว</button>
+          <button class="chip" data-f="sent" onclick="filterBills('sent')" data-i18n="f_pending">⏳ รอรับเงิน</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="b-search" placeholder="🔍 ค้นหาเลขที่บิล..." data-i18n-placeholder="ph_search" oninput="renderBills()" style="width:auto;flex:1;min-width:150px;font-size:.8rem;padding:.42rem .7rem">
+        <input type="date" id="bf-from" onchange="loadBills()" style="width:auto;font-size:.78rem;padding:.4rem .5rem">
+        <input type="date" id="bf-to" onchange="loadBills()" style="width:auto;font-size:.78rem;padding:.4rem .5rem">
+        <button class="btn-sm" onclick="clearFilters()">✕</button>
+        <button class="btn-sm btn-xl" onclick="exportExcel()">⬇ Excel</button>
+        <button class="btn-sm btn-rd" onclick="exportPDF()">🖨 PDF</button>
+      </div>
+      <div id="bills-sum" style="font-size:.78rem;color:var(--muted);margin-bottom:.6rem;font-weight:600"></div>
+      <div class="card" style="padding:0">
+        <div class="tbl-wrap"><table class="dt" id="bills-table"><thead><tr>
+          <th onclick="sortBy('po_no')" data-c="po_no"><span data-i18n="c_bill">เลขที่บิล</span> <span class="ar">↕</span></th>
+          <th onclick="sortBy('date')" data-c="date"><span data-i18n="c_date">วันที่ขาย</span> <span class="ar">↕</span></th>
+          <th class="num" onclick="sortBy('total_qty')" data-c="total_qty"><span data-i18n="c_kg">น้ำหนัก(กก.)</span> <span class="ar">↕</span></th>
+          <th class="num" onclick="sortBy('rubber_amount')" data-c="rubber_amount"><span data-i18n="c_gross">ยอดขายยาง</span> <span class="ar">↕</span></th>
+          <th class="num" onclick="sortBy('shipping_amount')" data-c="shipping_amount"><span data-i18n="c_deduct">หักค่าใช้จ่าย</span> <span class="ar">↕</span></th>
+          <th class="num" onclick="sortBy('grand_total')" data-c="grand_total"><span data-i18n="c_net">ยอดรับสุทธิ</span> <span class="ar">↕</span></th>
+          <th><span data-i18n="c_status">สถานะ</span></th>
+          <th></th></tr></thead>
+          <tbody id="bills-rows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="page" id="pg-report">
+      <div class="h1">📊 <span data-i18n="nav_report">รายงานรายได้</span></div>
+      <div class="toolbar">
+        <select id="rp-year" onchange="loadReport()" style="width:auto;font-size:.8rem;padding:.42rem .7rem"></select>
+        <button class="btn-sm btn-xl" onclick="exportReportExcel()">⬇ Excel</button>
+      </div>
+      <div class="stat" id="rp-stat"></div>
+      <div class="card" style="padding:0">
+        <div class="card-h" data-i18n="rp_monthly">📅 สรุปรายเดือน</div>
+        <div class="tbl-wrap"><table class="dt"><thead><tr>
+          <th data-i18n="c_month">เดือน</th>
+          <th class="num" data-i18n="c_bills">จำนวนใบ</th>
+          <th class="num" data-i18n="c_kg">น้ำหนัก(กก.)</th>
+          <th class="num" data-i18n="c_income">รายได้</th></tr></thead>
+          <tbody id="rp-rows"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- NEWS -->
     <div class="page" id="pg-news">
-      <div style="font-weight:700;font-size:1.1rem;margin-bottom:.8rem" data-i18n="nav_news">📢 ข่าวสาร & ประกาศ</div>
+      <div class="h1">📢 <span data-i18n="nav_news">ข่าวสารและประกาศ</span></div>
       <div id="news-list"></div>
     </div>
 
-    <!-- PAGE: PROFILE -->
-    <div class="page" id="pg-me">
-      <div style="font-weight:700;font-size:1.1rem;margin-bottom:.8rem" data-i18n="nav_me">👤 ข้อมูลบัญชี</div>
-      <div class="card"><div class="card-b" id="me-info"></div></div>
-      <div class="card">
-        <div class="card-h" data-i18n="change_pin">🔒 เปลี่ยนรหัส PIN</div>
+    <!-- CHANGE PASSWORD -->
+    <div class="page" id="pg-pw">
+      <div class="h1">🔒 <span data-i18n="nav_pw">เปลี่ยนรหัสผ่าน</span></div>
+      <div class="card" style="max-width:460px">
         <div class="card-b">
-          <div class="field"><label class="label" data-i18n="lb_pin_old">PIN เดิม</label><input type="password" id="cp-old" inputmode="numeric"></div>
-          <div class="field"><label class="label" data-i18n="lb_pin_new2">PIN ใหม่</label><input type="password" id="cp-new" inputmode="numeric"></div>
-          <button class="btn-main" onclick="changePin()" data-i18n="btn_save">บันทึก</button>
+          <div class="field"><label class="label" data-i18n="lb_pw_old">รหัสผ่านเดิม</label><input type="password" id="cp-old" autocomplete="current-password"></div>
+          <div class="field"><label class="label" data-i18n="lb_pw_new">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว) *</label><input type="password" id="cp-new" autocomplete="new-password"></div>
+          <div class="field"><label class="label" data-i18n="lb_pw_confirm">ยืนยันรหัสผ่านใหม่ *</label><input type="password" id="cp-new2" autocomplete="new-password"></div>
+          <button class="btn-main" onclick="changePw()" data-i18n="btn_save">บันทึก</button>
         </div>
       </div>
-      <button onclick="doLogout()" style="width:100%;padding:.8rem;background:var(--red-l);color:var(--red-d);border:1px solid var(--red-m);border-radius:var(--r-sm);font-weight:700" data-i18n="btn_logout">⏻ ออกจากระบบ</button>
     </div>
-  </div>
-
-  <div id="nav">
-    <button class="on" data-p="home" onclick="go('home')"><span class="ic">🏠</span><span data-i18n="nav_home">หน้าแรก</span></button>
-    <button data-p="bills" onclick="go('bills')"><span class="ic">🧾</span><span data-i18n="nav_bills_s">การขาย</span></button>
-    <button data-p="news" onclick="go('news')"><span class="ic">📢</span><span data-i18n="nav_news_s">ข่าวสาร</span></button>
-    <button data-p="me" onclick="go('me')"><span class="ic">👤</span><span data-i18n="nav_me_s">บัญชี</span></button>
   </div>
 </div>
 
-<!-- BILL DETAIL SHEET -->
+<!-- BILL DETAIL -->
 <div class="overlay" id="sheet-bill" onclick="if(event.target===this)closeSheet()">
   <div class="sheet">
     <div class="sheet-h">
-      <div>
-        <div style="font-weight:700" data-i18n="bill_detail">📄 รายละเอียดใบขาย</div>
+      <div style="min-width:0">
+        <div style="font-weight:700" data-i18n="bill_detail">📄 รายละเอียดการขาย</div>
         <div id="sb-po" class="mono" style="font-size:.72rem;opacity:.9"></div>
       </div>
       <button class="icon-btn" onclick="closeSheet()">✕</button>
     </div>
-    <div style="padding:1.2rem" id="sb-body"></div>
+    <div style="padding:1.1rem" id="sb-body"></div>
   </div>
 </div>
 
@@ -328,26 +432,19 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
-// ═══════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════
 const SUPABASE_URL = 'https://jvraxijtgzahflkohdsf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_sclOoiWbDHWLe3xPIy5vMw_MqjHrfnH';
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const APP_VERSION = '1.0.0';
-console.log('%cKUBTHOR Customer Portal v'+APP_VERSION,'background:#16A34A;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold');
+const APP_VERSION = '3.0.0';
+console.log('%cKUBTHOR Portal v'+APP_VERSION,'background:#16A34A;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold');
 
 let TOKEN = localStorage.getItem('cp_token') || '';
-let ME = null;
-let ORDERS = [];
-let NEWS = [];
-let curFilter = '';
-let curLang = localStorage.getItem('cp_lang') || 'th';
+let ME=null, ORDERS=[], NEWS=[], REPORT=null;
+let curFilter='', curLang=localStorage.getItem('cp_lang')||'th';
+let sortCol='date', sortDir='desc';
 
-// ═══════════════════════════════════════
-// i18n
-// ═══════════════════════════════════════
-const L = {
+// ═══ i18n ═══
+const L={
 th:{
   portal_sub:"ระบบสมาชิกลูกค้ายางพารา", btn_login:"เข้าสู่ระบบ",
   login_hint:"ℹ️ เข้าครั้งแรก? ชื่อผู้ใช้ = ชื่อของท่านที่ลงทะเบียนไว้ · รหัสผ่าน = เลขที่บิลการขายครั้งล่าสุด",
@@ -356,27 +453,35 @@ th:{
   help_text:"ไม่ทราบเลขที่บิล? กรุณาติดต่อจุดรับซื้อ หรือดูจากใบเสร็จการขายครั้งล่าสุด",
   setpw_title:"🔐 ตั้งรหัสผ่านใหม่", setpw_note:"เพื่อความปลอดภัย กรุณาตั้งรหัสผ่านใหม่ก่อนใช้งาน",
   welcome:"ยินดีต้อนรับ", lb_pw_new:"รหัสผ่านใหม่ (อย่างน้อย 6 ตัว) *", lb_pw_confirm:"ยืนยันรหัสผ่านใหม่ *",
-  btn_setpw:"บันทึกรหัสผ่านใหม่", btn_cancel:"ยกเลิก",
-  pw_short:"รหัสผ่านต้องมีอย่างน้อย 6 ตัว", pw_changed:"ตั้งรหัสผ่านใหม่เรียบร้อย",
-  lb_phone:"เบอร์โทรศัพท์",
+  lb_pw_old:"รหัสผ่านเดิม", btn_setpw:"บันทึกรหัสผ่านใหม่", btn_cancel:"ยกเลิก", btn_save:"บันทึก",
+  nav_home:"หน้าหลัก", nav_profile:"โปรไฟล์", nav_bills:"ประวัติการขาย", nav_report:"รายงานรายได้",
+  nav_news:"ข่าวสาร", nav_pw:"เปลี่ยนรหัสผ่าน", nav_logout:"ออกจากระบบ",
   hero_total:"ยอดขายรวมที่ได้รับแล้ว", st_bills:"ใบที่ขายแล้ว", st_kg:"น้ำหนักรวม",
   st_pending:"รอรับเงิน", st_last:"ขายล่าสุด",
   recent_bills:"🧾 รายการล่าสุด", latest_news:"📢 ข่าวสารล่าสุด", see_all:"ดูทั้งหมด →",
-  nav_home:"หน้าแรก", nav_bills_s:"การขาย", nav_news_s:"ข่าวสาร", nav_me_s:"บัญชี",
-  nav_bills:"🧾 ประวัติการขาย", nav_news:"📢 ข่าวสาร & ประกาศ", nav_me:"👤 ข้อมูลบัญชี",
   f_all:"ทั้งหมด", f_paid:"✅ รับเงินแล้ว", f_pending:"⏳ รอรับเงิน",
-  change_pin:"🔒 เปลี่ยนรหัสผ่าน", lb_pin_old:"รหัสผ่านเดิม", lb_pin_new2:"รหัสผ่านใหม่",
-  btn_save:"บันทึก", btn_logout:"⏻ ออกจากระบบ", bill_detail:"📄 รายละเอียดใบขาย",
+  ph_search:"🔍 ค้นหาเลขที่บิล...",
+  c_bill:"เลขที่บิล", c_date:"วันที่ขาย", c_kg:"น้ำหนัก(กก.)", c_gross:"ยอดขายยาง",
+  c_deduct:"หักค่าใช้จ่าย", c_net:"ยอดรับสุทธิ", c_status:"สถานะ",
+  c_month:"เดือน", c_bills:"จำนวนใบ", c_income:"รายได้",
   st_paid:"รับเงินแล้ว", st_sent:"รอรับเงิน", st_draft:"ร่าง",
-  no_bills:"ยังไม่มีรายการขาย", no_news:"ยังไม่มีข่าวสาร",
-  c_name:"ชื่อ", c_code:"รหัสลูกค้า", c_phone:"เบอร์โทร", c_user:"ชื่อบัญชี", c_addr:"ที่อยู่",
-  c_first:"ขายครั้งแรก", c_last:"ขายล่าสุด",
-  b_date:"วันที่ขาย", b_paid_date:"วันที่รับเงิน", b_kg:"น้ำหนัก", b_amt:"จำนวนเงิน",
-  b_status:"สถานะ", b_receipt:"เลขที่ใบเสร็จ", b_note:"หมายเหตุ", b_items:"รายการ",
-  qr_hint:"📱 สแกนเพื่อตรวจสอบใบเสร็จ", kg:"กก.", items_unit:"ใบ",
-  pin_changed:"เปลี่ยนรหัสผ่านเรียบร้อย", pin_mismatch:"รหัสผ่านไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
-  logging_in:"กำลังเข้าสู่ระบบ...", loading:"กำลังโหลด...",
-  found:"พบ", session_exp:"เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่",
+  no_bills:"ยังไม่มีรายการขาย", no_news:"ยังไม่มีข่าวสาร", no_data:"ไม่มีข้อมูล",
+  pf_info:"📋 ข้อมูลสมาชิก", pf_edit:"✏️ แก้ไขข้อมูลส่วนตัว",
+  pf_edit_note:"ℹ️ ชื่อและที่อยู่แก้ไขได้ที่จุดรับซื้อเท่านั้น (เพราะผูกกับใบบิล)",
+  av_remove:"🗑 ลบรูป", lb_phone:"เบอร์โทรศัพท์",
+  c_name:"ชื่อ-นามสกุล", c_code:"รหัสสมาชิก", c_phone:"เบอร์โทร", c_addr:"ที่อยู่",
+  c_joined:"วันที่สมัคร", c_first:"ขายครั้งแรก", c_last_sale:"ขายล่าสุด", c_lastlogin:"เข้าใช้ล่าสุด",
+  bill_detail:"📄 รายละเอียดการขาย", rp_monthly:"📅 สรุปรายเดือน",
+  b_type:"ประเภท", b_price:"ราคา/กก.", b_amount:"จำนวนเงิน", b_items:"รายการสินค้า",
+  b_gross:"ยอดขายยาง", b_deduct:"หักค่าใช้จ่าย", b_net:"ยอดรับสุทธิ",
+  b_receipt:"เลขที่ใบเสร็จ", b_paid_date:"วันที่รับเงิน", b_note:"หมายเหตุ",
+  rubber:"ยางพารา", shipping:"ค่าขนส่ง",
+  qr_hint:"📱 สแกนเพื่อตรวจสอบใบเสร็จ", kg:"กก.", items_unit:"ใบ", found:"พบ",
+  pw_changed:"เปลี่ยนรหัสผ่านเรียบร้อย", pw_short:"รหัสผ่านต้องมีอย่างน้อย 6 ตัว",
+  pin_mismatch:"รหัสผ่านไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
+  saved:"บันทึกเรียบร้อย", img_big:"รูปใหญ่เกินไป (สูงสุด 5MB)", session_exp:"เซสชันหมดอายุ",
+  rp_total:"รายได้รวมทั้งปี", rp_bills:"จำนวนใบทั้งหมด", rp_kg:"น้ำหนักรวมทั้งปี", rp_avg:"เฉลี่ยต่อใบ",
+  all_years:"ทุกปี",
 },
 lo:{
   portal_sub:"ລະບົບສະມາຊິກລູກຄ້າຢາງພາລາ", btn_login:"ເຂົ້າສູ່ລະບົບ",
@@ -386,383 +491,498 @@ lo:{
   help_text:"ບໍ່ຮູ້ເລກທີບິນ? ກະລຸນາຕິດຕໍ່ຈຸດຮັບຊື້ ຫຼື ເບິ່ງຈາກໃບບິນການຂາຍຄັ້ງຫຼ້າສຸດ",
   setpw_title:"🔐 ຕັ້ງລະຫັດຜ່ານໃໝ່", setpw_note:"ເພື່ອຄວາມປອດໄພ ກະລຸນາຕັ້ງລະຫັດຜ່ານໃໝ່ກ່ອນໃຊ້ງານ",
   welcome:"ຍິນດີຕ້ອນຮັບ", lb_pw_new:"ລະຫັດຜ່ານໃໝ່ (ຢ່າງໜ້ອຍ 6 ໂຕ) *", lb_pw_confirm:"ຢືນຢັນລະຫັດຜ່ານໃໝ່ *",
-  btn_setpw:"ບັນທຶກລະຫັດຜ່ານໃໝ່", btn_cancel:"ຍົກເລີກ",
-  pw_short:"ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ໂຕ", pw_changed:"ຕັ້ງລະຫັດຜ່ານໃໝ່ຮຽບຮ້ອຍ",
-  lb_phone:"ເບີໂທລະສັບ",
+  lb_pw_old:"ລະຫັດຜ່ານເດີມ", btn_setpw:"ບັນທຶກລະຫັດຜ່ານໃໝ່", btn_cancel:"ຍົກເລີກ", btn_save:"ບັນທຶກ",
+  nav_home:"ໜ້າຫຼັກ", nav_profile:"ໂປຣໄຟລ໌", nav_bills:"ປະຫວັດການຂາຍ", nav_report:"ລາຍງານລາຍໄດ້",
+  nav_news:"ຂ່າວສານ", nav_pw:"ປ່ຽນລະຫັດຜ່ານ", nav_logout:"ອອກຈາກລະບົບ",
   hero_total:"ຍອດຂາຍລວມທີ່ໄດ້ຮັບແລ້ວ", st_bills:"ໃບທີ່ຂາຍແລ້ວ", st_kg:"ນ້ຳໜັກລວມ",
   st_pending:"ລໍຮັບເງິນ", st_last:"ຂາຍຫຼ້າສຸດ",
   recent_bills:"🧾 ລາຍການຫຼ້າສຸດ", latest_news:"📢 ຂ່າວສານຫຼ້າສຸດ", see_all:"ເບິ່ງທັງໝົດ →",
-  nav_home:"ໜ້າຫຼັກ", nav_bills_s:"ການຂາຍ", nav_news_s:"ຂ່າວສານ", nav_me_s:"ບັນຊີ",
-  nav_bills:"🧾 ປະຫວັດການຂາຍ", nav_news:"📢 ຂ່າວສານ & ປະກາດ", nav_me:"👤 ຂໍ້ມູນບັນຊີ",
   f_all:"ທັງໝົດ", f_paid:"✅ ຮັບເງິນແລ້ວ", f_pending:"⏳ ລໍຮັບເງິນ",
-  change_pin:"🔒 ປ່ຽນລະຫັດຜ່ານ", lb_pin_old:"ລະຫັດຜ່ານເດີມ", lb_pin_new2:"ລະຫັດຜ່ານໃໝ່",
-  btn_save:"ບັນທຶກ", btn_logout:"⏻ ອອກຈາກລະບົບ", bill_detail:"📄 ລາຍລະອຽດໃບຂາຍ",
+  ph_search:"🔍 ຄົ້ນຫາເລກທີບິນ...",
+  c_bill:"ເລກທີບິນ", c_date:"ວັນທີຂາຍ", c_kg:"ນ້ຳໜັກ(ກກ.)", c_gross:"ຍອດຂາຍຢາງ",
+  c_deduct:"ຫັກຄ່າໃຊ້ຈ່າຍ", c_net:"ຍອດຮັບສຸດທິ", c_status:"ສະຖານະ",
+  c_month:"ເດືອນ", c_bills:"ຈຳນວນໃບ", c_income:"ລາຍໄດ້",
   st_paid:"ຮັບເງິນແລ້ວ", st_sent:"ລໍຮັບເງິນ", st_draft:"ຮ່າງ",
-  no_bills:"ຍັງບໍ່ມີລາຍການຂາຍ", no_news:"ຍັງບໍ່ມີຂ່າວສານ",
-  c_name:"ຊື່", c_code:"ລະຫັດລູກຄ້າ", c_phone:"ເບີໂທ", c_user:"ຊື່ບັນຊີ", c_addr:"ທີ່ຢູ່",
-  c_first:"ຂາຍຄັ້ງທຳອິດ", c_last:"ຂາຍຫຼ້າສຸດ",
-  b_date:"ວັນທີຂາຍ", b_paid_date:"ວັນທີຮັບເງິນ", b_kg:"ນ້ຳໜັກ", b_amt:"ຈຳນວນເງິນ",
-  b_status:"ສະຖານະ", b_receipt:"ເລກທີໃບບິນ", b_note:"ໝາຍເຫດ", b_items:"ລາຍການ",
-  qr_hint:"📱 ສະແກນເພື່ອກວດສອບໃບບິນ", kg:"ກກ.", items_unit:"ໃບ",
-  pin_changed:"ປ່ຽນລະຫັດຜ່ານຮຽບຮ້ອຍ", pin_mismatch:"ລະຫັດຜ່ານບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
-  logging_in:"ກຳລັງເຂົ້າສູ່ລະບົບ...", loading:"ກຳລັງໂຫຼດ...",
-  found:"ພົບ", session_exp:"ເຊສຊັນໝົດອາຍຸ ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່",
+  no_bills:"ຍັງບໍ່ມີລາຍການຂາຍ", no_news:"ຍັງບໍ່ມີຂ່າວສານ", no_data:"ບໍ່ມີຂໍ້ມູນ",
+  pf_info:"📋 ຂໍ້ມູນສະມາຊິກ", pf_edit:"✏️ ແກ້ໄຂຂໍ້ມູນສ່ວນຕົວ",
+  pf_edit_note:"ℹ️ ຊື່ ແລະ ທີ່ຢູ່ແກ້ໄຂໄດ້ທີ່ຈຸດຮັບຊື້ເທົ່ານັ້ນ (ເພາະຜູກກັບໃບບິນ)",
+  av_remove:"🗑 ລຶບຮູບ", lb_phone:"ເບີໂທລະສັບ",
+  c_name:"ຊື່-ນາມສະກຸນ", c_code:"ລະຫັດສະມາຊິກ", c_phone:"ເບີໂທ", c_addr:"ທີ່ຢູ່",
+  c_joined:"ວັນທີສະໝັກ", c_first:"ຂາຍຄັ້ງທຳອິດ", c_last_sale:"ຂາຍຫຼ້າສຸດ", c_lastlogin:"ເຂົ້າໃຊ້ຫຼ້າສຸດ",
+  bill_detail:"📄 ລາຍລະອຽດການຂາຍ", rp_monthly:"📅 ສະຫຼຸບລາຍເດືອນ",
+  b_type:"ປະເພດ", b_price:"ລາຄາ/ກກ.", b_amount:"ຈຳນວນເງິນ", b_items:"ລາຍການສິນຄ້າ",
+  b_gross:"ຍອດຂາຍຢາງ", b_deduct:"ຫັກຄ່າໃຊ້ຈ່າຍ", b_net:"ຍອດຮັບສຸດທິ",
+  b_receipt:"ເລກທີໃບບິນ", b_paid_date:"ວັນທີຮັບເງິນ", b_note:"ໝາຍເຫດ",
+  rubber:"ຢາງພາລາ", shipping:"ຄ່າຂົນສົ່ງ",
+  qr_hint:"📱 ສະແກນເພື່ອກວດສອບໃບບິນ", kg:"ກກ.", items_unit:"ໃບ", found:"ພົບ",
+  pw_changed:"ປ່ຽນລະຫັດຜ່ານຮຽບຮ້ອຍ", pw_short:"ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ໂຕ",
+  pin_mismatch:"ລະຫັດຜ່ານບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
+  saved:"ບັນທຶກຮຽບຮ້ອຍ", img_big:"ຮູບໃຫຍ່ເກີນໄປ (ສູງສຸດ 5MB)", session_exp:"ເຊສຊັນໝົດອາຍຸ",
+  rp_total:"ລາຍໄດ້ລວມທັງປີ", rp_bills:"ຈຳນວນໃບທັງໝົດ", rp_kg:"ນ້ຳໜັກລວມທັງປີ", rp_avg:"ສະເລ່ຍຕໍ່ໃບ",
+  all_years:"ທຸກປີ",
 }};
 function t(k){ return (L[curLang]&&L[curLang][k]) || L.th[k] || k; }
-
 function setLang(l){
-  curLang = l; localStorage.setItem('cp_lang', l);
-  document.body.className = 'lang-'+l;
-  document.querySelectorAll('[data-i18n]').forEach(e=>{ const v=t(e.dataset.i18n); if(v) e.textContent=v; });
+  curLang=l; localStorage.setItem('cp_lang',l);
+  document.body.className='lang-'+l;
+  document.querySelectorAll('[data-i18n]').forEach(e=>{const v=t(e.dataset.i18n); if(v)e.textContent=v;});
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(e=>{const v=t(e.dataset.i18nPlaceholder); if(v)e.placeholder=v;});
   ['lang-auth','lang-sel'].forEach(id=>{const e=document.getElementById(id); if(e)e.value=l;});
-  if(ME){ renderHome(); renderBills(); renderNews(); renderProfile(); }
+  if(ME){ renderHome(); renderBills(); renderNews(); renderProfile(); renderReport(); }
 }
 
-// ═══════════════════════════════════════
-// UTIL
-// ═══════════════════════════════════════
-function toast(msg, isErr){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.className=isErr?'err':'';
-  el.style.display='block';
-  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none', 3200);
-}
-function money(n){ return '₭'+Math.round(n||0).toLocaleString('th-TH'); }
-function kg(n){ return (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:2}); }
-function fmtDate(s){
-  if(!s) return '—';
-  const d=new Date(s);
-  if(isNaN(d)){ const p=(s+'').slice(0,10).split('-'); return p.length===3?`${p[2]}/${p[1]}/${(+p[0]+543).toString().slice(2)}`:'—'; }
-  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'});
-}
-function fmtDT(s){
-  if(!s) return '—';
-  const d=new Date(s); if(isNaN(d)) return fmtDate(s);
-  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+
-         d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-}
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-async function rpc(fn, args){
-  const {data, error} = await _sb.rpc(fn, args||{});
-  if(error){ console.error(fn, error); return {ok:false, error:error.message}; }
-  return data;
-}
+// ═══ UTIL ═══
+function toast(m,e){const el=document.getElementById('toast');el.textContent=m;el.className=e?'err':'';
+  el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3200);}
+function money(n){return '₭'+Math.round(Number(n)||0).toLocaleString('th-TH');}
+function kg(n){return (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:2});}
+function num(n){return (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:2});}
+function fmtDate(s){if(!s)return '—';const d=new Date(s);
+  if(isNaN(d)){const p=(s+'').slice(0,10).split('-');return p.length===3?`${p[2]}/${p[1]}/${(+p[0]+543).toString().slice(2)}`:'—';}
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+function fmtDT(s){if(!s)return '—';const d=new Date(s);if(isNaN(d))return fmtDate(s);
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function rpc(fn,args){const {data,error}=await _sb.rpc(fn,args||{});
+  if(error){console.error(fn,error);return {ok:false,error:error.message};} return data;}
+function prodName(p){const u=(p||'RUBBER').toUpperCase();return u==='SHIPPING'?t('shipping'):t('rubber');}
 
-// ═══════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════
-function authMsg(text, ok){
-  const el=document.getElementById('auth-msg');
-  el.textContent=text; el.className='msg '+(ok?'ok':'err');
+// ═══ AUTH ═══
+function authMsg(x,ok){const el=document.getElementById('auth-msg');el.textContent=x;el.className='msg '+(ok?'ok':'err');}
+function showAuthForm(w){
+  document.getElementById('form-login').style.display=w==='login'?'':'none';
+  document.getElementById('form-setpw').style.display=w==='setpw'?'':'none';
 }
-function showAuthForm(which){
-  document.getElementById('form-login').style.display  = which==='login' ?'':'none';
-  document.getElementById('form-setpw').style.display  = which==='setpw'?'':'none';
-}
-
 async function doLogin(){
   const id=document.getElementById('li-id').value.trim();
   const pw=document.getElementById('li-pin').value.trim();
-  if(!id||!pw){ authMsg(t('fill_all')); return; }
-  const btn=document.getElementById('btn-login');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
-  const r = await rpc('customer_login', {p_username:id, p_password:pw});
-  btn.disabled=false; btn.textContent=t('btn_login');
-  if(!r||!r.ok){ authMsg(r?.error||'เข้าสู่ระบบไม่สำเร็จ'); return; }
-
-  TOKEN=r.token; localStorage.setItem('cp_token', TOKEN);
-  authMsg('', true);
+  if(!id||!pw){authMsg(t('fill_all'));return;}
+  const b=document.getElementById('btn-login');b.disabled=true;b.innerHTML='<span class="spin"></span>';
+  const r=await rpc('customer_login',{p_username:id,p_password:pw});
+  b.disabled=false;b.textContent=t('btn_login');
+  if(!r||!r.ok){authMsg(r?.error||'เข้าสู่ระบบไม่สำเร็จ');return;}
+  TOKEN=r.token;localStorage.setItem('cp_token',TOKEN);
   document.getElementById('auth-msg').className='msg';
-
-  // ครั้งแรก → บังคับตั้งรหัสผ่านใหม่
   if(r.must_change_password){
     document.getElementById('sp-name').textContent=r.name||'';
-    document.getElementById('sp-new').value='';
-    document.getElementById('sp-new2').value='';
-    showAuthForm('setpw');
-    return;
+    document.getElementById('sp-new').value='';document.getElementById('sp-new2').value='';
+    showAuthForm('setpw');return;
   }
   await enterApp();
 }
-
 async function doSetPassword(){
-  const p1=document.getElementById('sp-new').value.trim();
-  const p2=document.getElementById('sp-new2').value.trim();
-  if(!p1||!p2){ authMsg(t('fill_all')); return; }
-  if(p1!==p2){ authMsg(t('pin_mismatch')); return; }
-  if(p1.length<6){ authMsg(t('pw_short')); return; }
-  const btn=document.getElementById('btn-setpw');
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
-  const r=await rpc('customer_set_password', {p_token:TOKEN, p_new:p1, p_old:null});
-  btn.disabled=false; btn.textContent=t('btn_setpw');
-  if(!r||!r.ok){ authMsg(r?.error||'ไม่สำเร็จ'); return; }
-  authMsg(t('pw_changed'), true);
-  setTimeout(()=>{ enterApp(); }, 700);
+  const a=document.getElementById('sp-new').value.trim(), b=document.getElementById('sp-new2').value.trim();
+  if(!a||!b){authMsg(t('fill_all'));return;}
+  if(a!==b){authMsg(t('pin_mismatch'));return;}
+  if(a.length<6){authMsg(t('pw_short'));return;}
+  const btn=document.getElementById('btn-setpw');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  const r=await rpc('customer_set_password',{p_token:TOKEN,p_new:a,p_old:null});
+  btn.disabled=false;btn.textContent=t('btn_setpw');
+  if(!r||!r.ok){authMsg(r?.error||'ไม่สำเร็จ');return;}
+  authMsg(t('pw_changed'),true);
+  setTimeout(()=>enterApp(),700);
 }
-
 async function doLogout(){
-  try{ await rpc('customer_logout', {p_token:TOKEN}); }catch(e){}
-  TOKEN=''; ME=null; localStorage.removeItem('cp_token');
+  try{await rpc('customer_logout',{p_token:TOKEN});}catch(e){}
+  TOKEN='';ME=null;localStorage.removeItem('cp_token');
   document.getElementById('app').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
   document.getElementById('li-pin').value='';
-  showAuthForm('login');
-  document.getElementById('auth-msg').className='msg';
+  showAuthForm('login');document.getElementById('auth-msg').className='msg';
 }
-
 async function enterApp(){
-  const p = await rpc('customer_profile', {p_token:TOKEN});
-  if(!p||!p.ok){ TOKEN=''; localStorage.removeItem('cp_token'); authMsg(p?.error||t('session_exp')); return; }
+  const p=await rpc('customer_profile',{p_token:TOKEN});
+  if(!p||!p.ok){TOKEN='';localStorage.removeItem('cp_token');authMsg(p?.error||t('session_exp'));return;}
   if(p.must_change_password){
     document.getElementById('sp-name').textContent=p.name||'';
     showAuthForm('setpw');
     document.getElementById('auth-screen').style.display='flex';
-    document.getElementById('app').style.display='none';
-    return;
+    document.getElementById('app').style.display='none';return;
   }
-  ME=p;
-  showAuthForm('login');
+  ME=p;showAuthForm('login');
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app').style.display='block';
-  document.getElementById('me-name').textContent=p.name;
-  document.getElementById('me-code').textContent=p.customer_code;
-  await Promise.all([loadBills(), loadNews()]);
-  renderHome(); renderProfile();
+  updateTopbar();
+  await Promise.all([loadBills(),loadNews(),loadReport()]);
+  renderHome();renderProfile();
+}
+function updateTopbar(){
+  document.getElementById('tb-name').textContent=ME?.name||'';
+  const av=document.getElementById('tb-av');
+  if(ME?.avatar){ av.outerHTML=`<img id="tb-av" src="${ME.avatar}" alt="">`; }
+  else{ const e=document.getElementById('tb-av'); if(e && e.tagName==='IMG') e.outerHTML='<span id="tb-av" class="ph">👤</span>'; }
 }
 
-// ═══════════════════════════════════════
-// NAV
-// ═══════════════════════════════════════
+// ═══ NAV ═══
 function go(p){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));
-  document.getElementById('pg-'+p).classList.add('on');
-  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.p===p));
+  const el=document.getElementById('pg-'+p); if(el)el.classList.add('on');
+  document.querySelectorAll('.mi').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
   window.scrollTo(0,0);
+  if(p==='report') renderReport();
 }
-function openSettings(){ go('me'); }
 
-// ═══════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════
+// ═══ DATA ═══
 async function loadBills(){
-  const from=document.getElementById('bf-from')?.value||null;
-  const to=document.getElementById('bf-to')?.value||null;
-  const r = await rpc('customer_orders', {p_token:TOKEN, p_from:from, p_to:to, p_status:curFilter||null});
-  if(!r||!r.ok){ if(r?.error) toast(r.error,true); return; }
-  ORDERS = r.orders||[];
-  renderBills();
-  if(document.getElementById('pg-home').classList.contains('on')) renderHome();
+  const f=document.getElementById('bf-from')?.value||null, o=document.getElementById('bf-to')?.value||null;
+  const r=await rpc('customer_orders',{p_token:TOKEN,p_from:f,p_to:o,p_status:curFilter||null});
+  if(!r||!r.ok){if(r?.error)toast(r.error,true);return;}
+  ORDERS=r.orders||[];
+  renderBills();renderHome();
 }
 async function loadNews(){
-  const r = await rpc('customer_news', {p_limit:30});
-  if(r&&r.ok) NEWS=r.news||[];
+  const r=await rpc('customer_news',{p_limit:30});
+  if(r&&r.ok)NEWS=r.news||[];
   renderNews();
+}
+async function loadReport(){
+  const y=document.getElementById('rp-year')?.value;
+  const r=await rpc('customer_income_report',{p_token:TOKEN,p_year:y?parseInt(y):null});
+  if(!r||!r.ok)return;
+  REPORT=r;
+  const sel=document.getElementById('rp-year');
+  if(sel && !sel.dataset.filled){
+    const years=r.years||[];
+    sel.innerHTML=`<option value="">${t('all_years')}</option>`+years.map(x=>`<option value="${x}">${x+543}</option>`).join('');
+    sel.dataset.filled='1';
+  }
+  renderReport();
 }
 function filterBills(f){
   curFilter=f;
-  document.querySelectorAll('#bill-chips .chip').forEach(c=>c.classList.toggle('on', c.dataset.f===f));
+  document.querySelectorAll('#bill-chips .chip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
   loadBills();
 }
-function clearDates(){
-  document.getElementById('bf-from').value='';
-  document.getElementById('bf-to').value='';
+function clearFilters(){
+  ['bf-from','bf-to','b-search'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadBills();
 }
-
-// ═══════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════
-function badge(st){
-  const m={paid:['b-paid',t('st_paid')], sent:['b-sent',t('st_sent')], draft:['b-draft',t('st_draft')]};
-  const [c,l]=m[st]||['b-draft',st];
-  return `<span class="badge ${c}">${l}</span>`;
+function sortBy(c){
+  if(sortCol===c) sortDir = sortDir==='asc'?'desc':'asc';
+  else { sortCol=c; sortDir='desc'; }
+  renderBills();
+}
+function getRows(){
+  const q=(document.getElementById('b-search')?.value||'').toLowerCase();
+  let rows=ORDERS.filter(o=>!q||String(o.po_no||'').toLowerCase().includes(q)||String(o.receipt_no||'').toLowerCase().includes(q));
+  const numCols=['total_qty','grand_total','rubber_amount','shipping_amount'];
+  rows.sort((a,b)=>{
+    let x=a[sortCol], y=b[sortCol];
+    if(numCols.includes(sortCol)){ x=Number(x)||0; y=Number(y)||0; }
+    else { x=String(x||''); y=String(y||''); }
+    if(x<y) return sortDir==='asc'?-1:1;
+    if(x>y) return sortDir==='asc'?1:-1;
+    return 0;
+  });
+  return rows;
 }
 
-function billCard(o){
-  return `<div class="bill ${o.status==='sent'?'pending':''}" onclick="openBill('${esc(o.id)}')">
-    <div class="bill-top">
-      <div style="min-width:0">
-        <div class="bill-no">${esc(o.po_no||'—')}</div>
-        <div style="font-size:.8rem;color:var(--muted);margin-top:.15rem">${fmtDate(o.paid_at||o.date)} · ${kg(o.total_qty)} ${t('kg')}</div>
-        <div style="margin-top:.3rem">${badge(o.status)}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="bill-amt">${money(o.grand_total)}</div>
-        ${o.receipt_no?`<div class="mono" style="font-size:.62rem;color:var(--sky-d);margin-top:.1rem">${esc(o.receipt_no)}</div>`:''}
-      </div>
-    </div>
-  </div>`;
-}
+// ═══ RENDER ═══
+function badge(s){const m={paid:['b-paid',t('st_paid')],sent:['b-sent',t('st_sent')],draft:['b-draft',t('st_draft')]};
+  const [c,l]=m[s]||['b-draft',s];return `<span class="badge ${c}">${l}</span>`;}
 
 function renderHome(){
-  if(!ME) return;
+  if(!ME)return;
   const s=ME.stats||{};
   document.getElementById('h-amt').textContent=money(s.paid_amount);
   document.getElementById('h-sub').textContent=`${s.paid_count||0} ${t('items_unit')} · ${kg(s.paid_kg)} ${t('kg')}`;
-  document.getElementById('s-cnt').textContent=(s.paid_count||0);
+  document.getElementById('s-cnt').textContent=s.paid_count||0;
   document.getElementById('s-kg').textContent=kg(s.paid_kg);
   document.getElementById('s-pend').textContent=money(s.pending_amount);
   document.getElementById('s-last').textContent=fmtDate(s.last_sale);
-  const hb=document.getElementById('home-bills');
-  const top=ORDERS.slice(0,3);
-  hb.innerHTML = top.length ? top.map(billCard).join('') : `<div class="empty"><div class="ic">🧾</div><div>${t('no_bills')}</div></div>`;
+  const tb=document.getElementById('home-rows');
+  const top=ORDERS.slice(0,5);
+  tb.innerHTML = top.length ? top.map(o=>`<tr onclick="openBill('${esc(o.id)}')">
+    <td class="mono" style="font-size:.74rem">${esc(o.po_no)}</td>
+    <td>${fmtDate(o.paid_at||o.date)}</td>
+    <td class="num">${kg(o.total_qty)}</td>
+    <td class="num" style="color:var(--green-d);font-weight:700">${money(o.grand_total)}</td>
+    <td>${badge(o.status)}</td></tr>`).join('')
+    : `<tr><td colspan="5" class="empty"><div class="ic">🧾</div>${t('no_bills')}</td></tr>`;
   const hn=document.getElementById('home-news');
   const tn=NEWS.slice(0,2);
-  hn.innerHTML = tn.length ? tn.map(newsCard).join('') : `<div class="empty"><div class="ic">📢</div><div>${t('no_news')}</div></div>`;
+  hn.innerHTML = tn.length ? tn.map(newsCard).join('') : `<div class="empty"><div class="ic">📢</div>${t('no_news')}</div>`;
 }
 
 function renderBills(){
-  const el=document.getElementById('bills-list');
-  if(!el) return;
-  const totKg=ORDERS.reduce((a,o)=>a+(Number(o.total_qty)||0),0);
-  const totAmt=ORDERS.reduce((a,o)=>a+(Number(o.grand_total)||0),0);
-  document.getElementById('bills-sum').textContent =
-    `${t('found')} ${ORDERS.length} ${t('items_unit')} · ${kg(totKg)} ${t('kg')} · ${money(totAmt)}`;
-  el.innerHTML = ORDERS.length ? ORDERS.map(billCard).join('')
-    : `<div class="empty"><div class="ic">🧾</div><div>${t('no_bills')}</div></div>`;
+  const tb=document.getElementById('bills-rows'); if(!tb)return;
+  const rows=getRows();
+  const tKg=rows.reduce((a,o)=>a+(Number(o.total_qty)||0),0);
+  const tNet=rows.reduce((a,o)=>a+(Number(o.grand_total)||0),0);
+  document.getElementById('bills-sum').textContent=`${t('found')} ${rows.length} ${t('items_unit')} · ${kg(tKg)} ${t('kg')} · ${money(tNet)}`;
+  document.querySelectorAll('#bills-table th').forEach(th=>{
+    th.classList.toggle('sorted', th.dataset.c===sortCol);
+    const ar=th.querySelector('.ar');
+    if(ar) ar.textContent = th.dataset.c===sortCol ? (sortDir==='asc'?'↑':'↓') : '↕';
+  });
+  tb.innerHTML = rows.length ? rows.map(o=>{
+    const ship=Number(o.shipping_amount)||0;
+    return `<tr onclick="openBill('${esc(o.id)}')">
+    <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${esc(o.po_no)}</td>
+    <td>${fmtDate(o.date)}</td>
+    <td class="num">${kg(o.total_qty)}</td>
+    <td class="num">${money(o.rubber_amount)}</td>
+    <td class="num" style="color:${ship<0?'var(--red-d)':'var(--muted)'}">${ship?money(ship):'—'}</td>
+    <td class="num" style="color:var(--green-d);font-weight:700">${money(o.grand_total)}</td>
+    <td>${badge(o.status)}</td>
+    <td style="text-align:right"><span style="color:var(--sky-d);font-size:.9rem">›</span></td></tr>`;}).join('')
+    : `<tr><td colspan="8" class="empty"><div class="ic">🧾</div>${t('no_bills')}</td></tr>`;
+}
+
+function renderReport(){
+  if(!REPORT)return;
+  const ms=REPORT.months||[];
+  const tot=ms.reduce((a,m)=>a+(Number(m.amount)||0),0);
+  const bills=ms.reduce((a,m)=>a+(Number(m.bills)||0),0);
+  const tkg=ms.reduce((a,m)=>a+(Number(m.kg)||0),0);
+  document.getElementById('rp-stat').innerHTML=[
+    ['💰',t('rp_total'),money(tot),'var(--green-d)'],
+    ['📦',t('rp_bills'),bills+' '+t('items_unit'),'var(--sky-d)'],
+    ['⚖️',t('rp_kg'),kg(tkg)+' '+t('kg'),'var(--gold)'],
+    ['📊',t('rp_avg'),money(bills?tot/bills:0),'var(--violet-d)'],
+  ].map(([i,l,v,c])=>`<div class="sb"><div class="ic">${i}</div><div class="lb">${l}</div><div class="vl" style="color:${c}">${v}</div></div>`).join('');
+  const mn=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const tb=document.getElementById('rp-rows');
+  tb.innerHTML = ms.length ? ms.slice().reverse().map(m=>{
+    const [y,mo]=m.ym.split('-');
+    return `<tr><td style="font-weight:600">${mn[parseInt(mo)-1]||mo} ${+y+543}</td>
+    <td class="num">${m.bills}</td><td class="num">${kg(m.kg)}</td>
+    <td class="num" style="color:var(--green-d);font-weight:700">${money(m.amount)}</td></tr>`;}).join('')
+    : `<tr><td colspan="4" class="empty"><div class="ic">📊</div>${t('no_data')}</td></tr>`;
 }
 
 function newsCard(n){
-  const cat={general:'cat-general',price:'cat-price',urgent:'cat-urgent'}[n.category]||'cat-general';
-  const catLb={general:'ทั่วไป',price:'ราคายาง',urgent:'ด่วน'}[n.category]||n.category;
+  const cc={general:'var(--sky)',price:'var(--green)',urgent:'var(--red)'}[n.category]||'var(--sky)';
+  const cl={general:'ทั่วไป',price:'ราคายาง',urgent:'ด่วน'}[n.category]||n.category;
   return `<div class="news-item ${n.is_pinned?'pin':''}">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.3rem">
-      <span class="news-cat ${cat}">${n.is_pinned?'📌 ':''}${catLb}</span>
+      <span class="news-cat" style="background:${cc}">${n.is_pinned?'📌 ':''}${cl}</span>
       <span style="font-size:.66rem;color:var(--muted2)">${fmtDate(n.published_at)}</span>
     </div>
-    <div style="font-weight:700;font-size:.92rem;margin-bottom:.25rem">${esc(n.title)}</div>
+    <div style="font-weight:700;font-size:.92rem;margin-bottom:.2rem">${esc(n.title)}</div>
     ${n.body?`<div style="font-size:.82rem;color:var(--text2);white-space:pre-wrap">${esc(n.body)}</div>`:''}
   </div>`;
 }
 function renderNews(){
-  const el=document.getElementById('news-list');
-  if(!el) return;
-  el.innerHTML = NEWS.length ? NEWS.map(newsCard).join('')
-    : `<div class="empty"><div class="ic">📢</div><div>${t('no_news')}</div></div>`;
+  const el=document.getElementById('news-list'); if(!el)return;
+  el.innerHTML = NEWS.length ? NEWS.map(newsCard).join('') : `<div class="empty"><div class="ic">📢</div>${t('no_news')}</div>`;
 }
 
 function renderProfile(){
-  if(!ME) return;
-  const a=ME.address||{};
-  const addr=[a.house,a.subdistrict,a.district,a.province].filter(Boolean).join(', ')||'—';
+  if(!ME)return;
+  document.getElementById('pf-name').textContent=ME.name||'';
+  document.getElementById('pf-code').textContent=ME.customer_code||'';
+  document.getElementById('pf-joined').textContent=t('c_joined')+': '+fmtDate(ME.joined_at);
+  const av=document.getElementById('pf-av');
+  if(ME.avatar){ av.innerHTML=`<img src="${ME.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    document.getElementById('av-del').style.display=''; }
+  else { av.innerHTML='👤'; document.getElementById('av-del').style.display='none'; }
+  const a=ME.address||{}, addr=[a.house,a.subdistrict,a.district,a.province].filter(Boolean).join(', ')||'—';
   const s=ME.stats||{};
   const row=(k,v)=>`<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-  document.getElementById('me-info').innerHTML =
-    row(t('c_name'), esc(ME.name)) +
-    row(t('c_code'), `<span class="mono">${esc(ME.customer_code)}</span>`) +
-    (ME.phone?row(t('c_phone'), esc(ME.phone)):'') +
-    (ME.username?row(t('c_user'), esc(ME.username)):'') +
-    row(t('c_addr'), esc(addr)) +
-    row(t('c_first'), fmtDate(s.first_sale)) +
-    row(t('c_last'), fmtDate(s.last_sale));
+  document.getElementById('pf-info').innerHTML=
+    row(t('c_name'),esc(ME.name))+
+    row(t('c_code'),`<span class="mono" style="color:var(--sky-d)">${esc(ME.customer_code)}</span>`)+
+    row(t('c_phone'),esc(ME.phone)||'—')+
+    row(t('c_addr'),esc(addr))+
+    row(t('c_joined'),fmtDate(ME.joined_at))+
+    row(t('c_first'),fmtDate(s.first_sale))+
+    row(t('c_last_sale'),fmtDate(s.last_sale))+
+    row(t('c_lastlogin'),fmtDT(ME.last_login));
+  document.getElementById('pf-phone').value=ME.phone||'';
 }
 
-// ═══════════════════════════════════════
-// BILL DETAIL + QR
-// ═══════════════════════════════════════
+// ═══ AVATAR ═══
+function onAvatarPick(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f)return;
+  if(f.size>5*1024*1024){toast(t('img_big'),true);return;}
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const S=240, cv=document.createElement('canvas'); cv.width=S;cv.height=S;
+      const x=cv.getContext('2d');
+      const side=Math.min(img.width,img.height);
+      x.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,S,S);
+      const url=cv.toDataURL('image/jpeg',0.82);
+      saveAvatar(url);
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(f);
+  ev.target.value='';
+}
+async function saveAvatar(url){
+  const r=await rpc('customer_update_profile',{p_token:TOKEN,p_phone:null,p_avatar:url});
+  if(!r||!r.ok){toast(r?.error||'ไม่สำเร็จ',true);return;}
+  ME.avatar=url; renderProfile(); updateTopbar(); toast(t('saved'));
+}
+async function removeAvatar(){
+  const r=await rpc('customer_update_profile',{p_token:TOKEN,p_phone:null,p_avatar:''});
+  if(!r||!r.ok){toast(r?.error||'ไม่สำเร็จ',true);return;}
+  ME.avatar=''; renderProfile(); updateTopbar(); toast(t('saved'));
+}
+async function saveProfile(){
+  const ph=document.getElementById('pf-phone').value.trim();
+  const r=await rpc('customer_update_profile',{p_token:TOKEN,p_phone:ph,p_avatar:null});
+  if(!r||!r.ok){toast(r?.error||'ไม่สำเร็จ',true);return;}
+  ME.phone=ph; renderProfile(); toast(t('saved'));
+}
+
+// ═══ BILL DETAIL ═══
 function qrData(o){
   return ['KUBTHOR ໃບບິນ/ใบเสร็จ',
     o.receipt_no?('ใบเสร็จ: '+o.receipt_no):('บิล: '+(o.po_no||'-')),
-    'ลูกค้า: '+(ME?.name||'-'),
-    'วันที่: '+fmtDate(o.date),
+    'ลูกค้า: '+(ME?.name||'-'),'วันที่: '+fmtDate(o.date),
     (o.paid_at?('ชำระ: '+fmtDT(o.paid_at)):''),
-    'น้ำหนัก: '+kg(o.total_qty)+' กก.',
-    'ยอดเงิน: '+money(o.grand_total),
-  ].filter(Boolean).join('\n');
+    'น้ำหนัก: '+kg(o.total_qty)+' กก.','ยอดรับสุทธิ: '+money(o.grand_total)].filter(Boolean).join('\n');
 }
-function qrURL(text){
-  if(typeof qrcode==='undefined') return '';
-  try{
-    const q=qrcode(0,'M'); q.addData(text); q.make();
-    const c=q.getModuleCount(), cell=4, m=cell*2, dim=c*cell+m*2;
-    const cv=document.createElement('canvas'); cv.width=dim; cv.height=dim;
-    const x=cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,dim,dim); x.fillStyle='#000';
-    for(let r=0;r<c;r++) for(let k=0;k<c;k++) if(q.isDark(r,k)) x.fillRect(m+k*cell, m+r*cell, cell, cell);
+function qrURL(txt){
+  if(typeof qrcode==='undefined')return '';
+  try{const q=qrcode(0,'M');q.addData(txt);q.make();
+    const c=q.getModuleCount(),cell=4,m=cell*2,dim=c*cell+m*2;
+    const cv=document.createElement('canvas');cv.width=dim;cv.height=dim;
+    const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,dim,dim);x.fillStyle='#000';
+    for(let r=0;r<c;r++)for(let k=0;k<c;k++)if(q.isDark(r,k))x.fillRect(m+k*cell,m+r*cell,cell,cell);
     return cv.toDataURL('image/png');
-  }catch(e){ return ''; }
+  }catch(e){return '';}
 }
 function openBill(id){
-  const o=ORDERS.find(x=>String(x.id)===String(id));
-  if(!o) return;
+  const o=ORDERS.find(x=>String(x.id)===String(id)); if(!o)return;
   document.getElementById('sb-po').textContent=o.po_no||'';
   const row=(k,v)=>`<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-  const items=(o.items||[]);
-  const itemsHtml = items.length ? `
-    <div style="font-weight:700;font-size:.82rem;margin:1rem 0 .4rem">${t('b_items')} (${items.length})</div>
-    <div style="border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden">
-    ${items.map((it,i)=>`<div style="display:flex;justify-content:space-between;padding:.55rem .8rem;font-size:.82rem;${i%2?'background:var(--surface2)':''}">
-      <span>${i+1}. ${esc(it.product||'ยางพารา')}</span>
-      <span class="mono">${kg(it.qty)} × ${money(it.price)}</span>
-    </div>`).join('')}
-    </div>` : '';
+  const items=o.items||[];
+  const itemRows = items.length ? items.map(it=>{
+    const isShip=(it.product||'').toUpperCase()==='SHIPPING';
+    return `<tr>
+      <td>${isShip?'🚚 ':'🌳 '}${prodName(it.product)}</td>
+      <td class="num">${num(it.qty)}</td>
+      <td class="num">${money(it.price)}</td>
+      <td class="num" style="font-weight:700;color:${Number(it.total)<0?'var(--red-d)':'var(--text)'}">${money(it.total)}</td>
+    </tr>`;}).join('') : `<tr><td colspan="4" class="empty">${t('no_data')}</td></tr>`;
+  const ship=Number(o.shipping_amount)||0;
   const q=qrURL(qrData(o));
   document.getElementById('sb-body').innerHTML =
-    row(t('b_status'), badge(o.status)) +
-    row(t('b_date'), fmtDate(o.date)) +
-    (o.paid_at?row(t('b_paid_date'), fmtDT(o.paid_at)):'') +
-    (o.receipt_no?row(t('b_receipt'), `<span class="mono" style="color:var(--sky-d)">${esc(o.receipt_no)}</span>`):'') +
-    row(t('b_kg'), kg(o.total_qty)+' '+t('kg')) +
-    itemsHtml +
-    `<div style="margin-top:1rem;padding:1rem;background:var(--green-l);border:1px solid var(--green-m);border-radius:var(--r);text-align:center">
-      <div style="font-size:.75rem;color:var(--green-d)">${t('b_amt')}</div>
-      <div class="bebas" style="font-size:2rem;color:var(--green-d)">${money(o.grand_total)}</div>
-    </div>` +
-    (o.note?`<div style="margin-top:.8rem;padding:.7rem .9rem;background:var(--surface2);border-radius:var(--r-sm);font-size:.8rem"><b>${t('b_note')}:</b> ${esc(o.note)}</div>`:'') +
-    (q?`<div style="text-align:center;margin-top:1.2rem">
-        <img src="${q}" style="width:170px;height:170px;image-rendering:pixelated;border:1px solid var(--border);border-radius:var(--r-sm);padding:6px;background:#fff">
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.35rem">${t('qr_hint')}</div>
-      </div>`:'');
+    row(t('c_status'),badge(o.status))+
+    row(t('c_date'),fmtDate(o.date))+
+    (o.paid_at?row(t('b_paid_date'),fmtDT(o.paid_at)):'')+
+    (o.receipt_no?row(t('b_receipt'),`<span class="mono" style="color:var(--sky-d)">${esc(o.receipt_no)}</span>`):'')+
+    `<div style="font-weight:700;font-size:.84rem;margin:1rem 0 .4rem">${t('b_items')}</div>
+     <div class="tbl-wrap" style="border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden">
+     <table class="dt" style="min-width:380px"><thead><tr>
+       <th>${t('b_type')}</th><th class="num">${t('c_kg')}</th>
+       <th class="num">${t('b_price')}</th><th class="num">${t('b_amount')}</th>
+     </tr></thead><tbody>${itemRows}</tbody></table></div>
+     <div style="margin-top:1rem;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+       <div style="padding:.6rem .9rem;background:var(--surface2);display:flex;justify-content:space-between;font-size:.84rem">
+         <span>${t('b_gross')}</span><span class="mono" style="font-weight:600">${money(o.rubber_amount)}</span></div>
+       ${ship?`<div style="padding:.6rem .9rem;display:flex;justify-content:space-between;font-size:.84rem;border-top:1px solid var(--border)">
+         <span>🚚 ${t('b_deduct')}</span><span class="mono" style="font-weight:600;color:${ship<0?'var(--red-d)':'var(--text)'}">${money(ship)}</span></div>`:''}
+       <div style="padding:.8rem .9rem;background:var(--green-l);border-top:2px solid var(--green-m);display:flex;justify-content:space-between;align-items:center">
+         <span style="font-weight:700;color:var(--green-d)">${t('b_net')}</span>
+         <span class="bebas" style="font-size:1.6rem;color:var(--green-d)">${money(o.grand_total)}</span></div>
+     </div>`+
+    (o.note?`<div style="margin-top:.8rem;padding:.7rem .9rem;background:var(--surface2);border-radius:var(--r-sm);font-size:.8rem"><b>${t('b_note')}:</b> ${esc(o.note)}</div>`:'')+
+    (q?`<div style="text-align:center;margin-top:1.1rem">
+      <img src="${q}" style="width:160px;height:160px;image-rendering:pixelated;border:1px solid var(--border);border-radius:var(--r-sm);padding:6px;background:#fff">
+      <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">${t('qr_hint')}</div></div>`:'')+
+    `<div style="margin-top:1rem;text-align:right"><button class="btn-sm" onclick="window.print()">🖨 ${t('nav_bills')}</button></div>`;
   document.getElementById('sheet-bill').classList.add('on');
   document.body.style.overflow='hidden';
 }
-function closeSheet(){
-  document.getElementById('sheet-bill').classList.remove('on');
-  document.body.style.overflow='';
+function closeSheet(){document.getElementById('sheet-bill').classList.remove('on');document.body.style.overflow='';}
+
+// ═══ EXPORT ═══
+function dlCSV(csv,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=name+'-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+function exportExcel(){
+  const rows=getRows();
+  const h=[t('c_bill'),t('c_date'),t('c_kg'),t('c_gross'),t('c_deduct'),t('c_net'),t('c_status'),t('b_receipt')];
+  const body=rows.map(o=>[o.po_no,o.date,o.total_qty||0,Math.round(o.rubber_amount||0),
+    Math.round(o.shipping_amount||0),Math.round(o.grand_total||0),
+    t('st_'+o.status)||o.status,o.receipt_no||''].map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(','));
+  dlCSV([h.join(','),...body].join('\r\n'),'sales-'+(ME?.customer_code||''));
+  toast(t('saved'));
+}
+function exportReportExcel(){
+  const ms=(REPORT?.months)||[];
+  const h=[t('c_month'),t('c_bills'),t('c_kg'),t('c_income')];
+  const body=ms.map(m=>[m.ym,m.bills,m.kg,Math.round(m.amount||0)].map(v=>`"${v}"`).join(','));
+  dlCSV([h.join(','),...body].join('\r\n'),'income-'+(ME?.customer_code||''));
+  toast(t('saved'));
+}
+function exportPDF(){
+  const rows=getRows();
+  const w=window.open('','_blank');
+  if(!w){toast('กรุณาอนุญาต popup',true);return;}
+  const tot=rows.reduce((a,o)=>a+(Number(o.grand_total)||0),0);
+  const tkg=rows.reduce((a,o)=>a+(Number(o.total_qty)||0),0);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${t('nav_bills')}</title>
+  <style>*{font-family:'Sarabun','Phetsarath OT',sans-serif}body{padding:22px;color:#111}
+  h1{font-size:17px;margin:0 0 3px}.m{font-size:11px;color:#666;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{background:#0F172A;color:#fff;padding:6px 7px;text-align:left}
+  td{padding:5px 7px;border-bottom:1px solid #ddd}
+  tr:nth-child(even){background:#f7f8fa}.r{text-align:right}
+  tfoot td{font-weight:700;background:#DCFCE7;border-top:2px solid #16A34A}
+  @media print{body{padding:0}}</style></head><body>
+  <h1>🌳 KUBTHOR — ${t('nav_bills')}</h1>
+  <div class="m">${t('c_name')}: ${esc(ME?.name||'')} · ${t('c_code')}: ${esc(ME?.customer_code||'')} · ${new Date().toLocaleString('th-TH')}</div>
+  <table><thead><tr>
+    <th>${t('c_bill')}</th><th>${t('c_date')}</th><th class="r">${t('c_kg')}</th>
+    <th class="r">${t('c_gross')}</th><th class="r">${t('c_deduct')}</th>
+    <th class="r">${t('c_net')}</th><th>${t('c_status')}</th></tr></thead><tbody>
+  ${rows.map(o=>`<tr><td>${esc(o.po_no)}</td><td>${fmtDate(o.date)}</td>
+    <td class="r">${kg(o.total_qty)}</td><td class="r">${money(o.rubber_amount)}</td>
+    <td class="r">${o.shipping_amount?money(o.shipping_amount):'—'}</td>
+    <td class="r">${money(o.grand_total)}</td><td>${t('st_'+o.status)||o.status}</td></tr>`).join('')}
+  </tbody><tfoot><tr><td colspan="2">${t('found')} ${rows.length} ${t('items_unit')}</td>
+    <td class="r">${kg(tkg)}</td><td colspan="2"></td><td class="r">${money(tot)}</td><td></td></tr></tfoot></table>
+  <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script></body></html>`);
+  w.document.close();
 }
 
-// ═══════════════════════════════════════
-// CHANGE PIN
-// ═══════════════════════════════════════
-async function changePin(){
+// ═══ CHANGE PW ═══
+async function changePw(){
   const o=document.getElementById('cp-old').value.trim();
   const n=document.getElementById('cp-new').value.trim();
-  if(!o||!n){ toast(t('fill_all'),true); return; }
+  const n2=document.getElementById('cp-new2').value.trim();
+  if(!o||!n||!n2){toast(t('fill_all'),true);return;}
+  if(n!==n2){toast(t('pin_mismatch'),true);return;}
+  if(n.length<6){toast(t('pw_short'),true);return;}
   const r=await rpc('customer_set_password',{p_token:TOKEN,p_new:n,p_old:o});
-  if(!r||!r.ok){ toast(r?.error||'ไม่สำเร็จ',true); return; }
-  document.getElementById('cp-old').value='';
-  document.getElementById('cp-new').value='';
-  toast(t('pin_changed'));
+  if(!r||!r.ok){toast(r?.error||'ไม่สำเร็จ',true);return;}
+  ['cp-old','cp-new','cp-new2'].forEach(i=>document.getElementById(i).value='');
+  toast(t('pw_changed'));
 }
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
+// ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', async ()=>{
   setLang(curLang);
   ['li-pin','li-id'].forEach(id=>{
-    document.getElementById(id).addEventListener('keypress', e=>{ if(e.key==='Enter') doLogin(); });
+    const e=document.getElementById(id);
+    if(e) e.addEventListener('keypress',ev=>{if(ev.key==='Enter')doLogin();});
   });
-  if(TOKEN){ await enterApp(); }
-  // PWA
+  if(TOKEN) await enterApp();
   if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
     const sw=`self.addEventListener('install',e=>self.skipWaiting());
       self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
       self.addEventListener('fetch',e=>{const u=new URL(e.request.url);
         if(e.request.method!=='GET'||u.hostname.includes('supabase'))return;
-        e.respondWith(caches.open('kubthor-cp-v1').then(c=>c.match(e.request).then(h=>{
+        e.respondWith(caches.open('kubthor-cp-v3').then(c=>c.match(e.request).then(h=>{
           const n=fetch(e.request).then(r=>{if(r&&r.status===200)try{c.put(e.request,r.clone())}catch(_){}; return r;}).catch(()=>h);
           return h||n;})));});`;
-    try{
-      const url=URL.createObjectURL(new Blob([sw],{type:'text/javascript'}));
-      navigator.serviceWorker.register(url).catch(()=>{});
-    }catch(e){}
+    try{ navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{}); }catch(e){}
     try{
       const icon="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316A34A'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E";
       const man={name:"KUBTHOR สมาชิก",short_name:"KUBTHOR",start_url:".",scope:".",display:"standalone",
         background_color:"#ffffff",theme_color:"#16A34A",
         icons:[{src:icon,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},
                {src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
-      const l=document.createElement('link'); l.rel='manifest';
+      const l=document.createElement('link');l.rel='manifest';
       l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));
       document.head.appendChild(l);
     }catch(e){}
