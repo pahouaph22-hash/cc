@@ -122,7 +122,20 @@ table.dt td{padding:.65rem .8rem;border-bottom:1px solid var(--border);font-size
 table.dt tbody tr:nth-child(even){background:var(--surface2)}
 table.dt tbody tr:hover{background:var(--sky-l);cursor:pointer}
 table.dt tbody tr:last-child td{border-bottom:none}
+/* ✅ แก้ specificity: th/td ที่มี .num ต้องชิดขวาเสมอ */
+table.dt th.num, table.dt td.num{text-align:right;font-family:'IBM Plex Mono',monospace}
+table.dt th.ctr, table.dt td.ctr{text-align:center}
 .num{text-align:right;font-family:'IBM Plex Mono',monospace}
+/* แถวรวมท้ายตาราง */
+table.dt tfoot td{background:var(--green-l);border-top:2px solid var(--green);font-weight:700;
+  color:var(--green-d);padding:.7rem .8rem;font-size:.85rem}
+table.dt tfoot tr:hover{background:var(--green-l)}
+/* แถบสัดส่วน */
+.bar{height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px;min-width:60px}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#22C55E);border-radius:99px}
+.mon{font-weight:700;font-size:.86rem}
+.mon-sub{font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.pct{font-size:.62rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
 
 .badge{display:inline-block;padding:.14rem .5rem;border-radius:999px;font-size:.6rem;font-weight:700;white-space:nowrap}
 .b-paid{background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m)}
@@ -179,6 +192,11 @@ table.dt tbody tr:last-child td{border-bottom:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media(max-width:640px){
   .wrap{padding:.9rem .7rem 3rem}
+  table.dt th{font-size:.6rem;padding:.5rem .5rem}
+  table.dt td{font-size:.76rem;padding:.55rem .5rem}
+  table.dt tfoot td{font-size:.78rem;padding:.6rem .5rem}
+  .mon{font-size:.8rem}.mon-sub{font-size:.6rem}
+  .bar{min-width:40px}
   .mi{padding:.55rem .6rem;font-size:.72rem}
   .hero .vl{font-size:1.8rem}
 }
@@ -386,12 +404,14 @@ table.dt tbody tr:last-child td{border-bottom:none}
       <div class="stat" id="rp-stat"></div>
       <div class="card" style="padding:0">
         <div class="card-h" data-i18n="rp_monthly">📅 สรุปรายเดือน</div>
-        <div class="tbl-wrap"><table class="dt"><thead><tr>
-          <th data-i18n="c_month">เดือน</th>
-          <th class="num" data-i18n="c_bills">จำนวนใบ</th>
-          <th class="num" data-i18n="c_kg">น้ำหนัก(กก.)</th>
-          <th class="num" data-i18n="c_income">รายได้</th></tr></thead>
-          <tbody id="rp-rows"></tbody></table></div>
+        <div class="tbl-wrap"><table class="dt" style="min-width:560px"><thead><tr>
+          <th style="width:26%" data-i18n="c_month">เดือน</th>
+          <th class="num" style="width:13%" data-i18n="c_bills">จำนวนใบ</th>
+          <th class="num" style="width:19%" data-i18n="c_kg">น้ำหนัก(กก.)</th>
+          <th class="num" style="width:24%" data-i18n="c_income">รายได้</th>
+          <th class="num" style="width:18%" data-i18n="c_share">สัดส่วน</th></tr></thead>
+          <tbody id="rp-rows"></tbody>
+          <tfoot id="rp-foot"></tfoot></table></div>
       </div>
     </div>
 
@@ -484,6 +504,7 @@ th:{
   pin_mismatch:"รหัสผ่านไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
   saved:"บันทึกเรียบร้อย", img_big:"รูปใหญ่เกินไป (สูงสุด 5MB)", session_exp:"เซสชันหมดอายุ",
   rp_total:"รายได้รวมทั้งปี", rp_bills:"จำนวนใบทั้งหมด", rp_kg:"น้ำหนักรวมทั้งปี", rp_avg:"เฉลี่ยต่อใบ",
+  c_share:"สัดส่วน", rp_sum:"รวมทั้งหมด", unit_month:"เดือน",
   all_years:"ทุกปี", retry:"ลองใหม่", clear_filter:"ล้างตัวกรอง",
   new_bill:"มีรายการขายใหม่!", refreshed:"อัปเดตข้อมูลแล้ว",
 },
@@ -523,6 +544,7 @@ lo:{
   pin_mismatch:"ລະຫັດຜ່ານບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
   saved:"ບັນທຶກຮຽບຮ້ອຍ", img_big:"ຮູບໃຫຍ່ເກີນໄປ (ສູງສຸດ 5MB)", session_exp:"ເຊສຊັນໝົດອາຍຸ",
   rp_total:"ລາຍໄດ້ລວມທັງປີ", rp_bills:"ຈຳນວນໃບທັງໝົດ", rp_kg:"ນ້ຳໜັກລວມທັງປີ", rp_avg:"ສະເລ່ຍຕໍ່ໃບ",
+  c_share:"ສັດສ່ວນ", rp_sum:"ລວມທັງໝົດ", unit_month:"ເດືອນ",
   all_years:"ທຸກປີ", retry:"ລອງໃໝ່", clear_filter:"ລ້າງຕົວກອງ",
   new_bill:"ມີລາຍການຂາຍໃໝ່!", refreshed:"ອັບເດດຂໍ້ມູນແລ້ວ",
 }};
@@ -827,24 +849,61 @@ function renderBills(){
 
 function renderReport(){
   if(!REPORT)return;
-  const ms=REPORT.months||[];
-  const tot=ms.reduce((a,m)=>a+(Number(m.amount)||0),0);
-  const bills=ms.reduce((a,m)=>a+(Number(m.bills)||0),0);
-  const tkg=ms.reduce((a,m)=>a+(Number(m.kg)||0),0);
-  document.getElementById('rp-stat').innerHTML=[
+  const ms=(REPORT.months||[]).slice();
+  const tot   = ms.reduce((a,m)=>a+(Number(m.amount)||0),0);
+  const bills = ms.reduce((a,m)=>a+(Number(m.bills)||0),0);
+  const tkg   = ms.reduce((a,m)=>a+(Number(m.kg)||0),0);
+  const maxAmt= ms.reduce((a,m)=>Math.max(a,Number(m.amount)||0),0);
+
+  // ── การ์ดสรุป ──
+  const st=document.getElementById('rp-stat');
+  if(st) st.innerHTML=[
     ['💰',t('rp_total'),money(tot),'var(--green-d)'],
     ['📦',t('rp_bills'),bills+' '+t('items_unit'),'var(--sky-d)'],
     ['⚖️',t('rp_kg'),kg(tkg)+' '+t('kg'),'var(--gold)'],
     ['📊',t('rp_avg'),money(bills?tot/bills:0),'var(--violet-d)'],
   ].map(([i,l,v,c])=>`<div class="sb"><div class="ic">${i}</div><div class="lb">${l}</div><div class="vl" style="color:${c}">${v}</div></div>`).join('');
-  const mn=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  const mn = curLang==='lo'
+    ? ['ມ.ກ.','ກ.ພ.','ມີ.ນ.','ເມ.ສ.','ພ.ພ.','ມິ.ຖ.','ກ.ລ.','ສ.ຫ.','ກ.ຍ.','ຕ.ລ.','ພ.ຈ.','ທ.ວ.']
+    : ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  // ── แถวข้อมูล (ใหม่→เก่า) ──
   const tb=document.getElementById('rp-rows');
-  tb.innerHTML = ms.length ? ms.slice().reverse().map(m=>{
-    const [y,mo]=m.ym.split('-');
-    return `<tr><td style="font-weight:600">${mn[parseInt(mo)-1]||mo} ${+y+543}</td>
-    <td class="num">${m.bills}</td><td class="num">${kg(m.kg)}</td>
-    <td class="num" style="color:var(--green-d);font-weight:700">${money(m.amount)}</td></tr>`;}).join('')
-    : `<tr><td colspan="4" class="empty"><div class="ic">📊</div>${t('no_data')}</td></tr>`;
+  const rows=ms.slice().sort((a,b)=> a.ym<b.ym?1:-1);
+  if(tb){
+    tb.innerHTML = rows.length ? rows.map(m=>{
+      const [y,mo]=String(m.ym).split('-');
+      const amt=Number(m.amount)||0;
+      const pct = tot? (amt/tot*100) : 0;
+      const w   = maxAmt? Math.max(3,(amt/maxAmt*100)) : 0;
+      return `<tr>
+        <td>
+          <div class="mon">${mn[parseInt(mo)-1]||mo} ${+y+543}</div>
+          <div class="mon-sub">${m.ym}</div>
+        </td>
+        <td class="num">${m.bills}</td>
+        <td class="num">${kg(m.kg)}</td>
+        <td class="num" style="color:var(--green-d);font-weight:700;font-size:.88rem">${money(amt)}</td>
+        <td class="num">
+          <div class="pct">${pct.toFixed(1)}%</div>
+          <div class="bar"><i style="width:${w}%"></i></div>
+        </td>
+      </tr>`;}).join('')
+      : `<tr><td colspan="5" class="empty"><div class="ic">📊</div><div style="font-weight:600">${t('no_data')}</div></td></tr>`;
+  }
+
+  // ── แถวรวม ──
+  const tf=document.getElementById('rp-foot');
+  if(tf){
+    tf.innerHTML = rows.length ? `<tr>
+      <td>${t('rp_sum')} (${rows.length} ${t('unit_month')})</td>
+      <td class="num">${bills}</td>
+      <td class="num">${kg(tkg)}</td>
+      <td class="num" style="font-size:.95rem">${money(tot)}</td>
+      <td class="num">100%</td>
+    </tr>` : '';
+  }
 }
 
 function newsCard(n){
