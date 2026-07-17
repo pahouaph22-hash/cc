@@ -354,7 +354,8 @@ table.dt tbody tr:last-child td{border-bottom:none}
         <input type="text" id="b-search" placeholder="🔍 ค้นหาเลขที่บิล..." data-i18n-placeholder="ph_search" oninput="renderBills()" style="width:auto;flex:1;min-width:150px;font-size:.8rem;padding:.42rem .7rem">
         <input type="date" id="bf-from" onchange="loadBills()" style="width:auto;font-size:.78rem;padding:.4rem .5rem">
         <input type="date" id="bf-to" onchange="loadBills()" style="width:auto;font-size:.78rem;padding:.4rem .5rem">
-        <button class="btn-sm" onclick="clearFilters()">✕</button>
+        <button class="btn-sm" onclick="clearFilters()" title="ล้างตัวกรอง">✕</button>
+        <button class="btn-sm" id="btn-refresh" onclick="manualRefresh()" title="รีเฟรช">🔄</button>
         <button class="btn-sm btn-xl" onclick="exportExcel()">⬇ Excel</button>
         <button class="btn-sm btn-rd" onclick="exportPDF()">🖨 PDF</button>
       </div>
@@ -465,7 +466,7 @@ th:{
   c_deduct:"หักค่าใช้จ่าย", c_net:"ยอดรับสุทธิ", c_status:"สถานะ",
   c_month:"เดือน", c_bills:"จำนวนใบ", c_income:"รายได้",
   st_paid:"รับเงินแล้ว", st_sent:"รอรับเงิน", st_draft:"ร่าง",
-  no_bills:"ยังไม่มีรายการขาย", no_news:"ยังไม่มีข่าวสาร", no_data:"ไม่มีข้อมูล",
+  no_bills:"ไม่พบข้อมูลประวัติการขาย", no_news:"ยังไม่มีข่าวสาร", no_data:"ไม่มีข้อมูล",
   pf_info:"📋 ข้อมูลสมาชิก", pf_edit:"✏️ แก้ไขข้อมูลส่วนตัว",
   pf_edit_note:"ℹ️ ชื่อและที่อยู่แก้ไขได้ที่จุดรับซื้อเท่านั้น (เพราะผูกกับใบบิล)",
   av_remove:"🗑 ลบรูป", lb_phone:"เบอร์โทรศัพท์",
@@ -481,7 +482,8 @@ th:{
   pin_mismatch:"รหัสผ่านไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
   saved:"บันทึกเรียบร้อย", img_big:"รูปใหญ่เกินไป (สูงสุด 5MB)", session_exp:"เซสชันหมดอายุ",
   rp_total:"รายได้รวมทั้งปี", rp_bills:"จำนวนใบทั้งหมด", rp_kg:"น้ำหนักรวมทั้งปี", rp_avg:"เฉลี่ยต่อใบ",
-  all_years:"ทุกปี",
+  all_years:"ทุกปี", retry:"ลองใหม่", clear_filter:"ล้างตัวกรอง",
+  new_bill:"มีรายการขายใหม่!", refreshed:"อัปเดตข้อมูลแล้ว",
 },
 lo:{
   portal_sub:"ລະບົບສະມາຊິກລູກຄ້າຢາງພາລາ", btn_login:"ເຂົ້າສູ່ລະບົບ",
@@ -503,7 +505,7 @@ lo:{
   c_deduct:"ຫັກຄ່າໃຊ້ຈ່າຍ", c_net:"ຍອດຮັບສຸດທິ", c_status:"ສະຖານະ",
   c_month:"ເດືອນ", c_bills:"ຈຳນວນໃບ", c_income:"ລາຍໄດ້",
   st_paid:"ຮັບເງິນແລ້ວ", st_sent:"ລໍຮັບເງິນ", st_draft:"ຮ່າງ",
-  no_bills:"ຍັງບໍ່ມີລາຍການຂາຍ", no_news:"ຍັງບໍ່ມີຂ່າວສານ", no_data:"ບໍ່ມີຂໍ້ມູນ",
+  no_bills:"ບໍ່ພົບຂໍ້ມູນປະຫວັດການຂາຍ", no_news:"ຍັງບໍ່ມີຂ່າວສານ", no_data:"ບໍ່ມີຂໍ້ມູນ",
   pf_info:"📋 ຂໍ້ມູນສະມາຊິກ", pf_edit:"✏️ ແກ້ໄຂຂໍ້ມູນສ່ວນຕົວ",
   pf_edit_note:"ℹ️ ຊື່ ແລະ ທີ່ຢູ່ແກ້ໄຂໄດ້ທີ່ຈຸດຮັບຊື້ເທົ່ານັ້ນ (ເພາະຜູກກັບໃບບິນ)",
   av_remove:"🗑 ລຶບຮູບ", lb_phone:"ເບີໂທລະສັບ",
@@ -519,7 +521,8 @@ lo:{
   pin_mismatch:"ລະຫັດຜ່ານບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
   saved:"ບັນທຶກຮຽບຮ້ອຍ", img_big:"ຮູບໃຫຍ່ເກີນໄປ (ສູງສຸດ 5MB)", session_exp:"ເຊສຊັນໝົດອາຍຸ",
   rp_total:"ລາຍໄດ້ລວມທັງປີ", rp_bills:"ຈຳນວນໃບທັງໝົດ", rp_kg:"ນ້ຳໜັກລວມທັງປີ", rp_avg:"ສະເລ່ຍຕໍ່ໃບ",
-  all_years:"ທຸກປີ",
+  all_years:"ທຸກປີ", retry:"ລອງໃໝ່", clear_filter:"ລ້າງຕົວກອງ",
+  new_bill:"ມີລາຍການຂາຍໃໝ່!", refreshed:"ອັບເດດຂໍ້ມູນແລ້ວ",
 }};
 function t(k){ return (L[curLang]&&L[curLang][k]) || L.th[k] || k; }
 function setLang(l){
@@ -583,6 +586,7 @@ async function doSetPassword(){
   setTimeout(()=>enterApp(),700);
 }
 async function doLogout(){
+  stopRealtime();
   try{await rpc('customer_logout',{p_token:TOKEN});}catch(e){}
   TOKEN='';ME=null;localStorage.removeItem('cp_token');
   document.getElementById('app').style.display='none';
@@ -605,6 +609,8 @@ async function enterApp(){
   updateTopbar();
   await Promise.all([loadBills(),loadNews(),loadReport()]);
   renderHome();renderProfile();
+  startAutoRefresh();
+  startRealtime();
 }
 function updateTopbar(){
   document.getElementById('tb-name').textContent=ME?.name||'';
@@ -623,12 +629,26 @@ function go(p){
 }
 
 // ═══ DATA ═══
-async function loadBills(){
-  const f=document.getElementById('bf-from')?.value||null, o=document.getElementById('bf-to')?.value||null;
-  const r=await rpc('customer_orders',{p_token:TOKEN,p_from:f,p_to:o,p_status:curFilter||null});
-  if(!r||!r.ok){if(r?.error)toast(r.error,true);return;}
-  ORDERS=r.orders||[];
-  renderBills();renderHome();
+let LOAD_ERR='';
+async function loadBills(silent){
+  const f=document.getElementById('bf-from')?.value||null;
+  const o=document.getElementById('bf-to')?.value||null;
+  const args={p_token:TOKEN, p_from:f||null, p_to:o||null, p_status:curFilter||null};
+  console.log('📥 customer_orders args:', args);
+  const r=await rpc('customer_orders', args);
+  console.log('📤 customer_orders result:', r);
+  if(!r||!r.ok){
+    LOAD_ERR = r?.error || 'โหลดข้อมูลไม่สำเร็จ';
+    ORDERS=[];
+    if(!silent) toast(LOAD_ERR, true);
+    // session หมดอายุ → เด้งออก
+    if(/เซสชัน|session/i.test(LOAD_ERR)){ doLogout(); return; }
+  } else {
+    LOAD_ERR='';
+    ORDERS = r.orders || [];
+    console.log('✅ โหลดประวัติการขาย', ORDERS.length, 'รายการ');
+  }
+  renderBills(); renderHome();
 }
 async function loadNews(){
   const r=await rpc('customer_news',{p_limit:30});
@@ -648,6 +668,12 @@ async function loadReport(){
   }
   renderReport();
 }
+function hasFilters(){
+  const q=(document.getElementById('b-search')?.value||'').trim();
+  const f=document.getElementById('bf-from')?.value||'';
+  const o=document.getElementById('bf-to')?.value||'';
+  return !!(q||f||o||curFilter);
+}
 function filterBills(f){
   curFilter=f;
   document.querySelectorAll('#bill-chips .chip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
@@ -655,7 +681,62 @@ function filterBills(f){
 }
 function clearFilters(){
   ['bf-from','bf-to','b-search'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  curFilter='';
+  document.querySelectorAll('#bill-chips .chip').forEach(c=>c.classList.toggle('on',c.dataset.f===''));
   loadBills();
+}
+
+// ── อัปเดตอัตโนมัติ: ทุก 45 วิ + เมื่อกลับมาที่หน้าจอ ──
+let _refreshTimer=null;
+// ── Realtime: อัปเดตทันทีเมื่อมีบิลใหม่/แก้ไขบิลของลูกค้าคนนี้ ──
+let _rtChannel=null;
+function startRealtime(){
+  if(!ME || !ME.name) return;
+  try{ if(_rtChannel) _sb.removeChannel(_rtChannel); }catch(e){}
+  try{
+    _rtChannel = _sb.channel('cust-orders-'+(ME.customer_code||'x'))
+      .on('postgres_changes',
+          { event:'*', schema:'public', table:'orders', filter:'customer=eq.'+ME.name },
+          async (payload)=>{
+            console.log('🔔 Realtime:', payload.eventType, payload.new?.po_no||'');
+            const before=ORDERS.length;
+            await loadBills(true);
+            await refreshProfile();
+            await loadReport();
+            if(ORDERS.length>before) toast('🔔 '+t('new_bill'));
+            else toast('🔄 '+t('refreshed'));
+          })
+      .subscribe((status)=>{ console.log('📡 Realtime:', status); });
+  }catch(e){ console.warn('realtime:', e); }
+}
+function stopRealtime(){
+  try{ if(_rtChannel) _sb.removeChannel(_rtChannel); }catch(e){}
+  _rtChannel=null;
+}
+
+function startAutoRefresh(){
+  if(_refreshTimer) clearInterval(_refreshTimer);
+  _refreshTimer=setInterval(async ()=>{
+    if(!TOKEN||!ME||document.hidden) return;
+    const before=ORDERS.length;
+    await loadBills(true);
+    await refreshProfile();
+    if(ORDERS.length>before) toast('🔔 '+t('new_bill'));
+  }, 45000);
+  document.addEventListener('visibilitychange', async ()=>{
+    if(!document.hidden && TOKEN && ME){ await loadBills(true); await refreshProfile(); }
+  });
+}
+async function refreshProfile(){
+  const p=await rpc('customer_profile',{p_token:TOKEN});
+  if(p&&p.ok){ ME=p; renderHome(); }
+}
+async function manualRefresh(){
+  const b=document.getElementById('btn-refresh');
+  if(b){ b.disabled=true; b.innerHTML='<span class="spin"></span>'; }
+  await Promise.all([loadBills(), refreshProfile(), loadReport()]);
+  if(b){ b.disabled=false; b.textContent='🔄'; }
+  toast(t('refreshed'));
 }
 function sortBy(c){
   if(sortCol===c) sortDir = sortDir==='asc'?'desc':'asc';
@@ -698,7 +779,7 @@ function renderHome(){
     <td class="num">${kg(o.total_qty)}</td>
     <td class="num" style="color:var(--green-d);font-weight:700">${money(o.grand_total)}</td>
     <td>${badge(o.status)}</td></tr>`).join('')
-    : `<tr><td colspan="5" class="empty"><div class="ic">🧾</div>${t('no_bills')}</td></tr>`;
+    : `<tr><td colspan="5" class="empty"><div class="ic">🧾</div>${LOAD_ERR?esc(LOAD_ERR):t('no_bills')}</td></tr>`;
   const hn=document.getElementById('home-news');
   const tn=NEWS.slice(0,2);
   hn.innerHTML = tn.length ? tn.map(newsCard).join('') : `<div class="empty"><div class="ic">📢</div>${t('no_news')}</div>`;
@@ -715,18 +796,31 @@ function renderBills(){
     const ar=th.querySelector('.ar');
     if(ar) ar.textContent = th.dataset.c===sortCol ? (sortDir==='asc'?'↑':'↓') : '↕';
   });
+  if(LOAD_ERR){
+    tb.innerHTML=`<tr><td colspan="8" class="empty">
+      <div class="ic">⚠️</div>
+      <div style="color:var(--red-d);font-weight:600">${esc(LOAD_ERR)}</div>
+      <button class="btn-sm" style="margin-top:.7rem" onclick="loadBills()">🔄 ${t('retry')}</button>
+    </td></tr>`;
+    return;
+  }
   tb.innerHTML = rows.length ? rows.map(o=>{
     const ship=Number(o.shipping_amount)||0;
+    const gross=(o.rubber_amount!==undefined && o.rubber_amount!==null) ? o.rubber_amount : (Number(o.grand_total)||0)-ship;
     return `<tr onclick="openBill('${esc(o.id)}')">
     <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${esc(o.po_no)}</td>
     <td>${fmtDate(o.date)}</td>
     <td class="num">${kg(o.total_qty)}</td>
-    <td class="num">${money(o.rubber_amount)}</td>
+    <td class="num">${money(gross)}</td>
     <td class="num" style="color:${ship<0?'var(--red-d)':'var(--muted)'}">${ship?money(ship):'—'}</td>
     <td class="num" style="color:var(--green-d);font-weight:700">${money(o.grand_total)}</td>
     <td>${badge(o.status)}</td>
     <td style="text-align:right"><span style="color:var(--sky-d);font-size:.9rem">›</span></td></tr>`;}).join('')
-    : `<tr><td colspan="8" class="empty"><div class="ic">🧾</div>${t('no_bills')}</td></tr>`;
+    : `<tr><td colspan="8" class="empty">
+        <div class="ic">🧾</div>
+        <div style="font-weight:600">${t('no_bills')}</div>
+        ${hasFilters()?`<button class="btn-sm" style="margin-top:.7rem" onclick="clearFilters()">✕ ${t('clear_filter')}</button>`:''}
+      </td></tr>`;
 }
 
 function renderReport(){
