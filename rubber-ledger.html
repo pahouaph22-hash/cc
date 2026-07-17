@@ -1013,7 +1013,7 @@ font{border:none!important;outline:none!important;display:inline!important}
               <th data-i18n="col_customer">ลูกค้า</th>
               <th>รหัสลูกค้า</th>
               <th data-i18n="lb_phone">เบอร์โทร</th>
-              <th>ชื่อบัญชี</th>
+              <th data-i18n="px_temp_pw">รหัสเริ่มต้น</th>
               <th data-i18n="px_last_login">เข้าใช้ล่าสุด</th>
               <th data-i18n="acc_status">สถานะ</th>
               <th data-i18n="col_manage">จัดการ</th>
@@ -2854,9 +2854,9 @@ async function pxDeleteNews(id){
 // ── CUSTOMER ACCOUNTS ──
 async function pxLoadAccounts(){
   try{
-    const {data,error}=await _sb.rpc('admin_list_customer_accounts');
-    if(error||!data||!data.ok){ _pxAccounts=[]; }
-    else _pxAccounts = data.accounts||[];
+    const {data,error}=await _sb.rpc('admin_customer_login_info');
+    if(error||!data||!data.ok){ console.warn('accounts:',error||data); _pxAccounts=[]; }
+    else _pxAccounts = data.customers||[];
   }catch(e){ _pxAccounts=[]; }
   pxRenderAccounts();
 }
@@ -2865,21 +2865,32 @@ function pxRenderAccounts(){
   const tb=document.getElementById('px-acc-body');
   if(!tb) return;
   const cnt=document.getElementById('px-acc-count');
-  if(cnt) cnt.textContent=`${_pxAccounts.length} ${t('al_items')}`;
+  const loggedIn=_pxAccounts.filter(a=>a.has_logged_in).length;
+  if(cnt) cnt.textContent=`${_pxAccounts.length} ${t('al_items')} · ${t('px_logged_in')}: ${loggedIn}`;
   if(_pxAccounts.length===0){ tb.innerHTML=`<tr><td colspan="7" class="empty-state">${t('px_no_acc')}</td></tr>`; return; }
+  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;').replace(/'/g,"\\'");
   tb.innerHTML=_pxAccounts.map(a=>{
     const active=a.is_active!==false;
+    const hasPw=!!a.has_password;
+    const st = !a.has_logged_in ? `<span class="badge badge-draft" style="font-size:.58rem">${t('px_never')}</span>`
+             : !hasPw ? `<span class="badge badge-sent" style="font-size:.58rem">${t('px_must_change')}</span>`
+             : active ? `<span class="badge badge-paid" style="font-size:.58rem">${t('acc_active')}</span>`
+             : `<span class="badge badge-cancelled" style="font-size:.58rem">${t('acc_inactive')}</span>`;
+    // รหัสชั่วคราวแสดงเฉพาะคนที่ยังไม่ตั้งรหัสเอง
+    const pw = hasPw ? '<span style="color:var(--muted2)">••••••</span>'
+             : (a.temp_password? `<span class="mono" style="color:var(--orange-d);font-weight:600">${esc(a.temp_password)}</span>`
+                               : `<span style="color:var(--red-d);font-size:.7rem">${t('px_no_bill')}</span>`);
     return `<tr style="${active?'':'opacity:.55;background:var(--red-l)'}">
-      <td style="font-weight:600">${(a.customer_name||'').replace(/</g,'&lt;')}</td>
+      <td style="font-weight:600">${esc(a.name)}</td>
       <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${a.customer_code||'—'}</td>
-      <td class="mono" style="font-size:.76rem">${a.phone||'—'}</td>
-      <td style="font-size:.78rem">${a.username||'—'}</td>
-      <td style="font-size:.74rem;color:var(--muted)">${a.last_login?_billDateTime(a.last_login).d+' '+_billDateTime(a.last_login).t:t('px_never')}</td>
-      <td><span class="badge ${active?'badge-paid':'badge-cancelled'}" style="font-size:.6rem">${active?t('acc_active'):t('acc_inactive')}</span></td>
+      <td class="mono" style="font-size:.76rem">${esc(a.phone)||'—'}</td>
+      <td>${pw}</td>
+      <td style="font-size:.72rem;color:var(--muted)">${a.last_login?_billDateTime(a.last_login).d+' '+_billDateTime(a.last_login).t:'—'}</td>
+      <td>${st}</td>
       <td style="white-space:nowrap">
-        <button onclick="pxToggleAcc('${a.customer_code}',${active?'false':'true'})" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:3px">${active?'⏸':'▶'}</button>
-        <button onclick="pxResetPin('${a.customer_code}')" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid var(--sky-m);background:var(--sky-l);color:var(--sky-d);margin-right:3px" title="${t('px_reset_pin')}">🔑</button>
-        <button class="btn-danger" onclick="pxDeleteAcc('${a.customer_code}')">🗑</button>
+        ${a.has_logged_in?`<button onclick="pxToggleAcc('${esc(a.name)}',${active?'false':'true'})" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:3px" title="${active?t('acc_deactivate'):t('acc_activate')}">${active?'⏸':'▶'}</button>
+        <button onclick="pxResetPin('${esc(a.name)}')" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid var(--sky-m);background:var(--sky-l);color:var(--sky-d);margin-right:3px" title="${t('px_reset_pin')}">🔑</button>
+        <button class="btn-danger" onclick="pxDeleteAcc('${esc(a.name)}')">🗑</button>`:'<span style="font-size:.7rem;color:var(--muted2)">—</span>'}
       </td>
     </tr>`;
   }).join('');
@@ -2895,16 +2906,15 @@ async function pxToggleAcc(code, makeActive){
   logActivity(makeActive?'activate_staff':'deactivate_staff', code, code, 'บัญชีลูกค้า');
 }
 
-async function pxResetPin(code){
-  const pin=prompt('ตั้ง PIN ใหม่ (4-6 หลัก) สำหรับ '+code);
-  if(!pin) return;
-  if(pin.length<4){ showToast('PIN ต้องมีอย่างน้อย 4 หลัก','error'); return; }
+async function pxResetPin(name){
+  if(!confirm(t('px_confirm_reset'))) return;
   try{
-    const {data,error}=await _sb.rpc('admin_reset_customer_pin',{p_code:code,p_new_pin:pin});
+    const {data,error}=await _sb.rpc('admin_reset_customer_password',{p_name:name});
     if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
+    await pxLoadAccounts();
+    alert(t('px_reset_done')+'\n\n'+t('lb_username2')+': '+name+'\n'+t('px_temp_pw')+': '+(data.temp_password||'—'));
   }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
-  showToast(t('px_pin_reset_ok')+pin);
-  logActivity('reset_customer_pin', code, code, 'รีเซ็ต PIN ลูกค้า');
+  logActivity('reset_customer_pin', name, name, 'รีเซ็ตรหัสผ่านลูกค้า');
 }
 
 async function pxDeleteAcc(code){
@@ -5083,6 +5093,13 @@ const LANG_DICT = {
     px_no_acc: "ยังไม่มีลูกค้าสมัครสมาชิก",
     px_reset_pin: "รีเซ็ต PIN",
     px_pin_reset_ok: "รีเซ็ต PIN แล้ว: ",
+    px_logged_in: "เข้าระบบแล้ว",
+    px_must_change: "⚠ ต้องตั้งรหัส",
+    px_temp_pw: "รหัสเริ่มต้น",
+    px_no_bill: "ยังไม่มีบิล",
+    px_confirm_reset: "รีเซ็ตรหัสผ่านลูกค้ารายนี้?\nลูกค้าจะกลับไปใช้เลขที่บิลล่าสุดเข้าระบบ และต้องตั้งรหัสใหม่",
+    px_reset_done: "✅ รีเซ็ตรหัสผ่านเรียบร้อย — แจ้งข้อมูลนี้ให้ลูกค้า",
+    lb_username2: "ชื่อผู้ใช้",
     px_last_login: "เข้าใช้ล่าสุด",
     px_never: "ยังไม่เคยเข้า",
     px_portal_url: "🔗 ลิงก์สำหรับลูกค้า",
@@ -5383,6 +5400,13 @@ const LANG_DICT = {
     px_no_acc: "ຍັງບໍ່ມີລູກຄ້າສະໝັກສະມາຊິກ",
     px_reset_pin: "ຣີເຊັດ PIN",
     px_pin_reset_ok: "ຣີເຊັດ PIN ແລ້ວ: ",
+    px_logged_in: "ເຂົ້າລະບົບແລ້ວ",
+    px_must_change: "⚠ ຕ້ອງຕັ້ງລະຫັດ",
+    px_temp_pw: "ລະຫັດເລີ່ມຕົ້ນ",
+    px_no_bill: "ຍັງບໍ່ມີບິນ",
+    px_confirm_reset: "ຣີເຊັດລະຫັດຜ່ານລູກຄ້າລາຍນີ້?\nລູກຄ້າຈະກັບໄປໃຊ້ເລກທີບິນຫຼ້າສຸດເຂົ້າລະບົບ ແລະ ຕ້ອງຕັ້ງລະຫັດໃໝ່",
+    px_reset_done: "✅ ຣີເຊັດລະຫັດຜ່ານຮຽບຮ້ອຍ — ແຈ້ງຂໍ້ມູນນີ້ໃຫ້ລູກຄ້າ",
+    lb_username2: "ຊື່ຜູ້ໃຊ້",
     px_last_login: "ເຂົ້າໃຊ້ຫຼ້າສຸດ",
     px_never: "ຍັງບໍ່ເຄີຍເຂົ້າ",
     px_portal_url: "🔗 ລິ້ງສຳລັບລູກຄ້າ",
@@ -5683,6 +5707,13 @@ const LANG_DICT = {
     px_no_acc: "No customer accounts yet",
     px_reset_pin: "Reset PIN",
     px_pin_reset_ok: "PIN reset: ",
+    px_logged_in: "Logged in",
+    px_must_change: "⚠ Must set password",
+    px_temp_pw: "Initial password",
+    px_no_bill: "No bills yet",
+    px_confirm_reset: "Reset this customer's password?\nThey will use their latest bill number to log in and must set a new password.",
+    px_reset_done: "✅ Password reset — give this info to the customer",
+    lb_username2: "Username",
     px_last_login: "Last login",
     px_never: "Never",
     px_portal_url: "🔗 Customer portal link",

@@ -170,52 +170,48 @@ body.lang-lo .bill-amt{font-family:'Phetsarath OT',sans-serif!important;font-siz
       </select>
     </div>
 
-    <div class="tabs-auth">
-      <button id="tab-login" class="on" onclick="switchAuth('login')" data-i18n="tab_login">เข้าสู่ระบบ</button>
-      <button id="tab-reg" onclick="switchAuth('reg')" data-i18n="tab_register">สมัครสมาชิก</button>
-    </div>
-
     <div id="auth-msg" class="msg"></div>
 
-    <!-- LOGIN -->
+    <!-- ── LOGIN ── -->
     <div id="form-login">
-      <div class="field">
-        <label class="label" data-i18n="lb_identifier">เบอร์โทร / รหัสลูกค้า / ชื่อบัญชี</label>
-        <input type="text" id="li-id" placeholder="020xxxxxxx หรือ CUS-123456" autocomplete="username">
+      <div style="background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r-sm);padding:.7rem .9rem;font-size:.76rem;color:var(--sky-d);margin-bottom:1rem;line-height:1.6" data-i18n="login_hint">
+        ℹ️ <b>เข้าครั้งแรก?</b><br>ชื่อผู้ใช้ = ชื่อของท่านที่ลงทะเบียนไว้<br>รหัสผ่าน = <b>เลขที่บิลการขายครั้งล่าสุด</b>
       </div>
       <div class="field">
-        <label class="label" data-i18n="lb_pin">รหัส PIN</label>
-        <input type="password" id="li-pin" inputmode="numeric" placeholder="••••••" autocomplete="current-password">
+        <label class="label" data-i18n="lb_username2">ชื่อผู้ใช้ (ชื่อของท่าน)</label>
+        <input type="text" id="li-id" placeholder="เช่น สมชาย ใจดี" autocomplete="username">
+      </div>
+      <div class="field">
+        <label class="label" data-i18n="lb_password">รหัสผ่าน</label>
+        <input type="password" id="li-pin" placeholder="••••••" autocomplete="current-password">
+        <div style="font-size:.68rem;color:var(--muted);margin-top:.3rem" data-i18n="pw_hint">ครั้งแรกใช้เลขที่บิลล่าสุด เช่น PO-12345678</div>
       </div>
       <button class="btn-main" id="btn-login" onclick="doLogin()" data-i18n="btn_login">เข้าสู่ระบบ</button>
+      <div style="text-align:center;margin-top:1rem;font-size:.74rem;color:var(--muted);line-height:1.6" data-i18n="help_text">
+        ไม่ทราบเลขที่บิล? กรุณาติดต่อจุดรับซื้อ<br>หรือดูจากใบเสร็จการขายครั้งล่าสุด
+      </div>
     </div>
 
-    <!-- REGISTER -->
-    <div id="form-reg" style="display:none">
-      <div style="background:var(--sky-l);border:1px solid var(--sky-m);border-radius:var(--r-sm);padding:.6rem .8rem;font-size:.75rem;color:var(--sky-d);margin-bottom:.9rem;line-height:1.5" data-i18n="reg_note">
-        ℹ️ ต้องเป็นลูกค้าที่เคยขายยางกับเราแล้ว — ใช้ชื่อเดียวกับที่ลงทะเบียนไว้ที่จุดรับซื้อ
+    <!-- ── FORCE SET PASSWORD ── -->
+    <div id="form-setpw" style="display:none">
+      <div style="background:var(--orange-l);border:1px solid var(--orange-m);border-radius:var(--r-sm);padding:.8rem .9rem;font-size:.8rem;color:var(--orange-d);margin-bottom:1rem;line-height:1.6">
+        <b data-i18n="setpw_title">🔐 ตั้งรหัสผ่านใหม่</b><br>
+        <span data-i18n="setpw_note">เพื่อความปลอดภัย กรุณาตั้งรหัสผ่านใหม่ก่อนใช้งาน</span>
+      </div>
+      <div style="text-align:center;margin-bottom:1rem">
+        <div style="font-size:.74rem;color:var(--muted)" data-i18n="welcome">ยินดีต้อนรับ</div>
+        <div style="font-weight:700;font-size:1.05rem;color:var(--green-d)" id="sp-name">—</div>
       </div>
       <div class="field">
-        <label class="label" data-i18n="lb_name">ชื่อ-นามสกุล (ตามที่ลงทะเบียนไว้) *</label>
-        <input type="text" id="rg-name" placeholder="เช่น สมชาย ใจดี">
+        <label class="label" data-i18n="lb_pw_new">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว) *</label>
+        <input type="password" id="sp-new" placeholder="••••••" autocomplete="new-password">
       </div>
       <div class="field">
-        <label class="label" data-i18n="lb_phone">เบอร์โทรศัพท์</label>
-        <input type="tel" id="rg-phone" inputmode="tel" placeholder="020xxxxxxx">
+        <label class="label" data-i18n="lb_pw_confirm">ยืนยันรหัสผ่านใหม่ *</label>
+        <input type="password" id="sp-new2" placeholder="••••••" autocomplete="new-password">
       </div>
-      <div class="field">
-        <label class="label" data-i18n="lb_username">ชื่อบัญชี (ไม่บังคับ)</label>
-        <input type="text" id="rg-user" placeholder="เช่น somchai">
-      </div>
-      <div class="field">
-        <label class="label" data-i18n="lb_pin_new">ตั้งรหัส PIN (4-6 หลัก) *</label>
-        <input type="password" id="rg-pin" inputmode="numeric" placeholder="••••••">
-      </div>
-      <div class="field">
-        <label class="label" data-i18n="lb_pin_confirm">ยืนยันรหัส PIN *</label>
-        <input type="password" id="rg-pin2" inputmode="numeric" placeholder="••••••">
-      </div>
-      <button class="btn-main" id="btn-reg" onclick="doRegister()" data-i18n="btn_register">สมัครสมาชิก</button>
+      <button class="btn-main" id="btn-setpw" onclick="doSetPassword()" data-i18n="btn_setpw">บันทึกรหัสผ่านใหม่</button>
+      <button onclick="doLogout()" style="width:100%;margin-top:.6rem;padding:.6rem;background:transparent;color:var(--muted);font-size:.8rem" data-i18n="btn_cancel">ยกเลิก</button>
     </div>
   </div>
 </div>
@@ -353,18 +349,23 @@ let curLang = localStorage.getItem('cp_lang') || 'th';
 // ═══════════════════════════════════════
 const L = {
 th:{
-  portal_sub:"ระบบสมาชิกลูกค้ายางพารา", tab_login:"เข้าสู่ระบบ", tab_register:"สมัครสมาชิก",
-  lb_identifier:"เบอร์โทร / รหัสลูกค้า / ชื่อบัญชี", lb_pin:"รหัส PIN", btn_login:"เข้าสู่ระบบ",
-  reg_note:"ℹ️ ต้องเป็นลูกค้าที่เคยขายยางกับเราแล้ว — ใช้ชื่อเดียวกับที่ลงทะเบียนไว้ที่จุดรับซื้อ",
-  lb_name:"ชื่อ-นามสกุล (ตามที่ลงทะเบียนไว้) *", lb_phone:"เบอร์โทรศัพท์", lb_username:"ชื่อบัญชี (ไม่บังคับ)",
-  lb_pin_new:"ตั้งรหัส PIN (4-6 หลัก) *", lb_pin_confirm:"ยืนยันรหัส PIN *", btn_register:"สมัครสมาชิก",
+  portal_sub:"ระบบสมาชิกลูกค้ายางพารา", btn_login:"เข้าสู่ระบบ",
+  login_hint:"ℹ️ เข้าครั้งแรก? ชื่อผู้ใช้ = ชื่อของท่านที่ลงทะเบียนไว้ · รหัสผ่าน = เลขที่บิลการขายครั้งล่าสุด",
+  lb_username2:"ชื่อผู้ใช้ (ชื่อของท่าน)", lb_password:"รหัสผ่าน",
+  pw_hint:"ครั้งแรกใช้เลขที่บิลล่าสุด เช่น PO-12345678",
+  help_text:"ไม่ทราบเลขที่บิล? กรุณาติดต่อจุดรับซื้อ หรือดูจากใบเสร็จการขายครั้งล่าสุด",
+  setpw_title:"🔐 ตั้งรหัสผ่านใหม่", setpw_note:"เพื่อความปลอดภัย กรุณาตั้งรหัสผ่านใหม่ก่อนใช้งาน",
+  welcome:"ยินดีต้อนรับ", lb_pw_new:"รหัสผ่านใหม่ (อย่างน้อย 6 ตัว) *", lb_pw_confirm:"ยืนยันรหัสผ่านใหม่ *",
+  btn_setpw:"บันทึกรหัสผ่านใหม่", btn_cancel:"ยกเลิก",
+  pw_short:"รหัสผ่านต้องมีอย่างน้อย 6 ตัว", pw_changed:"ตั้งรหัสผ่านใหม่เรียบร้อย",
+  lb_phone:"เบอร์โทรศัพท์",
   hero_total:"ยอดขายรวมที่ได้รับแล้ว", st_bills:"ใบที่ขายแล้ว", st_kg:"น้ำหนักรวม",
   st_pending:"รอรับเงิน", st_last:"ขายล่าสุด",
   recent_bills:"🧾 รายการล่าสุด", latest_news:"📢 ข่าวสารล่าสุด", see_all:"ดูทั้งหมด →",
   nav_home:"หน้าแรก", nav_bills_s:"การขาย", nav_news_s:"ข่าวสาร", nav_me_s:"บัญชี",
   nav_bills:"🧾 ประวัติการขาย", nav_news:"📢 ข่าวสาร & ประกาศ", nav_me:"👤 ข้อมูลบัญชี",
   f_all:"ทั้งหมด", f_paid:"✅ รับเงินแล้ว", f_pending:"⏳ รอรับเงิน",
-  change_pin:"🔒 เปลี่ยนรหัส PIN", lb_pin_old:"PIN เดิม", lb_pin_new2:"PIN ใหม่",
+  change_pin:"🔒 เปลี่ยนรหัสผ่าน", lb_pin_old:"รหัสผ่านเดิม", lb_pin_new2:"รหัสผ่านใหม่",
   btn_save:"บันทึก", btn_logout:"⏻ ออกจากระบบ", bill_detail:"📄 รายละเอียดใบขาย",
   st_paid:"รับเงินแล้ว", st_sent:"รอรับเงิน", st_draft:"ร่าง",
   no_bills:"ยังไม่มีรายการขาย", no_news:"ยังไม่มีข่าวสาร",
@@ -373,23 +374,28 @@ th:{
   b_date:"วันที่ขาย", b_paid_date:"วันที่รับเงิน", b_kg:"น้ำหนัก", b_amt:"จำนวนเงิน",
   b_status:"สถานะ", b_receipt:"เลขที่ใบเสร็จ", b_note:"หมายเหตุ", b_items:"รายการ",
   qr_hint:"📱 สแกนเพื่อตรวจสอบใบเสร็จ", kg:"กก.", items_unit:"ใบ",
-  pin_changed:"เปลี่ยน PIN เรียบร้อย", pin_mismatch:"PIN ไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
-  reg_ok:"สมัครสำเร็จ! รหัสลูกค้าของคุณคือ", logging_in:"กำลังเข้าสู่ระบบ...", loading:"กำลังโหลด...",
+  pin_changed:"เปลี่ยนรหัสผ่านเรียบร้อย", pin_mismatch:"รหัสผ่านไม่ตรงกัน", fill_all:"กรุณากรอกข้อมูลให้ครบ",
+  logging_in:"กำลังเข้าสู่ระบบ...", loading:"กำลังโหลด...",
   found:"พบ", session_exp:"เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่",
 },
 lo:{
-  portal_sub:"ລະບົບສະມາຊິກລູກຄ້າຢາງພາລາ", tab_login:"ເຂົ້າສູ່ລະບົບ", tab_register:"ສະໝັກສະມາຊິກ",
-  lb_identifier:"ເບີໂທ / ລະຫັດລູກຄ້າ / ຊື່ບັນຊີ", lb_pin:"ລະຫັດ PIN", btn_login:"ເຂົ້າສູ່ລະບົບ",
-  reg_note:"ℹ️ ຕ້ອງເປັນລູກຄ້າທີ່ເຄີຍຂາຍຢາງກັບເຮົາແລ້ວ — ໃຊ້ຊື່ດຽວກັບທີ່ລົງທະບຽນໄວ້ທີ່ຈຸດຮັບຊື້",
-  lb_name:"ຊື່-ນາມສະກຸນ (ຕາມທີ່ລົງທະບຽນໄວ້) *", lb_phone:"ເບີໂທລະສັບ", lb_username:"ຊື່ບັນຊີ (ບໍ່ບັງຄັບ)",
-  lb_pin_new:"ຕັ້ງລະຫັດ PIN (4-6 ໂຕ) *", lb_pin_confirm:"ຢືນຢັນລະຫັດ PIN *", btn_register:"ສະໝັກສະມາຊິກ",
+  portal_sub:"ລະບົບສະມາຊິກລູກຄ້າຢາງພາລາ", btn_login:"ເຂົ້າສູ່ລະບົບ",
+  login_hint:"ℹ️ ເຂົ້າຄັ້ງທຳອິດ? ຊື່ຜູ້ໃຊ້ = ຊື່ຂອງທ່ານທີ່ລົງທະບຽນໄວ້ · ລະຫັດຜ່ານ = ເລກທີບິນການຂາຍຄັ້ງຫຼ້າສຸດ",
+  lb_username2:"ຊື່ຜູ້ໃຊ້ (ຊື່ຂອງທ່ານ)", lb_password:"ລະຫັດຜ່ານ",
+  pw_hint:"ຄັ້ງທຳອິດໃຊ້ເລກທີບິນຫຼ້າສຸດ ເຊັ່ນ PO-12345678",
+  help_text:"ບໍ່ຮູ້ເລກທີບິນ? ກະລຸນາຕິດຕໍ່ຈຸດຮັບຊື້ ຫຼື ເບິ່ງຈາກໃບບິນການຂາຍຄັ້ງຫຼ້າສຸດ",
+  setpw_title:"🔐 ຕັ້ງລະຫັດຜ່ານໃໝ່", setpw_note:"ເພື່ອຄວາມປອດໄພ ກະລຸນາຕັ້ງລະຫັດຜ່ານໃໝ່ກ່ອນໃຊ້ງານ",
+  welcome:"ຍິນດີຕ້ອນຮັບ", lb_pw_new:"ລະຫັດຜ່ານໃໝ່ (ຢ່າງໜ້ອຍ 6 ໂຕ) *", lb_pw_confirm:"ຢືນຢັນລະຫັດຜ່ານໃໝ່ *",
+  btn_setpw:"ບັນທຶກລະຫັດຜ່ານໃໝ່", btn_cancel:"ຍົກເລີກ",
+  pw_short:"ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ໂຕ", pw_changed:"ຕັ້ງລະຫັດຜ່ານໃໝ່ຮຽບຮ້ອຍ",
+  lb_phone:"ເບີໂທລະສັບ",
   hero_total:"ຍອດຂາຍລວມທີ່ໄດ້ຮັບແລ້ວ", st_bills:"ໃບທີ່ຂາຍແລ້ວ", st_kg:"ນ້ຳໜັກລວມ",
   st_pending:"ລໍຮັບເງິນ", st_last:"ຂາຍຫຼ້າສຸດ",
   recent_bills:"🧾 ລາຍການຫຼ້າສຸດ", latest_news:"📢 ຂ່າວສານຫຼ້າສຸດ", see_all:"ເບິ່ງທັງໝົດ →",
   nav_home:"ໜ້າຫຼັກ", nav_bills_s:"ການຂາຍ", nav_news_s:"ຂ່າວສານ", nav_me_s:"ບັນຊີ",
   nav_bills:"🧾 ປະຫວັດການຂາຍ", nav_news:"📢 ຂ່າວສານ & ປະກາດ", nav_me:"👤 ຂໍ້ມູນບັນຊີ",
   f_all:"ທັງໝົດ", f_paid:"✅ ຮັບເງິນແລ້ວ", f_pending:"⏳ ລໍຮັບເງິນ",
-  change_pin:"🔒 ປ່ຽນລະຫັດ PIN", lb_pin_old:"PIN ເດີມ", lb_pin_new2:"PIN ໃໝ່",
+  change_pin:"🔒 ປ່ຽນລະຫັດຜ່ານ", lb_pin_old:"ລະຫັດຜ່ານເດີມ", lb_pin_new2:"ລະຫັດຜ່ານໃໝ່",
   btn_save:"ບັນທຶກ", btn_logout:"⏻ ອອກຈາກລະບົບ", bill_detail:"📄 ລາຍລະອຽດໃບຂາຍ",
   st_paid:"ຮັບເງິນແລ້ວ", st_sent:"ລໍຮັບເງິນ", st_draft:"ຮ່າງ",
   no_bills:"ຍັງບໍ່ມີລາຍການຂາຍ", no_news:"ຍັງບໍ່ມີຂ່າວສານ",
@@ -398,8 +404,8 @@ lo:{
   b_date:"ວັນທີຂາຍ", b_paid_date:"ວັນທີຮັບເງິນ", b_kg:"ນ້ຳໜັກ", b_amt:"ຈຳນວນເງິນ",
   b_status:"ສະຖານະ", b_receipt:"ເລກທີໃບບິນ", b_note:"ໝາຍເຫດ", b_items:"ລາຍການ",
   qr_hint:"📱 ສະແກນເພື່ອກວດສອບໃບບິນ", kg:"ກກ.", items_unit:"ໃບ",
-  pin_changed:"ປ່ຽນ PIN ຮຽບຮ້ອຍ", pin_mismatch:"PIN ບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
-  reg_ok:"ສະໝັກສຳເລັດ! ລະຫັດລູກຄ້າຂອງທ່ານແມ່ນ", logging_in:"ກຳລັງເຂົ້າສູ່ລະບົບ...", loading:"ກຳລັງໂຫຼດ...",
+  pin_changed:"ປ່ຽນລະຫັດຜ່ານຮຽບຮ້ອຍ", pin_mismatch:"ລະຫັດຜ່ານບໍ່ກົງກັນ", fill_all:"ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ",
+  logging_in:"ກຳລັງເຂົ້າສູ່ລະບົບ...", loading:"ກຳລັງໂຫຼດ...",
   found:"ພົບ", session_exp:"ເຊສຊັນໝົດອາຍຸ ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່",
 }};
 function t(k){ return (L[curLang]&&L[curLang][k]) || L.th[k] || k; }
@@ -445,51 +451,53 @@ async function rpc(fn, args){
 // ═══════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════
-function switchAuth(w){
-  document.getElementById('tab-login').classList.toggle('on', w==='login');
-  document.getElementById('tab-reg').classList.toggle('on', w==='reg');
-  document.getElementById('form-login').style.display = w==='login'?'':'none';
-  document.getElementById('form-reg').style.display   = w==='reg'?'':'none';
-  document.getElementById('auth-msg').className='msg';
-}
 function authMsg(text, ok){
   const el=document.getElementById('auth-msg');
   el.textContent=text; el.className='msg '+(ok?'ok':'err');
 }
+function showAuthForm(which){
+  document.getElementById('form-login').style.display  = which==='login' ?'':'none';
+  document.getElementById('form-setpw').style.display  = which==='setpw'?'':'none';
+}
 
 async function doLogin(){
   const id=document.getElementById('li-id').value.trim();
-  const pin=document.getElementById('li-pin').value.trim();
-  if(!id||!pin){ authMsg(t('fill_all')); return; }
+  const pw=document.getElementById('li-pin').value.trim();
+  if(!id||!pw){ authMsg(t('fill_all')); return; }
   const btn=document.getElementById('btn-login');
   btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
-  const r = await rpc('customer_login', {p_identifier:id, p_pin:pin});
+  const r = await rpc('customer_login', {p_username:id, p_password:pw});
   btn.disabled=false; btn.textContent=t('btn_login');
   if(!r||!r.ok){ authMsg(r?.error||'เข้าสู่ระบบไม่สำเร็จ'); return; }
+
   TOKEN=r.token; localStorage.setItem('cp_token', TOKEN);
+  authMsg('', true);
+  document.getElementById('auth-msg').className='msg';
+
+  // ครั้งแรก → บังคับตั้งรหัสผ่านใหม่
+  if(r.must_change_password){
+    document.getElementById('sp-name').textContent=r.name||'';
+    document.getElementById('sp-new').value='';
+    document.getElementById('sp-new2').value='';
+    showAuthForm('setpw');
+    return;
+  }
   await enterApp();
 }
 
-async function doRegister(){
-  const name=document.getElementById('rg-name').value.trim();
-  const phone=document.getElementById('rg-phone').value.trim();
-  const user=document.getElementById('rg-user').value.trim();
-  const pin=document.getElementById('rg-pin').value.trim();
-  const pin2=document.getElementById('rg-pin2').value.trim();
-  if(!name||!pin||!pin2){ authMsg(t('fill_all')); return; }
-  if(pin!==pin2){ authMsg(t('pin_mismatch')); return; }
-  if(pin.length<4){ authMsg('PIN ต้องมีอย่างน้อย 4 หลัก'); return; }
-  const btn=document.getElementById('btn-reg');
+async function doSetPassword(){
+  const p1=document.getElementById('sp-new').value.trim();
+  const p2=document.getElementById('sp-new2').value.trim();
+  if(!p1||!p2){ authMsg(t('fill_all')); return; }
+  if(p1!==p2){ authMsg(t('pin_mismatch')); return; }
+  if(p1.length<6){ authMsg(t('pw_short')); return; }
+  const btn=document.getElementById('btn-setpw');
   btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
-  const r = await rpc('customer_register', {p_name:name, p_phone:phone||null, p_pin:pin, p_username:user||null});
-  btn.disabled=false; btn.textContent=t('btn_register');
-  if(!r||!r.ok){ authMsg(r?.error||'สมัครไม่สำเร็จ'); return; }
-  authMsg(t('reg_ok')+' '+r.customer_code, true);
-  setTimeout(()=>{
-    switchAuth('login');
-    document.getElementById('li-id').value = phone || r.customer_code;
-    authMsg(t('reg_ok')+' '+r.customer_code, true);
-  }, 1800);
+  const r=await rpc('customer_set_password', {p_token:TOKEN, p_new:p1, p_old:null});
+  btn.disabled=false; btn.textContent=t('btn_setpw');
+  if(!r||!r.ok){ authMsg(r?.error||'ไม่สำเร็จ'); return; }
+  authMsg(t('pw_changed'), true);
+  setTimeout(()=>{ enterApp(); }, 700);
 }
 
 async function doLogout(){
@@ -498,12 +506,22 @@ async function doLogout(){
   document.getElementById('app').style.display='none';
   document.getElementById('auth-screen').style.display='flex';
   document.getElementById('li-pin').value='';
+  showAuthForm('login');
+  document.getElementById('auth-msg').className='msg';
 }
 
 async function enterApp(){
   const p = await rpc('customer_profile', {p_token:TOKEN});
   if(!p||!p.ok){ TOKEN=''; localStorage.removeItem('cp_token'); authMsg(p?.error||t('session_exp')); return; }
+  if(p.must_change_password){
+    document.getElementById('sp-name').textContent=p.name||'';
+    showAuthForm('setpw');
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('app').style.display='none';
+    return;
+  }
   ME=p;
+  showAuthForm('login');
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('me-name').textContent=p.name;
@@ -709,7 +727,7 @@ async function changePin(){
   const o=document.getElementById('cp-old').value.trim();
   const n=document.getElementById('cp-new').value.trim();
   if(!o||!n){ toast(t('fill_all'),true); return; }
-  const r=await rpc('customer_change_pin',{p_token:TOKEN,p_old:o,p_new:n});
+  const r=await rpc('customer_set_password',{p_token:TOKEN,p_new:n,p_old:o});
   if(!r||!r.ok){ toast(r?.error||'ไม่สำเร็จ',true); return; }
   document.getElementById('cp-old').value='';
   document.getElementById('cp-new').value='';
