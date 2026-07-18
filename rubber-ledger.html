@@ -2394,8 +2394,7 @@ function renderHistory(){
         <div style="display:flex;gap:.25rem;align-items:center;flex-wrap:nowrap">
           <button class="btn-danger" onclick="event.stopPropagation();openDetail('${o.id}')" style="padding:.25rem .45rem;font-size:.65rem">${t("btn_view")}</button>
           <button class="btn-danger" onclick="event.stopPropagation();openDelModal('${o.id}')" style="padding:.25rem .45rem;font-size:.65rem">${t("btn_cancel")}</button>
-          ${canPrintRow?`<button title="${t('pr_btn_thermal')}" style="background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m);padding:.25rem .4rem;font-size:.65rem;font-weight:600;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();thermalPrint('${o.id}')">🧾</button>
-          <button title="${t('pr_btn_a4')}" style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.25rem .4rem;font-size:.65rem;font-weight:600;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()">📄</button>`:""}
+          ${canPrintRow?`<button title="${t('pr_btn_thermal')}" style="background:var(--green);color:#fff;border:1px solid var(--green-d);padding:.25rem .5rem;font-size:.68rem;font-weight:700;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();thermalPrint('${o.id}')">🧾</button>`:""}
           ${currentUser?.role!=="staff_biller"?`<button class="btn-gold" onclick="event.stopPropagation();moveToSent('${o.id}')" style="padding:.25rem .4rem;font-size:.65rem">${t("btn_pay_select")}</button>`:""}
         </div>
       </td>`;
@@ -2660,15 +2659,11 @@ function openDetail(id){
   const printBtnHtml = canPrint ? `
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <button onclick="thermalPrint('${o.id}')" title="${t('pr_thermal_tip')}"
-        style="background:linear-gradient(135deg,var(--green) 0%,#22C55E 100%);color:#fff;border:none;padding:.4rem 1rem;font-size:.74rem;font-weight:700;cursor:pointer;border-radius:var(--r-sm);box-shadow:0 2px 6px rgba(22,163,74,.3)">
+        style="background:linear-gradient(135deg,var(--green) 0%,#22C55E 100%);color:#fff;border:none;padding:.45rem 1.1rem;font-size:.78rem;font-weight:700;cursor:pointer;border-radius:var(--r-sm);box-shadow:0 2px 6px rgba(22,163,74,.3)">
         ${_pStat} 🧾 ${t('pr_btn_thermal')}
       </button>
       ${_isAndroid()?`<button onclick="rawbtPrint('${o.id}')" title="${t('pr_btn_rawbt')}"
-        style="background:var(--violet);color:#fff;border:none;padding:.4rem .8rem;font-size:.72rem;font-weight:600;cursor:pointer;border-radius:var(--r-sm)">📲 RawBT</button>`:''}
-      <button onclick="printReceipt()" title="${t('pr_a4_tip')}"
-        style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);padding:.4rem .8rem;font-size:.72rem;font-weight:600;cursor:pointer;border-radius:var(--r-sm)">
-        📄 ${t('pr_btn_a4')}
-      </button>
+        style="background:var(--violet);color:#fff;border:none;padding:.45rem .8rem;font-size:.74rem;font-weight:600;cursor:pointer;border-radius:var(--r-sm)">📲 RawBT</button>`:''}
     </div>` : "";
   document.getElementById("detail-status-btns").innerHTML=statusBtns
     .filter(s=>!(currentUser?.role==="staff_biller"&&(s==="paid"||s==="sent"||s==="cancelled")))
