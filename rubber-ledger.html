@@ -1070,7 +1070,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     </div>
 
     <div class="card" style="border-left:3px solid var(--sky);margin-bottom:1rem;">
-      <div class="card-header" style="color:var(--sky-d);">🖨 เครื่องพิมพ์ใบเสร็จ (58mm Bluetooth)</div>
+      <div class="card-header" style="color:var(--sky-d);display:flex;justify-content:space-between;align-items:center"><span>🖨 เครื่องพิมพ์ใบเสร็จ (58mm Bluetooth)</span><span id="app-ver" class="mono" style="font-size:.6rem;color:var(--muted2);font-weight:400"></span></div>
       <div class="card-body">
         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
           <div style="flex:1;min-width:180px;">
@@ -1604,7 +1604,7 @@ const DEFAULT_ACCOUNTS=[
   {username:"admin",password:"admin1234",role:"admin",displayName:"admin"},
 ];
 let ACCOUNTS=[...DEFAULT_ACCOUNTS];
-const APP_VERSION = "2026.07.16-0259";
+const APP_VERSION = "2026.07.18-0419";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // ── Bluetooth Thermal Printer state ──
@@ -1994,6 +1994,8 @@ async function initApp(){
   _initNetworkMonitor();
   // Session guard — เช็คว่าบัญชียังใช้งานได้
   _startSessionGuard();
+  // ลองเชื่อมเครื่องพิมพ์ที่เคยจับคู่ไว้ใหม่อัตโนมัติ
+  setTimeout(()=>{ if(printerSupported()) _tryAutoReconnect().then(ok=>{ if(ok) console.log('🖨 auto-reconnect สำเร็จ'); }); }, 2000);
   // ตรวจว่าฐานข้อมูลพร้อมสำหรับระบบเปิด/ปิดบัญชีไหม
   if(currentUser?.role==="admin"){
     _checkActiveColumn().then(ok=>{ if(ok===false) showToast(t('acc_col_missing'),'error'); });
@@ -2271,7 +2273,7 @@ function switchTab(tab,btn){
   if(tab==="history")renderHistory();
   if(tab==="pending")renderPending();
   if(tab==="customers"){renderCustomers();updateCustomerDatalist();}
-  if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();_updatePrinterUI();}
+  if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();_updatePrinterUI();_showVersion();}
   if(tab==="report"&&currentUser?.role==="admin")renderReport();
   if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
   if(tab==="cancelled"&&currentUser?.role==="admin")renderCancelled();
@@ -3478,43 +3480,7 @@ async function printerConnect(){
     });
 
     const server = await _btDevice.gatt.connect();
-    _btChar = null;
-
-    // 1) ลอง characteristic ที่รู้จักก่อน (เร็วกว่า)
-    for(const s of _BT_SERVICES){
-      try{
-        const svc = await server.getPrimaryService(s);
-        for(const c of _BT_CHARS){
-          try{
-            const ch = await svc.getCharacteristic(c);
-            if(ch && (ch.properties.write || ch.properties.writeWithoutResponse)){ _btChar=ch; break; }
-          }catch(e){}
-        }
-        if(_btChar) break;
-        // ไม่เจอ char ที่รู้จัก → ไล่ทุกตัวใน service นี้
-        const chars = await svc.getCharacteristics();
-        for(const ch of chars){
-          if(ch.properties.write || ch.properties.writeWithoutResponse){ _btChar=ch; break; }
-        }
-        if(_btChar) break;
-      }catch(e){}
-    }
-
-    // 2) ยังไม่เจอ → ไล่ทุก service ที่เครื่องมี
-    if(!_btChar){
-      try{
-        const services = await server.getPrimaryServices();
-        for(const svc of services){
-          try{
-            const chars = await svc.getCharacteristics();
-            for(const ch of chars){
-              if(ch.properties.write || ch.properties.writeWithoutResponse){ _btChar=ch; break; }
-            }
-          }catch(e){}
-          if(_btChar) break;
-        }
-      }catch(e){ console.warn('getPrimaryServices:', e); }
-    }
+    await _findWriteChar(server);
 
     if(!_btChar) throw new Error(t('pr_no_channel'));
 
@@ -3762,26 +3728,109 @@ function rawbtPrint(orderId){
   }
 }
 
+// ── เชื่อมต่อเครื่องพิมพ์ที่เคยจับคู่ไว้ใหม่อัตโนมัติ (ไม่ต้องเลือกซ้ำ) ──
+async function _tryAutoReconnect(){
+  if(!printerSupported()) return false;
+  if(printerConnected()) return true;
+  // 1) มี device object อยู่แล้ว (แค่หลุด) → connect ใหม่
+  if(_btDevice && _btDevice.gatt){
+    try{
+      showToast('🔄 '+t('pr_reconnecting'));
+      await _btDevice.gatt.connect();
+      await _findWriteChar(_btDevice.gatt);
+      if(_btChar){ _updatePrinterUI(); return true; }
+    }catch(e){ console.warn('reconnect:', e); }
+  }
+  // 2) ขอ device ที่เคยอนุญาตไว้ (Chrome 85+)
+  try{
+    if(navigator.bluetooth.getDevices){
+      const devs = await navigator.bluetooth.getDevices();
+      const savedName = localStorage.getItem('rl_printer_name')||'';
+      const dev = devs.find(d=>d.name===savedName) || devs[0];
+      if(dev){
+        showToast('🔄 '+t('pr_reconnecting'));
+        _btDevice = dev;
+        _btDevice.addEventListener('gattserverdisconnected', ()=>{
+          _btChar=null; _updatePrinterUI();
+        });
+        const server = await dev.gatt.connect();
+        await _findWriteChar(server);
+        if(_btChar){ _updatePrinterUI(); showToast('✅ '+t('pr_connected')); return true; }
+      }
+    }
+  }catch(e){ console.warn('getDevices:', e); }
+  return false;
+}
+
+// ── ค้นหา characteristic ที่เขียนได้ (ใช้ร่วมกัน) ──
+async function _findWriteChar(server){
+  _btChar = null;
+  for(const s of _BT_SERVICES){
+    try{
+      const svc = await server.getPrimaryService(s);
+      for(const c of _BT_CHARS){
+        try{
+          const ch = await svc.getCharacteristic(c);
+          if(ch && (ch.properties.write || ch.properties.writeWithoutResponse)){ _btChar=ch; return; }
+        }catch(e){}
+      }
+      const chars = await svc.getCharacteristics();
+      for(const ch of chars){
+        if(ch.properties.write || ch.properties.writeWithoutResponse){ _btChar=ch; return; }
+      }
+    }catch(e){}
+  }
+  try{
+    const services = await server.getPrimaryServices();
+    for(const svc of services){
+      const chars = await svc.getCharacteristics();
+      for(const ch of chars){
+        if(ch.properties.write || ch.properties.writeWithoutResponse){ _btChar=ch; return; }
+      }
+    }
+  }catch(e){}
+}
+
 async function thermalPrint(orderId){
   const o = orders.find(x=>String(x.id)===String(orderId));
   if(!o){ showToast('ไม่พบใบบิล','error'); return; }
 
+  // 1) เชื่อมอยู่แล้ว → พิมพ์เลย
+  // 2) ไม่ได้เชื่อม แต่รองรับ BT → ลองต่อใหม่อัตโนมัติ
+  if(!printerConnected() && printerSupported()){
+    await _tryAutoReconnect();
+  }
+
   if(printerConnected()){
     try{
-      showToast('🖨 กำลังพิมพ์...');
+      showToast('🖨 '+t('pr_printing'));
       const cv = renderReceiptCanvas(o);
       const data = _canvasToEscpos(cv);
       await _btWrite(data);
-      showToast('✅ พิมพ์สำเร็จ');
+      showToast('✅ '+t('pr_print_ok'));
       logActivity && logActivity('print_bill', o.id, o.poNo||o.id, 'พิมพ์ใบเสร็จ (Bluetooth)');
     }catch(e){
       console.warn('thermalPrint:', e);
-      showToast('❌ พิมพ์ไม่สำเร็จ: '+(e.message||'')+' — ลองเชื่อมต่อใหม่','error');
+      showToast('❌ '+t('pr_print_fail')+': '+(e.message||''),'error');
     }
-  } else {
-    // Fallback — เปิดหน้าพิมพ์ที่จัดขนาดสำหรับกระดาษความร้อน (ใช้กับ AirPrint / app bridge / share)
-    _fallbackPrintReceipt(o);
+    return;
   }
+
+  // 3) รองรับ BT แต่ยังไม่ได้จับคู่ → ถามให้จับคู่ก่อน (ไม่เด้งหน้า PDF ให้งง)
+  if(printerSupported()){
+    const go = confirm(t('pr_not_connected_ask'));
+    if(go){
+      const ok = await printerConnect();
+      if(ok){ await thermalPrint(orderId); return; }
+    }
+    // ผู้ใช้ไม่ต้องการจับคู่ → ใช้หน้าพิมพ์แทน
+    _fallbackPrintReceipt(o);
+    return;
+  }
+
+  // 4) ไม่รองรับ BT (iPhone) → หน้าพิมพ์ 58mm
+  showToast(t('pr_ios_hint'));
+  _fallbackPrintReceipt(o);
 }
 
 // ── Fallback: หน้าพิมพ์สำหรับ iPhone/เบราว์เซอร์ที่ไม่รองรับ BT ──
@@ -3845,6 +3894,10 @@ function _fallbackPrintReceipt(o){
 function reprintBill(orderId){ thermalPrint(orderId); }
 
 // ── UI: อัปเดตสถานะปุ่มเครื่องพิมพ์ ──
+function _showVersion(){
+  const e=document.getElementById('app-ver');
+  if(e) e.textContent='v'+APP_VERSION;
+}
 function pxToggleGuide(){
   const g=document.getElementById('printer-guide');
   if(g) g.style.display = g.style.display==='none' ? 'block' : 'none';
@@ -5218,6 +5271,11 @@ const LANG_DICT = {
     px_last_login: "เข้าใช้ล่าสุด",
     px_never: "ยังไม่เคยเข้า",
     px_portal_url: "🔗 ลิงก์สำหรับลูกค้า",
+    pr_reconnecting: "กำลังเชื่อมต่อเครื่องพิมพ์ใหม่...",
+    pr_printing: "กำลังพิมพ์...",
+    pr_print_ok: "พิมพ์สำเร็จ",
+    pr_print_fail: "พิมพ์ไม่สำเร็จ",
+    pr_not_connected_ask: "ยังไม่ได้เชื่อมต่อเครื่องพิมพ์\n\nต้องการจับคู่เครื่องพิมพ์ตอนนี้เลยไหม?\n\n(กด ยกเลิก = เปิดหน้าพิมพ์ผ่านระบบแทน)",
     pr_btn_thermal: "พิมพ์ใบเสร็จ (เครื่องพิมพ์)",
     pr_btn_a4: "พิมพ์ใบเก็บซื้อ (A4)",
     pr_thermal_tip: "พิมพ์ออกเครื่องพิมพ์ความร้อน 58mm ที่เชื่อมต่อไว้",
@@ -5543,6 +5601,11 @@ const LANG_DICT = {
     px_last_login: "ເຂົ້າໃຊ້ຫຼ້າສຸດ",
     px_never: "ຍັງບໍ່ເຄີຍເຂົ້າ",
     px_portal_url: "🔗 ລິ້ງສຳລັບລູກຄ້າ",
+    pr_reconnecting: "ກຳລັງເຊື່ອມຕໍ່ເຄື່ອງພິມໃໝ່...",
+    pr_printing: "ກຳລັງພິມ...",
+    pr_print_ok: "ພິມສຳເລັດ",
+    pr_print_fail: "ພິມບໍ່ສຳເລັດ",
+    pr_not_connected_ask: "ຍັງບໍ່ໄດ້ເຊື່ອມຕໍ່ເຄື່ອງພິມ\n\nຕ້ອງການຈັບຄູ່ເຄື່ອງພິມຕອນນີ້ເລີຍບໍ?\n\n(ກົດ ຍົກເລີກ = ເປີດໜ້າພິມຜ່ານລະບົບແທນ)",
     pr_btn_thermal: "ພິມໃບບິນ (ເຄື່ອງພິມ)",
     pr_btn_a4: "ພິມໃບເກັບຊື້ (A4)",
     pr_thermal_tip: "ພິມອອກເຄື່ອງພິມຄວາມຮ້ອນ 58mm ທີ່ເຊື່ອມຕໍ່ໄວ້",
@@ -5868,6 +5931,11 @@ const LANG_DICT = {
     px_last_login: "Last login",
     px_never: "Never",
     px_portal_url: "🔗 Customer portal link",
+    pr_reconnecting: "Reconnecting printer...",
+    pr_printing: "Printing...",
+    pr_print_ok: "Printed successfully",
+    pr_print_fail: "Print failed",
+    pr_not_connected_ask: "Printer not connected\n\nPair a printer now?\n\n(Cancel = open system print page instead)",
     pr_btn_thermal: "Print Receipt (Thermal)",
     pr_btn_a4: "Print PO (A4)",
     pr_thermal_tip: "Print to the connected 58mm thermal printer",
