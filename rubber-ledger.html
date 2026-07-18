@@ -3525,20 +3525,23 @@ function _buildReceiptQRData(o){
   const rc=(typeof getReceiptForOrder==='function')?getReceiptForOrder(o.id):null;
   const issued=_billDateTime(o.createdAt||o.date);
   const paid=_billDateTime(o.paidAt||o.date);
-  const items=(o.items||[]).map(it=>`${it.productId||'ยาง'} ${(it.qty||0)}kg x${(it.price||0)}`).join(' | ');
-  // รูปแบบข้อความอ่านง่าย สแกนแล้วเห็นเลย
+  const N=(n,d)=>(Number(n)||0).toLocaleString('en-US',{maximumFractionDigits:d===undefined?2:d});
+  const items=(o.items||[]).map(it=>{
+    const isShip=String(it.productId||'').toUpperCase()==='SHIPPING';
+    return `${isShip?'ຄ່າຂົນສົ່ງ':'ຢາງພາລາ'} ${N(it.qty)}ກກ. x${N(it.price,0)}`;
+  }).join(' | ');
   const lines=[
-    'KUBTHOR ใบเสร็จ/ໃບບິນ',
-    rc?('เลขที่ใบเสร็จ: '+rc.receipt_no):('เลขที่บิล: '+(o.poNo||'-')),
-    'บิล: '+(o.poNo||'-'),
-    'ลูกค้า: '+(o.customer||'-'),
-    'ออกบิล: '+issued.d+' '+issued.t,
-    (o.status==='paid'?('ชำระ: '+paid.d+' '+paid.t):''),
-    'น้ำหนัก: '+(o.totalQty||0)+' กก.',
-    'ยอดเงิน: ₭'+(o.grandTotal||0).toLocaleString('th-TH'),
-    'ผู้จด: '+(o.createdBy||'-'),
-    (o.paidBy?('ผู้รับชำระ: '+o.paidBy):''),
-    (items?('รายการ: '+items):''),
+    'ລັດວິສາຫະກິດ ກຸ້ທໍ - ໃບຮັບເງິນ',
+    rc?('ເລກທີໃບຮັບເງິນ: '+rc.receipt_no):('ເລກທີບິນ: '+(o.poNo||'-')),
+    'ບິນ: '+(o.poNo||'-'),
+    'ລູກຄ້າ: '+(o.customer||'-'),
+    'ວັນທີອອກບິນ: '+issued.d+' '+issued.t,
+    (o.status==='paid'?('ວັນທີຊຳລະ: '+paid.d+' '+paid.t):''),
+    'ນ້ຳໜັກ: '+N(o.totalQty)+' ກກ.',
+    'ຍອດເງິນ: ₭'+N(o.grandTotal,0),
+    'ຜູ້ຈົດບິນ: '+(o.createdBy||'-'),
+    (o.paidBy?('ຜູ້ຮັບຊຳລະ: '+o.paidBy):''),
+    (items?('ລາຍການ: '+items):''),
   ].filter(Boolean);
   return lines.join('\n');
 }
@@ -3577,101 +3580,133 @@ function _makeQRDataURL(text, sizePx){
   return cv? cv.toDataURL('image/png') : '';
 }
 
-function renderReceiptCanvas(o){
+// ── โหลดฟอนต์ลาวให้พร้อมก่อนวาด canvas (สำคัญมาก!) ──
+let _fontsReady = false;
+async function _ensureLaoFont(){
+  if(_fontsReady) return true;
+  try{
+    if(document.fonts && document.fonts.load){
+      // โหลดทุกขนาด/น้ำหนักที่ใช้ในใบเสร็จ
+      const specs = [
+        "15px 'Noto Sans Lao'", "17px 'Noto Sans Lao'", "20px 'Noto Sans Lao'",
+        "bold 19px 'Noto Sans Lao'", "bold 22px 'Noto Sans Lao'",
+        "bold 26px 'Noto Sans Lao'", "bold 30px 'Noto Sans Lao'",
+        "17px 'Phetsarath OT'", "bold 26px 'Phetsarath OT'"
+      ];
+      await Promise.all(specs.map(s=>document.fonts.load(s, 'ກຂຄງຈຊຍດຕຖທນບປຜຝພຟມຢຣລວສຫອຮ').catch(()=>{})));
+      await document.fonts.ready;
+      _fontsReady = true;
+    }
+  }catch(e){ console.warn('font load:', e); }
+  return _fontsReady;
+}
+
+async function renderReceiptCanvas(o){
+  await _ensureLaoFont();   // ⬅ รอฟอนต์ลาวพร้อมก่อน ไม่งั้นตัวอักษรจะเพี้ยน
+
   const widthPx = _printerWidth===80 ? 576 : 384; // 203dpi
   const pad = 12;
   const cv = document.createElement('canvas');
   const ctx = cv.getContext('2d');
-  const lineH = _printerWidth===80 ? 30 : 26;
-  const fBig = _printerWidth===80 ? 'bold 30px' : 'bold 26px';
+  const lineH = _printerWidth===80 ? 32 : 28;
+  const fBig = _printerWidth===80 ? 'bold 30px' : 'bold 25px';
   const fHd  = _printerWidth===80 ? 'bold 22px' : 'bold 19px';
   const fTx  = _printerWidth===80 ? '20px' : '17px';
   const fSm  = _printerWidth===80 ? '17px' : '15px';
-  const fam  = "'Sarabun','Phetsarath OT','Noto Sans Lao',sans-serif";
+  // ✅ ฟอนต์ลาวมาก่อนเสมอ
+  const fam  = "'Noto Sans Lao','Phetsarath OT',sans-serif";
 
-  // วัดความสูงก่อน (จำลอง)
   const issued=_billDateTime(o.createdAt||o.date);
   const paid=_billDateTime(o.paidAt||o.date);
   const loc=(typeof _getOrderLocation==='function')?_getOrderLocation(o.id,'pay_order'):'';
   const rc=(typeof getReceiptForOrder==='function')?getReceiptForOrder(o.id):null;
   const items=o.items||[];
+  const N = (n,d)=> (Number(n)||0).toLocaleString('en-US',{maximumFractionDigits:d===undefined?2:d});
 
   // ประเมินความสูง
   let h = pad;
   h += lineH*2;              // ชื่อร้าน
-  h += lineH;               // sub
-  h += 10;                  // เส้น
-  h += lineH;               // receipt no
-  h += lineH*7;             // ข้อมูล (po,ลูกค้า,วันออก,วันชำระ,ผู้จด,ผู้ชำระ,สถานที่)
+  h += lineH;                // sub
   h += 10;
-  h += lineH;               // header รายการ
+  h += lineH;                // receipt no
+  h += lineH*7;              // ข้อมูล
+  h += 10;
+  h += lineH;                // header รายการ
   h += lineH*Math.max(1,items.length)*2;
   h += 10;
-  h += lineH*2;             // รวม
+  h += lineH*2;              // รวม
   if(o.note) h += lineH*2;
   h += 10;
   const _qrSize = _printerWidth===80 ? 200 : 150;
-  h += _qrSize + lineH;     // QR + label
-  h += lineH*2;             // ขอบคุณ
+  h += _qrSize + lineH;
+  h += lineH*2;
   h += pad*3;
 
   cv.width = widthPx;
   cv.height = Math.ceil(h);
 
-  // พื้นขาว
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
   ctx.fillStyle='#000';
+  ctx.textBaseline='alphabetic';
   let y = pad;
 
-  const center=(txt,font)=>{ctx.font=font+' '+fam;ctx.textAlign='center';ctx.fillText(txt,widthPx/2,y);y+=lineH;};
+  const center=(txt,font)=>{ctx.font=(font||fTx)+' '+fam;ctx.textAlign='center';ctx.fillText(txt,widthPx/2,y);y+=lineH;};
   const left=(txt,font)=>{ctx.font=(font||fTx)+' '+fam;ctx.textAlign='left';ctx.fillText(txt,pad,y);y+=lineH;};
   const lr=(l,r,font)=>{ctx.font=(font||fTx)+' '+fam;ctx.textAlign='left';ctx.fillText(l,pad,y);ctx.textAlign='right';ctx.fillText(r,widthPx-pad,y);y+=lineH;};
-  const hr=()=>{y+=2;ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(widthPx-pad,y);ctx.stroke();ctx.setLineDash([]);y+=8;};
+  const hr=()=>{y+=2;ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(widthPx-pad,y);ctx.stroke();ctx.setLineDash([]);y+=10;};
 
-  y+=lineH*0.7;
-  center('KUBTHOR ยางพารา', fBig);
-  center('ใบเสร็จรับเงิน / ໃບບິນ', fHd);
+  // ══ ໃບຮັບເງິນ (ພາສາລາວລ້ວນ) ══
+  y+=lineH*0.8;
+  center('ລັດວິສາຫະກິດ ກຸ້ທໍ', fBig);
+  center('ຢາງພາລາ (KUBTHOR)', fHd);
   hr();
-  if(rc) left('เลขที่ใบเสร็จ: '+rc.receipt_no, fHd);
-  left('เลขที่บิล: '+(o.poNo||'-'), fTx);
-  left('ลูกค้า: '+(o.customer||'-'), fTx);
-  left('วันออกบิล: '+issued.d+' '+issued.t, fSm);
-  if(o.status==='paid') left('วันชำระ: '+paid.d+' '+paid.t, fSm);
-  left('ผู้จดบิล: '+(o.createdBy||'-'), fSm);
-  if(o.paidBy) left('ผู้รับชำระ: '+o.paidBy, fSm);
-  if(loc) left('สถานที่: '+loc, fSm);
+  center('ໃບຮັບເງິນ', fHd);
+  y+=4;
+  hr();
+  if(rc) left('ເລກທີໃບຮັບເງິນ: '+rc.receipt_no, fHd);
+  left('ເລກທີບິນ: '+(o.poNo||'-'), fTx);
+  left('ລູກຄ້າ: '+(o.customer||'-'), fTx);
+  left('ວັນທີອອກບິນ: '+issued.d+' '+issued.t, fSm);
+  if(o.status==='paid') left('ວັນທີຊຳລະ: '+paid.d+' '+paid.t, fSm);
+  left('ຜູ້ຈົດບິນ: '+(o.createdBy||'-'), fSm);
+  if(o.paidBy) left('ຜູ້ຮັບຊຳລະ: '+o.paidBy, fSm);
+  if(loc) left('ສະຖານທີ່: '+loc, fSm);
   hr();
 
-  // รายการ
-  lr('รายการ', 'กก. x ราคา', fHd);
+  // ── ລາຍການ ──
+  lr('ລາຍການ', 'ກກ. x ລາຄາ', fHd);
   if(items.length){
     items.forEach((it,i)=>{
-      left((i+1)+'. '+(it.productId||'ยางพารา'), fTx);
-      lr('   '+(it.qty||0).toLocaleString('th-TH',{maximumFractionDigits:2})+' กก. x '+(it.price||0).toLocaleString('th-TH'),
-         '₭'+((it.qty||0)*(it.price||0)).toLocaleString('th-TH',{maximumFractionDigits:0}), fSm);
+      const isShip = String(it.productId||'').toUpperCase()==='SHIPPING';
+      left((i+1)+'. '+(isShip?'ຄ່າຂົນສົ່ງ':'ຢາງພາລາ'), fTx);
+      lr('   '+N(it.qty)+' ກກ. x '+N(it.price,0),
+         '₭'+N((it.qty||0)*(it.price||0),0), fSm);
     });
   } else {
-    lr('ยางพารา', (o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.', fTx);
+    lr('ຢາງພາລາ', N(o.totalQty)+' ກກ.', fTx);
   }
   hr();
-  lr('น้ำหนักรวม', (o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})+' กก.', fHd);
-  lr('ยอดเงินรวม', '₭'+(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0}), fHd);
-  if(o.note){ hr(); left('หมายเหตุ: '+o.note, fSm); }
+  lr('ນ້ຳໜັກລວມ', N(o.totalQty)+' ກກ.', fHd);
+  lr('ຍອດເງິນລວມ', '₭'+N(o.grandTotal,0), fHd);
+  if(o.note){ hr(); left('ໝາຍເຫດ: '+o.note, fSm); }
   hr();
-  // ── QR Code (ฝังข้อมูลใบเสร็จ อ่านได้แม้ไม่มีเน็ต) ──
+
+  // ── QR ──
   const _qrCv = _makeQRCanvas(_buildReceiptQRData(o), _qrSize);
   if(_qrCv){
     ctx.textAlign='center';
     ctx.font=fSm+' '+fam;
-    ctx.fillText('สแกนตรวจสอบใบเสร็จ / ສະແກນກວດສອບ', widthPx/2, y);
-    y+=8;
+    ctx.fillText('ສະແກນກວດສອບໃບຮັບເງິນ', widthPx/2, y);
+    y+=10;
     const qx=Math.round((widthPx-_qrCv.width)/2);
     ctx.drawImage(_qrCv, qx, y);
-    y+=_qrCv.height+6;
+    y+=_qrCv.height+8;
   }
-  y+=lineH*0.3;
-  center('ຂອບໃຈ / ขอบคุณครับ', fTx);
-  center(new Date().toLocaleString('th-TH'), fSm);
+  y+=lineH*0.4;
+  center('ຂອບໃຈຫຼາຍໆ', fTx);
+  const nw=new Date();
+  const pd=n=>String(n).padStart(2,'0');
+  center(`${pd(nw.getDate())}/${pd(nw.getMonth()+1)}/${nw.getFullYear()+543} ${pd(nw.getHours())}:${pd(nw.getMinutes())}`, fSm);
 
   return cv;
 }
@@ -3711,11 +3746,11 @@ function _isAndroid(){ return /Android/i.test(navigator.userAgent); }
 function _isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
 
 // ── พิมพ์ผ่านแอป RawBT (Android) — รองรับ Bluetooth Classic ด้วย ──
-function rawbtPrint(orderId){
+async function rawbtPrint(orderId){
   const o = orders.find(x=>String(x.id)===String(orderId));
   if(!o){ showToast('ไม่พบใบบิล','error'); return; }
   try{
-    const cv = renderReceiptCanvas(o);
+    const cv = await renderReceiptCanvas(o);
     const dataUrl = cv.toDataURL('image/png');
     // RawBT รับรูปภาพผ่าน intent
     const intent = 'intent:'+dataUrl+'#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;';
@@ -3816,7 +3851,7 @@ async function thermalPrint(orderId){
   // ── พิมพ์ทันที (เหมือน Test Print) ──
   try{
     showToast('🖨 '+t('pr_printing'));
-    const cv = renderReceiptCanvas(o);
+    const cv = await renderReceiptCanvas(o);
     await _btWrite(_canvasToEscpos(cv));
     showToast('✅ '+t('pr_print_ok'));
     logActivity && logActivity('print_bill', o.id, o.poNo||o.id, 'พิมพ์ใบเสร็จ (Bluetooth)');
@@ -3834,20 +3869,28 @@ function _fallbackPrintReceipt(o){
   const rc=(typeof getReceiptForOrder==='function')?getReceiptForOrder(o.id):null;
   const items=o.items||[];
   const wmm = _printerWidth===80 ? '80mm' : '58mm';
-  const itemsHtml = items.length
-    ? items.map((it,i)=>`<div class="row"><span>${i+1}. ${it.productId||'ยางพารา'}</span></div><div class="row sm"><span>&nbsp;&nbsp;${(it.qty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก. x ${(it.price||0).toLocaleString('th-TH')}</span><span>₭${((it.qty||0)*(it.price||0)).toLocaleString('th-TH',{maximumFractionDigits:0})}</span></div>`).join('')
-    : `<div class="row"><span>ยางพารา</span><span>${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</span></div>`;
-
+  const N=(n,d)=>(Number(n)||0).toLocaleString('en-US',{maximumFractionDigits:d===undefined?2:d});
   const _qrURL = _makeQRDataURL(_buildReceiptQRData(o), 180);
+  const itemsHtml = items.length
+    ? items.map((it,i)=>{
+        const isShip=String(it.productId||'').toUpperCase()==='SHIPPING';
+        return `<div class="row"><span>${i+1}. ${isShip?'ຄ່າຂົນສົ່ງ':'ຢາງພາລາ'}</span></div>
+        <div class="row sm"><span>&nbsp;&nbsp;${N(it.qty)} ກກ. x ${N(it.price,0)}</span><span>₭${N((it.qty||0)*(it.price||0),0)}</span></div>`;
+      }).join('')
+    : `<div class="row"><span>ຢາງພາລາ</span><span>${N(o.totalQty)} ກກ.</span></div>`;
+
   const w=window.open('','_blank');
-  if(!w){ showToast('กรุณาอนุญาต popup เพื่อพิมพ์','error'); return; }
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+  if(!w){ showToast('ກະລຸນາອະນຸຍາດ popup ເພື່ອພິມ','error'); return; }
+  const nw=new Date(); const pd=n=>String(n).padStart(2,'0');
+  const stamp=`${pd(nw.getDate())}/${pd(nw.getMonth()+1)}/${nw.getFullYear()+543} ${pd(nw.getHours())}:${pd(nw.getMinutes())}`;
+  w.document.write(`<!DOCTYPE html><html lang="lo"><head><meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ใบเสร็จ ${o.poNo||''}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;700&display=swap" rel="stylesheet">
+  <title>ໃບຮັບເງິນ ${o.poNo||''}</title>
   <style>
     @page{size:${wmm} auto;margin:0}
-    *{font-family:'Sarabun','Phetsarath OT','Noto Sans Lao',sans-serif;box-sizing:border-box}
-    body{width:${wmm};margin:0;padding:4mm 3mm;color:#000;font-size:${_printerWidth===80?'13px':'11px'}}
+    *{font-family:'Noto Sans Lao','Phetsarath OT',sans-serif;box-sizing:border-box}
+    body{width:${wmm};margin:0;padding:4mm 3mm;color:#000;font-size:${_printerWidth===80?'13px':'11px'};line-height:1.55}
     .c{text-align:center}.b{font-weight:700}
     .big{font-size:${_printerWidth===80?'18px':'15px'};font-weight:700}
     .hr{border-top:1px dashed #000;margin:5px 0}
@@ -3856,31 +3899,33 @@ function _fallbackPrintReceipt(o){
     .tot{font-size:${_printerWidth===80?'16px':'13px'};font-weight:700}
     @media print{body{width:auto}}
   </style></head><body>
-    <div class="c big">KUBTHOR ยางพารา</div>
-    <div class="c b">ใบเสร็จรับเงิน / ໃບບິນ</div>
+    <div class="c big">ລັດວິສາຫະກິດ ກຸ້ທໍ</div>
+    <div class="c b">ຢາງພາລາ (KUBTHOR)</div>
     <div class="hr"></div>
-    ${rc?`<div class="b">เลขที่ใบเสร็จ: ${rc.receipt_no}</div>`:''}
-    <div>เลขที่บิล: ${o.poNo||'-'}</div>
-    <div>ลูกค้า: ${o.customer||'-'}</div>
-    <div class="sm">วันออกบิล: ${issued.d} ${issued.t}</div>
-    ${o.status==='paid'?`<div class="sm">วันชำระ: ${paid.d} ${paid.t}</div>`:''}
-    <div class="sm">ผู้จดบิล: ${o.createdBy||'-'}</div>
-    ${o.paidBy?`<div class="sm">ผู้รับชำระ: ${o.paidBy}</div>`:''}
-    ${loc?`<div class="sm">สถานที่: ${loc}</div>`:''}
+    <div class="c b">ໃບຮັບເງິນ</div>
+    <div class="hr"></div>
+    ${rc?`<div class="b">ເລກທີໃບຮັບເງິນ: ${rc.receipt_no}</div>`:''}
+    <div>ເລກທີບິນ: ${o.poNo||'-'}</div>
+    <div>ລູກຄ້າ: ${o.customer||'-'}</div>
+    <div class="sm">ວັນທີອອກບິນ: ${issued.d} ${issued.t}</div>
+    ${o.status==='paid'?`<div class="sm">ວັນທີຊຳລະ: ${paid.d} ${paid.t}</div>`:''}
+    <div class="sm">ຜູ້ຈົດບິນ: ${o.createdBy||'-'}</div>
+    ${o.paidBy?`<div class="sm">ຜູ້ຮັບຊຳລະ: ${o.paidBy}</div>`:''}
+    ${loc?`<div class="sm">ສະຖານທີ່: ${loc}</div>`:''}
     <div class="hr"></div>
     ${itemsHtml}
     <div class="hr"></div>
-    <div class="row tot"><span>น้ำหนักรวม</span><span>${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</span></div>
-    <div class="row tot"><span>ยอดเงินรวม</span><span>₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</span></div>
-    ${o.note?`<div class="hr"></div><div class="sm">หมายเหตุ: ${o.note}</div>`:''}
+    <div class="row tot"><span>ນ້ຳໜັກລວມ</span><span>${N(o.totalQty)} ກກ.</span></div>
+    <div class="row tot"><span>ຍອດເງິນລວມ</span><span>₭${N(o.grandTotal,0)}</span></div>
+    ${o.note?`<div class="hr"></div><div class="sm">ໝາຍເຫດ: ${o.note}</div>`:''}
     <div class="hr"></div>
-    ${_qrURL?`<div class="c" style="margin:6px 0"><div class="sm" style="margin-bottom:4px">สแกนตรวจสอบใบเสร็จ / ສະແກນກວດສອບ</div><img src="${_qrURL}" style="width:${_printerWidth===80?'46mm':'36mm'};height:auto;image-rendering:pixelated"></div><div class="hr"></div>`:''}
-    <div class="c">ຂອບໃຈ / ขอบคุณครับ</div>
-    <div class="c sm">${new Date().toLocaleString('th-TH')}</div>
-    <script>window.onload=()=>{setTimeout(()=>window.print(),300);}<\/script>
+    ${_qrURL?`<div class="c" style="margin:6px 0"><div class="sm" style="margin-bottom:4px">ສະແກນກວດສອບໃບຮັບເງິນ</div><img src="${_qrURL}" style="width:${_printerWidth===80?'46mm':'36mm'};height:auto;image-rendering:pixelated"></div><div class="hr"></div>`:''}
+    <div class="c">ຂອບໃຈຫຼາຍໆ</div>
+    <div class="c sm">${stamp}</div>
+    <script>window.onload=()=>{setTimeout(()=>window.print(),400);}<\/script>
   </body></html>`);
   w.document.close();
-  logActivity && logActivity('print_bill', o.id, o.poNo||o.id, 'พิมพ์ใบเสร็จ (ระบบ)');
+  logActivity && logActivity('print_bill', o.id, o.poNo||o.id, 'ພິມໃບຮັບເງິນ (ລະບົບ)');
 }
 
 // reprint = พิมพ์ซ้ำ (เหมือน thermalPrint)
@@ -3925,19 +3970,23 @@ function setPrinterWidth(w){
   showToast('ตั้งขนาดกระดาษ '+_printerWidth+'mm');
 }
 async function printerTest(){
-  if(!printerConnected()){ showToast('กรุณาเชื่อมต่อเครื่องพิมพ์ก่อน','error'); return; }
+  if(!printerConnected()){ showToast(t('pr_connect_first'),'error'); return; }
   try{
+    await _ensureLaoFont();
     const cv=document.createElement('canvas');
-    const W=_printerWidth===80?576:384; cv.width=W; cv.height=120;
-    const ctx=cv.getContext('2d'); ctx.fillStyle='#fff';ctx.fillRect(0,0,W,120);
+    const W=_printerWidth===80?576:384; cv.width=W; cv.height=150;
+    const ctx=cv.getContext('2d'); ctx.fillStyle='#fff';ctx.fillRect(0,0,W,150);
     ctx.fillStyle='#000';ctx.textAlign='center';
-    ctx.font="bold 26px 'Sarabun','Phetsarath OT',sans-serif";
-    ctx.fillText('ทดสอบพิมพ์ ✓',W/2,45);
-    ctx.font="20px 'Phetsarath OT','Noto Sans Lao',sans-serif";
-    ctx.fillText('ທົດສອບ ລາວ ✓',W/2,80);
+    const fam="'Noto Sans Lao','Phetsarath OT',sans-serif";
+    ctx.font="bold 26px "+fam;
+    ctx.fillText('ທົດສອບການພິມ ✓',W/2,45);
+    ctx.font="20px "+fam;
+    ctx.fillText('ລັດວິສາຫະກິດ ກຸ້ທໍ',W/2,80);
+    ctx.font="17px "+fam;
+    ctx.fillText('ກຂຄງຈຊຍດຕຖທນບປຜຝພຟມຢຣລວສຫອຮ',W/2,112);
     await _btWrite(_canvasToEscpos(cv));
-    showToast('✅ ส่งทดสอบแล้ว');
-  }catch(e){ showToast('❌ ทดสอบไม่สำเร็จ: '+(e.message||''),'error'); }
+    showToast('✅ ສົ່ງທົດສອບແລ້ວ');
+  }catch(e){ showToast('❌ ທົດສອບບໍ່ສຳເລັດ: '+(e.message||''),'error'); }
 }
 
 // =====================================================
@@ -4759,7 +4808,7 @@ function printReceipt(){
 
   <!-- ຫົວໃບເກັບ -->
   <div class="center" style="margin-bottom:8px">
-    <div class="company-name">ລັດວິສາຫະກິດ ກຸ້ບທໍ</div>
+    <div class="company-name">ລັດວິສາຫະກິດ ກຸ້ທໍ</div>
     <div style="font-size:12px;font-weight:600">ຢາງພາລາ (KUBTHOR)</div>
     <div class="label">☎ 020 96 891 617</div>
   </div>
@@ -4821,7 +4870,7 @@ function printReceipt(){
   <!-- ທ້າຍ -->
   <div class="center divider-light" style="margin-top:10px"></div>
   <div class="center" style="font-size:10px;color:var(--muted);margin-top:5px">
-    <div>ຂອບໃຈທີ່ໃຊ້ບໍລິການ ລັດວິສາຫະກິດ ກຸ້ບທໍ</div>
+    <div>ຂອບໃຈທີ່ໃຊ້ບໍລິການ ລັດວິສາຫະກິດ ກຸ້ທໍ</div>
     <div>ພິມວັນທີ: ${laoNow}</div>
   </div>
 
