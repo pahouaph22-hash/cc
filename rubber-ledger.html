@@ -2298,7 +2298,7 @@ function renderPending(){
   const list=document.getElementById("pending-list");
   if(pending.length===0){list.innerHTML=`<div class="card"><div class="empty-state"><div style="font-size:2rem">✅</div><div>${t("empty")}</div></div></div>`;return;}
   list.innerHTML=pending.map(o=>{
-    const itemsHtml=o.items.map(it=>{
+    const itemsHtml=(o.items||[]).map(it=>{
       const isS=it.productId==="SHIPPING";
       const qty=isS?(o.totalQty||0):(it.qty||0);
       const total=qty*(it.price||0);
@@ -2625,7 +2625,7 @@ function openDetail(id){
     rcCard.style.display="none";
   }
   const rubberQty=o.totalQty||0;
-  const itemsHtml=o.items.map(it=>{
+  const itemsHtml=(o.items||[]).map(it=>{
     const isS=it.productId==="SHIPPING";
     const qty=isS?rubberQty:(it.qty||0);
     const total=qty*(it.price||0);
@@ -3599,15 +3599,15 @@ async function _ensureLaoFont(){
 async function renderReceiptCanvas(o){
   await _ensureLaoFont();   // ⬅ รอฟอนต์ลาวพร้อมก่อน ไม่งั้นตัวอักษรจะเพี้ยน
 
-  const widthPx = _printerWidth===80 ? 576 : 384; // 203dpi
-  const pad = 12;
-  const cv = document.createElement('canvas');
-  const ctx = cv.getContext('2d');
-  const lineH = _printerWidth===80 ? 32 : 28;
-  const fBig = _printerWidth===80 ? 'bold 30px' : 'bold 25px';
-  const fHd  = _printerWidth===80 ? 'bold 22px' : 'bold 19px';
-  const fTx  = _printerWidth===80 ? '20px' : '17px';
-  const fSm  = _printerWidth===80 ? '17px' : '15px';
+  const is80   = _printerWidth===80;
+  const widthPx = is80 ? 576 : 384; // 203dpi
+  const pad = is80 ? 18 : 14;
+  const lineH = is80 ? 33 : 28;
+  const fLogo = is80 ? 'bold 32px' : 'bold 26px';
+  const fHd   = is80 ? 'bold 22px' : 'bold 19px';
+  const fTx   = is80 ? '20px' : '17px';
+  const fSm   = is80 ? '17px' : '15px';
+  const fXs   = is80 ? '15px' : '13px';
   // ✅ ฟอนต์ลาวมาก่อนเสมอ
   const fam  = "'Noto Sans Lao','Phetsarath OT',sans-serif";
 
@@ -3618,92 +3618,149 @@ async function renderReceiptCanvas(o){
   const items=o.items||[];
   const N = (n,d)=> (Number(n)||0).toLocaleString('en-US',{maximumFractionDigits:d===undefined?2:d});
 
-  // ประเมินความสูง
-  let h = pad;
-  h += lineH*2;              // ชื่อร้าน
-  h += lineH;                // sub
-  h += 10;
-  h += lineH;                // receipt no
-  h += lineH*7;              // ข้อมูล
-  h += 10;
-  h += lineH;                // header รายการ
-  h += lineH*Math.max(1,items.length)*2;
-  h += 10;
-  h += lineH*2;              // รวม
-  if(o.note) h += lineH*2;
-  h += 10;
-  const _qrSize = _printerWidth===80 ? 200 : 150;
-  h += _qrSize + lineH;
-  h += lineH*2;
-  h += pad*3;
-
-  cv.width = widthPx;
-  cv.height = Math.ceil(h);
-
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  // วาดบน canvas ร่างสูงพอ แล้วค่อยตัดตามความสูงจริงที่วาดได้ (แม่นยำกว่าการประเมินล่วงหน้า)
+  const MAXH = 3200;
+  const cv = document.createElement('canvas');
+  cv.width = widthPx; cv.height = MAXH;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,widthPx,MAXH);
   ctx.fillStyle='#000';
   ctx.textBaseline='alphabetic';
   let y = pad;
 
-  const center=(txt,font)=>{ctx.font=(font||fTx)+' '+fam;ctx.textAlign='center';ctx.fillText(txt,widthPx/2,y);y+=lineH;};
-  const left=(txt,font)=>{ctx.font=(font||fTx)+' '+fam;ctx.textAlign='left';ctx.fillText(txt,pad,y);y+=lineH;};
-  const lr=(l,r,font)=>{ctx.font=(font||fTx)+' '+fam;ctx.textAlign='left';ctx.fillText(l,pad,y);ctx.textAlign='right';ctx.fillText(r,widthPx-pad,y);y+=lineH;};
-  const hr=()=>{y+=2;ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(widthPx-pad,y);ctx.stroke();ctx.setLineDash([]);y+=10;};
+  const center=(txt,font)=>{ctx.fillStyle='#000';ctx.font=(font||fTx)+' '+fam;ctx.textAlign='center';ctx.fillText(txt,widthPx/2,y);y+=lineH;};
+  const left=(txt,font)=>{ctx.fillStyle='#000';ctx.font=(font||fTx)+' '+fam;ctx.textAlign='left';ctx.fillText(txt,pad,y);y+=lineH;};
+  const lr=(l,r,fontL,fontR)=>{ctx.fillStyle='#000';ctx.font=(fontL||fTx)+' '+fam;ctx.textAlign='left';ctx.fillText(l,pad,y);ctx.font=(fontR||fontL||fTx)+' '+fam;ctx.textAlign='right';ctx.fillText(r,widthPx-pad,y);y+=lineH;};
+  const dashLine=()=>{y+=3;ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(widthPx-pad,y);ctx.stroke();ctx.setLineDash([]);y+=11;};
+  const solidLine=(weight)=>{y+=3;ctx.fillStyle='#000';ctx.fillRect(pad,y,widthPx-pad*2,weight||2);y+=(weight||2)+11;};
+  const roundRectPath=(x,ry,w,hh,r)=>{
+    ctx.beginPath();
+    ctx.moveTo(x+r,ry);
+    ctx.arcTo(x+w,ry,x+w,ry+hh,r);
+    ctx.arcTo(x+w,ry+hh,x,ry+hh,r);
+    ctx.arcTo(x,ry+hh,x,ry,r);
+    ctx.arcTo(x,ry,x+w,ry,r);
+    ctx.closePath();
+  };
 
-  // ══ ໃບຮັບເງິນ (ພາສາລາວລ້ວນ) ══
-  y+=lineH*0.8;
-  center('ລັດວິສາຫະກິດ ກຸ້ທໍ', fBig);
+  // ══ 1. ตราหัวเอกสาร (ไม่มีโลโก้รูปภาพ → ใช้กรอบตัวย่อ "KT" แทน) ══
+  y += lineH*0.3;
+  {
+    const badge = is80 ? 56 : 46;
+    const bx = widthPx/2 - badge/2;
+    ctx.lineWidth = 2.2; ctx.strokeStyle='#000';
+    roundRectPath(bx, y, badge, badge, 10);
+    ctx.stroke();
+    ctx.fillStyle='#000';
+    ctx.font = 'bold '+(is80?'22px':'19px')+' '+fam;
+    ctx.textAlign='center';
+    ctx.fillText('KT', widthPx/2, y+badge/2+(is80?7:6));
+    y += badge + 12;
+  }
+  center('ລັດວິສາຫະກິດ ກຸ້ທໍ', fLogo);
   center('ຢາງພາລາ (KUBTHOR)', fHd);
-  hr();
-  center('ໃບຮັບເງິນ', fHd);
-  y+=4;
-  hr();
-  if(rc) left('ເລກທີໃບຮັບເງິນ: '+rc.receipt_no, fHd);
-  left('ເລກທີບິນ: '+(o.poNo||'-'), fTx);
-  left('ລູກຄ້າ: '+(o.customer||'-'), fTx);
-  left('ວັນທີອອກບິນ: '+issued.d+' '+issued.t, fSm);
-  if(o.status==='paid') left('ວັນທີຊຳລະ: '+paid.d+' '+paid.t, fSm);
-  left('ຜູ້ຈົດບິນ: '+(o.createdBy||'-'), fSm);
-  if(o.paidBy) left('ຜູ້ຮັບຊຳລະ: '+o.paidBy, fSm);
-  if(loc) left('ສະຖານທີ່: '+loc, fSm);
-  hr();
+  ctx.font=fXs+' '+fam; ctx.textAlign='center'; ctx.fillStyle='#000';
+  ctx.fillText('☎ 020 96 891 617', widthPx/2, y); y += lineH*0.85;
+  y += 4;
+  solidLine(3);
 
-  // ── ລາຍການ ──
+  // ══ 2. ป้ายชื่อเอกสาร (pill สีดำตัวหนังสือขาว) ══
+  {
+    ctx.font='bold '+(is80?'22px':'19px')+' '+fam;
+    const label='ໃບຮັບເງິນ';
+    const tw = ctx.measureText(label).width;
+    const boxW = tw + (is80?54:40);
+    const boxH = is80 ? 42 : 35;
+    const bx = widthPx/2 - boxW/2;
+    ctx.fillStyle='#000';
+    roundRectPath(bx, y, boxW, boxH, boxH/2);
+    ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.textAlign='center';
+    ctx.fillText(label, widthPx/2, y+boxH/2+(is80?7:6));
+    y += boxH + 14;
+  }
+  dashLine();
+
+  // ══ 3. ข้อมูลใบเสร็จ ══
+  if(rc) lr('ເລກທີໃບຮັບເງິນ', rc.receipt_no, fSm, fHd);
+  lr('ເລກທີບິນ', o.poNo||'-', fSm);
+  lr('ລູກຄ້າ', o.customer||'-', fSm, fHd);
+  left('ວັນທີອອກບິນ: '+issued.d+' '+issued.t, fXs);
+  if(o.status==='paid') left('ວັນທີຊຳລະ: '+paid.d+' '+paid.t, fXs);
+  left('ຜູ້ຈົດບິນ: '+(o.createdBy||'-'), fXs);
+  if(o.paidBy) left('ຜູ້ຮັບຊຳລະ: '+o.paidBy, fXs);
+  if(loc) left('ສະຖານທີ່: '+loc, fXs);
+  dashLine();
+
+  // ══ 4. ລາຍການ ══
   lr('ລາຍການ', 'ກກ. x ລາຄາ', fHd);
+  y += 2;
   if(items.length){
     items.forEach((it,i)=>{
       const isShip = String(it.productId||'').toUpperCase()==='SHIPPING';
       left((i+1)+'. '+(isShip?'ຄ່າຂົນສົ່ງ':'ຢາງພາລາ'), fTx);
       lr('   '+N(it.qty)+' ກກ. x '+N(it.price,0),
          '₭'+N((it.qty||0)*(it.price||0),0), fSm);
+      if(i<items.length-1) y += 2;
     });
   } else {
     lr('ຢາງພາລາ', N(o.totalQty)+' ກກ.', fTx);
   }
-  hr();
-  lr('ນ້ຳໜັກລວມ', N(o.totalQty)+' ກກ.', fHd);
-  lr('ຍອດເງິນລວມ', '₭'+N(o.grandTotal,0), fHd);
-  if(o.note){ hr(); left('ໝາຍເຫດ: '+o.note, fSm); }
-  hr();
+  dashLine();
 
-  // ── QR ──
+  // ══ 5. ยอดรวม ══
+  lr('ນ້ຳໜັກລວມ', N(o.totalQty)+' ກກ.', fHd);
+  y += 6;
+  {
+    // กล่องยอดเงินรวมแบบ reverse (พื้นดำ-ตัวหนังสือขาว) ให้เด่นเป็นมืออาชีพ
+    const boxH = is80 ? 56 : 47;
+    ctx.fillStyle='#000';
+    ctx.fillRect(pad, y, widthPx-pad*2, boxH);
+    ctx.fillStyle='#fff';
+    ctx.font='bold '+(is80?'18px':'15px')+' '+fam;
+    ctx.textAlign='left';
+    ctx.fillText('ຍອດເງິນລວມ', pad+12, y+boxH/2-6);
+    ctx.font='bold '+(is80?'27px':'22px')+' '+fam;
+    ctx.textAlign='right';
+    ctx.fillText('₭'+N(o.grandTotal,0), widthPx-pad-12, y+boxH/2+11);
+    ctx.fillStyle='#000';
+    y += boxH + 14;
+  }
+  if(o.note){ left('ໝາຍເຫດ: '+o.note, fXs); }
+  solidLine(2);
+
+  // ══ 6. QR (มีกรอบล้อมให้ดูเป็นทางการ) ══
+  const _qrSize = is80 ? 200 : 150;
   const _qrCv = _makeQRCanvas(_buildReceiptQRData(o), _qrSize);
   if(_qrCv){
-    ctx.textAlign='center';
-    ctx.font=fSm+' '+fam;
+    ctx.font=fXs+' '+fam; ctx.textAlign='center'; ctx.fillStyle='#000';
     ctx.fillText('ສະແກນກວດສອບໃບຮັບເງິນ', widthPx/2, y);
-    y+=10;
-    const qx=Math.round((widthPx-_qrCv.width)/2);
-    ctx.drawImage(_qrCv, qx, y);
-    y+=_qrCv.height+8;
+    y += 12;
+    const qx = Math.round((widthPx-_qrCv.width)/2);
+    const framePad = 10;
+    ctx.lineWidth = 1.5; ctx.strokeStyle='#000';
+    roundRectPath(qx-framePad, y-2, _qrCv.width+framePad*2, _qrCv.height+framePad*2, 10);
+    ctx.stroke();
+    ctx.drawImage(_qrCv, qx, y+framePad-2);
+    y += _qrCv.height + framePad*2 + 14;
   }
-  y+=lineH*0.4;
-  center('ຂອບໃຈຫຼາຍໆ', fTx);
-  const nw=new Date();
-  const pd=n=>String(n).padStart(2,'0');
-  center(`${pd(nw.getDate())}/${pd(nw.getMonth()+1)}/${nw.getFullYear()+543} ${pd(nw.getHours())}:${pd(nw.getMinutes())}`, fSm);
 
-  return cv;
+  // ══ 7. ท้ายใบเสร็จ ══
+  dashLine();
+  center('ຂອບໃຈຫຼາຍໆ ທີ່ໃຊ້ບໍລິການ', fSm);
+  const nw=new Date();
+  const pd2=n=>String(n).padStart(2,'0');
+  ctx.font=fXs+' '+fam; ctx.textAlign='center'; ctx.fillStyle='#000';
+  ctx.fillText(`${pd2(nw.getDate())}/${pd2(nw.getMonth()+1)}/${nw.getFullYear()+543} ${pd2(nw.getHours())}:${pd2(nw.getMinutes())}`, widthPx/2, y);
+  y += lineH*1.1;
+
+  // ── ตัด canvas ให้เหลือเฉพาะความสูงที่ใช้จริง ──
+  const finalH = Math.min(MAXH, Math.ceil(y+pad));
+  const out = document.createElement('canvas');
+  out.width = widthPx; out.height = finalH;
+  out.getContext('2d').drawImage(cv, 0,0,widthPx,finalH, 0,0,widthPx,finalH);
+  return out;
 }
 
 // ── แปลง canvas → ESC/POS raster (GS v 0) ──
@@ -4733,7 +4790,7 @@ function printReceipt(){
   const o=window._currentDetailOrder;
   if(!o)return;
   const rubberQty=o.totalQty||0;
-  const itemsHtml=o.items.map(it=>{
+  const itemsHtml=(o.items||[]).map(it=>{
     const isS=it.productId==="SHIPPING";
     const qty=isS?rubberQty:(it.qty||0);
     const price=it.price||0;
@@ -6334,15 +6391,40 @@ function _setupPWA(){
   // 2) Service Worker (offline shell cache) — เฉพาะเมื่อเปิดผ่าน https/localhost
   if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
     const swCode = `
-      const CACHE='rubberledger-v1';
+      // ⬆️ ต้องขยับเลขเวอร์ชันนี้ทุกครั้งที่ deploy โค้ดใหม่ที่สำคัญ
+      // เพื่อล้างแคชเก่าทิ้ง (กันเครื่องผู้ใช้ค้างเวอร์ชันบั๊กตลอดไป)
+      const CACHE='rubberledger-v2';
       self.addEventListener('install', e=>{ self.skipWaiting(); });
-      self.addEventListener('activate', e=>{ e.waitUntil(clients.claim()); });
+      self.addEventListener('activate', e=>{
+        e.waitUntil(
+          caches.keys()
+            .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+            .then(()=>clients.claim())
+        );
+      });
       self.addEventListener('fetch', e=>{
         const req=e.request;
         if(req.method!=='GET') return;
         const url=new URL(req.url);
         // ไม่ cache Supabase/API — ให้ผ่านตรง (offline queue จัดการเอง)
         if(url.hostname.includes('supabase') || url.hostname.includes('anthropic')) return;
+
+        // 📄 หน้า HTML หลัก (navigation) → network-first เสมอ
+        // กันแอปค้างเวอร์ชันเก่าเวลาเรา deploy โค้ดใหม่ (ปัญหาที่เคยเจอ)
+        // ถ้าออฟไลน์จริงๆ ค่อย fallback ไปแคชเก่า
+        if(req.mode==='navigate' || req.destination==='document'){
+          e.respondWith(
+            fetch(req).then(res=>{
+              if(res && res.status===200){
+                caches.open(CACHE).then(cache=>{ try{ cache.put(req, res.clone()); }catch(_){} });
+              }
+              return res;
+            }).catch(()=> caches.match(req))
+          );
+          return;
+        }
+
+        // ไฟล์อื่น (ฟอนต์/รูป/ไลบรารี) → cache-first เพื่อความไวและใช้งานออฟไลน์ได้
         e.respondWith(
           caches.open(CACHE).then(cache=>
             cache.match(req).then(hit=>{
