@@ -3795,42 +3795,35 @@ async function thermalPrint(orderId){
   const o = orders.find(x=>String(x.id)===String(orderId));
   if(!o){ showToast('ไม่พบใบบิล','error'); return; }
 
-  // 1) เชื่อมอยู่แล้ว → พิมพ์เลย
-  // 2) ไม่ได้เชื่อม แต่รองรับ BT → ลองต่อใหม่อัตโนมัติ
-  if(!printerConnected() && printerSupported()){
-    await _tryAutoReconnect();
-  }
-
-  if(printerConnected()){
-    try{
-      showToast('🖨 '+t('pr_printing'));
-      const cv = renderReceiptCanvas(o);
-      const data = _canvasToEscpos(cv);
-      await _btWrite(data);
-      showToast('✅ '+t('pr_print_ok'));
-      logActivity && logActivity('print_bill', o.id, o.poNo||o.id, 'พิมพ์ใบเสร็จ (Bluetooth)');
-    }catch(e){
-      console.warn('thermalPrint:', e);
-      showToast('❌ '+t('pr_print_fail')+': '+(e.message||''),'error');
-    }
-    return;
-  }
-
-  // 3) รองรับ BT แต่ยังไม่ได้จับคู่ → ถามให้จับคู่ก่อน (ไม่เด้งหน้า PDF ให้งง)
-  if(printerSupported()){
-    const go = confirm(t('pr_not_connected_ask'));
-    if(go){
-      const ok = await printerConnect();
-      if(ok){ await thermalPrint(orderId); return; }
-    }
-    // ผู้ใช้ไม่ต้องการจับคู่ → ใช้หน้าพิมพ์แทน
+  // ── iPhone/iPad: Web Bluetooth ใช้ไม่ได้ → หน้าพิมพ์ 58mm เป็นทางเดียว ──
+  if(!printerSupported()){
+    showToast(t('pr_ios_hint'));
     _fallbackPrintReceipt(o);
     return;
   }
 
-  // 4) ไม่รองรับ BT (iPhone) → หน้าพิมพ์ 58mm
-  showToast(t('pr_ios_hint'));
-  _fallbackPrintReceipt(o);
+  // ── ถ้าหลุด ลองต่อใหม่เงียบๆ ก่อน (ไม่รบกวนผู้ใช้) ──
+  if(!printerConnected()){
+    await _tryAutoReconnect();
+  }
+
+  // ── ยังไม่ได้เชื่อม → แจ้งเหมือน Test Print (ไม่เปิดหน้าต่างอะไร) ──
+  if(!printerConnected()){
+    showToast(t('pr_connect_first'),'error');
+    return;
+  }
+
+  // ── พิมพ์ทันที (เหมือน Test Print) ──
+  try{
+    showToast('🖨 '+t('pr_printing'));
+    const cv = renderReceiptCanvas(o);
+    await _btWrite(_canvasToEscpos(cv));
+    showToast('✅ '+t('pr_print_ok'));
+    logActivity && logActivity('print_bill', o.id, o.poNo||o.id, 'พิมพ์ใบเสร็จ (Bluetooth)');
+  }catch(e){
+    console.warn('thermalPrint:', e);
+    showToast('❌ '+t('pr_print_fail')+': '+(e.message||''),'error');
+  }
 }
 
 // ── Fallback: หน้าพิมพ์สำหรับ iPhone/เบราว์เซอร์ที่ไม่รองรับ BT ──
@@ -5272,10 +5265,10 @@ const LANG_DICT = {
     px_never: "ยังไม่เคยเข้า",
     px_portal_url: "🔗 ลิงก์สำหรับลูกค้า",
     pr_reconnecting: "กำลังเชื่อมต่อเครื่องพิมพ์ใหม่...",
+    pr_connect_first: "⚠ กรุณาเชื่อมต่อเครื่องพิมพ์ก่อน (ตั้งค่า → ค้นหา & จับคู่เครื่องพิมพ์)",
     pr_printing: "กำลังพิมพ์...",
     pr_print_ok: "พิมพ์สำเร็จ",
     pr_print_fail: "พิมพ์ไม่สำเร็จ",
-    pr_not_connected_ask: "ยังไม่ได้เชื่อมต่อเครื่องพิมพ์\n\nต้องการจับคู่เครื่องพิมพ์ตอนนี้เลยไหม?\n\n(กด ยกเลิก = เปิดหน้าพิมพ์ผ่านระบบแทน)",
     pr_btn_thermal: "พิมพ์ใบเสร็จ (เครื่องพิมพ์)",
     pr_btn_a4: "พิมพ์ใบเก็บซื้อ (A4)",
     pr_thermal_tip: "พิมพ์ออกเครื่องพิมพ์ความร้อน 58mm ที่เชื่อมต่อไว้",
@@ -5602,10 +5595,10 @@ const LANG_DICT = {
     px_never: "ຍັງບໍ່ເຄີຍເຂົ້າ",
     px_portal_url: "🔗 ລິ້ງສຳລັບລູກຄ້າ",
     pr_reconnecting: "ກຳລັງເຊື່ອມຕໍ່ເຄື່ອງພິມໃໝ່...",
+    pr_connect_first: "⚠ ກະລຸນາເຊື່ອມຕໍ່ເຄື່ອງພິມກ່ອນ (ຕັ້ງຄ່າ → ຄົ້ນຫາ & ຈັບຄູ່ເຄື່ອງພິມ)",
     pr_printing: "ກຳລັງພິມ...",
     pr_print_ok: "ພິມສຳເລັດ",
     pr_print_fail: "ພິມບໍ່ສຳເລັດ",
-    pr_not_connected_ask: "ຍັງບໍ່ໄດ້ເຊື່ອມຕໍ່ເຄື່ອງພິມ\n\nຕ້ອງການຈັບຄູ່ເຄື່ອງພິມຕອນນີ້ເລີຍບໍ?\n\n(ກົດ ຍົກເລີກ = ເປີດໜ້າພິມຜ່ານລະບົບແທນ)",
     pr_btn_thermal: "ພິມໃບບິນ (ເຄື່ອງພິມ)",
     pr_btn_a4: "ພິມໃບເກັບຊື້ (A4)",
     pr_thermal_tip: "ພິມອອກເຄື່ອງພິມຄວາມຮ້ອນ 58mm ທີ່ເຊື່ອມຕໍ່ໄວ້",
@@ -5932,10 +5925,10 @@ const LANG_DICT = {
     px_never: "Never",
     px_portal_url: "🔗 Customer portal link",
     pr_reconnecting: "Reconnecting printer...",
+    pr_connect_first: "⚠ Please connect a printer first (Settings → Search & Pair Printer)",
     pr_printing: "Printing...",
     pr_print_ok: "Printed successfully",
     pr_print_fail: "Print failed",
-    pr_not_connected_ask: "Printer not connected\n\nPair a printer now?\n\n(Cancel = open system print page instead)",
     pr_btn_thermal: "Print Receipt (Thermal)",
     pr_btn_a4: "Print PO (A4)",
     pr_thermal_tip: "Print to the connected 58mm thermal printer",
