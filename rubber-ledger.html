@@ -2322,7 +2322,7 @@ function renderPending(){
         <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-top:.9rem;flex-wrap:wrap;gap:.6rem">
           <div style="display:flex;gap:1.5rem">
             <div><div class="form-label">${t("col_kg")}</div><div class="bebas" style="font-size:1.2rem;color:var(--blue)">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</div></div>
-            <div><div class="form-label">${t("grand_total")}</div><div class="bebas text-gold" style="font-size:1.5rem">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+            <div><div class="form-label">${t("grand_total")}</div><div class="bebas text-gold" style="font-size:1.5rem">₭${(o.grandTotal||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
           </div>
           <div style="display:flex;gap:.5rem;align-items:center">
             <button class="btn-secondary" style="font-size:.75rem" onclick="openDetail('${o.id}')">${t("btn_view")}</button>
@@ -2366,7 +2366,7 @@ function renderHistory(){
   const dFrom=document.getElementById("hist-date-from")?.value||"";
   const dTo=document.getElementById("hist-date-to")?.value||"";
   const filtered=orders.filter(o=>o.status===filterStatus)
-    .filter(o=>!q||(o.poNo.toLowerCase().includes(q)||o.customer.toLowerCase().includes(q)))
+    .filter(o=>!q||((o.poNo||"").toLowerCase().includes(q)||(o.customer||"").toLowerCase().includes(q)))
     .filter(o=>{
       const od=(o.date||"").slice(0,10);
       if(dFrom && od<dFrom) return false;
@@ -2408,7 +2408,7 @@ function renderHistory(){
       <td class="mono text-accent fw6" style="white-space:nowrap;font-size:.75rem">${o.poNo}</td>
       <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem">${o.customer}</td>
       <td class="mono" style="color:var(--muted);font-size:.72rem;white-space:nowrap">${thaiShort(o.date)}</td>
-      <td class="mono fw6" style="white-space:nowrap;font-size:.78rem">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td class="mono fw6" style="white-space:nowrap;font-size:.78rem">₭${(o.grandTotal||0).toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
       <td style="white-space:nowrap"><span class="badge ${badgeCls}">${badgeLabel}</span></td>
       ${lastCol}
       <td style="min-width:90px">${actorCell}</td>
@@ -2642,12 +2642,12 @@ function openDetail(id){
     </div>${itemsHtml}
     <div class="divider"></div>
     <div style="max-width:280px;margin-left:auto">
-      <div class="sum-row"><span class="text-muted">${t("total_sum")}</span><span class="mono">₭ ${o.subtotal.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="sum-row"><span class="text-muted">${t("total_sum")}</span><span class="mono">₭ ${(o.subtotal||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
       <div class="sum-row"><span class="text-muted">${t("total_kg")}</span><span class="mono">${rubberQty.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</span></div>
       <div class="divider"></div>
       <div style="display:flex;justify-content:space-between;align-items:flex-end">
         <div class="form-label">${t("grand_total")}</div>
-        <div class="bebas text-accent" style="font-size:1.6rem">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        <div class="bebas text-accent" style="font-size:1.6rem">₭${(o.grandTotal||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
       </div>
     </div>`;
   if(o.note){document.getElementById("detail-note-card").style.display="block";document.getElementById("detail-note").textContent=o.note;}
@@ -4440,7 +4440,7 @@ function renderReport(){
             <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
             <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
             <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</td>
-            <td class="mono fw6">₭${o.grandTotal.toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+            <td class="mono fw6">₭${(o.grandTotal||0).toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
           </tr>`).join("")}</tbody>
         </table>
       </div>
@@ -4636,7 +4636,7 @@ function openCustDetail(id){
       <td class="mono text-accent fw6" style="white-space:nowrap">${o.poNo}</td>
       <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
       <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</td>
-      <td class="mono fw6">₭${o.grandTotal.toLocaleString("th-TH",{maximumFractionDigits:0})}</td>
+      <td class="mono fw6">₭${(o.grandTotal||0).toLocaleString("th-TH",{maximumFractionDigits:0})}</td>
       <td><span class="badge ${badgeCls[o.status]}">${badgeLbl()[o.status]}</span></td>
     </tr>`).join("");
   const overlay=document.getElementById("cust-detail-overlay");
@@ -4771,7 +4771,7 @@ function renderMyWork(){
     <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
     <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
     <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</td>
-    <td class="mono fw6">₭${o.grandTotal.toLocaleString("th-TH",{maximumFractionDigits:0})}</td>
+    <td class="mono fw6">₭${(o.grandTotal||0).toLocaleString("th-TH",{maximumFractionDigits:0})}</td>
     ${isBiller
       ? `<td><span class="badge ${badgeCls[o.status]}">${badgeLbl()[o.status]}</span></td><td style="font-size:.75rem;color:var(--green)">${o.paidBy||"—"}</td>`
       : `<td style="font-size:.75rem;color:var(--blue)">${o.createdBy||"—"}</td>`
@@ -4896,12 +4896,12 @@ function printReceipt(){
 
   <!-- ຍອດລວມ -->
   <div class="tot-row"><span class="label">ຍອດລວມ (ກກ)</span><span class="bold">${rubberQty.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})} ກກ</span></div>
-  <div class="tot-row"><span class="label">ຍອດລວມເງິນ</span><span>₭ ${o.subtotal.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+  <div class="tot-row"><span class="label">ຍອດລວມເງິນ</span><span>₭ ${(o.subtotal||0).toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
 
   <div class="divider-solid"></div>
   <div class="tot-row bold" style="padding:4px 0">
     <span class="tot-final">ຍອດລວມທັງໝົດ</span>
-    <span class="tot-final" style="color:#c8451a">₭${o.grandTotal.toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+    <span class="tot-final" style="color:#c8451a">₭${(o.grandTotal||0).toLocaleString("lo-LA",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
   </div>
   <div class="divider"></div>
 
