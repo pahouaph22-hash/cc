@@ -1730,6 +1730,24 @@ async function ss(k,v){
 }
 
 let orders=[];
+
+// ── Global safety net: จับ error ที่ไม่คาดคิด ไม่ให้หน้าเว็บเงียบ/ขาวเปล่า ──
+window.addEventListener('error', function(e){
+  console.error('Uncaught error:', e.error||e.message);
+  try{
+    if(typeof showToast==='function'){
+      showToast('⚠ เกิดข้อผิดพลาด: '+(e.error?.message||e.message||'unknown'), 'error');
+    }
+  }catch(_){}
+});
+window.addEventListener('unhandledrejection', function(e){
+  console.error('Unhandled promise rejection:', e.reason);
+  try{
+    if(typeof showToast==='function'){
+      showToast('⚠ เกิดข้อผิดพลาด: '+(e.reason?.message||e.reason||'unknown'), 'error');
+    }
+  }catch(_){}
+});
 let counter=1;
 let savedPrices={RUBBER:62.50,SHIPPING:62.50};
 const PRODUCTS=[{id:"RUBBER",name:"RUBBER"},{id:"SHIPPING",name:"SHIPPING"}];
@@ -2270,17 +2288,30 @@ function switchTab(tab,btn){
   const pane=document.getElementById("pane-"+tab);
   if(pane)pane.classList.add("active");
   activeTab=tab;
-  if(tab==="history")renderHistory();
-  if(tab==="pending")renderPending();
-  if(tab==="customers"){renderCustomers();updateCustomerDatalist();}
-  if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();_updatePrinterUI();_showVersion();}
-  if(tab==="report"&&currentUser?.role==="admin")renderReport();
-  if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
-  if(tab==="cancelled"&&currentUser?.role==="admin")renderCancelled();
-  if(tab==="portal"&&currentUser?.role==="admin")renderPortal();
-  if(tab==="mywork")renderMyWork();
-  if(tab==="dashboard")renderDashboard();
-  if(tab==="activitylog")renderActivityLog();
+  try{
+    if(tab==="history")renderHistory();
+    if(tab==="pending")renderPending();
+    if(tab==="customers"){renderCustomers();updateCustomerDatalist();}
+    if(tab==="settings"&&currentUser?.role==="admin"){renderStaffList();loadMyLocationToForm();_updatePrinterUI();_showVersion();}
+    if(tab==="report"&&currentUser?.role==="admin")renderReport();
+    if(tab==="billhistory"&&currentUser?.role==="admin")renderBillHistory();
+    if(tab==="cancelled"&&currentUser?.role==="admin")renderCancelled();
+    if(tab==="portal"&&currentUser?.role==="admin")renderPortal();
+    if(tab==="mywork")renderMyWork();
+    if(tab==="dashboard")renderDashboard();
+    if(tab==="activitylog")renderActivityLog();
+  }catch(e){
+    console.error("switchTab render error ["+tab+"]:", e);
+    if(pane){
+      pane.innerHTML = '<div class="card" style="border:1px solid #f87171;background:#fef2f2;padding:1.2rem;margin:1rem">'
+        + '<div style="font-weight:700;color:#dc2626;margin-bottom:.4rem">⚠ เกิดข้อผิดพลาดตอนแสดงข้อมูล</div>'
+        + '<div style="font-size:.8rem;color:#7f1d1d">กรุณาสกรีนช็อตข้อความนี้ส่งให้ทีมพัฒนา:</div>'
+        + '<div class="mono" style="font-size:.72rem;color:#7f1d1d;margin-top:.4rem;white-space:pre-wrap;word-break:break-all">'
+        + (e && e.message ? e.message : String(e)) + (e && e.stack ? ('\n' + e.stack.split('\n').slice(0,3).join('\n')) : '')
+        + '</div></div>';
+    }
+    if(typeof showToast==='function') showToast('เกิดข้อผิดพลาด: '+(e&&e.message||e), 'error');
+  }
 }
 
 // ── PENDING ──
@@ -2586,6 +2617,44 @@ async function confirmDelete(){
 
 // ── DETAIL ──
 function openDetail(id){
+  document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
+  document.getElementById("pane-detail").style.display="block";
+
+  // ── DEBUG TRACE (ชั่วคราว) — แสดงบนหน้าจอโดยตรง ไม่ต้องเปิด DevTools ──
+  try{
+    const pane=document.getElementById("pane-detail");
+    let dbg=document.getElementById("_debug-trace");
+    if(!dbg){ dbg=document.createElement("div"); dbg.id="_debug-trace"; pane.insertBefore(dbg, pane.firstChild); }
+    const found=orders.find(x=>x.id==id);
+    const foundStrict=orders.find(x=>String(x.id)===String(id));
+    dbg.style.cssText="border:2px solid #3b82f6;background:#eff6ff;padding:1rem;margin-bottom:1rem;font-family:monospace;font-size:.7rem;color:#1e3a8a;white-space:pre-wrap;word-break:break-all";
+    dbg.textContent =
+      "🔍 DEBUG TRACE — สกรีนช็อตกล่องนี้ส่งทีมพัฒนา\n" +
+      "id ที่ส่งเข้ามา: " + JSON.stringify(id) + " (type: " + typeof id + ")\n" +
+      "จำนวนบิลทั้งหมดใน orders[]: " + orders.length + "\n" +
+      "เจอด้วย == : " + (found ? "✅ พบ (id จริง=" + JSON.stringify(found.id) + ", type=" + typeof found.id + ")" : "❌ ไม่พบ") + "\n" +
+      "เจอด้วย String()===: " + (foundStrict ? "✅ พบ" : "❌ ไม่พบ") + "\n" +
+      (found ? ("poNo=" + found.poNo + " | customer=" + found.customer + " | status=" + found.status + " | items=" + (found.items ? found.items.length : "undefined") + "\n") : "") +
+      "เวลา: " + new Date().toLocaleTimeString('th-TH');
+  }catch(dbgErr){ console.error('debug trace error:', dbgErr); }
+
+  try{
+    _openDetailInner(id);
+  }catch(e){
+    console.error("openDetail error:", e);
+    const box=document.getElementById("detail-items")||document.getElementById("pane-detail");
+    if(box){
+      box.innerHTML = '<div class="card" style="border:1px solid #f87171;background:#fef2f2;padding:1.2rem;margin:1rem 0">'
+        + '<div style="font-weight:700;color:#dc2626;margin-bottom:.4rem">⚠ เกิดข้อผิดพลาดตอนแสดงรายละเอียด</div>'
+        + '<div style="font-size:.8rem;color:#7f1d1d">กรุณาสกรีนช็อตข้อความนี้ส่งให้ทีมพัฒนา:</div>'
+        + '<div class="mono" style="font-size:.72rem;color:#7f1d1d;margin-top:.4rem;white-space:pre-wrap;word-break:break-all">'
+        + (e && e.message ? e.message : String(e)) + (e && e.stack ? ('\n' + e.stack.split('\n').slice(0,3).join('\n')) : '')
+        + '</div></div>';
+    }
+    if(typeof showToast==='function') showToast('เกิดข้อผิดพลาด: '+(e&&e.message||e), 'error');
+  }
+}
+function _openDetailInner(id){
   const o=orders.find(x=>x.id==id);
   if(!o)return;
   window._currentDetailOrder=o;
@@ -4158,6 +4227,24 @@ function _bhGetList(){
 
 // ── ดูรายละเอียดใบบิลแบบเต็ม ──
 function openBillDetail(orderId){
+  document.getElementById('bill-detail-modal').style.display='flex';
+  try{
+    _openBillDetailInner(orderId);
+  }catch(e){
+    console.error("openBillDetail error:", e);
+    const box=document.getElementById('bd-body');
+    if(box){
+      box.innerHTML = '<div class="card" style="border:1px solid #f87171;background:#fef2f2;padding:1.2rem;margin:1rem 0">'
+        + '<div style="font-weight:700;color:#dc2626;margin-bottom:.4rem">⚠ เกิดข้อผิดพลาดตอนแสดงรายละเอียด</div>'
+        + '<div style="font-size:.8rem;color:#7f1d1d">กรุณาสกรีนช็อตข้อความนี้ส่งให้ทีมพัฒนา:</div>'
+        + '<div class="mono" style="font-size:.72rem;color:#7f1d1d;margin-top:.4rem;white-space:pre-wrap;word-break:break-all">'
+        + (e && e.message ? e.message : String(e)) + (e && e.stack ? ('\n' + e.stack.split('\n').slice(0,3).join('\n')) : '')
+        + '</div></div>';
+    }
+    if(typeof showToast==='function') showToast('เกิดข้อผิดพลาด: '+(e&&e.message||e), 'error');
+  }
+}
+function _openBillDetailInner(orderId){
   const o=orders.find(x=>String(x.id)===String(orderId));
   if(!o){showToast('ไม่พบใบบิล','error');return;}
   const issued=_billDateTime(o.createdAt||o.date);
