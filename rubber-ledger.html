@@ -2392,7 +2392,8 @@ function renderHistory(){
         <div style="display:flex;gap:.25rem;align-items:center;flex-wrap:nowrap">
           <button class="btn-danger" onclick="event.stopPropagation();openDetail('${o.id}')" style="padding:.25rem .45rem;font-size:.65rem">${t("btn_view")}</button>
           <button class="btn-danger" onclick="event.stopPropagation();openDelModal('${o.id}')" style="padding:.25rem .45rem;font-size:.65rem">${t("btn_cancel")}</button>
-          ${canPrintRow?`<button style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.25rem .4rem;font-size:.65rem;font-weight:600;cursor:pointer" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()">🖨</button>`:""}
+          ${canPrintRow?`<button title="${t('pr_btn_thermal')}" style="background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m);padding:.25rem .4rem;font-size:.65rem;font-weight:600;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();thermalPrint('${o.id}')">🧾</button>
+          <button title="${t('pr_btn_a4')}" style="background:rgba(74,127,193,.15);color:var(--blue);border:1px solid rgba(74,127,193,.35);padding:.25rem .4rem;font-size:.65rem;font-weight:600;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();window._currentDetailOrder=orders.find(x=>x.id==${o.id});printReceipt()">📄</button>`:""}
           ${currentUser?.role!=="staff_biller"?`<button class="btn-gold" onclick="event.stopPropagation();moveToSent('${o.id}')" style="padding:.25rem .4rem;font-size:.65rem">${t("btn_pay_select")}</button>`:""}
         </div>
       </td>`;
@@ -2652,8 +2653,21 @@ function openDetail(id){
   else{document.getElementById("detail-note-card").style.display="none";}
   const statusBtns=["draft","sent","paid",...(currentUser?.role==="admin"?["cancelled"]:[])];
   const lbls=()=>({draft:t("status_draft"),sent:t("status_sent"),paid:t("status_paid"),cancelled:t("status_cancelled")});
-  const canPrint=(currentUser?.role==="admin"||currentUser?.role==="staff_biller");
-  const printBtnHtml=canPrint?`<button onclick="printReceipt()" style="background:var(--blue);color:#fff;border:none;padding:.35rem .9rem;font-size:.72rem;font-weight:600;cursor:pointer;letter-spacing:.05em;font-family:'Phetsarath OT',sans-serif">🖨 ${currentLang==="lo"?"ພິມໃບຮັບ":currentLang==="en"?"Print Receipt":"พิมพ์ใบเสร็จ"}</button>`:"";
+  const canPrint=(currentUser?.role==="admin"||currentUser?.role==="staff_biller"||currentUser?.role==="staff_cashier");
+  const _pStat = printerConnected() ? '🟢' : '⚪';
+  const printBtnHtml = canPrint ? `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <button onclick="thermalPrint('${o.id}')" title="${t('pr_thermal_tip')}"
+        style="background:linear-gradient(135deg,var(--green) 0%,#22C55E 100%);color:#fff;border:none;padding:.4rem 1rem;font-size:.74rem;font-weight:700;cursor:pointer;border-radius:var(--r-sm);box-shadow:0 2px 6px rgba(22,163,74,.3)">
+        ${_pStat} 🧾 ${t('pr_btn_thermal')}
+      </button>
+      ${_isAndroid()?`<button onclick="rawbtPrint('${o.id}')" title="${t('pr_btn_rawbt')}"
+        style="background:var(--violet);color:#fff;border:none;padding:.4rem .8rem;font-size:.72rem;font-weight:600;cursor:pointer;border-radius:var(--r-sm)">📲 RawBT</button>`:''}
+      <button onclick="printReceipt()" title="${t('pr_a4_tip')}"
+        style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);padding:.4rem .8rem;font-size:.72rem;font-weight:600;cursor:pointer;border-radius:var(--r-sm)">
+        📄 ${t('pr_btn_a4')}
+      </button>
+    </div>` : "";
   document.getElementById("detail-status-btns").innerHTML=statusBtns
     .filter(s=>!(currentUser?.role==="staff_biller"&&(s==="paid"||s==="sent"||s==="cancelled")))
     .map(s=>`<button class="btn-secondary" style="font-size:.7rem;${o.status===s?"background:var(--accent);color:#fff;border-color:var(--accent)":""}" onclick="${s==="paid"?"openPayModal('"+o.id+"')":s==="cancelled"?"openDelModal('"+o.id+"')":"updateStatus('"+o.id+"','"+s+"')"}">${lbls()[s]}</button>`).join("")+printBtnHtml;
@@ -5204,6 +5218,10 @@ const LANG_DICT = {
     px_last_login: "เข้าใช้ล่าสุด",
     px_never: "ยังไม่เคยเข้า",
     px_portal_url: "🔗 ลิงก์สำหรับลูกค้า",
+    pr_btn_thermal: "พิมพ์ใบเสร็จ (เครื่องพิมพ์)",
+    pr_btn_a4: "พิมพ์ใบเก็บซื้อ (A4)",
+    pr_thermal_tip: "พิมพ์ออกเครื่องพิมพ์ความร้อน 58mm ที่เชื่อมต่อไว้",
+    pr_a4_tip: "พิมพ์เอกสารเต็มหน้าผ่านเครื่องพิมพ์ทั่วไป / บันทึก PDF",
     pr_searching: "กำลังค้นหาเครื่องพิมพ์... เลือกชื่อเครื่องของท่านจากรายการ",
     pr_connected: "เชื่อมต่อเครื่องพิมพ์สำเร็จ",
     pr_disconnected: "เครื่องพิมพ์ตัดการเชื่อมต่อ",
@@ -5525,6 +5543,10 @@ const LANG_DICT = {
     px_last_login: "ເຂົ້າໃຊ້ຫຼ້າສຸດ",
     px_never: "ຍັງບໍ່ເຄີຍເຂົ້າ",
     px_portal_url: "🔗 ລິ້ງສຳລັບລູກຄ້າ",
+    pr_btn_thermal: "ພິມໃບບິນ (ເຄື່ອງພິມ)",
+    pr_btn_a4: "ພິມໃບເກັບຊື້ (A4)",
+    pr_thermal_tip: "ພິມອອກເຄື່ອງພິມຄວາມຮ້ອນ 58mm ທີ່ເຊື່ອມຕໍ່ໄວ້",
+    pr_a4_tip: "ພິມເອກະສານເຕັມໜ້າຜ່ານເຄື່ອງພິມທົ່ວໄປ / ບັນທຶກ PDF",
     pr_searching: "ກຳລັງຄົ້ນຫາເຄື່ອງພິມ... ເລືອກຊື່ເຄື່ອງຂອງທ່ານຈາກລາຍການ",
     pr_connected: "ເຊື່ອມຕໍ່ເຄື່ອງພິມສຳເລັດ",
     pr_disconnected: "ເຄື່ອງພິມຕັດການເຊື່ອມຕໍ່",
@@ -5846,6 +5868,10 @@ const LANG_DICT = {
     px_last_login: "Last login",
     px_never: "Never",
     px_portal_url: "🔗 Customer portal link",
+    pr_btn_thermal: "Print Receipt (Thermal)",
+    pr_btn_a4: "Print PO (A4)",
+    pr_thermal_tip: "Print to the connected 58mm thermal printer",
+    pr_a4_tip: "Print full-page document / save as PDF",
     pr_searching: "Searching for printers... select your device from the list",
     pr_connected: "Printer connected",
     pr_disconnected: "Printer disconnected",
