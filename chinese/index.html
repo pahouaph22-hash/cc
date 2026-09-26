@@ -3,32 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ศัพท์อังกฤษประจำวัน</title>
+<title>ศัพท์จีนประจำวัน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap">
 <style>
 :root{
-  --paper:#F3F5F8; --card:#FFFFFF; --ink:#1B2533; --muted:#5E6B7C; --line:#D9DFE7;
-  --accent:#2F5DA8; --accent-ink:#FFFFFF; --accent-soft:#E2EAF7;
-  --good:#2E7D4F; --good-soft:#DDF0E4; --bad:#B8322A; --bad-soft:#F8E1DF;
-  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --paper:#F7F4F1; --card:#FFFFFF; --ink:#2A1F1C; --muted:#72625D; --line:#E6DCD6;
+  --accent:#A8322B; --accent-ink:#FFFFFF; --accent-soft:#F6E2DF;
+  --good:#2E7D4F; --good-soft:#DDF0E4; --bad:#B8621B; --bad-soft:#FBE9D9;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
   --display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
   --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --paper:#10151D; --card:#171E29; --ink:#E4EAF2; --muted:#98A6B8; --line:#2A3443;
-    --accent:#7FA6EB; --accent-ink:#0D1420; --accent-soft:#1C2A40;
-    --good:#7BCB98; --good-soft:#18301F; --bad:#F08A80; --bad-soft:#3A1D1A;
+    --paper:#161110; --card:#1F1816; --ink:#F0E6E2; --muted:#B09C96; --line:#3A2E2A;
+    --accent:#EE8B80; --accent-ink:#1A0C0A; --accent-soft:#3A1F1C;
+    --good:#7BCB98; --good-soft:#18301F; --bad:#F0A868; --bad-soft:#3A2614;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --paper:#10151D; --card:#171E29; --ink:#E4EAF2; --muted:#98A6B8; --line:#2A3443;
-  --accent:#7FA6EB; --accent-ink:#0D1420; --accent-soft:#1C2A40;
-  --good:#7BCB98; --good-soft:#18301F; --bad:#F08A80; --bad-soft:#3A1D1A;
+  --paper:#161110; --card:#1F1816; --ink:#F0E6E2; --muted:#B09C96; --line:#3A2E2A;
+  --accent:#EE8B80; --accent-ink:#1A0C0A; --accent-soft:#3A1F1C;
+  --good:#7BCB98; --good-soft:#18301F; --bad:#F0A868; --bad-soft:#3A2614;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -63,11 +63,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .card{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
 .head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .num{font-family:var(--display);color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
-.word{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.01em}
-.pos{font-family:var(--serif);font-style:italic;color:var(--muted)}
+.word{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.2}
+.pos{color:var(--accent);font-size:16px;font-weight:500}
+.lv{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:0 7px;color:var(--muted)}
+.exth{color:var(--muted);font-size:14px}
 .say{margin-left:auto;padding:3px 10px;font-size:13px}
 .th{font-weight:500}
-.ex{font-family:var(--serif);color:var(--muted);font-size:15.5px}
+.ex{font-family:var(--serif);color:var(--ink);font-size:17px}
 mark{background:var(--accent-soft);color:var(--ink);border-radius:3px;padding:0 2px}
 .hide-meaning .th{filter:blur(6px);cursor:pointer;user-select:none}
 
@@ -75,11 +77,14 @@ mark{background:var(--accent-soft);color:var(--ink);border-radius:3px;padding:0 
 .progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
 .progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
 .qtype{font-size:13px;color:var(--muted)}
-.prompt{font-family:var(--serif);font-size:22px;line-height:1.45}
+.prompt{font-family:var(--serif);font-size:30px;line-height:1.45}
+.prompt.sentence{font-size:22px}
+.hint{color:var(--muted);font-size:14px}
 .prompt.thai{font-family:var(--body);font-size:20px;font-weight:500}
 .opts{display:grid;gap:8px}
 .opt{text-align:left;padding:12px 14px;font-size:16px}
-.opt.en{font-family:var(--serif);font-size:18px}
+.opt.en{font-family:var(--serif);font-size:22px}
+.opt.py{font-size:18px}
 .opt.right{background:var(--good-soft);border-color:var(--good);color:var(--ink)}
 .opt.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
 .opt:disabled{cursor:default}
@@ -105,8 +110,8 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">English for One Health · วันละ 10 คำ</div>
-      <h1>ศัพท์อังกฤษประจำวัน</h1>
+      <div class="eyebrow">HSK 4–5 · 中文 · วันละ 10 คำ</div>
+      <h1>ศัพท์จีนประจำวัน</h1>
       <div class="note" id="dateLine"></div>
     </div>
     <div class="stats">
@@ -157,7 +162,7 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
     <ul class="archive" id="archive"></ul>
   </section>
 
-  <p class="note">เว็บนี้คู่กับ <a href="../reminder/">หน้าเสียงเตือนตารางเรียน</a> และ <a href="../chinese/">ศัพท์จีนประจำวัน</a> · คะแนนและความก้าวหน้าเก็บไว้ในเบราว์เซอร์นี้เท่านั้น</p>
+  <p class="note">เว็บนี้คู่กับ <a href="../reminder/">หน้าเสียงเตือนตารางเรียน</a> และ <a href="../english/">ศัพท์อังกฤษประจำวัน</a> · คะแนนและความก้าวหน้าเก็บไว้ในเบราว์เซอร์นี้เท่านั้น</p>
 </div>
 
 <script src="words.js"></script>
@@ -176,14 +181,14 @@ const todayIdx=elapsed%N, round=Math.floor(elapsed/N)+1;
 const unlocked=elapsed>=N?N:elapsed+1;          // how many sets are open
 const dateKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const todayKey=dateKey(now);
-const W=(w,day)=>({w:w[0],pos:w[1],th:w[2],ex:w[3],day});
+const W=(w,day)=>({w:w[0],py:w[1],lv:w[2],th:w[3],ex:w[4],exTh:w[5],day});
 const setWords=i=>DAYS[i].words.map(w=>W(w,i));
 const allWords=DAYS.flatMap((d,i)=>setWords(i));
 const learnedWords=()=>{let a=[];for(let i=0;i<unlocked;i++)a=a.concat(setWords(i));return a};
 
 // ---- progress ----
-const results=store.get("eng.results",{});      // date -> {score,total}
-let wrongBank=store.get("eng.wrong",[]);          // words answered wrong, most recent last
+const results=store.get("zh.results",{});      // date -> {score,total}
+let wrongBank=store.get("zh.wrong",[]);          // words answered wrong, most recent last
 function streak(){let s=0;const d=new Date(now);if(!results[dateKey(d)])d.setDate(d.getDate()-1);while(results[dateKey(d)]){s++;d.setDate(d.getDate()-1)}return s}
 function renderStats(){
   $("stDay").textContent=(todayIdx+1)+"/"+N+(round>1?" · รอบ "+round:"");
@@ -194,19 +199,13 @@ function renderStats(){
 
 // ---- speech ----
 let enVoice=null;
-function pickVoice(){if(!("speechSynthesis"in window))return;const v=speechSynthesis.getVoices();enVoice=v.find(x=>/^en-GB/i.test(x.lang)&&/natural|online|google/i.test(x.name))||v.find(x=>/^en-(GB|US)/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}
+function pickVoice(){if(!("speechSynthesis"in window))return;const v=speechSynthesis.getVoices();enVoice=v.find(x=>/^zh-CN/i.test(x.lang)&&/natural|online|google/i.test(x.name))||v.find(x=>/^zh-CN/i.test(x.lang))||v.find(x=>/^(zh|cmn)/i.test(x.lang))||null}
 if("speechSynthesis"in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
-function speak(texts){if(!("speechSynthesis"in window))return;speechSynthesis.cancel();[].concat(texts).forEach(t=>{const u=new SpeechSynthesisUtterance(t);if(enVoice){u.voice=enVoice;u.lang=enVoice.lang}else u.lang="en-GB";u.rate=.9;speechSynthesis.speak(u)})}
+function speak(texts){if(!("speechSynthesis"in window))return;speechSynthesis.cancel();[].concat(texts).forEach(t=>{const u=new SpeechSynthesisUtterance(t);if(enVoice){u.voice=enVoice;u.lang=enVoice.lang}else u.lang="zh-CN";u.rate=.85;speechSynthesis.speak(u)})}
 
 // ---- matching the word inside its example sentence ----
-function wordRegex(w){
-  const parts=w.toLowerCase().split(/[\s-]+/);
-  const first=parts[0].length>4?parts[0].replace(/(e|y)$/,""):parts[0];
-  const src=[first+"[a-z]*"].concat(parts.slice(1).map(p=>p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"))).join("[\\s-]+");
-  return new RegExp("\\b"+src+"\\b","i");
-}
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
-function highlight(ex,w){const m=ex.match(wordRegex(w));if(!m)return esc(ex);return esc(ex.slice(0,m.index))+"<mark>"+esc(m[0])+"</mark>"+esc(ex.slice(m.index+m[0].length))}
+function highlight(ex,w){const i=ex.indexOf(w);if(i<0)return esc(ex);return esc(ex.slice(0,i))+"<mark>"+esc(w)+"</mark>"+esc(ex.slice(i+w.length))}
 
 // ---- word list view ----
 let viewIdx=todayIdx;
@@ -219,13 +218,13 @@ function renderSet(i){
   const box=$("cards");box.innerHTML="";
   words.forEach((w,k)=>{
     const c=document.createElement("article");c.className="card";
-    c.innerHTML=`<div class="head"><span class="num">${String(k+1).padStart(2,"0")}</span><span class="word">${esc(w.w)}</span><span class="pos">${esc(w.pos)}</span><button class="say" aria-label="ฟังเสียง ${esc(w.w)}">ฟังเสียง</button></div>
-      <div class="th">${esc(w.th)}</div><div class="ex">${highlight(w.ex,w.w)}</div>`;
+    c.innerHTML=`<div class="head"><span class="num">${String(k+1).padStart(2,"0")}</span><span class="word">${esc(w.w)}</span><span class="pos">${esc(w.py)}</span><span class="lv">HSK ${w.lv}</span><button class="say" aria-label="ฟังเสียง ${esc(w.w)}">ฟังเสียง</button></div>
+      <div class="th">${esc(w.th)}</div><div class="ex">${highlight(w.ex,w.w)}</div><div class="exth">${esc(w.exTh)}</div>`;
     c.querySelector(".say").addEventListener("click",()=>speak([w.w,w.ex]));
     c.querySelector(".th").addEventListener("click",e=>{if(box.classList.contains("hide-meaning"))e.currentTarget.style.filter="none"});
     box.appendChild(c);
   });
-  $("ankiText").value=words.map(w=>`${w.w};${w.th} — ${w.ex}`).join("\n");
+  $("ankiText").value=words.map(w=>`${w.w};${w.py} · ${w.th} — ${w.ex} (${w.exTh})`).join("\n");
 }
 $("toggleMeaning").addEventListener("click",()=>{const b=$("cards");const on=b.classList.toggle("hide-meaning");$("toggleMeaning").textContent=on?"แสดงความหมาย":"ซ่อนความหมาย";b.querySelectorAll(".th").forEach(t=>t.style.filter="")});
 $("sayAll").addEventListener("click",()=>speak(setWords(viewIdx).map(w=>w.w)));
@@ -236,14 +235,14 @@ $("copyAnki").addEventListener("click",()=>{const t=$("ankiText");const done=()=
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function distractors(target,pool,key){const seen=new Set([target[key]]);return shuffle(pool.filter(p=>p.w!==target.w)).filter(p=>{if(seen.has(p[key]))return false;seen.add(p[key]);return true}).slice(0,3)}
 function makeQuestion(w,pool,type){
-  if(type==="blank"&&!wordRegex(w.w).test(w.ex))type="meaning";
-  if(type==="meaning")return{w,type,label:"คำนี้แปลว่าอะไร",prompt:w.w,promptEn:true,options:shuffle([w].concat(distractors(w,pool,"th"))).map(o=>({text:o.th,ok:o===w})),optEn:false};
-  if(type==="word")return{w,type,label:"คำภาษาอังกฤษของความหมายนี้คือ",prompt:w.th,promptEn:false,options:shuffle([w].concat(distractors(w,pool,"w"))).map(o=>({text:o.w,ok:o===w})),optEn:true};
-  const m=w.ex.match(wordRegex(w.w));
-  const blanked=w.ex.slice(0,m.index)+"_____"+w.ex.slice(m.index+m[0].length);
-  return{w,type,label:"เติมคำในช่องว่าง",prompt:blanked,promptEn:true,options:shuffle([w].concat(distractors(w,pool,"w"))).map(o=>({text:o.w,ok:o===w})),optEn:true};
+  const pick=key=>shuffle([w].concat(distractors(w,pool,key)));
+  if(type==="meaning")return{w,type,label:"คำนี้แปลว่าอะไร",prompt:w.w,cls:"",options:pick("th").map(o=>({text:o.th,ok:o===w})),optCls:""};
+  if(type==="pinyin")return{w,type,label:"คำนี้อ่านว่าอย่างไร",prompt:w.w,cls:"",options:pick("py").map(o=>({text:o.py,ok:o===w})),optCls:"py"};
+  if(type==="word")return{w,type,label:"คำภาษาจีนของความหมายนี้คือ",prompt:w.th,cls:"thai",options:pick("w").map(o=>({text:o.w,ok:o===w})),optCls:"en"};
+  const i=w.ex.indexOf(w.w);
+  return{w,type,label:"เติมคำในช่องว่าง",prompt:w.ex.slice(0,i)+"＿＿"+w.ex.slice(i+w.w.length),hint:w.exTh,cls:"sentence",options:pick("w").map(o=>({text:o.w,ok:o===w})),optCls:"en"};
 }
-function buildQuiz(words,pool){const types=["meaning","word","blank"];return shuffle(words).map((w,i)=>makeQuestion(w,pool,types[i%3]))}
+function buildQuiz(words,pool){const types=["meaning","pinyin","word","blank"];return shuffle(words).map((w,i)=>makeQuestion(w,pool,types[i%3]))}
 
 function runQuiz(box,words,pool,opts){
   const qs=buildQuiz(words,pool);let i=0,score=0;const missed=[];
@@ -252,12 +251,12 @@ function runQuiz(box,words,pool,opts){
     box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="qtype">${esc(opts.title)} · ข้อ ${i+1}/${qs.length}</span><span class="qtype">ถูก ${score}</span></div>
       <div class="progress"><i style="width:${i/qs.length*100}%"></i></div>
       <div class="qtype">${q.label}</div>
-      <div class="prompt ${q.promptEn?"":"thai"}"></div>
+      <div class="prompt ${q.cls}"></div>${q.hint?'<div class="hint"></div>':""}
       <div class="opts"></div><div class="fb"></div>`;
-    box.querySelector(".prompt").textContent=q.prompt;
+    box.querySelector(".prompt").textContent=q.prompt;if(q.hint)box.querySelector(".hint").textContent="ความหมาย: "+q.hint;
     const optBox=box.querySelector(".opts");
     q.options.forEach(o=>{
-      const b=document.createElement("button");b.className="opt"+(q.optEn?" en":"");b.textContent=o.text;
+      const b=document.createElement("button");b.className="opt"+(q.optCls?" "+q.optCls:"");b.textContent=o.text;
       b.addEventListener("click",()=>answer(o,b));optBox.appendChild(b);
     });
   }
@@ -266,9 +265,9 @@ function runQuiz(box,words,pool,opts){
     box.querySelectorAll(".opt").forEach((b,k)=>{b.disabled=true;if(q.options[k].ok)b.classList.add("right")});
     if(o.ok){score++;wrongBank=wrongBank.filter(x=>x!==q.w.w)}
     else{btn.classList.add("wrong");missed.push(q.w);if(!wrongBank.includes(q.w.w))wrongBank.push(q.w.w)}
-    store.set("eng.wrong",wrongBank.slice(-100));
+    store.set("zh.wrong",wrongBank.slice(-100));
     const fb=box.querySelector(".fb");
-    fb.innerHTML=`<div class="explain ${o.ok?"ok":"no"}"><b>${o.ok?"ถูกต้อง":"ยังไม่ถูก"}</b> · <span style="font-family:var(--serif);font-weight:600">${esc(q.w.w)}</span> (${esc(q.w.pos)}) = ${esc(q.w.th)}<br><span style="font-family:var(--serif)">${highlight(q.w.ex,q.w.w)}</span></div>
+    fb.innerHTML=`<div class="explain ${o.ok?"ok":"no"}"><b>${o.ok?"ถูกต้อง":"ยังไม่ถูก"}</b> · <span style="font-family:var(--serif);font-weight:600;font-size:18px">${esc(q.w.w)}</span> ${esc(q.w.py)} = ${esc(q.w.th)}<br><span style="font-family:var(--serif)">${highlight(q.w.ex,q.w.w)}</span><br><span class="exth">${esc(q.w.exTh)}</span></div>
       <div class="row" style="margin-top:10px"><button class="primary nx">${i+1<qs.length?"ข้อต่อไป":"ดูผลคะแนน"}</button><button class="sp">ฟังเสียง</button></div>`;
     fb.querySelector(".sp").addEventListener("click",()=>speak([q.w.w,q.w.ex]));
     const nx=fb.querySelector(".nx");nx.focus();
@@ -278,7 +277,7 @@ function runQuiz(box,words,pool,opts){
     if(opts.onDone)opts.onDone(score,qs.length);
     const msg=score===qs.length?"เยี่ยมมาก ถูกทุกข้อ":score>=qs.length*.7?"ดีมาก ทบทวนคำที่ผิดอีกนิด":"ลองอ่านคำศัพท์อีกรอบ แล้วทำใหม่";
     box.innerHTML=`<div class="result"><div class="qtype">${esc(opts.title)}</div><div class="score">${score}/${qs.length}</div><div>${msg}</div>
-      ${missed.length?`<div><b>คำที่ควรทบทวน</b><ul class="missed">${missed.map(w=>`<li><b>${esc(w.w)}</b> — ${esc(w.th)}</li>`).join("")}</ul></div>`:""}
+      ${missed.length?`<div><b>คำที่ควรทบทวน</b><ul class="missed">${missed.map(w=>`<li><b>${esc(w.w)}</b> ${esc(w.py)} — ${esc(w.th)}</li>`).join("")}</ul></div>`:""}
       <div class="row"><button class="primary again">ทำอีกครั้ง</button>${opts.extra||""}</div></div>`;
     box.querySelector(".again").addEventListener("click",()=>runQuiz(box,words,pool,opts));
     const toWords=box.querySelector(".to-words");if(toWords)toWords.addEventListener("click",()=>{renderSet(todayIdx);select("today")});
@@ -292,12 +291,12 @@ function startToday(){
   const best=results[todayKey];
   const box=$("quizBox");
   box.innerHTML=`<h2>แบบทดสอบวันนี้</h2><div class="theme">ชุดที่ ${todayIdx+1} · ${esc(DAYS[todayIdx].theme)} · 10 ข้อ</div>
-    <p class="note">มี 3 แบบ: แปลความหมาย, เลือกคำจากความหมาย และเติมคำในประโยค ทำครบแล้วนับเป็น 1 วันต่อเนื่อง</p>
+    <p class="note">มี 4 แบบ: แปลความหมาย, เลือกพินอิน, เลือกคำจีนจากความหมาย และเติมคำในประโยค ทำครบแล้วนับเป็น 1 วันต่อเนื่อง</p>
     ${best?`<p>คะแนนดีที่สุดวันนี้: <b>${best.score}/${best.total}</b></p>`:""}
     <div class="row"><button class="primary" id="goQuiz">เริ่มทำแบบทดสอบ</button></div>`;
   $("goQuiz").addEventListener("click",()=>runQuiz(box,words,allWords,{
     title:"แบบทดสอบวันนี้",extra:'<button class="to-words">อ่านคำศัพท์อีกครั้ง</button>',
-    onDone:(s,t)=>{const prev=results[todayKey];if(!prev||s>prev.score)results[todayKey]={score:s,total:t};store.set("eng.results",results)}
+    onDone:(s,t)=>{const prev=results[todayKey];if(!prev||s>prev.score)results[todayKey]={score:s,total:t};store.set("zh.results",results)}
   }));
 }
 function startReview(){
