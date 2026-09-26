@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เสียงเตือนทันจีโล</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F2F5F3; --card:#FFFFFF; --ink:#1C2826; --muted:#5F6F6B; --line:#D9E1DE;
+  --accent:#0F7B6C; --accent-ink:#FFFFFF; --accent-soft:#DCEFEA;
+  --zh:#B8322A; --en:#2F5DA8; --vet:#4A8534; --other:#6B7773;
+  --warn-bg:#FFF4DB; --warn-ink:#7A5200; --alert:#B8322A;
+  --display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#111816; --card:#18221F; --ink:#E6EEEB; --muted:#98AAA5; --line:#2A3834;
+    --accent:#3FBFA9; --accent-ink:#0B1412; --accent-soft:#16332D;
+    --zh:#F07A70; --en:#7FA6EB; --vet:#8CC675; --other:#9AA8A4;
+    --warn-bg:#3A2E12; --warn-ink:#F3CF7A; --alert:#F07A70;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#111816; --card:#18221F; --ink:#E6EEEB; --muted:#98AAA5; --line:#2A3834;
+  --accent:#3FBFA9; --accent-ink:#0B1412; --accent-soft:#16332D;
+  --zh:#F07A70; --en:#7FA6EB; --vet:#8CC675; --other:#9AA8A4;
+  --warn-bg:#3A2E12; --warn-ink:#F3CF7A; --alert:#F07A70;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{color-scheme:light}
+body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:22px;font-weight:600}
+h2{font-size:17px;font-weight:600}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.clock{font-family:var(--display);font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.date{color:var(--muted);font-size:14px;text-align:right}
+
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media (max-width:640px){.hero{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.next-title{font-family:var(--display);font-size:24px;font-weight:600;margin:6px 0 2px;line-height:1.3}
+.next-meta{color:var(--muted);font-variant-numeric:tabular-nums}
+.countdown{font-family:var(--display);font-size:30px;font-variant-numeric:tabular-nums;color:var(--accent);margin-top:10px}
+.phrase{margin-top:12px;padding:10px 12px;background:var(--accent-soft);border-radius:8px;font-size:14px}
+
+.power{display:flex;flex-direction:column;gap:12px;justify-content:center}
+.status{display:flex;align-items:center;gap:8px;font-weight:500}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.on .dot{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;font-size:16px;padding:12px 16px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+
+.warn{background:var(--warn-bg);color:var(--warn-ink);border-radius:8px;padding:10px 12px;font-size:14px}
+
+.alert{position:fixed;left:16px;right:16px;top:calc(16px + env(safe-area-inset-top,0px));max-width:560px;margin:0 auto;background:var(--card);border:2px solid var(--alert);border-radius:12px;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.25);z-index:10;display:flex;flex-direction:column;gap:10px}
+.alert .big{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.3}
+@media (prefers-reduced-motion:no-preference){.alert{animation:pop .25s ease-out}@keyframes pop{from{transform:translateY(-8px);opacity:.6}}}
+
+.day-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.day-tabs button{padding:5px 11px;font-size:14px}
+.day-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:62px 1fr auto;gap:12px;align-items:center;padding:10px 4px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.t{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums}
+.name{display:flex;align-items:center;gap:8px}
+.tag{width:4px;align-self:stretch;border-radius:2px;flex:none}
+.k-zh{background:var(--zh)} .k-en{background:var(--en)} .k-vet{background:var(--vet)} .k-other{background:var(--other)}
+.chip{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.item.done .name,.item.done .t{color:var(--muted)}
+.item.now{background:var(--accent-soft);border-radius:8px}
+.item.now .chip{border-color:var(--accent);color:var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:640px){.settings{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+input[type=text],select{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.check{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
+.tips{font-size:14px;color:var(--muted);margin:0;padding-left:20px}
+.tips li{margin:4px 0}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">ตารางเรียนภาษาและสัตวแพทย์</div>
+      <h1>เสียงเตือนของทันจีโล</h1>
+    </div>
+    <div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="date" id="date"></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="panel" aria-live="polite">
+      <div class="eyebrow">กิจกรรมถัดไป</div>
+      <div class="next-title" id="nextTitle">กำลังโหลด…</div>
+      <div class="next-meta" id="nextMeta"></div>
+      <div class="countdown" id="countdown"></div>
+      <div class="phrase">เสียงที่จะพูด: <strong id="nextPhrase"></strong></div>
+    </div>
+    <div class="panel power" id="powerPanel">
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">ยังไม่เปิดเสียงเตือน</span></div>
+      <button class="primary" id="enableBtn">เปิดเสียงเตือน</button>
+      <div class="row">
+        <button id="testNow">ฟังตัวอย่างเสียง</button>
+        <button id="testMinute">ทดสอบในอีก 1 นาที</button>
+      </div>
+      <div class="warn" id="voiceWarn" hidden></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="top">
+      <h2>ตารางประจำวัน</h2>
+      <div class="day-tabs" id="dayTabs" role="group" aria-label="เลือกวัน"></div>
+    </div>
+    <ul class="list" id="list"></ul>
+    <div class="legend">
+      <span><i class="k-zh"></i>ภาษาจีน</span>
+      <span><i class="k-en"></i>ภาษาอังกฤษ</span>
+      <span><i class="k-vet"></i>สัตวแพทย์</span>
+      <span><i class="k-other"></i>อื่น ๆ</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>ตั้งค่าเสียง</h2>
+    <div class="settings" style="margin-top:12px">
+      <label>ชื่อที่ให้เรียก
+        <input type="text" id="nameInput" value="ทันจีโล">
+      </label>
+      <label>เสียงพูด
+        <select id="voiceSelect"></select>
+      </label>
+      <label>ความเร็ว <span id="rateVal"></span>
+        <input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.95">
+      </label>
+      <label>ความดัง <span id="volVal"></span>
+        <input type="range" id="volume" min="0.2" max="1" step="0.05" value="1">
+      </label>
+      <label class="check"><input type="checkbox" id="chime" checked> เล่นเสียงกริ่งก่อนพูด</label>
+      <label class="check"><input type="checkbox" id="repeat" checked> พูดซ้ำ 2 รอบ</label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>ให้เสียงเตือนทำงานทุกครั้ง</h2>
+    <ul class="tips">
+      <li>กด <strong>เปิดเสียงเตือน</strong> ทุกครั้งที่เปิดหน้านี้ใหม่ เบราว์เซอร์จะไม่ยอมให้หน้าเว็บส่งเสียงจนกว่าจะกดปุ่ม</li>
+      <li>เปิดหน้านี้ทิ้งไว้ในแท็บของตัวเอง จะย่อหน้าต่างหรือเปิดแท็บอื่นก็ได้ แต่ห้ามปิดแท็บนี้</li>
+      <li>เสียงภาษาไทยที่ชัดที่สุดอยู่ใน <strong>Microsoft Edge</strong> (เสียง Premwadee หรือ Niwat แบบ Online)</li>
+      <li>ใน Chrome ให้ไปที่ <code>chrome://settings/performance</code> แล้วเพิ่ม <code>claude.ai</code> ใน "Always keep these sites active" กันแท็บถูกพัก</li>
+      <li>ตั้งคอมพิวเตอร์ไม่ให้ Sleep: Settings → System → Power → Sleep → Never</li>
+    </ul>
+  </section>
+</div>
+
+<div class="alert" id="alert" hidden role="alertdialog" aria-labelledby="alertTitle">
+  <div class="eyebrow" id="alertTime"></div>
+  <div class="big" id="alertTitle"></div>
+  <div class="row"><button class="primary" id="ackBtn">รับทราบ</button><button id="againBtn">พูดอีกครั้ง</button></div>
+</div>
+
+<script>
+(function(){
+const WD=[1,2,3,4,5];
+// kind: zh, en, vet, other — ตรงกับ Google Calendar ของ larmouamua@gmail.com
+const SCHEDULE=[
+  {d:WD,t:"07:00",k:"zh",title:"ตื่นนอน และทวนคำศัพท์ภาษาจีน"},
+  {d:WD,t:"07:30",k:"zh",title:"ฟังพอดแคสต์ภาษาจีน"},
+  {d:WD,t:"12:00",k:"other",title:"พักเที่ยง และทวนคำศัพท์ภาษาจีนกับภาษาอังกฤษ"},
+  {d:WD,t:"16:30",k:"en",title:"ฟังพอดแคสต์ภาษาอังกฤษ"},
+  {d:WD,t:"18:00",k:"vet",title:"ทบทวนบทเรียนสัตวแพทย์"},
+  {d:WD,t:"19:30",k:"zh",title:"เรียนภาษาจีน บทใหม่"},
+  {d:WD,t:"20:30",k:"en",title:"อ่านบทความสัตวแพทย์ภาษาอังกฤษ"},
+  {d:WD,t:"21:30",k:"vet",title:"อ่านเตรียมเรียนพรุ่งนี้"},
+  {d:WD,t:"22:00",k:"zh",title:"ฝึกเขียนตัวอักษรจีน และฝึกวรรณยุกต์"},
+  {d:WD,t:"22:30",k:"other",title:"พูดทบทวนเรื่องวันนี้ เป็นภาษาจีนหรือภาษาอังกฤษ"},
+  {d:WD,t:"22:45",k:"other",title:"ผ่อนคลาย และเตรียมเข้านอน"},
+  {d:[6],t:"08:00",k:"vet",title:"ทบทวนวิชาสัตวแพทย์ทั้งสัปดาห์"},
+  {d:[6],t:"10:15",k:"en",title:"ฝึกพูดและเขียนภาษาอังกฤษ"},
+  {d:[6],t:"13:00",k:"zh",title:"ฝึกฟังและพูดภาษาจีน"},
+  {d:[6],t:"15:00",k:"zh",title:"ทำข้อสอบภาษาจีน HSK"},
+  {d:[0],t:"09:00",k:"en",title:"ทำข้อสอบฝึกภาษาอังกฤษ"},
+  {d:[0],t:"10:15",k:"other",title:"ทวนคำศัพท์ภาษาจีนและภาษาอังกฤษทั้งสัปดาห์"},
+  {d:[0],t:"11:00",k:"vet",title:"วางแผนสัปดาห์หน้า"}
+];
+const DAYS=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+const MONTHS=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+let enabled=false, audioCtx=null, voices=[], viewDay=new Date().getDay(), extra=[];
+const fired=new Set();
+
+// settings
+const S={name:store.get("name","ทันจีโล"),voice:store.get("voice",""),rate:store.get("rate",0.95),volume:store.get("volume",1),chime:store.get("chime",true),repeat:store.get("repeat",true)};
+$("nameInput").value=S.name; $("rate").value=S.rate; $("volume").value=S.volume; $("chime").checked=S.chime; $("repeat").checked=S.repeat;
+function showVals(){$("rateVal").textContent=Number($("rate").value).toFixed(2)+"×";$("volVal").textContent=Math.round($("volume").value*100)+"%"}
+showVals();
+$("nameInput").addEventListener("input",e=>{S.name=e.target.value.trim()||"ทันจีโล";store.set("name",S.name);render()});
+$("rate").addEventListener("input",e=>{S.rate=+e.target.value;store.set("rate",S.rate);showVals()});
+$("volume").addEventListener("input",e=>{S.volume=+e.target.value;store.set("volume",S.volume);showVals()});
+$("chime").addEventListener("change",e=>{S.chime=e.target.checked;store.set("chime",S.chime)});
+$("repeat").addEventListener("change",e=>{S.repeat=e.target.checked;store.set("repeat",S.repeat)});
+$("voiceSelect").addEventListener("change",e=>{S.voice=e.target.value;store.set("voice",S.voice)});
+
+const hasTTS="speechSynthesis" in window;
+function score(v){let s=0;if(/^th/i.test(v.lang))s+=100;if(/online|natural/i.test(v.name))s+=20;if(/premwadee|niwat|achara|pattara|google/i.test(v.name))s+=5;return s}
+function loadVoices(){
+  if(!hasTTS)return;
+  voices=speechSynthesis.getVoices().slice().sort((a,b)=>score(b)-score(a));
+  const sel=$("voiceSelect"); sel.innerHTML="";
+  voices.forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name+" ("+v.lang+")";sel.appendChild(o)});
+  if(S.voice&&voices.some(v=>v.name===S.voice))sel.value=S.voice;
+  const thai=voices.some(v=>/^th/i.test(v.lang));
+  const w=$("voiceWarn");
+  if(!voices.length){w.hidden=false;w.textContent="กำลังโหลดรายการเสียง…";}
+  else if(!thai){w.hidden=false;w.textContent="ไม่พบเสียงภาษาไทยในเบราว์เซอร์นี้ ลองเปิดหน้านี้ใน Microsoft Edge หรือติดตั้งเสียงไทยใน Windows: Settings → Time & language → Speech → Add voices → ไทย";}
+  else w.hidden=true;
+}
+if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+else{$("voiceWarn").hidden=false;$("voiceWarn").textContent="เบราว์เซอร์นี้พูดไม่ได้ ลองเปิดใน Chrome หรือ Edge";}
+
+function chime(){
+  if(!audioCtx)return Promise.resolve();
+  const now=audioCtx.currentTime;
+  [[880,0],[1175,0.22],[1568,0.44]].forEach(([f,t])=>{
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type="sine";o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,now+t);g.gain.exponentialRampToValueAtTime(0.35*S.volume,now+t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,now+t+0.6);
+    o.connect(g).connect(audioCtx.destination);o.start(now+t);o.stop(now+t+0.65);
+  });
+  return new Promise(r=>setTimeout(r,1100));
+}
+function say(text){
+  if(!hasTTS)return;
+  speechSynthesis.cancel();
+  const times=S.repeat?2:1;
+  for(let i=0;i<times;i++){
+    const u=new SpeechSynthesisUtterance(text);
+    const v=voices.find(v=>v.name===$("voiceSelect").value);
+    if(v){u.voice=v;u.lang=v.lang}else u.lang="th-TH";
+    u.rate=S.rate;u.volume=S.volume;
+    speechSynthesis.speak(u);
+  }
+}
+const phrase=title=>`${S.name} ถึงเวลา ${title}`;
+async function announce(item){
+  if(S.chime)await chime();
+  say(phrase(item.title));
+}
+
+function itemsFor(day){return SCHEDULE.filter(s=>s.d.includes(day)).map(s=>({...s})).sort((a,b)=>a.t.localeCompare(b.t))}
+function mins(t){const[h,m]=t.split(":").map(Number);return h*60+m}
+function dateKey(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function nextItem(now){
+  for(let add=0;add<8;add++){
+    const d=new Date(now);d.setDate(d.getDate()+add);
+    const list=itemsFor(d.getDay()).concat(add===0?extra:[]).sort((a,b)=>a.t.localeCompare(b.t));
+    for(const it of list){
+      const at=new Date(d);at.setHours(...it.t.split(":").map(Number),0,0);
+      if(at>now)return{...it,at};
+    }
+  }
+  return null;
+}
+
+// mark items that already passed today as done, so opening the page late does not replay them
+(function primeFired(){const n=new Date();const k=dateKey(n);itemsFor(n.getDay()).forEach(it=>{if(mins(it.t)<=n.getHours()*60+n.getMinutes()-1)fired.add(k+" "+it.t+" "+it.title)})})();
+
+function check(){
+  const n=new Date(),k=dateKey(n),nowMin=n.getHours()*60+n.getMinutes();
+  const list=itemsFor(n.getDay()).concat(extra);
+  for(const it of list){
+    const key=k+" "+it.t+" "+it.title;
+    const diff=nowMin-mins(it.t);
+    if(diff>=0&&diff<3&&!fired.has(key)){
+      fired.add(key);
+      if(enabled){showAlert(it);announce(it)}
+    }
+  }
+}
+
+let current=null;
+function showAlert(it){current=it;$("alertTime").textContent="ถึงเวลา "+it.t+" น.";$("alertTitle").textContent=it.title;$("alert").hidden=false;
+  try{if("Notification"in window&&Notification.permission==="granted")new Notification(S.name+" ถึงเวลาแล้ว",{body:it.title})}catch(e){}}
+$("ackBtn").addEventListener("click",()=>{$("alert").hidden=true;if(hasTTS)speechSynthesis.cancel()});
+$("againBtn").addEventListener("click",()=>{if(current)announce(current)});
+
+function setStatus(){
+  $("powerPanel").classList.toggle("on",enabled);
+  $("statusText").textContent=enabled?"เปิดเสียงเตือนแล้ว เปิดหน้านี้ทิ้งไว้ได้เลย":"ยังไม่เปิดเสียงเตือน";
+  $("enableBtn").textContent=enabled?"ปิดเสียงเตือน":"เปิดเสียงเตือน";
+}
+$("enableBtn").addEventListener("click",async()=>{
+  enabled=!enabled;
+  if(enabled){
+    try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume()}catch(e){}
+    try{if("Notification"in window&&Notification.permission==="default")Notification.requestPermission().catch(()=>{})}catch(e){}
+    say(S.name+" เปิดเสียงเตือนแล้ว");
+  }else if(hasTTS)speechSynthesis.cancel();
+  setStatus();
+});
+$("testNow").addEventListener("click",async()=>{
+  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume()}catch(e){}
+  const nx=nextItem(new Date());announce(nx||{title:"เรียนภาษาจีน บทใหม่"});
+});
+$("testMinute").addEventListener("click",async()=>{
+  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();await audioCtx.resume()}catch(e){}
+  if(!enabled){enabled=true;setStatus()}
+  const d=new Date(Date.now()+60000);
+  const t=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  extra.push({d:[],t,k:"other",title:"ทดสอบเสียงเตือน"});
+  $("testMinute").textContent="ตั้งทดสอบไว้ที่ "+t+" น.";
+  render();
+});
+
+function renderTabs(){
+  const box=$("dayTabs");box.innerHTML="";
+  [1,2,3,4,5,6,0].forEach(d=>{const b=document.createElement("button");b.textContent=DAYS[d];b.setAttribute("aria-pressed",String(d===viewDay));b.addEventListener("click",()=>{viewDay=d;renderTabs();render()});box.appendChild(b)});
+}
+function render(){
+  const n=new Date(),today=n.getDay(),nowMin=n.getHours()*60+n.getMinutes();
+  const nx=nextItem(n);
+  if(nx){
+    $("nextTitle").textContent=nx.title;
+    const sameDay=dateKey(nx.at)===dateKey(n);
+    $("nextMeta").textContent=(sameDay?"วันนี้":"วัน"+DAYS[nx.at.getDay()])+" เวลา "+nx.t+" น.";
+    const s=Math.max(0,Math.round((nx.at-n)/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;
+    $("countdown").textContent="อีก "+(h?h+" ชม. ":"")+String(m).padStart(2,"0")+" นาที "+String(sec).padStart(2,"0")+" วินาที";
+    $("nextPhrase").textContent="“"+phrase(nx.title)+"”";
+  }
+  const list=itemsFor(viewDay).concat(viewDay===today?extra:[]).sort((a,b)=>a.t.localeCompare(b.t));
+  const ul=$("list");ul.innerHTML="";
+  let nowMarked=false;
+  list.forEach(it=>{
+    const li=document.createElement("li");li.className="item";
+    let chip="";
+    if(viewDay===today){
+      if(mins(it.t)<=nowMin){li.classList.add("done");chip="ผ่านแล้ว"}
+      else if(!nowMarked){li.classList.add("now");chip="ถัดไป";nowMarked=true}
+      else chip="รอเตือน";
+    }
+    li.innerHTML=`<span class="t">${it.t}</span><span class="name"><span class="tag k-${it.k}"></span><span></span></span>${chip?`<span class="chip">${chip}</span>`:"<span></span>"}`;
+    li.querySelector(".name span:last-child").textContent=it.title;
+    ul.appendChild(li);
+  });
+}
+function tick(){
+  const n=new Date();
+  $("clock").textContent=n.toLocaleTimeString("th-TH",{hour12:false});
+  $("date").textContent="วัน"+DAYS[n.getDay()]+"ที่ "+n.getDate()+" "+MONTHS[n.getMonth()]+" "+(n.getFullYear()+543);
+  check();render();
+}
+renderTabs();setStatus();tick();setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
