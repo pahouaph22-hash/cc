@@ -88,16 +88,42 @@ mark{background:var(--accent-soft);color:var(--ink);border-radius:3px;padding:0 
 .result{display:flex;flex-direction:column;gap:12px}
 .score{font-family:var(--display);font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
 .missed{margin:0;padding-left:20px}
-.passage{max-width:68ch}
-.passage p{font-family:var(--serif);font-size:18px;line-height:1.75;margin:0 0 14px}
+.exam{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+.exam-passage{position:sticky;top:calc(12px + env(safe-area-inset-top,0px));max-height:calc(100vh - 24px);overflow:auto;padding-right:8px}
+@media (max-width:900px){.exam{grid-template-columns:1fr}.exam-passage{position:static;max-height:none;overflow:visible;padding-right:0}}
+.ptitle{font-family:var(--serif);font-size:22px;line-height:1.3;margin:0 0 12px}
+.passage p{font-family:var(--serif);font-size:17.5px;line-height:1.75;margin:0 0 14px}
+.plabel{font-family:var(--display);font-weight:600;color:var(--accent);margin-right:10px}
 button.vw{font:inherit;color:inherit;background:var(--accent-soft);border:0;border-bottom:2px solid var(--accent);border-radius:3px;padding:0 2px;cursor:pointer;line-height:inherit}
-button.vw:hover{border-color:var(--accent)}
-.gloss{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px;margin-bottom:16px;min-height:42px;max-width:68ch}
+.gloss{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px;margin-bottom:14px;min-height:42px}
 .gloss b{font-family:var(--serif);font-size:16px}
-.cq{border-top:1px solid var(--line);padding-top:14px;margin-top:14px;display:flex;flex-direction:column;gap:8px;max-width:640px}
-.cq .q{font-weight:500}
-.cq .opt{font-size:15px;padding:10px 12px}
-.rdscore{margin-top:16px;font-weight:600}
+.seg{display:flex}
+.seg button{border-radius:0;padding:6px 12px}
+.seg button:first-child{border-radius:8px 0 0 8px}
+.seg button:last-child{border-radius:0 8px 8px 0;margin-left:-1px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.timer{font-family:var(--display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;padding:2px 12px;border:1px solid var(--line);border-radius:8px}
+.timer.low{color:var(--bad);border-color:var(--bad)}
+.qs{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.qs h4{margin:0 0 6px;font-family:var(--display);font-size:15px}
+.inst{font-size:14px;margin:0 0 6px;line-height:1.55}
+.inst-th{font-size:13px;color:var(--muted);margin:0 0 10px}
+.hlist{list-style:none;margin:0 0 10px;padding:10px 14px;background:var(--paper);border-radius:8px;font-family:var(--serif);font-size:15.5px}
+.hlist li{padding:2px 0}
+.hl-title{font-family:var(--body);font-weight:600;font-size:13px;color:var(--muted)}
+.rn{display:inline-block;min-width:34px;font-style:italic;color:var(--accent)}
+.qrow{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start;padding:10px 6px;border-top:1px solid var(--line);border-radius:6px}
+.qn{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums}
+.qbody{line-height:1.6}
+.qrow select,.qrow input[type=text]{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);margin-top:4px}
+.qrow input[type=text]{width:11em;max-width:100%;margin:0 4px}
+.mc label{display:flex;gap:8px;align-items:flex-start;padding:4px 0;cursor:pointer}
+.mc input{margin-top:6px}
+.qrow.ok{background:var(--good-soft)}
+.qrow.no{background:var(--bad-soft)}
+.ans{font-size:13px;margin-top:6px;font-weight:600}
+.submitbar{margin-top:6px}
+.rdscore{font-weight:600}
 .missed li{margin:4px 0}
 .missed b{font-family:var(--serif)}
 
@@ -128,7 +154,7 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-today" aria-selected="true">ศัพท์วันนี้</button>
-    <button role="tab" id="tab-reading" aria-selected="false">บทความ</button>
+    <button role="tab" id="tab-reading" aria-selected="false">IELTS Reading</button>
     <button role="tab" id="tab-quiz" aria-selected="false">แบบทดสอบวันนี้</button>
     <button role="tab" id="tab-review" aria-selected="false">ทบทวนคำเก่า</button>
     <button role="tab" id="tab-archive" aria-selected="false">คลังคำศัพท์</button>
@@ -159,16 +185,25 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
     <div class="panel-head">
       <div>
         <div class="eyebrow" id="rdSet"></div>
-        <h2 id="rdTitle"></h2>
+        <h2>IELTS Academic Reading</h2>
         <div class="note" id="rdMeta"></div>
       </div>
-      <div class="row"><button id="rdListen">ฟังบทความ</button><button id="rdStop">หยุดเสียง</button></div>
+      <div class="row">
+        <div class="seg" role="group" aria-label="โหมด"><button type="button" id="modePractice" aria-pressed="true">โหมดฝึก</button><button type="button" id="modeExam" aria-pressed="false">โหมดสอบ</button></div>
+        <span class="timer" id="rdTimer" hidden>12:00</span>
+      </div>
     </div>
-    <div class="gloss" id="rdGloss" aria-live="polite">คำที่ไฮไลต์คือคำศัพท์ของชุดนี้ แตะคำเพื่อดูความหมายและฟังเสียง</div>
-    <article class="passage" id="rdText"></article>
-    <h2 style="margin-top:6px">คำถามความเข้าใจ</h2>
-    <p class="note" style="margin:4px 0 0">อ่านบทความให้จบก่อน แล้วตอบ 3 ข้อ</p>
-    <div id="rdQuiz"></div>
+    <p class="note" id="rdModeNote" style="margin:0 0 14px"></p>
+    <div class="exam">
+      <div class="exam-passage">
+        <div class="gloss" id="rdGloss" aria-live="polite"></div>
+        <h3 class="ptitle" id="rdTitle"></h3>
+        <article class="passage" id="rdText"></article>
+        <div class="row" id="rdAudio"><button type="button" id="rdListen">ฟังบทความ</button><button type="button" id="rdStop">หยุดเสียง</button></div>
+      </div>
+      <form class="exam-questions" id="rdForm"></form>
+    </div>
+    <p class="note" style="margin-top:14px">ข้อสอบ IELTS Academic Reading จริงมี 3 บทความ บทความละประมาณ 700–900 คำ รวม 40 ข้อ ใช้เวลา 60 นาที บทความในเว็บนี้สั้นกว่าเพื่อให้ฝึกได้ทุกวัน แต่ใช้รูปแบบคำถามและคำสั่งแบบเดียวกับข้อสอบจริง</p>
   </section>
 
   <section class="panel" id="pane-quiz" hidden>
@@ -189,6 +224,7 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
 
 <script src="words.js"></script>
 <script src="readings.js"></script>
+<script src="ielts.js"></script>
 <script>
 (function(){
 const DAYS=window.WORD_DAYS, N=DAYS.length;
@@ -355,49 +391,121 @@ function renderArchive(){
 }
 
 // ---- tabs ----
-// ---- reading passage built from the set's words ----
-const READ=window.READINGS||[];
+// ---- IELTS-style reading built from the set's words ----
+const READ=window.READINGS||[], IE=window.IELTS||[];
 const readDone=store.get("eng.reading",{});   // date -> {score,total}
+const EXAM_MIN=12, ROMAN=["i","ii","iii","iv","v","vi","vii","viii","ix"], LETTERS="ABCDEFGH";
+let rdMode="practice", timerId=null, timeLeft=0;
 function markWords(text,words){
   const hits=[];
   words.forEach((w,k)=>{const re=new RegExp(wordRegex(w.w).source,"gi");let m;while((m=re.exec(text)))hits.push({a:m.index,b:m.index+m[0].length,k})});
   hits.sort((x,y)=>x.a-y.a);
   let out="",pos=0;
-  hits.forEach(h=>{if(h.a<pos)return;out+=esc(text.slice(pos,h.a))+`<button class="vw" data-k="${h.k}">${esc(text.slice(h.a,h.b))}</button>`;pos=h.b});
-  return (out+esc(text.slice(pos))).replace(/\n/g,"<br>");
+  hits.forEach(h=>{if(h.a<pos)return;out+=esc(text.slice(pos,h.a))+`<button type="button" class="vw" data-k="${h.k}">${esc(text.slice(h.a,h.b))}</button>`;pos=h.b});
+  return out+esc(text.slice(pos));
 }
+const norm=s=>s.toLowerCase().replace(/,/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}}
+function showTime(){const t=$("rdTimer");t.textContent=String(Math.floor(timeLeft/60)).padStart(2,"0")+":"+String(timeLeft%60).padStart(2,"0");t.classList.toggle("low",timeLeft<=120)}
+function startTimer(){stopTimer();timeLeft=EXAM_MIN*60;showTime();timerId=setInterval(()=>{timeLeft--;showTime();if(timeLeft<=0){stopTimer();const f=$("rdForm");if(f.requestSubmit)f.requestSubmit();else f.dispatchEvent(new Event("submit",{cancelable:true}))}},1000)}
+function block(title,en,th){const d=document.createElement("section");d.className="qs";d.innerHTML=`<h4>${title}</h4><p class="inst">${en}</p><p class="inst-th">${th}</p>`;return d}
+function row(n,html){const r=document.createElement("div");r.className="qrow";r.innerHTML=`<span class="qn">${n}</span><div class="qbody">${html}</div>`;return r}
+
 function renderReading(i){
-  const r=READ[i],box=$("rdText");
-  if(!r){$("rdTitle").textContent="ยังไม่มีบทความสำหรับชุดนี้";box.innerHTML="";$("rdQuiz").innerHTML="";return}
-  const words=setWords(i);
+  stopTimer();
+  const r=READ[i],q=IE[i]||{h:[],extra:[],tfng:[],gap:[]},box=$("rdText"),form=$("rdForm");
+  form.innerHTML="";
+  if(!r){$("rdTitle").textContent="ยังไม่มีบทความสำหรับชุดนี้";box.innerHTML="";return}
+  const words=setWords(i),exam=rdMode==="exam";
+  const paras=r.text.split(/\n\s*\n/);
+  const total=q.h.length+q.tfng.length+q.gap.length+r.questions.length;
   $("rdSet").textContent="ชุดที่ "+(i+1)+" · "+DAYS[i].theme+(i===todayIdx?" · วันนี้":"");
   $("rdTitle").textContent=r.title;
-  const n=r.text.split(/\s+/).length;
-  $("rdMeta").textContent="ประมาณ "+n+" คำ · อ่าน "+Math.max(1,Math.round(n/150))+" นาที · ใช้คำศัพท์ครบ 10 คำของชุดนี้";
-  box.innerHTML=r.text.split(/\n\s*\n/).map(p=>"<p>"+markWords(p,words)+"</p>").join("");
+  $("rdMeta").textContent="ประมาณ "+r.text.split(/\s+/).length+" คำ · "+total+" ข้อ · เวลา "+EXAM_MIN+" นาที";
+  const lettered=q.h.length>0;
+  box.innerHTML=paras.map((p,k)=>`<p>${lettered?`<span class="plabel">${LETTERS[k]}</span>`:""}${(exam?esc(p):markWords(p,words)).replace(/\n/g,"<br>")}</p>`).join("");
   box.querySelectorAll(".vw").forEach(b=>b.addEventListener("click",()=>{const w=words[+b.dataset.k];$("rdGloss").innerHTML=`<b>${esc(w.w)}</b> <i>${esc(w.pos)}</i> = ${esc(w.th)}`;speak(w.w)}));
+  $("rdGloss").hidden=exam;$("rdAudio").hidden=exam;$("rdTimer").hidden=!exam;
   $("rdGloss").textContent="คำที่ไฮไลต์คือคำศัพท์ของชุดนี้ แตะคำเพื่อดูความหมายและฟังเสียง";
-  const qbox=$("rdQuiz");qbox.innerHTML="";let answered=0,right=0;
-  r.questions.forEach((q,qi)=>{
-    const wrap=document.createElement("div");wrap.className="cq";
-    wrap.innerHTML=`<div class="q">${qi+1}. ${esc(q[0])}</div>`;
-    shuffle(q[1].map((t,k)=>({t,ok:k===0}))).forEach(o=>{
-      const b=document.createElement("button");b.className="opt";b.textContent=o.t;
-      b.addEventListener("click",()=>{
-        wrap.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(x.textContent===q[1][0])x.classList.add("right")});
-        if(o.ok)right++;else b.classList.add("wrong");
-        if(++answered===r.questions.length){
-          const s=document.createElement("div");s.className="rdscore";
-          s.textContent="เข้าใจถูก "+right+"/"+answered+" ข้อ"+(right===answered?" · เยี่ยมมาก":" · ลองอ่านย่อหน้าที่เกี่ยวข้องอีกครั้ง");
-          qbox.appendChild(s);
-          if(i===todayIdx){const p=readDone[todayKey];if(!p||right>p.score)readDone[todayKey]={score:right,total:answered};store.set("eng.reading",readDone)}
-        }
-      });
-      wrap.appendChild(b);
+  $("rdModeNote").textContent=exam
+    ?"โหมดสอบ: ไม่มีไฮไลต์และคำแปล จับเวลา "+EXAM_MIN+" นาที หมดเวลาแล้วระบบจะส่งคำตอบให้อัตโนมัติ"
+    :"โหมดฝึก: ไฮไลต์คำศัพท์และแตะดูความหมายได้ ไม่จับเวลา ตรวจคำตอบเมื่อกดส่ง เหมือนข้อสอบจริง";
+
+  const items=[];let n=1;
+  if(q.h.length){
+    const pool=shuffle(q.h.map(h=>h[1]).concat(q.extra));
+    const a=n,b=n+q.h.length-1;
+    const s=block(`Questions ${a}–${b}`,
+      `The reading passage has ${q.h.length} paragraphs, <b>A–${LETTERS[q.h.length-1]}</b>. Choose the correct heading for each paragraph from the list of headings below. Choose the correct number, <b>i–${ROMAN[pool.length-1]}</b>.`,
+      "เลือกหัวข้อที่เหมาะกับแต่ละย่อหน้า มีหัวข้อเกินมาให้ ไม่ต้องใช้ทุกหัวข้อ");
+    const ul=document.createElement("ul");ul.className="hlist";ul.innerHTML=`<li class="hl-title">List of Headings</li>`+pool.map((t,k)=>`<li><span class="rn">${ROMAN[k]}</span>${esc(t)}</li>`).join("");s.appendChild(ul);
+    q.h.forEach(h=>{
+      const ans=ROMAN[pool.indexOf(h[1])];
+      const rw=row(n,`Paragraph <b>${h[0]}</b> <select id="rq${n}" aria-label="Question ${n}"><option value="">–</option>${pool.map((t,k)=>`<option>${ROMAN[k]}</option>`).join("")}</select>`);
+      s.appendChild(rw);const sel=rw.querySelector("select");
+      items.push({rw,check:()=>sel.value===ans,answer:ans+" — "+h[1]});n++;
     });
-    qbox.appendChild(wrap);
-  });
+    form.appendChild(s);
+  }
+  if(q.tfng.length){
+    const s=block(`Questions ${n}–${n+q.tfng.length-1}`,
+      `Do the following statements agree with the information given in the reading passage? Choose<br><b>TRUE</b> if the statement agrees with the information<br><b>FALSE</b> if the statement contradicts the information<br><b>NOT GIVEN</b> if there is no information on this`,
+      "TRUE = ตรงกับบทความ · FALSE = ขัดแย้งกับบทความ · NOT GIVEN = บทความไม่ได้บอกไว้ (อย่าใช้ความรู้ของตัวเองตัดสิน)");
+    q.tfng.forEach(t=>{
+      const rw=row(n,`${esc(t[0])}<div><select id="rq${n}" aria-label="Question ${n}"><option value="">–</option><option>TRUE</option><option>FALSE</option><option>NOT GIVEN</option></select></div>`);
+      s.appendChild(rw);const sel=rw.querySelector("select");
+      items.push({rw,check:()=>sel.value===t[1],answer:t[1]});n++;
+    });
+    form.appendChild(s);
+  }
+  if(q.gap.length){
+    const s=block(`Questions ${n}–${n+q.gap.length-1}`,
+      `Complete the sentences below. Choose <b>NO MORE THAN TWO WORDS AND/OR A NUMBER</b> from the passage for each answer.`,
+      "เติมคำโดยใช้คำจากบทความเท่านั้น ไม่เกิน 2 คำ และ/หรือตัวเลข สะกดผิดถือว่าผิด");
+    q.gap.forEach(g=>{
+      const [pre,post]=g[0].split("___");
+      const rw=row(n,`${esc(pre)}<input type="text" id="rq${n}" autocomplete="off" spellcheck="false" aria-label="Question ${n}">${esc(post||"")}`);
+      s.appendChild(rw);const inp=rw.querySelector("input");
+      items.push({rw,check:()=>g[1].some(a=>norm(a)===norm(inp.value)),answer:g[1][0]});n++;
+    });
+    form.appendChild(s);
+  }
+  if(r.questions.length){
+    const s=block(`Questions ${n}–${n+r.questions.length-1}`,`Choose the correct letter, <b>A, B, C or D</b>.`,"เลือกคำตอบที่ถูกต้องที่สุด 1 ข้อ");
+    r.questions.forEach(mq=>{
+      const opts=shuffle(mq[1].map((t,k)=>({t,ok:k===0})));
+      const name="rq"+n;
+      const rw=row(n,`${esc(mq[0])}<div class="mc">${opts.map((o,k)=>`<label><input type="radio" name="${name}" value="${k}"><b>${LETTERS[k]}</b> <span>${esc(o.t)}</span></label>`).join("")}</div>`);
+      s.appendChild(rw);
+      const right=opts.findIndex(o=>o.ok);
+      items.push({rw,check:()=>{const c=rw.querySelector("input:checked");return !!c&&+c.value===right},answer:LETTERS[right]+" — "+mq[1][0]});n++;
+    });
+    form.appendChild(s);
+  }
+  const bar=document.createElement("div");bar.className="row submitbar";
+  bar.innerHTML=`<button type="submit" class="primary">ส่งคำตอบ</button><button type="button" id="rdReset">ทำใหม่</button><span class="rdscore" id="rdScore" aria-live="polite"></span>`;
+  form.appendChild(bar);
+  bar.querySelector("#rdReset").addEventListener("click",()=>renderReading(viewIdx));
+  form.onsubmit=e=>{
+    e.preventDefault();stopTimer();
+    let right=0;
+    items.forEach(it=>{
+      const ok=it.check();if(ok)right++;
+      it.rw.classList.add(ok?"ok":"no");
+      if(!ok){const a=document.createElement("div");a.className="ans";a.textContent="เฉลย: "+it.answer;it.rw.querySelector(".qbody").appendChild(a)}
+    });
+    form.querySelectorAll("input,select").forEach(x=>x.disabled=true);
+    form.querySelector("button[type=submit]").disabled=true;
+    const used=exam?EXAM_MIN*60-timeLeft:null;
+    $("rdScore").textContent="ได้ "+right+"/"+items.length+" ข้อ"+(used!==null?" · ใช้เวลา "+Math.floor(used/60)+" นาที "+(used%60)+" วินาที":"");
+    if(i===todayIdx){const p=readDone[todayKey];if(!p||right>p.score)readDone[todayKey]={score:right,total:items.length};store.set("eng.reading",readDone)}
+    $("rdScore").scrollIntoView({behavior:"smooth",block:"nearest"});
+  };
+  if(exam)startTimer();
 }
+function setMode(m){rdMode=m;$("modePractice").setAttribute("aria-pressed",String(m==="practice"));$("modeExam").setAttribute("aria-pressed",String(m==="exam"));renderReading(viewIdx)}
+$("modePractice").addEventListener("click",()=>setMode("practice"));
+$("modeExam").addEventListener("click",()=>setMode("exam"));
 $("rdListen").addEventListener("click",()=>{const r=READ[viewIdx];if(r)speak(r.text.replace(/\n+/g," ").match(/[^.!?]+[.!?]+["')]?/g)||[r.text])});
 $("rdStop").addEventListener("click",()=>{if("speechSynthesis"in window)speechSynthesis.cancel()});
 
