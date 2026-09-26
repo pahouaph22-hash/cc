@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ศัพท์อังกฤษประจำวัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
+<style>
+:root{
+  --paper:#F3F5F8; --card:#FFFFFF; --ink:#1B2533; --muted:#5E6B7C; --line:#D9DFE7;
+  --accent:#2F5DA8; --accent-ink:#FFFFFF; --accent-soft:#E2EAF7;
+  --good:#2E7D4F; --good-soft:#DDF0E4; --bad:#B8322A; --bad-soft:#F8E1DF;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --display:"Chakra Petch","IBM Plex Sans Thai",system-ui,sans-serif;
+  --body:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#10151D; --card:#171E29; --ink:#E4EAF2; --muted:#98A6B8; --line:#2A3443;
+    --accent:#7FA6EB; --accent-ink:#0D1420; --accent-soft:#1C2A40;
+    --good:#7BCB98; --good-soft:#18301F; --bad:#F08A80; --bad-soft:#3A1D1A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#10151D; --card:#171E29; --ink:#E4EAF2; --muted:#98A6B8; --line:#2A3443;
+  --accent:#7FA6EB; --accent-ink:#0D1420; --accent-soft:#1C2A40;
+  --good:#7BCB98; --good-soft:#18301F; --bad:#F08A80; --bad-soft:#3A1D1A;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2{font-family:var(--display);font-weight:600;margin:0;line-height:1.25;text-wrap:balance}
+h1{font-size:23px} h2{font-size:18px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-width:96px}
+.stat b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tabs button{border-radius:99px;padding:6px 14px}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.theme{color:var(--muted)}
+
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.cards{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.num{font-family:var(--display);color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.word{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.01em}
+.pos{font-family:var(--serif);font-style:italic;color:var(--muted)}
+.say{margin-left:auto;padding:3px 10px;font-size:13px}
+.th{font-weight:500}
+.ex{font-family:var(--serif);color:var(--muted);font-size:15.5px}
+mark{background:var(--accent-soft);color:var(--ink);border-radius:3px;padding:0 2px}
+.hide-meaning .th{filter:blur(6px);cursor:pointer;user-select:none}
+
+.quiz{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.qtype{font-size:13px;color:var(--muted)}
+.prompt{font-family:var(--serif);font-size:22px;line-height:1.45}
+.prompt.thai{font-family:var(--body);font-size:20px;font-weight:500}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:12px 14px;font-size:16px}
+.opt.en{font-family:var(--serif);font-size:18px}
+.opt.right{background:var(--good-soft);border-color:var(--good);color:var(--ink)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--ink)}
+.opt:disabled{cursor:default}
+.explain{border-radius:8px;padding:10px 12px;font-size:14px}
+.explain.ok{background:var(--good-soft)} .explain.no{background:var(--bad-soft)}
+.result{display:flex;flex-direction:column;gap:12px}
+.score{font-family:var(--display);font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.missed{margin:0;padding-left:20px}
+.exam{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+.exam-passage{position:sticky;top:calc(12px + env(safe-area-inset-top,0px));max-height:calc(100vh - 24px);overflow:auto;padding-right:8px}
+@media (max-width:900px){.exam{grid-template-columns:1fr}.exam-passage{position:static;max-height:none;overflow:visible;padding-right:0}}
+.ptitle{font-family:var(--serif);font-size:22px;line-height:1.3;margin:0 0 12px}
+.passage p{font-family:var(--serif);font-size:17.5px;line-height:1.75;margin:0 0 14px}
+.plabel{font-family:var(--display);font-weight:600;color:var(--accent);margin-right:10px}
+button.vw{font:inherit;color:inherit;background:var(--accent-soft);border:0;border-bottom:2px solid var(--accent);border-radius:3px;padding:0 2px;cursor:pointer;line-height:inherit}
+.gloss{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px;margin-bottom:14px;min-height:42px}
+.gloss b{font-family:var(--serif);font-size:16px}
+.seg{display:flex}
+.seg button{border-radius:0;padding:6px 12px}
+.seg button:first-child{border-radius:8px 0 0 8px}
+.seg button:last-child{border-radius:0 8px 8px 0;margin-left:-1px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.timer{font-family:var(--display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;padding:2px 12px;border:1px solid var(--line);border-radius:8px}
+.timer.low{color:var(--bad);border-color:var(--bad)}
+.qs{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.qs h4{margin:0 0 6px;font-family:var(--display);font-size:15px}
+.inst{font-size:14px;margin:0 0 6px;line-height:1.55}
+.inst-th{font-size:13px;color:var(--muted);margin:0 0 10px}
+.hlist{list-style:none;margin:0 0 10px;padding:10px 14px;background:var(--paper);border-radius:8px;font-family:var(--serif);font-size:15.5px}
+.hlist li{padding:2px 0}
+.hl-title{font-family:var(--body);font-weight:600;font-size:13px;color:var(--muted)}
+.rn{display:inline-block;min-width:34px;font-style:italic;color:var(--accent)}
+.qrow{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start;padding:10px 6px;border-top:1px solid var(--line);border-radius:6px}
+.qn{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums}
+.qbody{line-height:1.6}
+.qrow select,.qrow input[type=text]{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);margin-top:4px}
+.qrow input[type=text]{width:11em;max-width:100%;margin:0 4px}
+.mc label{display:flex;gap:8px;align-items:flex-start;padding:4px 0;cursor:pointer}
+.mc input{margin-top:6px}
+.qrow.ok{background:var(--good-soft)}
+.qrow.no{background:var(--bad-soft)}
+.ans{font-size:13px;margin-top:6px;font-weight:600}
+.submitbar{margin-top:6px}
+.rdscore{font-weight:600}
+.missed li{margin:4px 0}
+.missed b{font-family:var(--serif)}
+
+.archive{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:640px){.archive{grid-template-columns:1fr}}
+.archive button{width:100%;text-align:left;display:flex;gap:10px;align-items:center}
+.archive .d{font-family:var(--display);font-variant-numeric:tabular-nums;color:var(--muted);min-width:52px}
+.archive .sc{margin-left:auto;font-size:12px;color:var(--good);white-space:nowrap}
+.note{font-size:13px;color:var(--muted)}
+.empty{color:var(--muted)}
+textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">English for One Health · วันละ 10 คำ</div>
+      <h1>ศัพท์อังกฤษประจำวัน</h1>
+      <div class="note" id="dateLine"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="stDay">–</b><span>วันที่</span></div>
+      <div class="stat"><b id="stStreak">0</b><span>ทำต่อเนื่อง (วัน)</span></div>
+      <div class="stat"><b id="stWords">0</b><span>คำที่เรียนแล้ว</span></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-today" aria-selected="true">ศัพท์วันนี้</button>
+    <button role="tab" id="tab-reading" aria-selected="false">IELTS Reading</button>
+    <button role="tab" id="tab-quiz" aria-selected="false">แบบทดสอบวันนี้</button>
+    <button role="tab" id="tab-review" aria-selected="false">ทบทวนคำเก่า</button>
+    <button role="tab" id="tab-archive" aria-selected="false">คลังคำศัพท์</button>
+  </nav>
+
+  <section class="panel" id="pane-today">
+    <div class="panel-head">
+      <div>
+        <h2 id="setTitle"></h2>
+        <div class="theme" id="setTheme"></div>
+      </div>
+      <div class="row">
+        <button id="backToday" hidden>กลับไปศัพท์วันนี้</button>
+        <button id="toggleMeaning">ซ่อนความหมาย</button>
+        <button id="sayAll">ฟังทั้งหมด</button>
+      </div>
+    </div>
+    <div class="cards" id="cards"></div>
+    <details style="margin-top:16px">
+      <summary>ส่งออกไปยัง Anki</summary>
+      <p class="note">คัดลอกข้อความ บันทึกเป็นไฟล์ .txt แล้วใน Anki เลือก File → Import (ตัวคั่นคือ ;)</p>
+      <textarea id="ankiText" readonly></textarea>
+      <div class="row" style="margin-top:8px"><button id="copyAnki">คัดลอก</button><span class="note" id="copyMsg"></span></div>
+    </details>
+  </section>
+
+  <section class="panel" id="pane-reading" hidden>
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow" id="rdSet"></div>
+        <h2>IELTS Academic Reading</h2>
+        <div class="note" id="rdMeta"></div>
+      </div>
+      <div class="row">
+        <div class="seg" role="group" aria-label="โหมด"><button type="button" id="modePractice" aria-pressed="true">โหมดฝึก</button><button type="button" id="modeExam" aria-pressed="false">โหมดสอบ</button></div>
+        <span class="timer" id="rdTimer" hidden>12:00</span>
+      </div>
+    </div>
+    <p class="note" id="rdModeNote" style="margin:0 0 14px"></p>
+    <div class="exam">
+      <div class="exam-passage">
+        <div class="gloss" id="rdGloss" aria-live="polite"></div>
+        <h3 class="ptitle" id="rdTitle"></h3>
+        <article class="passage" id="rdText"></article>
+        <div class="row" id="rdAudio"><button type="button" id="rdListen">ฟังบทความ</button><button type="button" id="rdStop">หยุดเสียง</button></div>
+      </div>
+      <form class="exam-questions" id="rdForm"></form>
+    </div>
+    <p class="note" style="margin-top:14px">ข้อสอบ IELTS Academic Reading จริงมี 3 บทความ บทความละประมาณ 700–900 คำ รวม 40 ข้อ ใช้เวลา 60 นาที บทความในเว็บนี้สั้นกว่าเพื่อให้ฝึกได้ทุกวัน แต่ใช้รูปแบบคำถามและคำสั่งแบบเดียวกับข้อสอบจริง</p>
+  </section>
+
+  <section class="panel" id="pane-quiz" hidden>
+    <div class="quiz" id="quizBox"></div>
+  </section>
+
+  <section class="panel" id="pane-review" hidden>
+    <div class="quiz" id="reviewBox"></div>
+  </section>
+
+  <section class="panel" id="pane-archive" hidden>
+    <div class="panel-head"><h2>คลังคำศัพท์</h2><span class="note">เปิดได้เฉพาะวันที่ผ่านมาแล้ว ชุดใหม่ปลดล็อกทุกวันเวลา 00:00</span></div>
+    <ul class="archive" id="archive"></ul>
+  </section>
+
+  <p class="note">เว็บนี้คู่กับ <a href="../reminder/">หน้าเสียงเตือนตารางเรียน</a> และ <a href="../chinese/">ศัพท์จีนประจำวัน</a> · คะแนนและความก้าวหน้าเก็บไว้ในเบราว์เซอร์นี้เท่านั้น</p>
+</div>
+
+<script src="words.js"></script>
+<script src="readings.js"></script>
+<script src="ielts.js"></script>
+<script>
+(function(){
+const DAYS=window.WORD_DAYS, N=DAYS.length;
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const TH_MONTHS=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const TH_DAYS=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+
+// ---- which set is today ----
+function dayNumber(d){const [y,m,dd]=window.WORD_START.split("-").map(Number);return Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(y,m-1,dd))/86400000)}
+const now=new Date(), elapsed=Math.max(0,dayNumber(now));
+const todayIdx=elapsed%N, round=Math.floor(elapsed/N)+1;
+const unlocked=elapsed>=N?N:elapsed+1;          // how many sets are open
+const dateKey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const todayKey=dateKey(now);
+const W=(w,day)=>({w:w[0],pos:w[1],th:w[2],ex:w[3],day});
+const setWords=i=>DAYS[i].words.map(w=>W(w,i));
+const allWords=DAYS.flatMap((d,i)=>setWords(i));
+const learnedWords=()=>{let a=[];for(let i=0;i<unlocked;i++)a=a.concat(setWords(i));return a};
+
+// ---- progress ----
+const results=store.get("eng.results",{});      // date -> {score,total}
+let wrongBank=store.get("eng.wrong",[]);          // words answered wrong, most recent last
+function streak(){let s=0;const d=new Date(now);if(!results[dateKey(d)])d.setDate(d.getDate()-1);while(results[dateKey(d)]){s++;d.setDate(d.getDate()-1)}return s}
+function renderStats(){
+  $("stDay").textContent=(todayIdx+1)+"/"+N+(round>1?" · รอบ "+round:"");
+  $("stStreak").textContent=streak();
+  $("stWords").textContent=unlocked*10;
+  $("dateLine").textContent="วัน"+TH_DAYS[now.getDay()]+"ที่ "+now.getDate()+" "+TH_MONTHS[now.getMonth()]+" "+(now.getFullYear()+543);
+}
+
+// ---- speech ----
+let enVoice=null;
+function pickVoice(){if(!("speechSynthesis"in window))return;const v=speechSynthesis.getVoices();enVoice=v.find(x=>/^en-GB/i.test(x.lang)&&/natural|online|google/i.test(x.name))||v.find(x=>/^en-(GB|US)/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}
+if("speechSynthesis"in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(texts){if(!("speechSynthesis"in window))return;speechSynthesis.cancel();[].concat(texts).forEach(t=>{const u=new SpeechSynthesisUtterance(t);if(enVoice){u.voice=enVoice;u.lang=enVoice.lang}else u.lang="en-GB";u.rate=.9;speechSynthesis.speak(u)})}
+
+// ---- matching the word inside its example sentence ----
+function wordRegex(w){
+  const parts=w.toLowerCase().split(/[\s-]+/);
+  const first=parts[0].length>4?parts[0].replace(/(e|y)$/,""):parts[0];
+  const src=[first+"[a-z]*"].concat(parts.slice(1).map(p=>p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"))).join("[\\s-]+");
+  return new RegExp("\\b"+src+"\\b","i");
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function highlight(ex,w){const m=ex.match(wordRegex(w));if(!m)return esc(ex);return esc(ex.slice(0,m.index))+"<mark>"+esc(m[0])+"</mark>"+esc(ex.slice(m.index+m[0].length))}
+
+// ---- word list view ----
+let viewIdx=todayIdx;
+function renderSet(i){
+  viewIdx=i;
+  const words=setWords(i);
+  $("setTitle").textContent=i===todayIdx?"ศัพท์วันนี้ · ชุดที่ "+(i+1):"ชุดที่ "+(i+1);
+  $("setTheme").textContent="หัวข้อ: "+DAYS[i].theme;
+  $("backToday").hidden=i===todayIdx;
+  const box=$("cards");box.innerHTML="";
+  words.forEach((w,k)=>{
+    const c=document.createElement("article");c.className="card";
+    c.innerHTML=`<div class="head"><span class="num">${String(k+1).padStart(2,"0")}</span><span class="word">${esc(w.w)}</span><span class="pos">${esc(w.pos)}</span><button class="say" aria-label="ฟังเสียง ${esc(w.w)}">ฟังเสียง</button></div>
+      <div class="th">${esc(w.th)}</div><div class="ex">${highlight(w.ex,w.w)}</div>`;
+    c.querySelector(".say").addEventListener("click",()=>speak([w.w,w.ex]));
+    c.querySelector(".th").addEventListener("click",e=>{if(box.classList.contains("hide-meaning"))e.currentTarget.style.filter="none"});
+    box.appendChild(c);
+  });
+  $("ankiText").value=words.map(w=>`${w.w};${w.th} — ${w.ex}`).join("\n");
+  renderReading(i);
+}
+$("toggleMeaning").addEventListener("click",()=>{const b=$("cards");const on=b.classList.toggle("hide-meaning");$("toggleMeaning").textContent=on?"แสดงความหมาย":"ซ่อนความหมาย";b.querySelectorAll(".th").forEach(t=>t.style.filter="")});
+$("sayAll").addEventListener("click",()=>speak(setWords(viewIdx).map(w=>w.w)));
+$("backToday").addEventListener("click",()=>renderSet(todayIdx));
+$("copyAnki").addEventListener("click",()=>{const t=$("ankiText");const done=()=>{$("copyMsg").textContent="คัดลอกแล้ว"};try{navigator.clipboard.writeText(t.value).then(done,()=>{t.select();$("copyMsg").textContent="เลือกข้อความแล้ว กด Ctrl+C"})}catch(e){t.select();$("copyMsg").textContent="เลือกข้อความแล้ว กด Ctrl+C"}});
+
+// ---- quiz engine ----
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function distractors(target,pool,key){const seen=new Set([target[key]]);return shuffle(pool.filter(p=>p.w!==target.w)).filter(p=>{if(seen.has(p[key]))return false;seen.add(p[key]);return true}).slice(0,3)}
+function makeQuestion(w,pool,type){
+  if(type==="blank"&&!wordRegex(w.w).test(w.ex))type="meaning";
+  if(type==="meaning")return{w,type,label:"คำนี้แปลว่าอะไร",prompt:w.w,promptEn:true,options:shuffle([w].concat(distractors(w,pool,"th"))).map(o=>({text:o.th,ok:o===w})),optEn:false};
+  if(type==="word")return{w,type,label:"คำภาษาอังกฤษของความหมายนี้คือ",prompt:w.th,promptEn:false,options:shuffle([w].concat(distractors(w,pool,"w"))).map(o=>({text:o.w,ok:o===w})),optEn:true};
+  const m=w.ex.match(wordRegex(w.w));
+  const blanked=w.ex.slice(0,m.index)+"_____"+w.ex.slice(m.index+m[0].length);
+  return{w,type,label:"เติมคำในช่องว่าง",prompt:blanked,promptEn:true,options:shuffle([w].concat(distractors(w,pool,"w"))).map(o=>({text:o.w,ok:o===w})),optEn:true};
+}
+function buildQuiz(words,pool){const types=["meaning","word","blank"];return shuffle(words).map((w,i)=>makeQuestion(w,pool,types[i%3]))}
+
+function runQuiz(box,words,pool,opts){
+  const qs=buildQuiz(words,pool);let i=0,score=0;const missed=[];
+  function show(){
+    const q=qs[i];
+    box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="qtype">${esc(opts.title)} · ข้อ ${i+1}/${qs.length}</span><span class="qtype">ถูก ${score}</span></div>
+      <div class="progress"><i style="width:${i/qs.length*100}%"></i></div>
+      <div class="qtype">${q.label}</div>
+      <div class="prompt ${q.promptEn?"":"thai"}"></div>
+      <div class="opts"></div><div class="fb"></div>`;
+    box.querySelector(".prompt").textContent=q.prompt;
+    const optBox=box.querySelector(".opts");
+    q.options.forEach(o=>{
+      const b=document.createElement("button");b.className="opt"+(q.optEn?" en":"");b.textContent=o.text;
+      b.addEventListener("click",()=>answer(o,b));optBox.appendChild(b);
+    });
+  }
+  function answer(o,btn){
+    const q=qs[i];
+    box.querySelectorAll(".opt").forEach((b,k)=>{b.disabled=true;if(q.options[k].ok)b.classList.add("right")});
+    if(o.ok){score++;wrongBank=wrongBank.filter(x=>x!==q.w.w)}
+    else{btn.classList.add("wrong");missed.push(q.w);if(!wrongBank.includes(q.w.w))wrongBank.push(q.w.w)}
+    store.set("eng.wrong",wrongBank.slice(-100));
+    const fb=box.querySelector(".fb");
+    fb.innerHTML=`<div class="explain ${o.ok?"ok":"no"}"><b>${o.ok?"ถูกต้อง":"ยังไม่ถูก"}</b> · <span style="font-family:var(--serif);font-weight:600">${esc(q.w.w)}</span> (${esc(q.w.pos)}) = ${esc(q.w.th)}<br><span style="font-family:var(--serif)">${highlight(q.w.ex,q.w.w)}</span></div>
+      <div class="row" style="margin-top:10px"><button class="primary nx">${i+1<qs.length?"ข้อต่อไป":"ดูผลคะแนน"}</button><button class="sp">ฟังเสียง</button></div>`;
+    fb.querySelector(".sp").addEventListener("click",()=>speak([q.w.w,q.w.ex]));
+    const nx=fb.querySelector(".nx");nx.focus();
+    nx.addEventListener("click",()=>{i++;i<qs.length?show():finish()});
+  }
+  function finish(){
+    if(opts.onDone)opts.onDone(score,qs.length);
+    const msg=score===qs.length?"เยี่ยมมาก ถูกทุกข้อ":score>=qs.length*.7?"ดีมาก ทบทวนคำที่ผิดอีกนิด":"ลองอ่านคำศัพท์อีกรอบ แล้วทำใหม่";
+    box.innerHTML=`<div class="result"><div class="qtype">${esc(opts.title)}</div><div class="score">${score}/${qs.length}</div><div>${msg}</div>
+      ${missed.length?`<div><b>คำที่ควรทบทวน</b><ul class="missed">${missed.map(w=>`<li><b>${esc(w.w)}</b> — ${esc(w.th)}</li>`).join("")}</ul></div>`:""}
+      <div class="row"><button class="primary again">ทำอีกครั้ง</button>${opts.extra||""}</div></div>`;
+    box.querySelector(".again").addEventListener("click",()=>runQuiz(box,words,pool,opts));
+    const toWords=box.querySelector(".to-words");if(toWords)toWords.addEventListener("click",()=>{renderSet(todayIdx);select("today")});
+    renderStats();
+  }
+  show();
+}
+
+function startToday(){
+  const words=setWords(todayIdx);
+  const best=results[todayKey];
+  const box=$("quizBox");
+  box.innerHTML=`<h2>แบบทดสอบวันนี้</h2><div class="theme">ชุดที่ ${todayIdx+1} · ${esc(DAYS[todayIdx].theme)} · 10 ข้อ</div>
+    <p class="note">มี 3 แบบ: แปลความหมาย, เลือกคำจากความหมาย และเติมคำในประโยค ทำครบแล้วนับเป็น 1 วันต่อเนื่อง</p>
+    ${best?`<p>คะแนนดีที่สุดวันนี้: <b>${best.score}/${best.total}</b></p>`:""}
+    <div class="row"><button class="primary" id="goQuiz">เริ่มทำแบบทดสอบ</button></div>`;
+  $("goQuiz").addEventListener("click",()=>runQuiz(box,words,allWords,{
+    title:"แบบทดสอบวันนี้",extra:'<button class="to-words">อ่านคำศัพท์อีกครั้ง</button>',
+    onDone:(s,t)=>{const prev=results[todayKey];if(!prev||s>prev.score)results[todayKey]={score:s,total:t};store.set("eng.results",results)}
+  }));
+}
+function startReview(){
+  const box=$("reviewBox");
+  const past=[];for(let i=0;i<unlocked;i++)if(i!==todayIdx)past.push(...setWords(i));
+  if(!past.length){box.innerHTML=`<h2>ทบทวนคำเก่า</h2><p class="empty">วันนี้เป็นวันแรก ยังไม่มีคำเก่าให้ทบทวน พรุ่งนี้กลับมาทบทวนคำของวันนี้ได้</p>`;return}
+  const wrong=past.filter(w=>wrongBank.includes(w.w));
+  const pick=shuffle(wrong).slice(0,5);
+  shuffle(past).forEach(w=>{if(pick.length<10&&!pick.includes(w))pick.push(w)});
+  box.innerHTML=`<h2>ทบทวนคำเก่า</h2><div class="theme">สุ่ม ${pick.length} คำจาก ${past.length} คำที่เรียนแล้ว</div>
+    <p class="note">คำที่เคยตอบผิดจะถูกเลือกมาก่อน (ตอนนี้มี ${wrong.length} คำ) ตอบถูกแล้วคำนั้นจะออกจากรายการ</p>
+    <div class="row"><button class="primary" id="goReview">เริ่มทบทวน</button></div>`;
+  $("goReview").addEventListener("click",()=>runQuiz(box,pick,allWords,{title:"ทบทวนคำเก่า"}));
+}
+function renderArchive(){
+  const ul=$("archive");ul.innerHTML="";
+  for(let i=0;i<N;i++){
+    const open=i<unlocked;
+    const li=document.createElement("li"),b=document.createElement("button");
+    b.disabled=!open;
+    b.innerHTML=`<span class="d">ชุด ${String(i+1).padStart(2,"0")}</span><span></span>${i===todayIdx?'<span class="sc">วันนี้</span>':""}`;
+    b.children[1].textContent=open?DAYS[i].theme:"ยังไม่ปลดล็อก";
+    if(open)b.addEventListener("click",()=>{renderSet(i);select("today")});
+    li.appendChild(b);ul.appendChild(li);
+  }
+}
+
+// ---- tabs ----
+// ---- IELTS-style reading built from the set's words ----
+const READ=window.READINGS||[], IE=window.IELTS||[];
+const readDone=store.get("eng.reading",{});   // date -> {score,total}
+const EXAM_MIN=12, ROMAN=["i","ii","iii","iv","v","vi","vii","viii","ix"], LETTERS="ABCDEFGH";
+let rdMode="practice", timerId=null, timeLeft=0;
+function markWords(text,words){
+  const hits=[];
+  words.forEach((w,k)=>{const re=new RegExp(wordRegex(w.w).source,"gi");let m;while((m=re.exec(text)))hits.push({a:m.index,b:m.index+m[0].length,k})});
+  hits.sort((x,y)=>x.a-y.a);
+  let out="",pos=0;
+  hits.forEach(h=>{if(h.a<pos)return;out+=esc(text.slice(pos,h.a))+`<button type="button" class="vw" data-k="${h.k}">${esc(text.slice(h.a,h.b))}</button>`;pos=h.b});
+  return out+esc(text.slice(pos));
+}
+const norm=s=>s.toLowerCase().replace(/,/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}}
+function showTime(){const t=$("rdTimer");t.textContent=String(Math.floor(timeLeft/60)).padStart(2,"0")+":"+String(timeLeft%60).padStart(2,"0");t.classList.toggle("low",timeLeft<=120)}
+function startTimer(){stopTimer();timeLeft=EXAM_MIN*60;showTime();timerId=setInterval(()=>{timeLeft--;showTime();if(timeLeft<=0){stopTimer();const f=$("rdForm");if(f.requestSubmit)f.requestSubmit();else f.dispatchEvent(new Event("submit",{cancelable:true}))}},1000)}
+function block(title,en,th){const d=document.createElement("section");d.className="qs";d.innerHTML=`<h4>${title}</h4><p class="inst">${en}</p><p class="inst-th">${th}</p>`;return d}
+function row(n,html){const r=document.createElement("div");r.className="qrow";r.innerHTML=`<span class="qn">${n}</span><div class="qbody">${html}</div>`;return r}
+
+function renderReading(i){
+  stopTimer();
+  const r=READ[i],q=IE[i]||{h:[],extra:[],tfng:[],gap:[]},box=$("rdText"),form=$("rdForm");
+  form.innerHTML="";
+  if(!r){$("rdTitle").textContent="ยังไม่มีบทความสำหรับชุดนี้";box.innerHTML="";return}
+  const words=setWords(i),exam=rdMode==="exam";
+  const paras=r.text.split(/\n\s*\n/);
+  const total=q.h.length+q.tfng.length+q.gap.length+r.questions.length;
+  $("rdSet").textContent="ชุดที่ "+(i+1)+" · "+DAYS[i].theme+(i===todayIdx?" · วันนี้":"");
+  $("rdTitle").textContent=r.title;
+  $("rdMeta").textContent="ประมาณ "+r.text.split(/\s+/).length+" คำ · "+total+" ข้อ · เวลา "+EXAM_MIN+" นาที";
+  const lettered=q.h.length>0;
+  box.innerHTML=paras.map((p,k)=>`<p>${lettered?`<span class="plabel">${LETTERS[k]}</span>`:""}${(exam?esc(p):markWords(p,words)).replace(/\n/g,"<br>")}</p>`).join("");
+  box.querySelectorAll(".vw").forEach(b=>b.addEventListener("click",()=>{const w=words[+b.dataset.k];$("rdGloss").innerHTML=`<b>${esc(w.w)}</b> <i>${esc(w.pos)}</i> = ${esc(w.th)}`;speak(w.w)}));
+  $("rdGloss").hidden=exam;$("rdAudio").hidden=exam;$("rdTimer").hidden=!exam;
+  $("rdGloss").textContent="คำที่ไฮไลต์คือคำศัพท์ของชุดนี้ แตะคำเพื่อดูความหมายและฟังเสียง";
+  $("rdModeNote").textContent=exam
+    ?"โหมดสอบ: ไม่มีไฮไลต์และคำแปล จับเวลา "+EXAM_MIN+" นาที หมดเวลาแล้วระบบจะส่งคำตอบให้อัตโนมัติ"
+    :"โหมดฝึก: ไฮไลต์คำศัพท์และแตะดูความหมายได้ ไม่จับเวลา ตรวจคำตอบเมื่อกดส่ง เหมือนข้อสอบจริง";
+
+  const items=[];let n=1;
+  if(q.h.length){
+    const pool=shuffle(q.h.map(h=>h[1]).concat(q.extra));
+    const a=n,b=n+q.h.length-1;
+    const s=block(`Questions ${a}–${b}`,
+      `The reading passage has ${q.h.length} paragraphs, <b>A–${LETTERS[q.h.length-1]}</b>. Choose the correct heading for each paragraph from the list of headings below. Choose the correct number, <b>i–${ROMAN[pool.length-1]}</b>.`,
+      "เลือกหัวข้อที่เหมาะกับแต่ละย่อหน้า มีหัวข้อเกินมาให้ ไม่ต้องใช้ทุกหัวข้อ");
+    const ul=document.createElement("ul");ul.className="hlist";ul.innerHTML=`<li class="hl-title">List of Headings</li>`+pool.map((t,k)=>`<li><span class="rn">${ROMAN[k]}</span>${esc(t)}</li>`).join("");s.appendChild(ul);
+    q.h.forEach(h=>{
+      const ans=ROMAN[pool.indexOf(h[1])];
+      const rw=row(n,`Paragraph <b>${h[0]}</b> <select id="rq${n}" aria-label="Question ${n}"><option value="">–</option>${pool.map((t,k)=>`<option>${ROMAN[k]}</option>`).join("")}</select>`);
+      s.appendChild(rw);const sel=rw.querySelector("select");
+      items.push({rw,check:()=>sel.value===ans,answer:ans+" — "+h[1]});n++;
+    });
+    form.appendChild(s);
+  }
+  if(q.tfng.length){
+    const s=block(`Questions ${n}–${n+q.tfng.length-1}`,
+      `Do the following statements agree with the information given in the reading passage? Choose<br><b>TRUE</b> if the statement agrees with the information<br><b>FALSE</b> if the statement contradicts the information<br><b>NOT GIVEN</b> if there is no information on this`,
+      "TRUE = ตรงกับบทความ · FALSE = ขัดแย้งกับบทความ · NOT GIVEN = บทความไม่ได้บอกไว้ (อย่าใช้ความรู้ของตัวเองตัดสิน)");
+    q.tfng.forEach(t=>{
+      const rw=row(n,`${esc(t[0])}<div><select id="rq${n}" aria-label="Question ${n}"><option value="">–</option><option>TRUE</option><option>FALSE</option><option>NOT GIVEN</option></select></div>`);
+      s.appendChild(rw);const sel=rw.querySelector("select");
+      items.push({rw,check:()=>sel.value===t[1],answer:t[1]});n++;
+    });
+    form.appendChild(s);
+  }
+  if(q.gap.length){
+    const s=block(`Questions ${n}–${n+q.gap.length-1}`,
+      `Complete the sentences below. Choose <b>NO MORE THAN TWO WORDS AND/OR A NUMBER</b> from the passage for each answer.`,
+      "เติมคำโดยใช้คำจากบทความเท่านั้น ไม่เกิน 2 คำ และ/หรือตัวเลข สะกดผิดถือว่าผิด");
+    q.gap.forEach(g=>{
+      const [pre,post]=g[0].split("___");
+      const rw=row(n,`${esc(pre)}<input type="text" id="rq${n}" autocomplete="off" spellcheck="false" aria-label="Question ${n}">${esc(post||"")}`);
+      s.appendChild(rw);const inp=rw.querySelector("input");
+      items.push({rw,check:()=>g[1].some(a=>norm(a)===norm(inp.value)),answer:g[1][0]});n++;
+    });
+    form.appendChild(s);
+  }
+  if(r.questions.length){
+    const s=block(`Questions ${n}–${n+r.questions.length-1}`,`Choose the correct letter, <b>A, B, C or D</b>.`,"เลือกคำตอบที่ถูกต้องที่สุด 1 ข้อ");
+    r.questions.forEach(mq=>{
+      const opts=shuffle(mq[1].map((t,k)=>({t,ok:k===0})));
+      const name="rq"+n;
+      const rw=row(n,`${esc(mq[0])}<div class="mc">${opts.map((o,k)=>`<label><input type="radio" name="${name}" value="${k}"><b>${LETTERS[k]}</b> <span>${esc(o.t)}</span></label>`).join("")}</div>`);
+      s.appendChild(rw);
+      const right=opts.findIndex(o=>o.ok);
+      items.push({rw,check:()=>{const c=rw.querySelector("input:checked");return !!c&&+c.value===right},answer:LETTERS[right]+" — "+mq[1][0]});n++;
+    });
+    form.appendChild(s);
+  }
+  const bar=document.createElement("div");bar.className="row submitbar";
+  bar.innerHTML=`<button type="submit" class="primary">ส่งคำตอบ</button><button type="button" id="rdReset">ทำใหม่</button><span class="rdscore" id="rdScore" aria-live="polite"></span>`;
+  form.appendChild(bar);
+  bar.querySelector("#rdReset").addEventListener("click",()=>renderReading(viewIdx));
+  form.onsubmit=e=>{
+    e.preventDefault();stopTimer();
+    let right=0;
+    items.forEach(it=>{
+      const ok=it.check();if(ok)right++;
+      it.rw.classList.add(ok?"ok":"no");
+      if(!ok){const a=document.createElement("div");a.className="ans";a.textContent="เฉลย: "+it.answer;it.rw.querySelector(".qbody").appendChild(a)}
+    });
+    form.querySelectorAll("input,select").forEach(x=>x.disabled=true);
+    form.querySelector("button[type=submit]").disabled=true;
+    const used=exam?EXAM_MIN*60-timeLeft:null;
+    $("rdScore").textContent="ได้ "+right+"/"+items.length+" ข้อ"+(used!==null?" · ใช้เวลา "+Math.floor(used/60)+" นาที "+(used%60)+" วินาที":"");
+    if(i===todayIdx){const p=readDone[todayKey];if(!p||right>p.score)readDone[todayKey]={score:right,total:items.length};store.set("eng.reading",readDone)}
+    $("rdScore").scrollIntoView({behavior:"smooth",block:"nearest"});
+  };
+  if(exam)startTimer();
+}
+function setMode(m){rdMode=m;$("modePractice").setAttribute("aria-pressed",String(m==="practice"));$("modeExam").setAttribute("aria-pressed",String(m==="exam"));renderReading(viewIdx)}
+$("modePractice").addEventListener("click",()=>setMode("practice"));
+$("modeExam").addEventListener("click",()=>setMode("exam"));
+$("rdListen").addEventListener("click",()=>{const r=READ[viewIdx];if(r)speak(r.text.replace(/\n+/g," ").match(/[^.!?]+[.!?]+["')]?/g)||[r.text])});
+$("rdStop").addEventListener("click",()=>{if("speechSynthesis"in window)speechSynthesis.cancel()});
+
+const TABS=["today","reading","quiz","review","archive"];
+function select(name){
+  TABS.forEach(t=>{$("tab-"+t).setAttribute("aria-selected",String(t===name));$("pane-"+t).hidden=t!==name});
+  if(name==="quiz")startToday();
+  if(name==="review")startReview();
+  if(name==="archive")renderArchive();
+  try{history.replaceState(null,"","#"+name)}catch(e){}
+}
+TABS.forEach(t=>$("tab-"+t).addEventListener("click",()=>select(t)));
+
+renderStats();renderSet(todayIdx);
+const h=(location.hash||"").slice(1);select(TABS.includes(h)?h:"today");
+})();
+</script>
+</body>
+</html>
