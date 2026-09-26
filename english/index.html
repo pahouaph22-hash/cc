@@ -88,6 +88,16 @@ mark{background:var(--accent-soft);color:var(--ink);border-radius:3px;padding:0 
 .result{display:flex;flex-direction:column;gap:12px}
 .score{font-family:var(--display);font-size:44px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
 .missed{margin:0;padding-left:20px}
+.passage{max-width:68ch}
+.passage p{font-family:var(--serif);font-size:18px;line-height:1.75;margin:0 0 14px}
+button.vw{font:inherit;color:inherit;background:var(--accent-soft);border:0;border-bottom:2px solid var(--accent);border-radius:3px;padding:0 2px;cursor:pointer;line-height:inherit}
+button.vw:hover{border-color:var(--accent)}
+.gloss{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px;margin-bottom:16px;min-height:42px;max-width:68ch}
+.gloss b{font-family:var(--serif);font-size:16px}
+.cq{border-top:1px solid var(--line);padding-top:14px;margin-top:14px;display:flex;flex-direction:column;gap:8px;max-width:640px}
+.cq .q{font-weight:500}
+.cq .opt{font-size:15px;padding:10px 12px}
+.rdscore{margin-top:16px;font-weight:600}
 .missed li{margin:4px 0}
 .missed b{font-family:var(--serif)}
 
@@ -118,6 +128,7 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-today" aria-selected="true">ศัพท์วันนี้</button>
+    <button role="tab" id="tab-reading" aria-selected="false">บทความ</button>
     <button role="tab" id="tab-quiz" aria-selected="false">แบบทดสอบวันนี้</button>
     <button role="tab" id="tab-review" aria-selected="false">ทบทวนคำเก่า</button>
     <button role="tab" id="tab-archive" aria-selected="false">คลังคำศัพท์</button>
@@ -144,6 +155,22 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
     </details>
   </section>
 
+  <section class="panel" id="pane-reading" hidden>
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow" id="rdSet"></div>
+        <h2 id="rdTitle"></h2>
+        <div class="note" id="rdMeta"></div>
+      </div>
+      <div class="row"><button id="rdListen">ฟังบทความ</button><button id="rdStop">หยุดเสียง</button></div>
+    </div>
+    <div class="gloss" id="rdGloss" aria-live="polite">คำที่ไฮไลต์คือคำศัพท์ของชุดนี้ แตะคำเพื่อดูความหมายและฟังเสียง</div>
+    <article class="passage" id="rdText"></article>
+    <h2 style="margin-top:6px">คำถามความเข้าใจ</h2>
+    <p class="note" style="margin:4px 0 0">อ่านบทความให้จบก่อน แล้วตอบ 3 ข้อ</p>
+    <div id="rdQuiz"></div>
+  </section>
+
   <section class="panel" id="pane-quiz" hidden>
     <div class="quiz" id="quizBox"></div>
   </section>
@@ -161,6 +188,7 @@ textarea{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,m
 </div>
 
 <script src="words.js"></script>
+<script src="readings.js"></script>
 <script>
 (function(){
 const DAYS=window.WORD_DAYS, N=DAYS.length;
@@ -226,6 +254,7 @@ function renderSet(i){
     box.appendChild(c);
   });
   $("ankiText").value=words.map(w=>`${w.w};${w.th} — ${w.ex}`).join("\n");
+  renderReading(i);
 }
 $("toggleMeaning").addEventListener("click",()=>{const b=$("cards");const on=b.classList.toggle("hide-meaning");$("toggleMeaning").textContent=on?"แสดงความหมาย":"ซ่อนความหมาย";b.querySelectorAll(".th").forEach(t=>t.style.filter="")});
 $("sayAll").addEventListener("click",()=>speak(setWords(viewIdx).map(w=>w.w)));
@@ -326,7 +355,53 @@ function renderArchive(){
 }
 
 // ---- tabs ----
-const TABS=["today","quiz","review","archive"];
+// ---- reading passage built from the set's words ----
+const READ=window.READINGS||[];
+const readDone=store.get("eng.reading",{});   // date -> {score,total}
+function markWords(text,words){
+  const hits=[];
+  words.forEach((w,k)=>{const re=new RegExp(wordRegex(w.w).source,"gi");let m;while((m=re.exec(text)))hits.push({a:m.index,b:m.index+m[0].length,k})});
+  hits.sort((x,y)=>x.a-y.a);
+  let out="",pos=0;
+  hits.forEach(h=>{if(h.a<pos)return;out+=esc(text.slice(pos,h.a))+`<button class="vw" data-k="${h.k}">${esc(text.slice(h.a,h.b))}</button>`;pos=h.b});
+  return (out+esc(text.slice(pos))).replace(/\n/g,"<br>");
+}
+function renderReading(i){
+  const r=READ[i],box=$("rdText");
+  if(!r){$("rdTitle").textContent="ยังไม่มีบทความสำหรับชุดนี้";box.innerHTML="";$("rdQuiz").innerHTML="";return}
+  const words=setWords(i);
+  $("rdSet").textContent="ชุดที่ "+(i+1)+" · "+DAYS[i].theme+(i===todayIdx?" · วันนี้":"");
+  $("rdTitle").textContent=r.title;
+  const n=r.text.split(/\s+/).length;
+  $("rdMeta").textContent="ประมาณ "+n+" คำ · อ่าน "+Math.max(1,Math.round(n/150))+" นาที · ใช้คำศัพท์ครบ 10 คำของชุดนี้";
+  box.innerHTML=r.text.split(/\n\s*\n/).map(p=>"<p>"+markWords(p,words)+"</p>").join("");
+  box.querySelectorAll(".vw").forEach(b=>b.addEventListener("click",()=>{const w=words[+b.dataset.k];$("rdGloss").innerHTML=`<b>${esc(w.w)}</b> <i>${esc(w.pos)}</i> = ${esc(w.th)}`;speak(w.w)}));
+  $("rdGloss").textContent="คำที่ไฮไลต์คือคำศัพท์ของชุดนี้ แตะคำเพื่อดูความหมายและฟังเสียง";
+  const qbox=$("rdQuiz");qbox.innerHTML="";let answered=0,right=0;
+  r.questions.forEach((q,qi)=>{
+    const wrap=document.createElement("div");wrap.className="cq";
+    wrap.innerHTML=`<div class="q">${qi+1}. ${esc(q[0])}</div>`;
+    shuffle(q[1].map((t,k)=>({t,ok:k===0}))).forEach(o=>{
+      const b=document.createElement("button");b.className="opt";b.textContent=o.t;
+      b.addEventListener("click",()=>{
+        wrap.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(x.textContent===q[1][0])x.classList.add("right")});
+        if(o.ok)right++;else b.classList.add("wrong");
+        if(++answered===r.questions.length){
+          const s=document.createElement("div");s.className="rdscore";
+          s.textContent="เข้าใจถูก "+right+"/"+answered+" ข้อ"+(right===answered?" · เยี่ยมมาก":" · ลองอ่านย่อหน้าที่เกี่ยวข้องอีกครั้ง");
+          qbox.appendChild(s);
+          if(i===todayIdx){const p=readDone[todayKey];if(!p||right>p.score)readDone[todayKey]={score:right,total:answered};store.set("eng.reading",readDone)}
+        }
+      });
+      wrap.appendChild(b);
+    });
+    qbox.appendChild(wrap);
+  });
+}
+$("rdListen").addEventListener("click",()=>{const r=READ[viewIdx];if(r)speak(r.text.replace(/\n+/g," ").match(/[^.!?]+[.!?]+["')]?/g)||[r.text])});
+$("rdStop").addEventListener("click",()=>{if("speechSynthesis"in window)speechSynthesis.cancel()});
+
+const TABS=["today","reading","quiz","review","archive"];
 function select(name){
   TABS.forEach(t=>{$("tab-"+t).setAttribute("aria-selected",String(t===name));$("pane-"+t).hidden=t!==name});
   if(name==="quiz")startToday();
