@@ -161,13 +161,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <input type="range" id="volume" min="0.2" max="1" step="0.05" value="1">
       </label>
       <label class="check"><input type="checkbox" id="chime" checked> เล่นเสียงกริ่งก่อนพูด</label>
-      <label class="check"><input type="checkbox" id="repeat" checked> พูดซ้ำ 2 รอบ</label>
     </div>
   </section>
 
   <section class="panel">
     <h2>ให้เสียงเตือนทำงานทุกครั้ง</h2>
     <ul class="tips">
+      <li>แต่ละกิจกรรมจะพูดเตือน 2 ครั้ง: ตอนถึงเวลา และอีก 5 นาทีต่อมา ถ้ากด <strong>รับทราบ</strong> แล้ว ครั้งที่สองจะไม่พูด</li>
       <li>กด <strong>เปิดเสียงเตือน</strong> ทุกครั้งที่เปิดหน้านี้ใหม่ เบราว์เซอร์จะไม่ยอมให้หน้าเว็บส่งเสียงจนกว่าจะกดปุ่ม</li>
       <li>เปิดหน้านี้ทิ้งไว้ในแท็บของตัวเอง จะย่อหน้าต่างหรือเปิดแท็บอื่นก็ได้ แต่ห้ามปิดแท็บนี้</li>
       <li>เสียงภาษาไทยที่ชัดที่สุดอยู่ใน <strong>Microsoft Edge</strong> (เสียง Premwadee หรือ Niwat แบบ Online)</li>
@@ -216,15 +216,14 @@ let enabled=false, audioCtx=null, voices=[], viewDay=new Date().getDay(), extra=
 const fired=new Set();
 
 // settings
-const S={name:store.get("name","ทันจีโล"),voice:store.get("voice",""),rate:store.get("rate",0.95),volume:store.get("volume",1),chime:store.get("chime",true),repeat:store.get("repeat",true)};
-$("nameInput").value=S.name; $("rate").value=S.rate; $("volume").value=S.volume; $("chime").checked=S.chime; $("repeat").checked=S.repeat;
+const S={name:store.get("name","ทันจีโล"),voice:store.get("voice",""),rate:store.get("rate",0.95),volume:store.get("volume",1),chime:store.get("chime",true)};
+$("nameInput").value=S.name; $("rate").value=S.rate; $("volume").value=S.volume; $("chime").checked=S.chime;
 function showVals(){$("rateVal").textContent=Number($("rate").value).toFixed(2)+"×";$("volVal").textContent=Math.round($("volume").value*100)+"%"}
 showVals();
 $("nameInput").addEventListener("input",e=>{S.name=e.target.value.trim()||"ทันจีโล";store.set("name",S.name);render()});
 $("rate").addEventListener("input",e=>{S.rate=+e.target.value;store.set("rate",S.rate);showVals()});
 $("volume").addEventListener("input",e=>{S.volume=+e.target.value;store.set("volume",S.volume);showVals()});
 $("chime").addEventListener("change",e=>{S.chime=e.target.checked;store.set("chime",S.chime)});
-$("repeat").addEventListener("change",e=>{S.repeat=e.target.checked;store.set("repeat",S.repeat)});
 $("voiceSelect").addEventListener("change",e=>{S.voice=e.target.value;store.set("voice",S.voice)});
 
 const hasTTS="speechSynthesis" in window;
@@ -258,19 +257,18 @@ function chime(){
 function say(text){
   if(!hasTTS)return;
   speechSynthesis.cancel();
-  const times=S.repeat?2:1;
-  for(let i=0;i<times;i++){
-    const u=new SpeechSynthesisUtterance(text);
-    const v=voices.find(v=>v.name===$("voiceSelect").value);
-    if(v){u.voice=v;u.lang=v.lang}else u.lang="th-TH";
-    u.rate=S.rate;u.volume=S.volume;
-    speechSynthesis.speak(u);
-  }
+  const u=new SpeechSynthesisUtterance(text);
+  const v=voices.find(v=>v.name===$("voiceSelect").value);
+  if(v){u.voice=v;u.lang=v.lang}else u.lang="th-TH";
+  u.rate=S.rate;u.volume=S.volume;
+  speechSynthesis.speak(u);
 }
+const REMIND_AGAIN_MIN=5;
 const phrase=title=>`${S.name} ถึงเวลา ${title}`;
-async function announce(item){
+const phraseAgain=title=>`${S.name} เตือนอีกครั้ง ถึงเวลา ${title}`;
+async function announce(item,again){
   if(S.chime)await chime();
-  say(phrase(item.title));
+  say(again?phraseAgain(item.title):phrase(item.title));
 }
 
 function itemsFor(day){return SCHEDULE.filter(s=>s.d.includes(day)).map(s=>({...s})).sort((a,b)=>a.t.localeCompare(b.t))}
@@ -288,26 +286,32 @@ function nextItem(now){
   return null;
 }
 
-// mark items that already passed today as done, so opening the page late does not replay them
-(function primeFired(){const n=new Date();const k=dateKey(n);itemsFor(n.getDay()).forEach(it=>{if(mins(it.t)<=n.getHours()*60+n.getMinutes()-1)fired.add(k+" "+it.t+" "+it.title)})})();
+// each activity is announced twice: at its time, then again REMIND_AGAIN_MIN later unless acknowledged
+const firedAgain=new Set(), acked=new Set();
+const keyOf=(k,it)=>k+" "+it.t+" "+it.title;
+// items that already passed today count as done, so opening the page late does not replay them
+(function primeFired(){const n=new Date();const k=dateKey(n),nowMin=n.getHours()*60+n.getMinutes();itemsFor(n.getDay()).forEach(it=>{const diff=nowMin-mins(it.t);if(diff>=1){fired.add(keyOf(k,it));if(diff>=REMIND_AGAIN_MIN)firedAgain.add(keyOf(k,it))}})})();
 
 function check(){
   const n=new Date(),k=dateKey(n),nowMin=n.getHours()*60+n.getMinutes();
   const list=itemsFor(n.getDay()).concat(extra);
   for(const it of list){
-    const key=k+" "+it.t+" "+it.title;
+    const key=keyOf(k,it);
     const diff=nowMin-mins(it.t);
     if(diff>=0&&diff<3&&!fired.has(key)){
       fired.add(key);
-      if(enabled){showAlert(it);announce(it)}
+      if(enabled){showAlert(it,key,false);announce(it,false)}
+    }else if(diff>=REMIND_AGAIN_MIN&&diff<REMIND_AGAIN_MIN+3&&fired.has(key)&&!firedAgain.has(key)&&!acked.has(key)){
+      firedAgain.add(key);
+      if(enabled){showAlert(it,key,true);announce(it,true)}
     }
   }
 }
 
-let current=null;
-function showAlert(it){current=it;$("alertTime").textContent="ถึงเวลา "+it.t+" น.";$("alertTitle").textContent=it.title;$("alert").hidden=false;
+let current=null,currentKey=null;
+function showAlert(it,key,again){current=it;currentKey=key;$("alertTime").textContent=(again?"เตือนอีกครั้ง · ":"")+"ถึงเวลา "+it.t+" น.";$("alertTitle").textContent=it.title;$("alert").hidden=false;
   try{if("Notification"in window&&Notification.permission==="granted")new Notification(S.name+" ถึงเวลาแล้ว",{body:it.title})}catch(e){}}
-$("ackBtn").addEventListener("click",()=>{$("alert").hidden=true;if(hasTTS)speechSynthesis.cancel()});
+$("ackBtn").addEventListener("click",()=>{if(currentKey)acked.add(currentKey);$("alert").hidden=true;if(hasTTS)speechSynthesis.cancel()});
 $("againBtn").addEventListener("click",()=>{if(current)announce(current)});
 
 function setStatus(){
