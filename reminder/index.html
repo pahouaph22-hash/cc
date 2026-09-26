@@ -88,6 +88,18 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 .legend span{display:flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
 
+.week{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:18px;margin-top:12px}
+@media (max-width:760px){.week{grid-template-columns:1fr}}
+.week-col h3{font-family:var(--display);font-size:15px;font-weight:600;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.week-col.today h3::after{content:"วันนี้";font-family:var(--body);font-size:12px;font-weight:500;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.wrow{display:grid;grid-template-columns:96px 4px 1fr;gap:10px;align-items:start;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.wrow .t{font-size:13px;white-space:nowrap}
+.wrow .tag{align-self:stretch}
+.wrow.quiet{color:var(--muted)}
+.k-quiet{background:var(--line)}
+.totals{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.total{padding:6px 12px;border-radius:8px;background:var(--paper);border:1px solid var(--line);font-size:14px}
+.total b{font-family:var(--display);font-variant-numeric:tabular-nums}
 .settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 @media (max-width:640px){.settings{grid-template-columns:1fr}}
 label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
@@ -146,6 +158,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   </section>
 
   <section class="panel">
+    <h2>ตารางกิจกรรมทั้งหมด</h2>
+    <div class="week" id="week"></div>
+    <div class="totals" id="totals"></div>
+  </section>
+
+  <section class="panel">
     <h2>ตั้งค่าเสียง</h2>
     <div class="settings" style="margin-top:12px">
       <label>ชื่อที่ให้เรียก
@@ -171,7 +189,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <li>กด <strong>เปิดเสียงเตือน</strong> ทุกครั้งที่เปิดหน้านี้ใหม่ เบราว์เซอร์จะไม่ยอมให้หน้าเว็บส่งเสียงจนกว่าจะกดปุ่ม</li>
       <li>เปิดหน้านี้ทิ้งไว้ในแท็บของตัวเอง จะย่อหน้าต่างหรือเปิดแท็บอื่นก็ได้ แต่ห้ามปิดแท็บนี้</li>
       <li>เสียงภาษาไทยที่ชัดที่สุดอยู่ใน <strong>Microsoft Edge</strong> (เสียง Premwadee หรือ Niwat แบบ Online)</li>
-      <li>ใน Chrome ให้ไปที่ <code>chrome://settings/performance</code> แล้วเพิ่ม <code>claude.ai</code> ใน "Always keep these sites active" กันแท็บถูกพัก</li>
+      <li>ใน Chrome ให้ไปที่ <code>chrome://settings/performance</code> แล้วเพิ่ม <code>pahouaph22-hash.github.io</code> ใน "Always keep these sites active" กันแท็บถูกพัก</li>
       <li>ตั้งคอมพิวเตอร์ไม่ให้ Sleep: Settings → System → Power → Sleep → Never</li>
     </ul>
   </section>
@@ -188,24 +206,31 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 const WD=[1,2,3,4,5];
 // kind: zh, en, vet, other — ตรงกับ Google Calendar ของ larmouamua@gmail.com
 const SCHEDULE=[
-  {d:WD,t:"07:00",k:"zh",title:"ตื่นนอน และทวนคำศัพท์ภาษาจีน"},
-  {d:WD,t:"07:30",k:"zh",title:"ฟังพอดแคสต์ภาษาจีน"},
-  {d:WD,t:"12:00",k:"other",title:"พักเที่ยง และทวนคำศัพท์ภาษาจีนกับภาษาอังกฤษ"},
-  {d:WD,t:"16:30",k:"en",title:"ฟังพอดแคสต์ภาษาอังกฤษ"},
-  {d:WD,t:"18:00",k:"vet",title:"ทบทวนบทเรียนสัตวแพทย์"},
-  {d:WD,t:"19:30",k:"zh",title:"เรียนภาษาจีน บทใหม่"},
-  {d:WD,t:"20:30",k:"en",title:"อ่านบทความสัตวแพทย์ภาษาอังกฤษ"},
-  {d:WD,t:"21:30",k:"vet",title:"อ่านเตรียมเรียนพรุ่งนี้"},
-  {d:WD,t:"22:00",k:"zh",title:"ฝึกเขียนตัวอักษรจีน และฝึกวรรณยุกต์"},
-  {d:WD,t:"22:30",k:"other",title:"พูดทบทวนเรื่องวันนี้ เป็นภาษาจีนหรือภาษาอังกฤษ"},
-  {d:WD,t:"22:45",k:"other",title:"ผ่อนคลาย และเตรียมเข้านอน"},
-  {d:[6],t:"08:00",k:"vet",title:"ทบทวนวิชาสัตวแพทย์ทั้งสัปดาห์"},
-  {d:[6],t:"10:15",k:"en",title:"ฝึกพูดและเขียนภาษาอังกฤษ"},
-  {d:[6],t:"13:00",k:"zh",title:"ฝึกฟังและพูดภาษาจีน"},
-  {d:[6],t:"15:00",k:"zh",title:"ทำข้อสอบภาษาจีน HSK"},
-  {d:[0],t:"09:00",k:"en",title:"ทำข้อสอบฝึกภาษาอังกฤษ"},
-  {d:[0],t:"10:15",k:"other",title:"ทวนคำศัพท์ภาษาจีนและภาษาอังกฤษทั้งสัปดาห์"},
-  {d:[0],t:"11:00",k:"vet",title:"วางแผนสัปดาห์หน้า"}
+  {d:WD,t:"07:00",e:"07:30",k:"zh",title:"ตื่นนอน และทวนคำศัพท์ภาษาจีน"},
+  {d:WD,t:"07:30",e:"08:00",k:"zh",title:"ฟังพอดแคสต์ภาษาจีน"},
+  {d:WD,t:"12:00",e:"13:00",k:"other",title:"พักเที่ยง และทวนคำศัพท์ภาษาจีนกับภาษาอังกฤษ"},
+  {d:WD,t:"16:30",e:"17:00",k:"en",title:"ฟังพอดแคสต์ภาษาอังกฤษ"},
+  {d:WD,t:"18:00",e:"19:15",k:"vet",title:"ทบทวนบทเรียนสัตวแพทย์"},
+  {d:WD,t:"19:30",e:"20:15",k:"zh",title:"เรียนภาษาจีน บทใหม่"},
+  {d:WD,t:"20:30",e:"21:15",k:"en",title:"อ่านบทความสัตวแพทย์ภาษาอังกฤษ"},
+  {d:WD,t:"21:30",e:"22:00",k:"vet",title:"อ่านเตรียมเรียนพรุ่งนี้"},
+  {d:WD,t:"22:00",e:"22:30",k:"zh",title:"ฝึกเขียนตัวอักษรจีน และฝึกวรรณยุกต์"},
+  {d:WD,t:"22:30",e:"22:45",k:"other",title:"พูดทบทวนเรื่องวันนี้ เป็นภาษาจีนหรือภาษาอังกฤษ"},
+  {d:WD,t:"22:45",e:"23:00",k:"other",title:"ผ่อนคลาย และเตรียมเข้านอน"},
+  {d:[6],t:"08:00",e:"10:00",k:"vet",title:"ทบทวนวิชาสัตวแพทย์ทั้งสัปดาห์"},
+  {d:[6],t:"10:15",e:"11:45",k:"en",title:"ฝึกพูดและเขียนภาษาอังกฤษ"},
+  {d:[6],t:"13:00",e:"14:30",k:"zh",title:"ฝึกฟังและพูดภาษาจีน"},
+  {d:[6],t:"15:00",e:"16:00",k:"zh",title:"ทำข้อสอบภาษาจีน HSK"},
+  {d:[0],t:"09:00",e:"10:00",k:"en",title:"ทำข้อสอบฝึกภาษาอังกฤษ"},
+  {d:[0],t:"10:15",e:"11:00",k:"other",title:"ทวนคำศัพท์ภาษาจีนและภาษาอังกฤษทั้งสัปดาห์"},
+  {d:[0],t:"11:00",e:"12:00",k:"vet",title:"วางแผนสัปดาห์หน้า"}
+];
+// blocks shown in the weekly table only; they are not announced
+const QUIET=[
+  {d:WD,t:"08:00",e:"12:00",k:"quiet",title:"เรียน / ขึ้นคลินิก"},
+  {d:WD,t:"13:00",e:"16:30",k:"quiet",title:"เรียน / ขึ้นคลินิก"},
+  {d:WD,t:"17:00",e:"18:00",k:"quiet",title:"ออกกำลังกาย อาหารเย็น"},
+  {d:WD,t:"23:00",e:"",k:"quiet",title:"นอน"}
 ];
 const DAYS=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
 const MONTHS=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
@@ -379,7 +404,27 @@ function tick(){
   $("date").textContent="วัน"+DAYS[n.getDay()]+"ที่ "+n.getDate()+" "+MONTHS[n.getMonth()]+" "+(n.getFullYear()+543);
   check();render();
 }
-renderTabs();setStatus();tick();setInterval(tick,1000);
+function renderWeek(){
+  const groups=[{label:"จันทร์ – ศุกร์",days:WD},{label:"เสาร์",days:[6]},{label:"อาทิตย์",days:[0]}];
+  const today=new Date().getDay(),box=$("week");box.innerHTML="";
+  groups.forEach(g=>{
+    const col=document.createElement("div");col.className="week-col"+(g.days.includes(today)?" today":"");
+    const h=document.createElement("h3");h.textContent=g.label;col.appendChild(h);
+    SCHEDULE.concat(QUIET).filter(s=>s.d===g.days||s.d.join()===g.days.join()).sort((a,b)=>a.t.localeCompare(b.t)).forEach(it=>{
+      const r=document.createElement("div");r.className="wrow"+(it.k==="quiet"?" quiet":"");
+      r.innerHTML=`<span class="t">${it.t}${it.e?"–"+it.e:""}</span><span class="tag k-${it.k}"></span><span></span>`;
+      r.lastChild.textContent=it.title+(it.k==="quiet"?" (ไม่เตือน)":"");
+      col.appendChild(r);
+    });
+    box.appendChild(col);
+  });
+  const tot={zh:0,en:0,vet:0};
+  SCHEDULE.forEach(s=>{if(s.k in tot&&s.e)tot[s.k]+=(mins(s.e)-mins(s.t))*s.d.length});
+  const fmt=m=>{const h=Math.floor(m/60),r=m%60;return h+" ชม."+(r?" "+r+" นาที":"")};
+  $("totals").innerHTML="";
+  [["zh","ภาษาจีน"],["en","ภาษาอังกฤษ"],["vet","สัตวแพทย์"]].forEach(([k,l])=>{const d=document.createElement("div");d.className="total";d.innerHTML=`<span class="tag k-${k}" style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px"></span>${l} <b>${fmt(tot[k])}</b> ต่อสัปดาห์`;$("totals").appendChild(d)});
+}
+renderWeek();renderTabs();setStatus();tick();setInterval(tick,1000);
 })();
 </script>
 </body>
