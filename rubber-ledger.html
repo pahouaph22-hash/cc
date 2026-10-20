@@ -10,6 +10,9 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230EA5E9'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E🌳%3C/text%3E%3C/svg%3E">
 <meta name="google" content="notranslate">
 <meta http-equiv="Content-Language" content="th">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0EA5E9">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>RubberLedger</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Lao:wght@400;700&family=Sarabun:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Phetsarath&display=swap" rel="stylesheet">
 <style>
@@ -534,7 +537,9 @@ font{border:none!important;outline:none!important;display:inline!important}
 @media(max-width:480px){
   .tab-pane.active{padding:.8rem .6rem}
   .tab-btn{padding:.5rem .75rem;font-size:.66rem;letter-spacing:.02em}
-  #topbar{height:46px;padding:0 .65rem}
+  #topbar{height:auto;min-height:46px;padding:.35rem .65rem;flex-wrap:wrap;row-gap:.35rem}
+  #topbar .logo{font-size:.95rem;letter-spacing:.06em}
+  #topbar #display-name{max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
   .order-table td div[style*="flex"]{flex-wrap:wrap;gap:.25rem!important}
   .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
   .item-row{grid-template-columns:1fr 1fr!important;gap:.35rem!important}
@@ -599,19 +604,6 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div id="ln-err" style="font-size:.78rem;color:var(--accent);margin-bottom:.8rem;display:none">⚠ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
       
 <button class="btn-primary" style="width:100%" onclick="doLogin()" id="login-btn" data-i18n="login_btn">เข้าสู่ระบบ</button>
-      <div style="margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--border)">
-        <div style="font-size:.65rem;color:var(--muted);margin-bottom:6px;letter-spacing:.08em" data-i18n="staff_list">บัญชีในระบบ</div>
-        <div style="display:flex;flex-direction:column;gap:5px">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:6px 9px">
-            <span style="font-size:.7rem;background:var(--accent);color:#fff;padding:1px 7px;font-weight:700;letter-spacing:.06em">ADMIN</span>
-            <span class="mono" style="font-size:.7rem;color:var(--muted)">admin / admin1234</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:6px 9px">
-            <span style="font-size:.7rem;background:rgba(74,127,193,.2);color:var(--blue);padding:1px 7px;font-weight:700;letter-spacing:.06em;border:1px solid rgba(74,127,193,.3)">STAFF</span>
-            <span class="mono" style="font-size:.7rem;color:var(--muted)">staff / staff1234</span>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -632,6 +624,7 @@ font{border:none!important;outline:none!important;display:inline!important}
         <span id="role-badge"></span>
         <span id="display-name"></span>
       </div>
+      <button class="btn-secondary" style="white-space:nowrap;flex-shrink:0;padding-left:.55rem;padding-right:.55rem" onclick="changeMyPassword()" title="เปลี่ยนรหัสผ่าน">🔑</button>
       <button class="btn-secondary" style="white-space:nowrap;flex-shrink:0" onclick="doLogout()" data-i18n="logout">ออกจากระบบ</button>
     </div>
   </div>
@@ -724,7 +717,7 @@ font{border:none!important;outline:none!important;display:inline!important}
         <span data-i18n="cust_list">รายชื่อลูกค้าทั้งหมด</span>
         <div style="position:relative">
           <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-          <input type="text" id="cust-search" placeholder="รหัส, ชื่อ หรือเบอร์โทร..." data-i18n-placeholder="search_cust" style="width:240px;padding-left:2rem;font-size:.78rem" oninput="renderCustomers()">
+          <input type="text" id="cust-search" placeholder="รหัส, ชื่อ หรือเบอร์โทร..." data-i18n-placeholder="search_cust" style="width:240px;padding-left:2rem;font-size:.78rem" oninput="_deb(renderCustomers)">
           <span id="cust-search-clear" style="position:absolute;right:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);cursor:pointer;font-size:.8rem;display:none" onclick="document.getElementById('cust-search').value='';document.getElementById('cust-search-clear').style.display='none';renderCustomers()">✕</span>
         </div>
       </div>
@@ -891,7 +884,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div style="display:flex;align-items:center;justify-content:flex-end;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
       <div style="position:relative">
         <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted)">🔍</span>
-        <input type="text" id="search-input" placeholder="ค้นหาเลขที่ หรือชื่อลูกค้า..." data-i18n-placeholder="search_bill" style="width:220px;padding-left:2rem" oninput="renderHistory()">
+        <input type="text" id="search-input" placeholder="ค้นหาเลขที่ หรือชื่อลูกค้า..." data-i18n-placeholder="search_bill" style="width:220px;padding-left:2rem" oninput="_debouncedHistory()">
       </div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .5rem;">
         <span style="font-size:.85rem">📅</span>
@@ -1148,7 +1141,7 @@ font{border:none!important;outline:none!important;display:inline!important}
       </div>
     </div>
     <div class="card">
-      <div class="card-header" data-i18n="staff_list" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
         <span data-i18n="staff_list">รายชื่อพนักงานทั้งหมด</span>
         <button onclick="diagnoseAccounts()" style="font-size:.68rem;padding:.25rem .6rem;background:var(--sky-l);color:var(--sky-d);border:1px solid var(--sky-m);border-radius:5px;cursor:pointer;font-weight:600">🔧 ตรวจสอบระบบ</button>
       </div>
@@ -1178,7 +1171,7 @@ font{border:none!important;outline:none!important;display:inline!important}
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <div style="position:relative;flex:1;min-width:220px">
             <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-            <input type="text" id="rep-search" placeholder="ค้นหาพนักงาน / ลูกค้า / เลขที่บิล..." data-i18n-placeholder="rep_search_ph" style="padding-left:2rem;width:100%;font-size:.78rem" oninput="renderReport()">
+            <input type="text" id="rep-search" placeholder="ค้นหาพนักงาน / ลูกค้า / เลขที่บิล..." data-i18n-placeholder="rep_search_ph" style="padding-left:2rem;width:100%;font-size:.78rem" oninput="_deb(renderReport)">
           </div>
           <select id="rep-status" style="font-size:.76rem;padding:.45rem .6rem;background:var(--surface2);color:var(--text);border:1.5px solid var(--border);border-radius:var(--r-sm);" onchange="renderReport()">
             <option value="" data-i18n="rep_status_all">ทุกสถานะ</option>
@@ -1228,7 +1221,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
       <div style="position:relative;">
         <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-        <input type="text" id="bh-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="renderBillHistory()">
+        <input type="text" id="bh-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="_deb(renderBillHistory)">
       </div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
         <span style="font-size:.85rem">📅</span>
@@ -1276,7 +1269,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
       <div style="position:relative;">
         <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-        <input type="text" id="cx-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="renderCancelled()">
+        <input type="text" id="cx-search" placeholder="ค้นหาเลขที่บิล/ลูกค้า/พนักงาน..." style="padding-left:2rem;width:250px;font-size:.78rem" oninput="_deb(renderCancelled)">
       </div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.25rem .6rem;">
         <span style="font-size:.85rem">📅</span>
@@ -1335,7 +1328,7 @@ font{border:none!important;outline:none!important;display:inline!important}
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <div style="position:relative;flex:1;min-width:220px">
             <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-            <input type="text" id="mywork-search" placeholder="ค้นหาพนักงาน / ลูกค้า / เลขที่บิล..." data-i18n-placeholder="rep_search_ph" style="padding-left:2rem;width:100%;font-size:.78rem" oninput="renderMyWork()">
+            <input type="text" id="mywork-search" placeholder="ค้นหาพนักงาน / ลูกค้า / เลขที่บิล..." data-i18n-placeholder="rep_search_ph" style="padding-left:2rem;width:100%;font-size:.78rem" oninput="_deb(renderMyWork)">
           </div>
           <select id="mw-status" style="font-size:.76rem;padding:.45rem .6rem;background:var(--surface2);color:var(--text);border:1.5px solid var(--border);border-radius:var(--r-sm);" onchange="renderMyWork()">
             <option value="" data-i18n="rep_status_all">ทุกสถานะ</option>
@@ -1382,7 +1375,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
       <div style="position:relative;">
         <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem">🔍</span>
-        <input type="text" id="al-search" placeholder="ค้นหา..." style="padding-left:2rem;width:200px;font-size:.78rem" oninput="renderActivityLog()">
+        <input type="text" id="al-search" placeholder="ค้นหา..." style="padding-left:2rem;width:200px;font-size:.78rem" oninput="_deb(renderActivityLog)">
       </div>
       <select id="al-filter-action" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderActivityLog()">
         <option value="" data-i18n="al_all_actions">ทุกกิจกรรม</option>
@@ -1404,7 +1397,7 @@ font{border:none!important;outline:none!important;display:inline!important}
       <input type="date" id="al-date-to" style="font-size:.78rem;padding:.4rem .6rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" onchange="renderActivityLog()">
       <div style="position:relative;">
         <span style="position:absolute;left:.5rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.75rem">📍</span>
-        <input type="text" id="al-filter-location" placeholder="สถานที่..." style="padding-left:1.6rem;width:140px;font-size:.78rem;padding-top:.4rem;padding-bottom:.4rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" oninput="renderActivityLog()">
+        <input type="text" id="al-filter-location" placeholder="สถานที่..." style="padding-left:1.6rem;width:140px;font-size:.78rem;padding-top:.4rem;padding-bottom:.4rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;" oninput="_deb(renderActivityLog)">
       </div>
       <button onclick="alClearFilters()" style="font-size:.75rem;padding:.35rem .7rem;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:6px;cursor:pointer;">✕ ล้าง</button>
       <button onclick="alExportCSV()" style="font-size:.75rem;padding:.35rem .7rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;">⬇ CSV</button>
@@ -1538,7 +1531,7 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
         <div style="position:relative;">
           <span style="position:absolute;left:.55rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.78rem">🔍</span>
-          <input type="text" id="sd-search" placeholder="ค้นหาเลขที่/ลูกค้า/สถานที่..." style="padding-left:1.9rem;width:230px;font-size:.78rem" oninput="renderStaffDetailTable()">
+          <input type="text" id="sd-search" placeholder="ค้นหาเลขที่/ลูกค้า/สถานที่..." style="padding-left:1.9rem;width:230px;font-size:.78rem" oninput="_deb(renderStaffDetailTable)">
         </div>
         <div style="display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.2rem .5rem;">
           <span style="font-size:.8rem">📅</span>
@@ -1587,73 +1580,155 @@ font{border:none!important;outline:none!important;display:inline!important}
 
 <div id="toast"></div>
 
-<!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Supabase CDN (ล็อกเวอร์ชัน — อัปเดตเองหลังทดสอบแล้วเท่านั้น) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://jvraxijtgzahflkohdsf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_sclOoiWbDHWLe3xPIy5vMw_MqjHrfnH';
-const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// _sb ถูกสร้างใหม่หลังล็อกอิน เพื่อแนบ staff token ไปกับทุกคำขอ (ใช้กับ RLS ขั้นที่ 2)
+let _staffToken = null;
+let _sb = null;
+function _makeClient(token){
+  const opts = token ? { global: { headers: { 'x-staff-token': token } } } : {};
+  _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, opts);
+}
+try { _makeClient(null); }
+catch(e){
+  // โหลดไลบรารี Supabase ไม่ได้ (ไม่มีเน็ตและยังไม่มีแคช) — แจ้งผู้ใช้แทนหน้าว่าง
+  console.error('Supabase library failed to load:', e);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const err=document.getElementById('ln-err');
+    if(err){ err.textContent='⚠ โหลดระบบไม่สำเร็จ — ตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้า'; err.style.display='block'; }
+  });
+}
 window._firebaseReady = true;
 </script>
 
 <script>
+// ── HTML escape (กันชื่อลูกค้า/หมายเหตุที่มีอักขระพิเศษทำหน้าเว็บพังหรือรันสคริปต์) ──
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// สำหรับค่าที่อยู่ในสตริง JS ภายใน onclick="fn('...')"
+function escJs(s){
+  return esc(String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"));
+}
+function _jparse(s, fallback){
+  if(s==null || s==='') return fallback;
+  try{ const v = JSON.parse(s); return (v==null) ? fallback : v; }catch(e){ console.warn('bad JSON cache, ignored'); return fallback; }
+}
+
 // ── ACCOUNTS ──
-const DEFAULT_ACCOUNTS=[
-  {username:"admin",password:"admin1234",role:"admin",displayName:"admin"},
-];
-let ACCOUNTS=[...DEFAULT_ACCOUNTS];
-const APP_VERSION = "2026.07.18-0419";
+// ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
+let ACCOUNTS=[];
+const APP_VERSION = "2026.10.20-2340";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
+// _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
+//              false = ฐานข้อมูลยังเป็นแบบเดิม (ใช้โหมดเข้ากันได้ย้อนหลัง)
+let _secureMode = null;
 // ── Bluetooth Thermal Printer state ──
 let _btDevice = null;       // BluetoothDevice
 let _btChar = null;         // write characteristic
 let _printerWidth = parseInt(localStorage.getItem('rl_printer_width')||'58',10); // 58 | 80
 
+// ตรวจว่า error มาจาก "ยังไม่มีฟังก์ชันนี้ในฐานข้อมูล" หรือไม่
+function _rpcMissing(err){
+  if(!err) return false;
+  const m = (err.message||'') + ' ' + (err.hint||'');
+  return err.code==='PGRST202' || err.code==='42883' || /Could not find the function|function .* does not exist/i.test(m);
+}
+function _isNetErr(err){
+  if(!err) return false;
+  const m = String(err.message||err||'');
+  return /Failed to fetch|NetworkError|Load failed|network|timeout|fetch/i.test(m) && !err.code;
+}
+async function _rpc(name, args){
+  try{ return await _sb.rpc(name, args||{}); }
+  catch(e){ return { data:null, error:{ message: e?.message||String(e) } }; }
+}
+
 // ── Offline sync queue ──
 let _isOnline = (typeof navigator!=='undefined') ? navigator.onLine : true;
-let _syncQueue = JSON.parse(localStorage.getItem('rl_sync_queue')||'[]'); // [{type:'order', data:{...}}]
+let _syncQueue = _jparse(localStorage.getItem('rl_sync_queue'), []); // [{type, data, ts, tries}]
+if(!Array.isArray(_syncQueue)) _syncQueue = [];
 let _syncing = false;
 
 // =====================================================
 // OFFLINE QUEUE — บันทึกงานที่ sync ไม่สำเร็จ แล้ว sync เมื่อกลับมาออนไลน์
+// ทุกงานตรวจ {error} ที่ Supabase คืนมา (supabase-js ไม่ throw เมื่อ error)
 // =====================================================
-function _saveQueue(){ localStorage.setItem('rl_sync_queue', JSON.stringify(_syncQueue)); }
+function _saveQueue(){ try{ localStorage.setItem('rl_sync_queue', JSON.stringify(_syncQueue)); }catch(e){ console.warn('save queue:', e); } }
 
 function _enqueueSync(type, data){
   // แทนที่รายการเดิมของ order เดียวกัน (กันซ้ำ)
   if(type==='order'){
-    _syncQueue = _syncQueue.filter(q=>!(q.type==='order' && q.data && q.data.id===data.id));
+    _syncQueue = _syncQueue.filter(q=>!(q.type==='order' && q.data && String(q.data.id)===String(data.id)));
   }
-  _syncQueue.push({type, data, ts:Date.now()});
+  _syncQueue.push({type, data, ts:Date.now(), tries:0});
   _saveQueue();
   _updateNetUI();
 }
+function _queuedOrderIds(){
+  const s = new Set();
+  _syncQueue.forEach(q=>{
+    if(q.type==='order' && q.data) s.add(String(q.data.id));
+    if((q.type==='update'||q.type==='pay') && q.data) s.add(String(q.data.id));
+  });
+  return s;
+}
 
 async function _flushQueue(){
-  if(_syncing || !_isOnline || _syncQueue.length===0) return;
+  if(_syncing || !_isOnline || _syncQueue.length===0 || !currentUser) return;
   _syncing = true;
   _updateNetUI();
   const remaining = [];
+  const conflicts = [];
   for(const job of _syncQueue){
+    let done = false;
     try{
       if(job.type==='order'){
-        const ok = await persistOrder(job.data, true); // true = skip re-queue
-        if(!ok) remaining.push(job);
+        done = await persistOrder(job.data, true);
       } else if(job.type==='receipt'){
-        await _sb.from('receipts').insert(job.data);
+        const {error} = await _sb.from('receipts').insert(job.data);
+        // 23505 = เลขซ้ำ → แปลว่าเคยบันทึกสำเร็จไปแล้ว (ส่งซ้ำหลัง timeout)
+        done = !error || error.code==='23505';
+        if(error && !done) console.warn('flush receipt:', error.message);
       } else if(job.type==='customer'){
-        await _sb.from('customers').upsert(job.data,{onConflict:'id'});
+        const {error} = await _sb.from('customers').upsert(job.data,{onConflict:'id'});
+        done = !error; if(error) console.warn('flush customer:', error.message);
+      } else if(job.type==='customer_delete'){
+        const {error} = await _sb.from('customers').delete().eq('id', String(job.data.id));
+        done = !error; if(error) console.warn('flush customer delete:', error.message);
+      } else if(job.type==='update'){
+        const r = await _updateOrderRemote(job.data.id, job.data.fields, job.data.onlyIfNot, true);
+        if(r==='conflict'){ conflicts.push(job.data.poNo||job.data.id); done = true; }
+        else done = (r==='ok');
+      } else if(job.type==='pay'){
+        const r = await _updateOrderRemote(job.data.id, job.data.fields, ['paid','cancelled'], true);
+        if(r==='conflict'){ conflicts.push(job.data.poNo||job.data.id); done = true; }
+        else done = (r==='ok');
+      } else {
+        done = true; // งานชนิดที่ไม่รู้จัก — ทิ้ง
       }
-    }catch(e){ console.warn('flush job failed:', e); remaining.push(job); }
+    }catch(e){ console.warn('flush job failed:', e); done = false; }
+    if(!done){
+      job.tries = (job.tries||0)+1;
+      remaining.push(job);
+    }
   }
   _syncQueue = remaining;
   _saveQueue();
   _syncing = false;
   _updateNetUI();
-  if(remaining.length===0 && typeof showToast==='function') showToast(t('net_synced'));
+  if(conflicts.length){
+    showToast('⚠ บิลที่ทำตอนออฟไลน์ถูกคนอื่นชำระ/ยกเลิกไปก่อนแล้ว: '+conflicts.join(', ')+' — กรุณาตรวจสอบ','error');
+    try{ logActivity('sync_conflict','',conflicts.join(','),'ชำระ/ยกเลิกซ้ำตอนออฟไลน์'); }catch(e){}
+    await loadData(); _renderOrderViews();
+  } else if(remaining.length===0 && typeof showToast==='function') showToast(t('net_synced'));
 }
 
 function _updateNetUI(){
@@ -1675,58 +1750,65 @@ function _updateNetUI(){
   }
 }
 
+let _netMonitorStarted = false;
 function _initNetworkMonitor(){
-  if(typeof window==='undefined') return;
+  if(typeof window==='undefined' || _netMonitorStarted) { _updateNetUI(); return; }
+  _netMonitorStarted = true;
   window.addEventListener('online', ()=>{
     _isOnline = true; _updateNetUI();
-    if(typeof showToast==='function') showToast(t('net_online'));
+    if(currentUser && typeof showToast==='function') showToast(t('net_online'));
     _flushQueue();
   });
   window.addEventListener('offline', ()=>{
     _isOnline = false; _updateNetUI();
-    if(typeof showToast==='function') showToast(t('net_offline'),'error');
+    if(currentUser && typeof showToast==='function') showToast(t('net_offline'),'error');
   });
   // ลอง flush เป็นระยะ (เผื่อ event ไม่ยิง)
-  setInterval(()=>{ if(_isOnline && _syncQueue.length>0) _flushQueue(); }, 30000);
+  setInterval(()=>{ if(currentUser && _isOnline && _syncQueue.length>0) _flushQueue(); }, 30000);
   _updateNetUI();
 }
 
-// Supabase ready
-
+// ── ACCOUNTS (โหลดรายชื่อพนักงาน — ไม่มีรหัสผ่าน) ──
+function _mapAccount(a){
+  return {
+    username:a.username, role:a.role, displayName:a.display_name||a.username,
+    isActive:_accIsActive(a.is_active), hasPassword:a.has_password!==false,
+    loc_village:a.loc_village, loc_district:a.loc_district, loc_city:a.loc_city, loc_province:a.loc_province,
+    lastLogin:a.last_login||''
+  };
+}
 async function loadAccounts(){
   try{
-    const {data}=await _sb.from("accounts").select("*");
-    if(data&&data.length>0){
-      ACCOUNTS=[...DEFAULT_ACCOUNTS,...data.filter(a=>a.username!=="admin").map(a=>({
-        username:a.username,password:a.password,role:a.role,displayName:a.display_name,
-        isActive: a.is_active!==false
-      }))];
+    if(_secureMode){
+      if(currentUser?.role!=='admin'){ ACCOUNTS = currentUser?[{...currentUser}]:[]; return; }
+      const {data,error} = await _rpc('admin_staff_list',{p_token:_staffToken});
+      if(!error && data?.ok){ ACCOUNTS = (data.accounts||[]).map(_mapAccount); return; }
+      console.warn('admin_staff_list:', error||data);
+      return;
     }
-  }catch(e){
-    const r=await sg("rubber_accounts");
-    const extra=r?JSON.parse(r):[];
-    ACCOUNTS=[...DEFAULT_ACCOUNTS,...extra];
-  }
+    // โหมดเดิม: เลือกเฉพาะคอลัมน์ที่จำเป็น — ไม่ดึงรหัสผ่าน
+    let res = await _sb.from("accounts").select("username,role,display_name,is_active");
+    if(res.error && /is_active/.test(res.error.message||'')) res = await _sb.from("accounts").select("username,role,display_name");
+    if(!res.error && res.data) ACCOUNTS = res.data.map(_mapAccount);
+  }catch(e){ console.warn('loadAccounts:', e); }
 }
-async function saveAccounts(){
-  // Saved via addStaffAccount/removeStaffAccount directly to Supabase
-  const extra=ACCOUNTS.filter(a=>a.role!=="admin"||a.username!=="admin");
-  await ss("rubber_accounts",JSON.stringify(extra));
-}
+async function saveAccounts(){ /* เลิกใช้: เคยเก็บรหัสผ่านลง app_data แบบข้อความธรรมดา */ }
 
-// ── STORAGE (Supabase) ──
+// ── STORAGE (Supabase app_data + localStorage fallback) ──
 async function sg(k){
   try{
     const {data,error}=await _sb.from("app_data").select("value").eq("key",k).maybeSingle();
     if(error)return localStorage.getItem(k);
-    return data?data.value:null;
+    return data?data.value:localStorage.getItem(k);
   }catch(e){return localStorage.getItem(k);}
 }
 async function ss(k,v){
+  try{ localStorage.setItem(k,v); }catch(e){}
   try{
-    await _sb.from("app_data").upsert({key:k,value:v,updated_at:new Date().toISOString()},{onConflict:"key"});
-    localStorage.setItem(k,v);
-  }catch(e){localStorage.setItem(k,v);}
+    const {error}=await _sb.from("app_data").upsert({key:k,value:v,updated_at:new Date().toISOString()},{onConflict:"key"});
+    if(error) console.warn('app_data save '+k+':', error.message);
+    return !error;
+  }catch(e){ return false; }
 }
 
 let orders=[];
@@ -1752,70 +1834,112 @@ let counter=1;
 let savedPrices={RUBBER:62.50,SHIPPING:62.50};
 const PRODUCTS=[{id:"RUBBER",name:"RUBBER"},{id:"SHIPPING",name:"SHIPPING"}];
 
+// ── เก็บแคชบิลลงเครื่องแบบหน่วงเวลา (ไม่เขียนทุกครั้งที่มีการเปลี่ยน) ──
+let _cacheTimer = null;
+function _cacheOrders(){
+  clearTimeout(_cacheTimer);
+  _cacheTimer = setTimeout(()=>{
+    try{ localStorage.setItem("rubber_orders", JSON.stringify(orders)); }
+    catch(e){ console.warn('cache orders (quota?):', e); }
+  }, 600);
+}
+
+const ORDER_COLS = "id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,paid_at,sent_at,cancel_reason,created_at,updated_at";
+function _mapItems(rows){
+  return (rows||[]).slice()
+    .sort((a,b)=>(a.sort_order||0)-(b.sort_order||0))
+    .map(it=>({productId:it.product_id,qty:it.qty==null?null:(parseFloat(it.qty)||0),price:parseFloat(it.price)||0}));
+}
+function mapRow(row, items){
+  return {
+    id:String(row.id),
+    poNo:row.po_no,
+    customer:row.customer,
+    date:row.date,
+    note:row.note||"",
+    status:row.status||"draft",
+    subtotal:parseFloat(row.subtotal)||0,
+    totalQty:parseFloat(row.total_qty)||0,
+    grandTotal:parseFloat(row.grand_total)||0,
+    createdBy:row.created_by||"",
+    paidBy:row.paid_by||"",
+    cancelReason:row.cancel_reason||"",
+    createdAt:row.created_at,
+    updatedAt:row.updated_at||"",
+    paidAt:row.paid_at||"",
+    sentAt:row.sent_at||"",
+    items:_mapItems(items)
+  };
+}
+
+// ดึงข้อมูลทีละหน้า (Supabase ตัดผลที่ 1000 แถวต่อคำขอ) — ได้ข้อมูลครบทุกแถว
+async function _fetchAll(makeQuery, pageSize){
+  pageSize = pageSize || 1000;
+  const out = [];
+  for(let from=0; ; from+=pageSize){
+    const {data,error} = await makeQuery().range(from, from+pageSize-1);
+    if(error) throw error;
+    out.push(...(data||[]));
+    if(!data || data.length < pageSize) break;
+    if(from > 200000) break; // กันวนไม่รู้จบ
+  }
+  return out;
+}
+// ดึงรายการสินค้าของหลายบิล — แบ่งเป็นชุดละ 150 id (กัน URL ยาวเกิน)
+async function _fetchItemsFor(ids){
+  const byOrder = {};
+  for(let i=0;i<ids.length;i+=150){
+    const chunk = ids.slice(i,i+150);
+    const rows = await _fetchAll(()=>_sb.from("order_items").select("order_id,product_id,qty,price,sort_order").in("order_id",chunk).order("order_id"));
+    rows.forEach(r=>{ (byOrder[String(r.order_id)] = byOrder[String(r.order_id)]||[]).push(r); });
+  }
+  return byOrder;
+}
+
 async function loadData(){
-  // ── Load from Supabase (primary source of truth) ──
+  // ── โหลดบิลทั้งหมดจาก Supabase (แหล่งข้อมูลหลัก) — ไม่จำกัด 500 ใบอีกต่อไป ──
   let sbOrders=null;
   try{
-    const {data,error}=await _sb
-      .from("orders")
-      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,paid_at,sent_at,cancel_reason,created_at,updated_at")
-      .order("created_at",{ascending:false})
-      .limit(500);
-    if(!error&&data){
-      // Load items separately for performance
-      const orderIds=data.map(o=>String(o.id));
-      let allItems=[];
-      if(orderIds.length>0){
-        const {data:itemsData}=await _sb.from("order_items").select("*").in("order_id",orderIds);
-        allItems=itemsData||[];
-      }
-      sbOrders=data.map(o=>({
-        id:String(o.id),
-        poNo:o.po_no,
-        customer:o.customer,
-        date:o.date,
-        note:o.note||"",
-        status:o.status||"draft",
-        subtotal:parseFloat(o.subtotal)||0,
-        totalQty:parseFloat(o.total_qty)||0,
-        grandTotal:parseFloat(o.grand_total)||0,
-        createdBy:o.created_by||"",
-        paidBy:o.paid_by||"",
-        cancelReason:o.cancel_reason||"",
-        createdAt:o.created_at,
-        paidAt:o.paid_at||"",
-        sentAt:o.sent_at||"",
-        items:allItems
-          .filter(it=>String(it.order_id)===String(o.id))
-          .sort((a,b)=>a.sort_order-b.sort_order)
-          .map(it=>({productId:it.product_id,qty:parseFloat(it.qty)||0,price:parseFloat(it.price)||0}))
-      }));
-      // Sync to localStorage as cache
-      localStorage.setItem("rubber_orders",JSON.stringify(sbOrders));
-      console.log(`✅ Loaded ${sbOrders.length} orders from Supabase`);
-    }
+    const rows = await _fetchAll(()=>_sb.from("orders").select(ORDER_COLS)
+      .order("created_at",{ascending:false}).order("id",{ascending:false}));
+    const itemsBy = await _fetchItemsFor(rows.map(o=>String(o.id)));
+    sbOrders = rows.map(o=>mapRow(o, itemsBy[String(o.id)]||[]));
+    // เก็บค่าเวลาแก้ไขล่าสุดไว้ใช้ซิงก์แบบเฉพาะส่วนที่เปลี่ยน
+    _lastServerUpdatedAt = rows.reduce((m,o)=> (o.updated_at && o.updated_at>m) ? o.updated_at : m, _lastServerUpdatedAt||'');
+    console.log(`✅ Loaded ${sbOrders.length} orders from Supabase`);
   }catch(e){
-    console.warn("⚠ Supabase load failed, using localStorage:",e);
+    console.warn("⚠ Supabase load failed, using local cache:",e);
   }
 
   const[c,p]=await Promise.all([sg("rubber_po_counter"),sg("rubber_prices")]);
-  // Supabase = primary, localStorage = fallback
   if(sbOrders!==null){
-    orders=sbOrders;
+    // รักษาบิลที่ยังรอซิงก์ในเครื่อง (สร้างตอนออฟไลน์) ไว้ไม่ให้หาย
+    const queued = _queuedOrderIds();
+    const local = _jparse(localStorage.getItem("rubber_orders"), []);
+    const serverIds = new Set(sbOrders.map(o=>o.id));
+    const keepLocal = (Array.isArray(local)?local:[]).filter(o=>queued.has(String(o.id)) && !serverIds.has(String(o.id)));
+    orders = keepLocal.concat(sbOrders.map(o=>{
+      if(!queued.has(o.id)) return o;
+      const lo = (Array.isArray(local)?local:[]).find(x=>String(x.id)===o.id);
+      return lo ? {...lo, id:String(lo.id)} : o;
+    }));
   } else {
-    const cached=localStorage.getItem("rubber_orders");
-    orders=cached?JSON.parse(cached):[];
+    const cached=_jparse(localStorage.getItem("rubber_orders"), []);
+    orders=Array.isArray(cached)?cached:[];
     console.warn("⚠ Using cached orders from localStorage");
   }
-  counter=c?parseInt(c):1;
-  if(p)savedPrices=JSON.parse(p);
+  _cacheOrders();
+  counter=parseInt(c,10)||1;
+  const pr=_jparse(p,null);
+  if(pr && typeof pr==='object') savedPrices=pr;
 }
 async function persist(){
-  // Always save to localStorage first (instant, no network)
-  localStorage.setItem("rubber_orders",JSON.stringify(orders));
-  localStorage.setItem("rubber_po_counter",String(counter));
-  localStorage.setItem("rubber_prices",JSON.stringify(savedPrices));
-  // Save counter + prices to app_data
+  // เก็บลงเครื่องก่อน (เร็ว ไม่ต้องใช้เน็ต)
+  _cacheOrders();
+  try{
+    localStorage.setItem("rubber_po_counter",String(counter));
+    localStorage.setItem("rubber_prices",JSON.stringify(savedPrices));
+  }catch(e){}
   try{
     await Promise.all([
       _sb.from("app_data").upsert({key:"rubber_po_counter",value:String(counter),updated_at:new Date().toISOString()},{onConflict:"key"}),
@@ -1825,13 +1949,18 @@ async function persist(){
 }
 
 // Save a single order + its items directly to Supabase
+// คืนค่า true เมื่อบันทึกสำเร็จ หรือเข้าคิวรอซิงก์แล้ว
 async function persistOrder(order, _fromQueue){
-  // ถ้า offline → เก็บเข้า queue ทันที (ไม่ต้องลอง network)
   if(!_isOnline && !_fromQueue){
     _enqueueSync('order', order);
     if(typeof showToast==='function') showToast(t('net_queued'));
-    return true; // ถือว่าสำเร็จ (บันทึกในเครื่องแล้ว)
+    return true;
   }
+  const fail = (msg)=>{
+    console.error("❌ persistOrder:", msg);
+    if(!_fromQueue){ _enqueueSync('order', order); if(typeof showToast==='function') showToast(t('net_queued')); return true; }
+    return false;
+  };
   try{
     const payload={
       id:String(order.id),
@@ -1850,70 +1979,116 @@ async function persistOrder(order, _fromQueue){
       cancel_reason:order.cancelReason||null,
       updated_at:new Date().toISOString()
     };
-    const {error:oErr}=await _sb.from("orders").upsert(payload,{onConflict:"id"});
-    if(oErr){
-      console.error("❌ Order upsert error:",JSON.stringify(oErr));
-      // ถ้าไม่ได้มาจาก queue → เก็บเข้า queue เพื่อลองใหม่
-      if(!_fromQueue){ _enqueueSync('order', order); showToast(t('net_queued')); return true; }
-      return false;
+    let {error:oErr}=await _sb.from("orders").upsert(payload,{onConflict:"id"});
+    // เลข PO ชนกับเครื่องอื่น → ออกเลขใหม่แล้วลองอีกครั้ง
+    if(oErr && oErr.code==='23505' && /po_no/.test(oErr.message||'')){
+      order.poNo = genPoNo(); payload.po_no = order.poNo;
+      ({error:oErr} = await _sb.from("orders").upsert(payload,{onConflict:"id"}));
     }
-    // Save items
+    if(oErr) return fail(oErr.message||JSON.stringify(oErr));
+    // บันทึกรายการ: ลบของเดิมแล้วเพิ่มใหม่ — ถ้าขั้นที่สองล้มจะเข้าคิวและลองใหม่ทั้งชุด
     if(order.items&&order.items.length>0){
-      await _sb.from("order_items").delete().eq("order_id",String(order.id));
+      const {error:dErr}=await _sb.from("order_items").delete().eq("order_id",String(order.id));
+      if(dErr) return fail(dErr.message);
       const itemRows=order.items.map((it,i)=>({
         order_id:String(order.id),
         product_id:it.productId||"RUBBER",
-        qty:parseFloat(it.qty)||null,
+        qty:(it.qty==null||it.qty==='')?null:(parseFloat(it.qty)||0),
         price:parseFloat(it.price)||0,
         sort_order:i
       }));
       const {error:iErr}=await _sb.from("order_items").insert(itemRows);
-      if(iErr)console.error("❌ Items insert error:",JSON.stringify(iErr));
+      if(iErr) return fail(iErr.message);
     }
     return true;
   }catch(e){
-    console.error("❌ persistOrder exception:",e);
-    // network error → เก็บเข้า queue
-    if(!_fromQueue){ _enqueueSync('order', order); if(typeof showToast==='function') showToast(t('net_queued')); return true; }
-    return false;
+    return fail(e?.message||String(e));
   }
 }
 
-// Update order status in Supabase
-async function updateOrderStatus(id,fields){
+// อัปเดตบางฟิลด์ของบิลบนเซิร์ฟเวอร์
+//   onlyIfNot = รายการสถานะที่ห้ามทับ เช่น ['paid','cancelled'] (กันชำระซ้ำ)
+// คืนค่า 'ok' | 'conflict' | 'queued' | 'error'
+async function _updateOrderRemote(id, fields, onlyIfNot, _fromQueue){
+  const payload = {...fields, updated_at:new Date().toISOString()};
+  const queueIt = ()=>{
+    if(_fromQueue) return 'error';
+    const o = orders.find(x=>String(x.id)===String(id));
+    _enqueueSync(fields.status==='paid'?'pay':'update', {id:String(id), fields, onlyIfNot, poNo:o?.poNo});
+    return 'queued';
+  };
+  if(!_isOnline) return queueIt();
   try{
-    const {error}=await _sb.from("orders")
-      .update({...fields,updated_at:new Date().toISOString()})
-      .eq("id",String(id));
-    if(error)console.error("❌ updateOrderStatus error:",JSON.stringify(error));
-    return !error;
+    let q = _sb.from("orders").update(payload).eq("id",String(id));
+    (onlyIfNot||[]).forEach(s=>{ q = q.neq("status", s); });
+    const {data,error} = await q.select("id");
+    if(error){
+      console.error("❌ order update:", error.message);
+      return _isNetErr(error) ? queueIt() : 'error';
+    }
+    if(!data || data.length===0) return 'conflict';
+    return 'ok';
   }catch(e){
-    console.warn("updateOrderStatus exception:",e);
-    return false;
+    console.warn("order update exception:", e);
+    return queueIt();
   }
+}
+
+// Update order status in Supabase (ใช้ร่วมกับโค้ดเดิม)
+async function updateOrderStatus(id,fields){
+  const r = await _updateOrderRemote(id, fields);
+  return r==='ok' || r==='queued';
+}
+let _lastServerUpdatedAt = '';
+function _renderOrderViews(){
+  try{ renderHistory(); }catch(e){ console.error('renderHistory:', e); }
+  try{ renderPending(); }catch(e){ console.error('renderPending:', e); }
+  try{ if(typeof activeTab!=='undefined' && activeTab==='dashboard') renderDashboard(); }catch(e){ console.error('renderDashboard:', e); }
 }
 
 // ── DATES ──
-function nowISO(){return new Date().toISOString().slice(0,10);}
-function thaiShort(iso){if(!iso)return"—";const[y,m,d]=iso.split("-");return`${d}/${m}/${parseInt(y)+543}`;}
-function thaiLong(iso){if(!iso)return"—";return new Date(iso+"T00:00:00").toLocaleDateString("th-TH",{year:"numeric",month:"long",day:"numeric"});}
+// ใช้วันที่ตามเวลาเครื่อง (ลาว UTC+7) — เดิมใช้ UTC ทำให้ช่วง 00:00–06:59 ได้วันที่ของเมื่อวาน
+function nowISO(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function thaiShort(iso){if(!iso)return"—";const[y,m,d]=String(iso).slice(0,10).split("-");return`${d}/${m}/${parseInt(y)+543}`;}
+function thaiLong(iso){if(!iso)return"—";return new Date(String(iso).slice(0,10)+"T00:00:00").toLocaleDateString("th-TH",{year:"numeric",month:"long",day:"numeric"});}
 
 // ── TOAST ──
+let _toastTimer=null;
 function showToast(msg,type="success"){
   const t=document.getElementById("toast");
+  if(!t) return;
   t.textContent=msg;t.className=type;t.style.display="block";
-  setTimeout(()=>t.style.display="none",3000);
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.style.display="none", type==="error"?5000:3000);
 }
 
+// ── LOADING OVERLAY (กันหน้าจอขาว/ว่างระหว่างโหลด) ──
+function _showLoading(msg){
+  let el=document.getElementById("rl-loading");
+  if(!el){
+    el=document.createElement("div");
+    el.id="rl-loading";
+    el.style.cssText="position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:.9rem;color:#0369A1";
+    el.innerHTML='<div style="width:34px;height:34px;border:3px solid #BAE6FD;border-top-color:#0EA5E9;border-radius:50%;animation:rlspin 0.8s linear infinite"></div><div id="rl-loading-msg"></div><style>@keyframes rlspin{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(el);
+  }
+  el.querySelector("#rl-loading-msg").textContent=msg||"กำลังโหลดข้อมูล...";
+  el.style.display="flex";
+}
+function _hideLoading(){ const el=document.getElementById("rl-loading"); if(el) el.style.display="none"; }
+
 // ── LOGIN ──
-// ── ตรวจว่าฐานข้อมูลมีคอลัมน์ is_active หรือยัง ──
+// ตรวจว่าฐานข้อมูลมีคอลัมน์ is_active หรือยัง (โหมดเดิมเท่านั้น)
 let _hasActiveColumn = null; // null=ยังไม่ตรวจ, true=มี, false=ไม่มี
 async function _checkActiveColumn(){
+  if(_secureMode) { _hasActiveColumn=true; return true; }
   try{
     const {error}=await _sb.from("accounts").select("is_active").limit(1);
     _hasActiveColumn = !error;
-    if(error) console.warn("⚠️ ไม่พบคอลัมน์ is_active — กรุณารัน accounts-active-schema.sql ใน Supabase");
-    else console.log("✅ คอลัมน์ is_active พร้อมใช้งาน");
+    if(error) console.warn("⚠️ ไม่พบคอลัมน์ is_active — กรุณารัน sql/01-security-staff-auth.sql ใน Supabase");
   }catch(e){ _hasActiveColumn=false; }
   return _hasActiveColumn;
 }
@@ -1924,52 +2099,68 @@ function _accIsActive(v){
   return true; // undefined (ไม่มีคอลัมน์) หรือ true → ถือว่าเปิดใช้งาน
 }
 
+const SESSION_KEY = "rl_session";
+function _saveSession(){
+  try{
+    if(!currentUser) return localStorage.removeItem(SESSION_KEY);
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      user:{username:currentUser.username, role:currentUser.role, displayName:currentUser.displayName},
+      token:_staffToken, secure:_secureMode, ts:Date.now()
+    }));
+  }catch(e){}
+}
+function _clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
+
 async function doLogin(){
   const u=document.getElementById("ln-user").value.trim();
   const p=document.getElementById("ln-pass").value;
   const err=document.getElementById("ln-err");
   const btn=document.getElementById("login-btn");
+  const showErr=(m)=>{ err.textContent=m; err.style.display="block"; };
+  if(!u||!p){ showErr(t("login_err")); return; }
   btn.disabled=true;btn.textContent="กำลังตรวจสอบ...";
-  // ── ตรวจสอบบัญชีจาก Supabase (แหล่งความจริง) ──
-  let acc=null, suspended=false, sbReachable=false;
+  let acc=null, token=null;
   try{
-    const {data,error}=await _sb.from("accounts").select("*").eq("username",u).eq("password",p).maybeSingle();
-    if(!error) sbReachable=true;
-    if(data){
-      console.log('🔐 Login check:', data.username, '| is_active =', data.is_active, '(type:', typeof data.is_active, ')');
-      // ตรวจสถานะบัญชีทุกครั้ง (ไม่ใช่แค่รหัสผ่าน)
-      if(!_accIsActive(data.is_active)){
-        suspended=true;
-      } else {
-        acc={username:data.username,password:data.password,role:data.role,displayName:data.display_name,isActive:true};
-      }
-      // เตือน admin ถ้ายังไม่ได้ตั้งค่าคอลัมน์
-      if(data.is_active===undefined && data.role==="admin"){
-        _hasActiveColumn=false;
-        setTimeout(()=>{ try{ showToast(t('acc_col_missing'),'error'); }catch(e){} }, 1200);
-      }
+    // 1) วิธีใหม่: ตรวจรหัสฝั่งเซิร์ฟเวอร์ (bcrypt) ได้ token กลับมา
+    const r = await _rpc('staff_login',{p_username:u,p_password:p});
+    if(!r.error){
+      _secureMode = true;
+      const d = r.data||{};
+      if(d.ok){
+        token = d.token;
+        acc = {username:d.user.username, role:d.user.role, displayName:d.user.display_name||d.user.username, isActive:true};
+      } else if(d.error==='inactive'){ return showErr(t('acc_deactivated_msg')); }
+      else if(d.error==='locked'){ return showErr("⚠ ใส่รหัสผิดหลายครั้ง — ลองใหม่ในอีก "+Math.ceil((d.retry_after||300)/60)+" นาที"); }
+      else { return showErr(t("login_err")); }
+    } else if(_rpcMissing(r.error)){
+      // 2) ฐานข้อมูลยังไม่ได้อัปเกรด → โหมดเดิม (ไม่ดึงคอลัมน์รหัสผ่านกลับมา)
+      _secureMode = false;
+      let res = await _sb.from("accounts").select("username,role,display_name,is_active").eq("username",u).eq("password",p).maybeSingle();
+      if(res.error && /is_active/.test(res.error.message||'')) res = await _sb.from("accounts").select("username,role,display_name").eq("username",u).eq("password",p).maybeSingle();
+      if(res.error){ return showErr("⚠ เชื่อมต่อฐานข้อมูลไม่ได้: "+res.error.message); }
+      const data = res.data;
+      if(!data) return showErr(t("login_err"));
+      if(!_accIsActive(data.is_active)) return showErr(t('acc_deactivated_msg'));
+      acc = {username:data.username, role:data.role, displayName:data.display_name||data.username, isActive:true};
+      if(data.is_active===undefined && data.role==="admin") _hasActiveColumn=false;
+    } else {
+      return showErr("⚠ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ — ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
     }
-  }catch(e){ sbReachable=false; }
-
-  btn.disabled=false;btn.textContent="เข้าสู่ระบบ";
-
-  // บัญชีถูกปิดใช้งาน → ห้ามเข้าเด็ดขาด
-  if(suspended){
-    err.textContent=t('acc_deactivated_msg');
-    err.style.display="block";
-    return;
+  } finally {
+    btn.disabled=false;btn.textContent=t("login_btn")||"เข้าสู่ระบบ";
   }
-
-  // Fallback: ใช้ได้เฉพาะกรณี Supabase ติดต่อไม่ได้ (offline) และเฉพาะบัญชี admin ในเครื่อง
-  // ป้องกันบัญชีที่ถูกลบ/ระงับเข้าระบบผ่าน cache เก่า
-  if(!acc && !sbReachable){
-    const local=ACCOUNTS.find(a=>a.username===u&&a.password===p&&a.isActive!==false);
-    if(local && local.role==="admin") acc=local;
-  }
-
-  if(!acc){ err.textContent=t("login_err"); err.style.display="block"; return; }
+  if(!acc) return;
   err.style.display="none";
+  document.getElementById("ln-pass").value="";
+  await _enterApp(acc, token, true);
+}
+
+// เข้าแอปหลังล็อกอินสำเร็จ หรือกู้ session เดิมหลังรีเฟรช
+async function _enterApp(acc, token, fresh){
   currentUser=acc;
+  _staffToken=token||null;
+  _makeClient(_staffToken);
+  _saveSession();
   document.getElementById("login-screen").style.display="none";
   document.getElementById("app").style.display="block";
   const roleLabels={admin:"ADMIN",staff_biller:"จดบิล",staff_cashier:"จ่ายเงิน",staff:"STAFF"};
@@ -1979,90 +2170,130 @@ async function doLogin(){
   rb.style.background = roleBg[acc.role]||"rgba(14,165,233,.9)";
   rb.style.color = "#fff";
   document.getElementById("display-name").textContent=acc.displayName;
-  if(acc.role==="staff"){
-    const adminTab=document.querySelector('[onclick*="history"]');
+  _showLoading("กำลังโหลดข้อมูล...");
+  try{
+    await initApp();
+  } finally {
+    _hideLoading();
   }
-  await initApp();
-  logActivity('login','','',`เข้าสู่ระบบ role:${acc.role}`);
+  if(fresh) logActivity('login','','',`เข้าสู่ระบบ role:${acc.role}`);
 }
-function doLogout(){
-  logActivity('logout','','',`ออกจากระบบ`);
-  currentUser=null;
+
+// กู้ session หลังรีเฟรช/เปิดแอปใหม่
+async function _restoreSession(){
+  const s=_jparse(localStorage.getItem(SESSION_KEY), null);
+  if(!s || !s.user || !s.user.username) return false;
+  const MAX_AGE = 14*24*3600*1000;
+  if(Date.now()-(s.ts||0) > MAX_AGE){ _clearSession(); return false; }
+  _secureMode = s.secure===true ? true : (s.secure===false ? false : null);
+  if(s.secure && s.token){
+    if(_isOnline){
+      const r=await _rpc('staff_session',{p_token:s.token});
+      if(!r.error && r.data && !r.data.ok){ _clearSession(); return false; }   // หมดอายุ/ถูกปิด
+      if(!r.error && r.data && r.data.ok){
+        const u=r.data.user;
+        await _enterApp({username:u.username, role:u.role, displayName:u.display_name||u.username, isActive:true}, s.token, false);
+        return true;
+      }
+      // เครือข่ายมีปัญหา → เข้าแบบออฟไลน์ด้วยข้อมูลเดิม แล้วให้ session guard ตรวจทีหลัง
+    }
+    await _enterApp({...s.user, isActive:true}, s.token, false);
+    return true;
+  }
+  // โหมดเดิม: กู้ได้ภายใน 12 ชั่วโมง แล้ว session guard จะตรวจสถานะบัญชีอีกที
+  if(Date.now()-(s.ts||0) > 12*3600*1000){ _clearSession(); return false; }
+  await _enterApp({...s.user, isActive:true}, null, false);
+  return true;
+}
+
+async function doLogout(){
+  try{ await logActivity('logout','','',`ออกจากระบบ`); }catch(e){}
+  if(_secureMode && _staffToken){ try{ await _rpc('staff_logout',{p_token:_staffToken}); }catch(e){} }
+  _teardown();
   document.getElementById("app").style.display="none";
   document.getElementById("login-screen").style.display="flex";
   document.getElementById("ln-user").value="";
   document.getElementById("ln-pass").value="";
 }
 
+// ล้างทุกอย่างของผู้ใช้คนก่อน — ตัวจับเวลา, realtime, ข้อมูลในหน่วยความจำ/เครื่อง
+function _teardown(){
+  try{ if(_sessionGuardTimer) clearInterval(_sessionGuardTimer); }catch(e){}
+  _sessionGuardTimer=null;
+  try{ _stopRealtimeSync(); }catch(e){}
+  currentUser=null;
+  _staffToken=null;
+  _clearSession();
+  orders=[]; ACCOUNTS=[];
+  try{ _receipts=[]; _activityLogs=[]; }catch(e){}
+  // ล้างแคชบิลในเครื่อง ยกเว้นมีงานรอซิงก์ (กันข้อมูลหาย)
+  if(_syncQueue.length===0){ try{ localStorage.removeItem("rubber_orders"); }catch(e){} }
+  _makeClient(null);
+}
+
 // ── INIT ──
+// แต่ละขั้นมี try/catch ของตัวเอง: ขั้นไหนล้ม ขั้นอื่นยังทำงานต่อ (ไม่ทำให้หน้าจอขาวทั้งหน้า)
+async function _step(label, fn){
+  try{ return await fn(); }
+  catch(e){ console.error("init step failed ["+label+"]:", e); _initErrors.push(label+": "+(e?.message||e)); }
+}
+let _initErrors=[];
 async function initApp(){
-  await Promise.all([loadData(),loadAccounts(),loadCustomers(),loadActivityLogs(),loadReceipts()]);
-  document.getElementById("form-date").value=nowISO();
-  const fdo=document.getElementById("form-date-old");if(fdo)fdo.value=nowISO();
-  addItemRow();
-  updatePoPreview();
-  renderFilterBtns();
-  renderHistory();
-  renderPending();
-  renderCustomers();
-  updateCustomerDatalist();
-  // Start real-time sync
-  setTimeout(() => { startRealtimeSync(); addSyncIndicator(); }, 1000);
-  // Offline queue + network monitor
-  _initNetworkMonitor();
-  // Session guard — เช็คว่าบัญชียังใช้งานได้
-  _startSessionGuard();
+  _initErrors=[];
+  await Promise.all([
+    _step('orders', loadData),
+    _step('accounts', loadAccounts),
+    _step('customers', loadCustomers),
+    _step('activity', loadActivityLogs),
+    _step('receipts', loadReceipts)
+  ]);
+  await _step('form', ()=>{
+    document.getElementById("form-date").value=nowISO();
+    const fdo=document.getElementById("form-date-old");if(fdo)fdo.value=nowISO();
+    const ic=document.getElementById("items-container"); if(ic) ic.innerHTML="";
+    addItemRow();
+    updatePoPreview();
+  });
+  await _step('tabs', ()=>{
+    const isAdmin = currentUser?.role==="admin";
+    const show=(id,on)=>{ const b=document.getElementById(id); if(b) b.style.display = on?"":"none"; };
+    show("tab-settings-btn", isAdmin);
+    show("tab-report-btn", isAdmin);
+    show("tab-mywork-btn", !isAdmin);
+    show("tab-activitylog-btn", isAdmin);
+    show("tab-billhistory-btn", isAdmin);
+    show("tab-cancelled-btn", isAdmin);
+    show("tab-portal-btn", isAdmin);
+    const note=document.getElementById("role-restriction-note");
+    if(note){
+      if(currentUser?.role==="staff_cashier"){ note.style.display="block"; note.textContent="⚠ "+t("no_perm"); }
+      else note.style.display="none";
+    }
+  });
+  await _step('render', ()=>{
+    renderFilterBtns();
+    _renderOrderViews();
+    renderCustomers();
+    updateCustomerDatalist();
+    if(currentUser?.role==="admin") renderStaffList();
+  });
+  await _step('lang', applyLang);
+  if(currentUser?.role==="staff_cashier"){
+    await _step('cashier-tab', ()=>switchTab("pending", document.getElementById("tab-pending-btn")));
+  }
+  // Real-time sync + offline queue + session guard
+  await _step('realtime', ()=>{ addSyncIndicator(); startRealtimeSync(); });
+  await _step('network', _initNetworkMonitor);
+  await _step('guard', _startSessionGuard);
   // ลองเชื่อมเครื่องพิมพ์ที่เคยจับคู่ไว้ใหม่อัตโนมัติ
-  setTimeout(()=>{ if(printerSupported()) _tryAutoReconnect().then(ok=>{ if(ok) console.log('🖨 auto-reconnect สำเร็จ'); }); }, 2000);
-  // ตรวจว่าฐานข้อมูลพร้อมสำหรับระบบเปิด/ปิดบัญชีไหม
-  if(currentUser?.role==="admin"){
+  setTimeout(()=>{ if(currentUser && printerSupported()) _tryAutoReconnect().then(ok=>{ if(ok) console.log('🖨 auto-reconnect สำเร็จ'); }).catch(()=>{}); }, 2000);
+  if(currentUser?.role==="admin" && !_secureMode){
     _checkActiveColumn().then(ok=>{ if(ok===false) showToast(t('acc_col_missing'),'error'); });
   }
   setTimeout(() => { if(_isOnline) _flushQueue(); }, 1500);
-  // Apply saved language
-  applyLang();
-  const settingsBtn=document.getElementById("tab-settings-btn");
-  const reportBtn=document.getElementById("tab-report-btn");
-  const myworkBtn=document.getElementById("tab-mywork-btn");
-  const activityLogBtn=document.getElementById("tab-activitylog-btn");
-  if(currentUser?.role==="admin"){
-    settingsBtn.style.display="";
-    reportBtn.style.display="";
-    myworkBtn.style.display="none";
-    if(activityLogBtn) activityLogBtn.style.display="";
-    const bhBtn=document.getElementById("tab-billhistory-btn");
-    if(bhBtn) bhBtn.style.display="";
-    const cxBtn=document.getElementById("tab-cancelled-btn");
-    if(cxBtn) cxBtn.style.display="";
-    const pxBtn=document.getElementById("tab-portal-btn");
-    if(pxBtn) pxBtn.style.display="";
-    renderStaffList();
-  } else {
-    settingsBtn.style.display="none";
-    reportBtn.style.display="none";
-    myworkBtn.style.display="";
-    if(activityLogBtn) activityLogBtn.style.display="none";
-    const bhBtn=document.getElementById("tab-billhistory-btn");
-    if(bhBtn) bhBtn.style.display="none";
-    const cxBtn=document.getElementById("tab-cancelled-btn");
-    if(cxBtn) cxBtn.style.display="none";
-    const pxBtn=document.getElementById("tab-portal-btn");
-    if(pxBtn) pxBtn.style.display="none";
+  if(_initErrors.length){
+    showToast("⚠ โหลดข้อมูลบางส่วนไม่สำเร็จ ("+_initErrors.length+") — ลองรีเฟรชหน้า",'error');
   }
-  // Show restriction notes per role
-  const note=document.getElementById("role-restriction-note");
-  if(note){
-    if(currentUser?.role==="staff_cashier"){
-      note.style.display="block";
-      note.textContent="⚠ "+t("no_perm");
-      // Redirect cashier to pending tab by default
-      switchTab("pending", document.getElementById("tab-pending-btn"));
-    } else {
-      note.style.display="none";
-    }
-  }
-  // Biller: can see pending and history — already accessible, just confirm
-  // All staff roles can see pending + history tabs (no restriction needed)
 }
 
 // ── PO NUMBER ──
@@ -2203,12 +2434,11 @@ async function handleSave(){
       if(!isShipping)totalQty+=qty;
     }
   });
-  const order={id:Date.now(),poNo,customer:customer,date:saveDate||document.getElementById("form-date").value,note:document.getElementById("form-note").value,status:document.getElementById("form-status").value,items,subtotal,totalQty,grandTotal:subtotal,createdAt:new Date().toISOString(),createdBy:currentUser?.displayName||currentUser?.username||""};
+  const order={id:String(Date.now()),poNo,customer:customer,date:saveDate||document.getElementById("form-date").value,note:document.getElementById("form-note").value,status:document.getElementById("form-status").value,items,subtotal,totalQty,grandTotal:subtotal,createdAt:new Date().toISOString(),createdBy:currentUser?.displayName||currentUser?.username||""};
   orders.unshift(order);
-  // Save to Supabase (primary)
+  // Save to Supabase (primary) — ถ้าไม่สำเร็จจะเข้าคิวรอซิงก์
   const saveOk = await persistOrder(order);
-  // Always update localStorage cache
-  localStorage.setItem("rubber_orders",JSON.stringify(orders));
+  _cacheOrders();
   if(!saveOk){
     showToast("⚠ บันทึกสำเร็จ (ออฟไลน์ — ข้อมูลอาจไม่ sync)","error");
   } else {
@@ -2222,7 +2452,7 @@ async function handleSave(){
     const autoId=Math.floor(100000+Math.random()*900000);
     customers.push({id:autoId,name:customer,phone:window._pendingPhone||"",house:"",subdistrict:"",district:"",province:"",createdAt:new Date().toISOString(),autoCreated:true});
     window._pendingPhone="";
-    await saveCustomers();
+    await saveCustomers([customers[customers.length-1]]);
     updateCustomerDatalist();
   }
   renderCustomers();
@@ -2342,7 +2572,7 @@ function renderPending(){
     }).join("");
     return`<div class="pending-card">
       <div class="pending-card-header">
-        <div style="display:flex;align-items:center;gap:.8rem"><span class="bebas text-gold" style="font-size:1.05rem">${o.poNo}</span><span style="font-size:.85rem;font-weight:600">${o.customer}</span></div>
+        <div style="display:flex;align-items:center;gap:.8rem"><span class="bebas text-gold" style="font-size:1.05rem">${o.poNo}</span><span style="font-size:.85rem;font-weight:600">${esc(o.customer)}</span></div>
         <span class="mono" style="font-size:.7rem;color:var(--muted)">${thaiShort(o.date)}</span>
       </div>
       <div style="padding:.9rem 1.1rem">
@@ -2392,6 +2622,11 @@ function histClearDates(){
   renderHistory();
 }
 
+// หน่วงการวาดตารางใหม่ระหว่างพิมพ์ค้นหา (ลดการกระตุกบนมือถือ)
+const _debTimers=new Map();
+function _deb(fn, ms){ clearTimeout(_debTimers.get(fn)); _debTimers.set(fn, setTimeout(fn, ms||250)); }
+let _histDebounce=null;
+function _debouncedHistory(){ clearTimeout(_histDebounce); _histDebounce=setTimeout(renderHistory, 250); }
 function renderHistory(){
   const q=(document.getElementById("search-input")?.value||"").trim().toLowerCase();
   const dFrom=document.getElementById("hist-date-from")?.value||"";
@@ -2416,9 +2651,9 @@ function renderHistory(){
     const badgeLabel={draft:t("status_draft"),sent:t("status_sent"),paid:t("status_paid"),cancelled:t("status_cancelled")}[o.status];
     let lastCol="";
     if(o.status==="cancelled"){
-      lastCol=`<td style="font-size:.75rem;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.cancelReason||""}">${o.cancelReason||"—"}</td>`;
+      lastCol=`<td style="font-size:.75rem;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(o.cancelReason||"")}">${esc(o.cancelReason||"—")}</td>`;
     }else if(o.status==="paid"){
-      lastCol=`<td style="font-size:.75rem;color:#5cbf7a">${o.paidBy||"—"}</td>`;
+      lastCol=`<td style="font-size:.75rem;color:#5cbf7a">${esc(o.paidBy||"—")}</td>`;
     }else{
       const canPrintRow=(currentUser?.role==="admin"||currentUser?.role==="staff_biller");
       lastCol=`<td style="white-space:nowrap">
@@ -2432,12 +2667,12 @@ function renderHistory(){
     }
     // build ดำเนินการ cell
     const actors=[];
-    if(o.createdBy) actors.push(`<div style="font-size:.65rem;color:var(--blue);white-space:nowrap">📝 ${o.createdBy}</div>`);
-    if(o.paidBy) actors.push(`<div style="font-size:.65rem;color:var(--green);white-space:nowrap">💰 ${o.paidBy}</div>`);
+    if(o.createdBy) actors.push(`<div style="font-size:.65rem;color:var(--blue);white-space:nowrap">📝 ${esc(o.createdBy)}</div>`);
+    if(o.paidBy) actors.push(`<div style="font-size:.65rem;color:var(--green);white-space:nowrap">💰 ${esc(o.paidBy)}</div>`);
     const actorCell=actors.length>0?actors.join(""):`<span style="color:#444;font-size:.68rem">—</span>`;
     return`<tr onclick="openDetail('${o.id}')">
       <td class="mono text-accent fw6" style="white-space:nowrap;font-size:.75rem">${o.poNo}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem">${o.customer}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem">${esc(o.customer)}</td>
       <td class="mono" style="color:var(--muted);font-size:.72rem;white-space:nowrap">${thaiShort(o.date)}</td>
       <td class="mono fw6" style="white-space:nowrap;font-size:.78rem">₭${(o.grandTotal||0).toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
       <td style="white-space:nowrap"><span class="badge ${badgeCls}">${badgeLabel}</span></td>
@@ -2469,18 +2704,18 @@ function renderHistoryStats(grp){
 // ── MOVE TO SENT ──
 async function moveToSent(id){
   if(currentUser?.role==="staff_biller"){showToast(t("no_perm"),"error");return;}
-  const o=orders.find(x=>x.id==id);
+  const o=orders.find(x=>String(x.id)===String(id));
   if(!o)return;
-  const nowISO = new Date().toISOString();
-  o.status="sent";
-  o.sentAt=nowISO;
-  await _sb.from("orders").update({status:"sent",sent_at:nowISO,updated_at:nowISO}).eq("id",String(id)).then(({error})=>{
-    if(error){ console.error("moveToSent error:",error.message); }
-    else { logActivity('send_order', id, o.poNo||id, `ส่งรอชำระ`); }
-  });
-  localStorage.setItem("rubber_orders",JSON.stringify(orders));renderHistory();renderPending();
+  const prev={status:o.status, sentAt:o.sentAt};
+  const ts = new Date().toISOString();
+  const r = await _updateOrderRemote(id, {status:"sent", sent_at:ts}, ['paid','cancelled']);
+  if(r==='error'){ showToast("⚠ บันทึกไม่สำเร็จ — ลองใหม่อีกครั้ง","error"); return; }
+  if(r==='conflict'){ showToast("⚠ บิลนี้ถูกชำระหรือยกเลิกไปแล้ว","error"); await loadData(); _renderOrderViews(); return; }
+  o.status="sent"; o.sentAt=ts;
+  if(r==='ok') logActivity('send_order', id, o.poNo||id, `ส่งรอชำระ`);
+  _cacheOrders(); _renderOrderViews();
   switchTab("pending",document.getElementById("tab-pending-btn"));
-  showToast(t("status_sent"));
+  showToast(r==='queued' ? t('net_queued') : t("status_sent"));
 }
 
 // ── PAY MODAL ──
@@ -2527,53 +2762,66 @@ async function confirmPay(){
   closePayModal();
 }
 
-// สร้างเลขที่ใบเสร็จอัตโนมัติ RC-YYMMxxxx
+// เลขที่ใบเสร็จ RC-YYMMxxxx
+// ตัวอย่างเลขบนหน้าต่างชำระ (เลขจริงออกจากฐานข้อมูลตอนบันทึก)
 function _genReceiptNo(){
   const now=new Date();
-  const yy=String(now.getFullYear()).slice(2);
-  const mm=String(now.getMonth()+1).padStart(2,'0');
-  // counter จาก localStorage (sync กับ Supabase ทีหลัง)
-  let counter=parseInt(localStorage.getItem('rl_receipt_counter')||'0',10)+1;
-  return `RC-${yy}${mm}${String(counter).padStart(4,'0')}`;
+  return `RC-${String(now.getFullYear()).slice(2)}${String(now.getMonth()+1).padStart(2,'0')}····`;
 }
+// ออกเลขจริง: (1) จากฐานข้อมูล (ไม่ซ้ำแน่นอน) (2) โหมดเดิม: เลขสูงสุดในฐาน +1 (3) ออฟไลน์: เลขชั่วคราว
+async function _nextReceiptNo(){
+  const now=new Date();
+  const prefix=`RC-${String(now.getFullYear()).slice(2)}${String(now.getMonth()+1).padStart(2,'0')}`;
+  if(_isOnline){
+    if(_secureMode && _staffToken){
+      const r=await _rpc('next_receipt_no',{p_token:_staffToken});
+      if(!r.error && r.data) return {no:r.data, temp:false};
+    }
+    try{
+      const {data,error}=await _sb.from('receipts').select('receipt_no').like('receipt_no',prefix+'%')
+        .order('receipt_no',{ascending:false}).limit(50);
+      if(!error){
+        // ใช้เฉพาะเลขปกติ (ไม่นับเลขชั่วคราวตอนออฟไลน์ RC-YYMM-T...)
+        const re=new RegExp('^'+prefix+'(\\d+)$');
+        const last=(data||[]).map(r=>{ const m=re.exec(String(r.receipt_no)); return m?parseInt(m[1],10):0; })
+          .reduce((a,b)=>Math.max(a,b),0);
+        return {no:prefix+String(last+1).padStart(4,'0'), temp:false};
+      }
+    }catch(e){}
+  }
+  // ออฟไลน์: เลขชั่วคราวที่ไม่ชนกับเครื่องอื่น
+  const tag=(Date.now().toString(36)+Math.random().toString(36).slice(2,4)).toUpperCase();
+  return {no:`${prefix}-T${tag}`, temp:true};
+}
+
+// ── ชำระเงิน ──
+// อัปเดตแบบมีเงื่อนไข: สำเร็จเฉพาะเมื่อบิลยังไม่ถูกชำระ/ยกเลิก → กันแคชเชียร์สองคนจ่ายบิลเดียวกัน
 async function execPay(id,name,opts){
   opts=opts||{};
   const o=orders.find(x=>String(x.id)===String(id));
-  if(!o){showToast("ไม่พบรายการ","error");return;}
-  const nowISO = new Date().toISOString();
-  // 1. Update local state
-  o.status="paid";
-  o.paidBy=name;
-  o.paidAt=nowISO;
-  // 2. Save to Supabase immediately
-  try{
-    const {error}=await _sb.from("orders").update({
-      status:"paid",
-      paid_by:name,
-      paid_at:nowISO,
-      updated_at:nowISO
-    }).eq("id",String(id));
-    if(error){
-      console.error("❌ execPay Supabase error:",error.message);
-      showToast("⚠ ชำระแล้ว แต่ sync ล้มเหลว: "+error.message,"error");
-    } else {
-      console.log("✅ Payment saved to Supabase: "+o.poNo);
-      logActivity('pay_order', id, o.poNo||id, `ชำระโดย: ${name}`);
-    }
-  }catch(e){
-    console.error("❌ execPay exception:",e);
+  if(!o){showToast("ไม่พบรายการ","error");return false;}
+  if(o.status==="paid"){showToast("⚠ บิลนี้ชำระแล้ว","error");return false;}
+  const ts = new Date().toISOString();
+  const r = await _updateOrderRemote(id, {status:"paid", paid_by:name, paid_at:ts}, ['paid','cancelled']);
+  if(r==='error'){
+    showToast("⚠ บันทึกการชำระไม่สำเร็จ — ยังไม่ได้ชำระ กรุณาลองใหม่","error");
+    return false;
   }
-  // 2b. สร้างใบเสร็จอัตโนมัติ
+  if(r==='conflict'){
+    showToast("⚠ บิลนี้ถูกชำระหรือยกเลิกโดยคนอื่นไปแล้ว — ไม่ได้บันทึกซ้ำ","error");
+    await loadData(); _renderOrderViews();
+    return false;
+  }
+  o.status="paid"; o.paidBy=name; o.paidAt=ts;
+  if(r==='ok') logActivity('pay_order', id, o.poNo||id, `ชำระโดย: ${name}`);
   await createReceipt(o, name, opts);
-  // 3. Update localStorage cache
-  localStorage.setItem("rubber_orders",JSON.stringify(orders));
-  // 4. Update UI
-  document.getElementById("pay-modal").style.display="none";
-  renderHistory();renderPending();
-  showToast("✅ "+t("pay_by")+name);
+  _cacheOrders();
+  const pm=document.getElementById("pay-modal"); if(pm) pm.style.display="none";
+  _renderOrderViews();
+  showToast(r==='queued' ? "✅ "+t("pay_by")+name+" · "+t('net_queued') : "✅ "+t("pay_by")+name);
   if(document.getElementById("pane-detail").style.display!=="none")openDetail(id);
-  // Resume sync after brief pause
   setTimeout(()=>{ _syncPaused=false; },1500);
+  return true;
 }
 
 // ── DELETE MODAL ──
@@ -2585,33 +2833,16 @@ async function confirmDelete(){
   if(!reason){showToast(t("cancel_reason").replace(" *",""),"error");return;}
   const o=orders.find(x=>String(x.id)===String(delTargetId));
   if(!o)return;
-  const nowISO = new Date().toISOString();
-  // 1. Update local state
-  o.status="cancelled";
-  o.cancelReason=reason;
-  o.cancelledAt=nowISO;
-  // 2. Save to Supabase immediately
-  try{
-    const {error}=await _sb.from("orders").update({
-      status:"cancelled",
-      cancel_reason:reason,
-      cancelled_at:nowISO,
-      updated_at:nowISO
-    }).eq("id",String(delTargetId));
-    if(error){
-      console.error("❌ confirmDelete Supabase error:",error.message);
-    } else {
-      console.log("✅ Cancellation saved to Supabase");
-      logActivity('cancel_order', delTargetId, o.poNo||delTargetId, `เหตุผล: ${reason}`);
-    }
-  }catch(e){
-    console.error("❌ confirmDelete exception:",e);
-  }
-  // 3. Update localStorage cache
-  localStorage.setItem("rubber_orders",JSON.stringify(orders));
+  const ts = new Date().toISOString();
+  const r = await _updateOrderRemote(delTargetId, {status:"cancelled", cancel_reason:reason, cancelled_at:ts}, ['paid','cancelled']);
+  if(r==='error'){ showToast("⚠ ยกเลิกไม่สำเร็จ — ลองใหม่อีกครั้ง","error"); return; }
+  if(r==='conflict'){ showToast("⚠ บิลนี้ถูกชำระหรือยกเลิกไปแล้ว","error"); closeDelModal(); await loadData(); _renderOrderViews(); return; }
+  o.status="cancelled"; o.cancelReason=reason; o.cancelledAt=ts;
+  if(r==='ok') logActivity('cancel_order', o.id, o.poNo||o.id, `เหตุผล: ${reason}`);
+  _cacheOrders();
   closeDelModal();
-  renderHistory();renderPending();
-  showToast(t("cancelled_ok"));
+  _renderOrderViews();
+  showToast(r==='queued' ? t('net_queued') : t("cancelled_ok"));
   if(document.getElementById("pane-detail").style.display!=="none")closeDetail();
 }
 
@@ -2685,10 +2916,10 @@ function _openDetailInner(id){
         <div><div class="form-label">วิธีชำระ</div><div style="font-size:.85rem">${methodLabel}</div></div>
         <div><div class="form-label">📅 วันที่ออกใบเสร็จ</div><div style="font-size:.85rem">${dateStr}</div></div>
         <div><div class="form-label">🕐 เวลา</div><div style="font-size:.85rem">${timeStr} น.</div></div>
-        <div><div class="form-label">👤 ผู้จดใบเสร็จ</div><div style="font-size:.85rem;font-weight:600">${receipt.issued_by_name||receipt.issued_by}</div></div>
+        <div><div class="form-label">👤 ผู้จดใบเสร็จ</div><div style="font-size:.85rem;font-weight:600">${esc(receipt.issued_by_name||receipt.issued_by)}</div></div>
         <div><div class="form-label">📍 สถานที่ออกใบเสร็จ</div><div style="font-size:.82rem;color:var(--gold)">${locFmt}</div></div>
       </div>
-      ${receipt.note?`<div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)"><div class="form-label">หมายเหตุ</div><div style="font-size:.82rem;color:var(--text2)">${receipt.note}</div></div>`:''}
+      ${receipt.note?`<div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)"><div class="form-label">หมายเหตุ</div><div style="font-size:.82rem;color:var(--text2)">${esc(receipt.note)}</div></div>`:''}
     `;
   } else if(rcCard){
     rcCard.style.display="none";
@@ -2744,104 +2975,134 @@ function closeDetail(){
   if(pane)pane.classList.add("active");
 }
 async function updateStatus(id,status){
-  const o=orders.find(x=>x.id==id);if(!o)return;
-  o.status=status;await persist();
-  renderHistory();renderPending();showToast(t("saved_ok"));
+  const o=orders.find(x=>String(x.id)===String(id));if(!o)return;
+  if(status==="paid"){ openPayModal(id); return; }
+  const fields={status};
+  if(status==="sent") fields.sent_at=new Date().toISOString();
+  const r=await _updateOrderRemote(id, fields, ['paid','cancelled']);
+  if(r==='error'){ showToast("⚠ บันทึกไม่สำเร็จ","error"); return; }
+  if(r==='conflict'){ showToast("⚠ บิลนี้ถูกชำระหรือยกเลิกไปแล้ว","error"); await loadData(); _renderOrderViews(); return; }
+  o.status=status; if(fields.sent_at) o.sentAt=fields.sent_at;
+  _cacheOrders(); _renderOrderViews(); showToast(r==='queued'?t('net_queued'):t("saved_ok"));
   openDetail(id);
 }
 
 // ── STAFF ACCOUNT MANAGEMENT ──
+// โหมดใหม่: ทุกอย่างผ่าน RPC ที่ตรวจสิทธิ์แอดมินฝั่งเซิร์ฟเวอร์ + รหัสผ่านเข้ารหัส bcrypt
+const _STAFF_ERR = {
+  username_taken:'ชื่อผู้ใช้นี้มีอยู่แล้ว', invalid_input:'กรอกข้อมูลไม่ครบ หรือรหัสผ่านสั้นกว่า 6 ตัว',
+  invalid_role:'ตำแหน่งไม่ถูกต้อง', not_found:'ไม่พบบัญชี', too_short:'รหัสผ่านต้องยาวอย่างน้อย 6 ตัว',
+  cannot_change_self:'เปลี่ยนสถานะบัญชีตัวเองไม่ได้', wrong_old_password:'รหัสผ่านเดิมไม่ถูกต้อง'
+};
+function _staffErr(d, e){
+  if(e) return (/not_authenticated|not_authorized/.test(e.message||'')) ? 'สิทธิ์หมดอายุ — กรุณาเข้าสู่ระบบใหม่' : (e.message||'error');
+  return _STAFF_ERR[d?.error] || d?.error || 'error';
+}
+
 async function addStaffAccount(){
   if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
   const dn=document.getElementById("new-displayname").value.trim();
   const un=document.getElementById("new-username").value.trim();
   const pw=document.getElementById("new-password").value.trim();
-  if(!dn||!un||!pw){showToast(t("saving"),"error");return;}
-  if(ACCOUNTS.find(a=>a.username===un)){showToast(t("login_err"),"error");return;}
+  if(!dn||!un||!pw){showToast(_STAFF_ERR.invalid_input,"error");return;}
+  if(pw.length<6){showToast(_STAFF_ERR.too_short,"error");return;}
+  if(ACCOUNTS.find(a=>a.username===un)){showToast(_STAFF_ERR.username_taken,"error");return;}
   const role=document.getElementById("new-role")?.value||"staff_biller";
-  ACCOUNTS.push({username:un,password:pw,role,displayName:dn,isActive:true});
-  // Save to Supabase
-  try{
-    const {error}=await _sb.from("accounts").insert({username:un,password:pw,role,display_name:dn,is_active:true});
-    if(error){ showToast("⚠ "+error.message,"error"); ACCOUNTS=ACCOUNTS.filter(a=>a.username!==un); return; }
-  }catch(e){ showToast("⚠ เพิ่มไม่สำเร็จ (ออฟไลน์?)","error"); ACCOUNTS=ACCOUNTS.filter(a=>a.username!==un); return; }
-  await saveAccounts();
+  if(_secureMode){
+    const {data,error}=await _rpc('admin_staff_add',{p_token:_staffToken,p_username:un,p_password:pw,p_role:role,p_display_name:dn});
+    if(error||!data?.ok){ showToast("⚠ "+_staffErr(data,error),"error"); return; }
+  } else {
+    try{
+      const {error}=await _sb.from("accounts").insert({username:un,password:pw,role,display_name:dn,is_active:true});
+      if(error){ showToast("⚠ "+error.message,"error"); return; }
+    }catch(e){ showToast("⚠ เพิ่มไม่สำเร็จ (ออฟไลน์?)","error"); return; }
+  }
   logActivity('add_staff', un, un, `เพิ่มพนักงาน role:${role}`);
-  document.getElementById("new-displayname").value="";
-  document.getElementById("new-username").value="";
-  document.getElementById("new-password").value="";
+  ["new-displayname","new-username","new-password"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+  await loadAccounts();
   renderStaffList();showToast(t("saved_ok"));
 }
+
 // ── เปิด/ปิดใช้งานบัญชีพนักงาน ──
 async function toggleStaffActive(username, makeActive){
   if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
-  if(username==="admin"){showToast(t("no_perm"),"error");return;}
+  if(username===currentUser.username){showToast(_STAFF_ERR.cannot_change_self,"error");return;}
   const want = !!makeActive;
-  try{
-    const payload = want
-      ? { is_active:true, deactivated_at:null, deactivated_by:null }
-      : { is_active:false, deactivated_at:new Date().toISOString(), deactivated_by:currentUser.username };
-
-    // ⚠ ต้องใส่ .select() เพื่อยืนยันว่าเขียนสำเร็จจริง
-    // (ถ้าไม่ใส่ Supabase จะคืน error:null แม้ไม่มีแถวไหนถูกอัปเดต)
-    const {data,error}=await _sb.from("accounts").update(payload).eq("username",username).select();
-
-    if(error){
-      console.error('toggleStaffActive error:', error);
-      if(/is_active|column|does not exist|schema cache/i.test(error.message||'')){
-        _hasActiveColumn=false;
-        showToast(t('acc_col_missing'),"error");
-        renderStaffList();
-      } else showToast("⚠ "+error.message,"error");
-      return;
-    }
-
-    // ไม่มีแถวถูกอัปเดต → ติดสิทธิ์ RLS หรือหา username ไม่เจอ
-    if(!data || data.length===0){
-      console.error('toggleStaffActive: 0 rows updated for', username);
-      showToast(t('acc_update_failed'),"error");
-      return;
-    }
-
-    // ยืนยันค่าที่บันทึกจริงในฐานข้อมูล
-    const saved = data[0];
-    if(saved.is_active === undefined){
-      _hasActiveColumn=false;
-      showToast(t('acc_col_missing'),"error");
-      renderStaffList();
-      return;
-    }
-    if(_accIsActive(saved.is_active) !== want){
-      console.error('toggleStaffActive: value mismatch. want=',want,'got=',saved.is_active);
-      showToast(t('acc_update_failed'),"error");
-      return;
-    }
-    _hasActiveColumn=true;
-    console.log('✅ '+username+' is_active =', saved.is_active);
-  }catch(e){ console.error(e); showToast("⚠ "+(e.message||''),"error"); return; }
-
-  // อัปเดตในหน่วยความจำ
+  if(_secureMode){
+    const {data,error}=await _rpc('admin_staff_set_active',{p_token:_staffToken,p_username:username,p_active:want});
+    if(error||!data?.ok){ showToast("⚠ "+_staffErr(data,error),"error"); return; }
+  } else {
+    try{
+      const payload = want
+        ? { is_active:true, deactivated_at:null, deactivated_by:null }
+        : { is_active:false, deactivated_at:new Date().toISOString(), deactivated_by:currentUser.username };
+      const {data,error}=await _sb.from("accounts").update(payload).eq("username",username).select("username,is_active");
+      if(error){
+        if(/is_active|column|does not exist|schema cache/i.test(error.message||'')){ _hasActiveColumn=false; showToast(t('acc_col_missing'),"error"); renderStaffList(); }
+        else showToast("⚠ "+error.message,"error");
+        return;
+      }
+      if(!data || data.length===0 || _accIsActive(data[0].is_active)!==want){ showToast(t('acc_update_failed'),"error"); return; }
+      _hasActiveColumn=true;
+    }catch(e){ console.error(e); showToast("⚠ "+(e.message||''),"error"); return; }
+  }
   const a=ACCOUNTS.find(x=>x.username===username);
   if(a) a.isActive=want;
-  await saveAccounts();
-  logActivity(want?'activate_staff':'deactivate_staff', username, username,
-              want?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
+  logActivity(want?'activate_staff':'deactivate_staff', username, username, want?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
   renderStaffList();
   showToast(want?t('acc_activated_ok'):t('acc_deactivated_ok'));
 }
 
 async function removeStaffAccount(username){
   if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
-  if(username==="admin"){showToast(t("no_perm"),"error");return;}
+  if(username===currentUser.username){showToast(t("no_perm"),"error");return;}
   if(!confirm(t('acc_confirm_delete'))) return;
+  if(_secureMode){
+    const {data,error}=await _rpc('admin_staff_delete',{p_token:_staffToken,p_username:username});
+    if(error||!data?.ok){ showToast("⚠ "+_staffErr(data,error),"error"); return; }
+  } else {
+    try{
+      const {error}=await _sb.from("accounts").delete().eq("username",username);
+      if(error){ showToast("⚠ "+error.message,"error"); return; }
+    }catch(e){ showToast("⚠ ลบไม่สำเร็จ (ออฟไลน์?)","error"); return; }
+  }
   ACCOUNTS=ACCOUNTS.filter(a=>a.username!==username);
-  try{
-    const {error}=await _sb.from("accounts").delete().eq("username",username);
-    if(error){ showToast("⚠ "+error.message,"error"); return; }
-  }catch(e){ showToast("⚠ ลบไม่สำเร็จ (ออฟไลน์?)","error"); return; }
-  await saveAccounts();
   logActivity('delete_staff', username, username, `ลบพนักงาน (ประวัติงานยังเก็บไว้)`);
   renderStaffList();showToast(t("cancelled_ok"));
+}
+
+// แอดมินตั้งรหัสผ่านใหม่ให้พนักงาน
+async function resetStaffPassword(username){
+  if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
+  const pw=prompt("ตั้งรหัสผ่านใหม่ให้ "+username+" (อย่างน้อย 6 ตัว):");
+  if(pw==null) return;
+  if(pw.trim().length<6){ showToast(_STAFF_ERR.too_short,"error"); return; }
+  if(_secureMode){
+    const {data,error}=await _rpc('admin_staff_set_password',{p_token:_staffToken,p_username:username,p_new:pw.trim()});
+    if(error||!data?.ok){ showToast("⚠ "+_staffErr(data,error),"error"); return; }
+  } else {
+    const {data,error}=await _sb.from("accounts").update({password:pw.trim()}).eq("username",username).select("username");
+    if(error||!data||!data.length){ showToast("⚠ "+(error?.message||t('acc_update_failed')),"error"); return; }
+  }
+  logActivity('reset_staff_password', username, username, 'ตั้งรหัสผ่านใหม่');
+  showToast("✅ ตั้งรหัสผ่านใหม่ให้ "+username+" แล้ว");
+}
+
+// เปลี่ยนรหัสผ่านของตัวเอง
+async function changeMyPassword(){
+  if(!currentUser) return;
+  if(!_secureMode){
+    if(currentUser.role==="admin") return resetStaffPassword(currentUser.username);
+    showToast("ฟีเจอร์นี้ใช้ได้หลังอัปเกรดฐานข้อมูล (sql/01) — ให้แอดมินตั้งรหัสให้","error"); return;
+  }
+  const oldPw=prompt("รหัสผ่านเดิม:"); if(oldPw==null) return;
+  const newPw=prompt("รหัสผ่านใหม่ (อย่างน้อย 6 ตัว):"); if(newPw==null) return;
+  const again=prompt("พิมพ์รหัสผ่านใหม่อีกครั้ง:"); if(again==null) return;
+  if(newPw!==again){ showToast("⚠ รหัสผ่านใหม่สองครั้งไม่ตรงกัน","error"); return; }
+  const {data,error}=await _rpc('staff_change_password',{p_token:_staffToken,p_old:oldPw,p_new:newPw});
+  if(error||!data?.ok){ showToast("⚠ "+_staffErr(data,error),"error"); return; }
+  logActivity('change_password', currentUser.username, currentUser.username, 'เปลี่ยนรหัสผ่านตัวเอง');
+  showToast("✅ เปลี่ยนรหัสผ่านแล้ว — เครื่องอื่นที่ล็อกอินบัญชีนี้จะถูกออกจากระบบ");
 }
 
 // =====================================================
@@ -2881,9 +3142,15 @@ async function renderPortal(){
 // ── NEWS ──
 async function pxLoadNews(){
   try{
-    const {data,error}=await _sb.from('news').select('*').order('is_pinned',{ascending:false}).order('published_at',{ascending:false});
-    if(error){ console.warn('news:',error); showToast('⚠ โหลดข่าวไม่ได้ — รัน customer-portal-schema.sql หรือยัง?','error'); _pxNews=[]; }
-    else _pxNews = data||[];
+    if(_secureMode){
+      const {data,error}=await _rpc('admin_news_list',{p_token:_staffToken});
+      if(error||!data?.ok){ console.warn('news:',error||data); _pxNews=[]; showToast('⚠ โหลดข่าวไม่ได้: '+_staffErr(data,error),'error'); }
+      else _pxNews=data.news||[];
+    } else {
+      const {data,error}=await _sb.from('news').select('*').order('is_pinned',{ascending:false}).order('published_at',{ascending:false});
+      if(error){ console.warn('news:',error); showToast('⚠ โหลดข่าวไม่ได้ — รัน customer-portal-schema.sql หรือยัง?','error'); _pxNews=[]; }
+      else _pxNews = data||[];
+    }
   }catch(e){ _pxNews=[]; }
   pxRenderNews();
 }
@@ -2904,8 +3171,8 @@ function pxRenderNews(){
             ${n.is_published?'':'<span class="badge badge-draft" style="font-size:.58rem">ไม่เผยแพร่</span>'}
             <span style="font-size:.66rem;color:var(--muted2)">${_billDateTime(n.published_at).d}</span>
           </div>
-          <div style="font-weight:700;font-size:.88rem">${(n.title||'').replace(/</g,'&lt;')}</div>
-          ${n.body?`<div style="font-size:.78rem;color:var(--text2);margin-top:.2rem;white-space:pre-wrap;max-height:60px;overflow:hidden">${(n.body||'').replace(/</g,'&lt;')}</div>`:''}
+          <div style="font-weight:700;font-size:.88rem">${esc(n.title||'')}</div>
+          ${n.body?`<div style="font-size:.78rem;color:var(--text2);margin-top:.2rem;white-space:pre-wrap;max-height:60px;overflow:hidden">${esc(n.body||'')}</div>`:''}
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
           <button onclick="pxEditNews(${n.id})" style="font-size:.7rem;padding:.25rem .55rem;background:var(--sky-l);color:var(--sky-d);border:1px solid var(--sky-m);border-radius:5px;cursor:pointer">✏️</button>
@@ -2941,11 +3208,17 @@ async function pxSaveNews(){
     created_by: currentUser?.displayName||''
   };
   try{
-    let res;
-    if(id){ res = await _sb.from('news').update(payload).eq('id', id).select(); }
-    else   { payload.published_at=new Date().toISOString(); res = await _sb.from('news').insert(payload).select(); }
-    if(res.error){ showToast('⚠ '+res.error.message,'error'); return; }
-    if(!res.data || res.data.length===0){ showToast('⚠ บันทึกไม่สำเร็จ (สิทธิ์?)','error'); return; }
+    if(_secureMode){
+      const {data,error}=await _rpc('admin_news_save',{p_token:_staffToken,p_id:id?Number(id):null,p_title:payload.title,
+        p_body:payload.body,p_category:payload.category,p_pinned:payload.is_pinned,p_published:payload.is_published});
+      if(error||!data?.ok){ showToast('⚠ '+_staffErr(data,error),'error'); return; }
+    } else {
+      let res;
+      if(id){ res = await _sb.from('news').update(payload).eq('id', id).select(); }
+      else   { payload.published_at=new Date().toISOString(); res = await _sb.from('news').insert(payload).select(); }
+      if(res.error){ showToast('⚠ '+res.error.message,'error'); return; }
+      if(!res.data || res.data.length===0){ showToast('⚠ บันทึกไม่สำเร็จ (สิทธิ์?)','error'); return; }
+    }
   }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
   pxToggleForm(false);
   await pxLoadNews();
@@ -2956,8 +3229,13 @@ async function pxSaveNews(){
 async function pxDeleteNews(id){
   if(!confirm('ลบข่าวนี้?')) return;
   try{
-    const {error}=await _sb.from('news').delete().eq('id',id);
-    if(error){ showToast('⚠ '+error.message,'error'); return; }
+    if(_secureMode){
+      const {data,error}=await _rpc('admin_news_delete',{p_token:_staffToken,p_id:Number(id)});
+      if(error||!data?.ok){ showToast('⚠ '+_staffErr(data,error),'error'); return; }
+    } else {
+      const {error}=await _sb.from('news').delete().eq('id',id);
+      if(error){ showToast('⚠ '+error.message,'error'); return; }
+    }
   }catch(e){ showToast('⚠ ลบไม่สำเร็จ','error'); return; }
   await pxLoadNews();
   showToast(t('px_deleted'));
@@ -2965,9 +3243,21 @@ async function pxDeleteNews(id){
 }
 
 // ── CUSTOMER ACCOUNTS ──
+// เรียกฟังก์ชันแอดมินของพอร์ทัล: โหมดใหม่แนบ token; โหมดเดิมลองชื่อพารามิเตอร์ p_name แล้วค่อย p_code
+async function _pxAdminRpc(fn, args){
+  if(_secureMode) return _rpc(fn, {p_token:_staffToken, ...args});
+  let r=await _rpc(fn, args);
+  if(r.error && _rpcMissing(r.error) && args.p_name!==undefined){
+    const alt={...args}; alt.p_code=alt.p_name; delete alt.p_name;
+    r=await _rpc(fn, alt);
+  }
+  return r;
+}
 async function pxLoadAccounts(){
   try{
-    const {data,error}=await _sb.rpc('admin_customer_login_info');
+    const {data,error}=_secureMode
+      ? await _rpc('admin_customer_login_info',{p_token:_staffToken})
+      : await _rpc('admin_customer_login_info');
     if(error||!data||!data.ok){ console.warn('accounts:',error||data); _pxAccounts=[]; }
     else _pxAccounts = data.customers||[];
   }catch(e){ _pxAccounts=[]; }
@@ -2981,7 +3271,6 @@ function pxRenderAccounts(){
   const loggedIn=_pxAccounts.filter(a=>a.has_logged_in).length;
   if(cnt) cnt.textContent=`${_pxAccounts.length} ${t('al_items')} · ${t('px_logged_in')}: ${loggedIn}`;
   if(_pxAccounts.length===0){ tb.innerHTML=`<tr><td colspan="7" class="empty-state">${t('px_no_acc')}</td></tr>`; return; }
-  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;').replace(/'/g,"\\'");
   tb.innerHTML=_pxAccounts.map(a=>{
     const active=a.is_active!==false;
     const hasPw=!!a.has_password;
@@ -2995,15 +3284,15 @@ function pxRenderAccounts(){
                                : `<span style="color:var(--red-d);font-size:.7rem">${t('px_no_bill')}</span>`);
     return `<tr style="${active?'':'opacity:.55;background:var(--red-l)'}">
       <td style="font-weight:600">${esc(a.name)}</td>
-      <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${a.customer_code||'—'}</td>
+      <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${esc(a.customer_code||'—')}</td>
       <td class="mono" style="font-size:.76rem">${esc(a.phone)||'—'}</td>
       <td>${pw}</td>
       <td style="font-size:.72rem;color:var(--muted)">${a.last_login?_billDateTime(a.last_login).d+' '+_billDateTime(a.last_login).t:'—'}</td>
       <td>${st}</td>
       <td style="white-space:nowrap">
-        ${a.has_logged_in?`<button onclick="pxToggleAcc('${esc(a.name)}',${active?'false':'true'})" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:3px" title="${active?t('acc_deactivate'):t('acc_activate')}">${active?'⏸':'▶'}</button>
-        <button onclick="pxResetPin('${esc(a.name)}')" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid var(--sky-m);background:var(--sky-l);color:var(--sky-d);margin-right:3px" title="${t('px_reset_pin')}">🔑</button>
-        <button class="btn-danger" onclick="pxDeleteAcc('${esc(a.name)}')">🗑</button>`:'<span style="font-size:.7rem;color:var(--muted2)">—</span>'}
+        ${a.has_logged_in?`<button onclick="pxToggleAcc('${escJs(a.name)}',${active?'false':'true'})" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:3px" title="${active?t('acc_deactivate'):t('acc_activate')}">${active?'⏸':'▶'}</button>
+        <button onclick="pxResetPin('${escJs(a.name)}')" style="font-size:.68rem;padding:.22rem .5rem;border-radius:5px;cursor:pointer;border:1px solid var(--sky-m);background:var(--sky-l);color:var(--sky-d);margin-right:3px" title="${t('px_reset_pin')}">🔑</button>
+        <button class="btn-danger" onclick="pxDeleteAcc('${escJs(a.name)}')">🗑</button>`:'<span style="font-size:.7rem;color:var(--muted2)">—</span>'}
       </td>
     </tr>`;
   }).join('');
@@ -3011,7 +3300,7 @@ function pxRenderAccounts(){
 
 async function pxToggleAcc(code, makeActive){
   try{
-    const {data,error}=await _sb.rpc('admin_set_customer_active',{p_code:code,p_active:makeActive});
+    const {data,error}=await _pxAdminRpc('admin_set_customer_active',{p_name:code,p_active:makeActive});
     if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
   }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
   await pxLoadAccounts();
@@ -3022,7 +3311,7 @@ async function pxToggleAcc(code, makeActive){
 async function pxResetPin(name){
   if(!confirm(t('px_confirm_reset'))) return;
   try{
-    const {data,error}=await _sb.rpc('admin_reset_customer_password',{p_name:name});
+    const {data,error}=await _pxAdminRpc('admin_reset_customer_password',{p_name:name});
     if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
     await pxLoadAccounts();
     alert(t('px_reset_done')+'\n\n'+t('lb_username2')+': '+name+'\n'+t('px_temp_pw')+': '+(data.temp_password||'—'));
@@ -3033,7 +3322,7 @@ async function pxResetPin(name){
 async function pxDeleteAcc(code){
   if(!confirm('ลบบัญชีสมาชิกนี้? (ประวัติการขายยังคงอยู่)')) return;
   try{
-    const {data,error}=await _sb.rpc('admin_delete_customer_account',{p_code:code});
+    const {data,error}=await _pxAdminRpc('admin_delete_customer_account',{p_name:code});
     if(error||!data||!data.ok){ showToast('⚠ '+(data?.error||error?.message||''),'error'); return; }
   }catch(e){ showToast('⚠ '+(e.message||''),'error'); return; }
   await pxLoadAccounts();
@@ -3047,101 +3336,89 @@ async function pxDeleteAcc(code){
 async function diagnoseAccounts(){
   if(currentUser?.role!=="admin"){showToast(t("no_perm"),"error");return;}
   const lines=[];
-  const ok=(s)=>'✅ '+s, bad=(s)=>'❌ '+s, warn=(s)=>'⚠️ '+s;
-
-  // 1) คอลัมน์ is_active มีไหม
-  let hasCol=false;
-  try{
-    const {error}=await _sb.from("accounts").select("is_active").limit(1);
-    hasCol=!error;
-    lines.push(hasCol ? ok('คอลัมน์ is_active: มีในฐานข้อมูล')
-                      : bad('คอลัมน์ is_active: ไม่มี → ต้องรัน accounts-active-schema.sql'));
-    if(error) lines.push('   ('+error.message+')');
-  }catch(e){ lines.push(bad('เชื่อมต่อฐานข้อมูลไม่ได้: '+(e.message||''))); }
-
-  // 2) อ่านบัญชีทั้งหมด
-  let rows=[];
-  try{
-    const {data,error}=await _sb.from("accounts").select("*").order("username");
-    if(error){ lines.push(bad('อ่านตาราง accounts ไม่ได้: '+error.message)); }
-    else { rows=data||[]; lines.push(ok('อ่านบัญชีได้ '+rows.length+' รายการ')); }
-  }catch(e){ lines.push(bad('อ่านบัญชีไม่ได้')); }
-
-  // 3) ทดสอบสิทธิ์เขียน (เขียนค่าเดิมกลับไป — ไม่เปลี่ยนแปลงอะไร)
-  const target = rows.find(r=>r.username!=="admin");
-  if(target && hasCol){
+  const ok=(x)=>'✅ '+x, bad=(x)=>'❌ '+x, warn=(x)=>'⚠️ '+x;
+  lines.push(_secureMode ? ok('ฐานข้อมูล: โหมดปลอดภัย (รหัสผ่านเข้ารหัส + token)')
+                         : warn('ฐานข้อมูล: โหมดเดิม — ยังไม่ได้รัน sql/01-security-staff-auth.sql'));
+  if(_secureMode){
+    const {data,error}=await _rpc('admin_staff_list',{p_token:_staffToken});
+    if(error||!data?.ok) lines.push(bad('อ่านรายชื่อพนักงานไม่ได้: '+_staffErr(data,error)));
+    else{
+      const rows=data.accounts||[];
+      lines.push(ok('อ่านบัญชีได้ '+rows.length+' รายการ'));
+      const noPw=rows.filter(r=>!r.has_password);
+      if(noPw.length) lines.push(warn('บัญชีที่ยังไม่มีรหัสผ่าน (ต้องตั้งให้): '+noPw.map(r=>r.username).join(', ')));
+      lines.push('');
+      lines.push('📋 สถานะบัญชี:');
+      rows.forEach(r=>lines.push(`   • ${r.username} (${r.role||'-'}) → ${_accIsActive(r.is_active)?'✅ เปิดใช้งาน':'❌ ปิดใช้งาน'}`));
+    }
+    // ตรวจว่าตาราง accounts ถูกปิดจากภายนอกแล้ว
+    const probe=await _sb.from("accounts").select("username").limit(1);
+    lines.push(probe.error ? ok('ตาราง accounts ถูกปิดจากการอ่านตรง') : bad('ตาราง accounts ยังอ่านตรงได้ — ตรวจ REVOKE ใน sql/01'));
+  } else {
+    let hasCol=false;
     try{
-      const cur = target.is_active;
-      const {data,error}=await _sb.from("accounts")
-        .update({is_active: cur===false?false:true}).eq("username",target.username).select();
-      if(error) lines.push(bad('สิทธิ์เขียน (UPDATE): ไม่ผ่าน → '+error.message));
-      else if(!data||data.length===0) lines.push(bad('สิทธิ์เขียน (UPDATE): 0 แถวถูกอัปเดต → ติด RLS/Grant'));
-      else lines.push(ok('สิทธิ์เขียน (UPDATE): ผ่าน'));
-    }catch(e){ lines.push(bad('ทดสอบเขียนไม่สำเร็จ: '+(e.message||''))); }
-  } else if(!target){
-    lines.push(warn('ยังไม่มีบัญชีพนักงานให้ทดสอบ'));
+      const {error}=await _sb.from("accounts").select("is_active").limit(1);
+      hasCol=!error;
+      lines.push(hasCol ? ok('คอลัมน์ is_active: มี') : bad('คอลัมน์ is_active: ไม่มี'));
+    }catch(e){ lines.push(bad('เชื่อมต่อฐานข้อมูลไม่ได้')); }
+    try{
+      const {data,error}=await _sb.from("accounts").select("username,role,is_active").order("username");
+      if(error) lines.push(bad('อ่านตาราง accounts ไม่ได้: '+error.message));
+      else{
+        lines.push(ok('อ่านบัญชีได้ '+(data||[]).length+' รายการ'));
+        (data||[]).forEach(r=>lines.push(`   • ${r.username} (${r.role||'-'}) → ${_accIsActive(r.is_active)?'✅ เปิดใช้งาน':'❌ ปิดใช้งาน'}`));
+      }
+    }catch(e){}
   }
-
-  // 4) สถานะบัญชีแต่ละคน
-  if(rows.length){
-    lines.push('');
-    lines.push('📋 สถานะบัญชีในฐานข้อมูล:');
-    rows.forEach(r=>{
-      const st = r.is_active===undefined ? '(ไม่มีคอลัมน์)'
-               : _accIsActive(r.is_active) ? '✅ เปิดใช้งาน' : '❌ ปิดใช้งาน';
-      lines.push(`   • ${r.username} (${r.role||'-'}) → ${st}  [is_active=${JSON.stringify(r.is_active)}]`);
-    });
-  }
-
-  // 5) เวอร์ชันไฟล์
   lines.push('');
+  lines.push('🧾 คิวรอซิงก์ในเครื่องนี้: '+_syncQueue.length+' งาน');
+  lines.push('📡 Realtime: '+(_realtimeStatus||'-'));
   lines.push('📦 เวอร์ชันไฟล์: '+APP_VERSION);
   lines.push('🌐 URL: '+location.href.split('?')[0]);
-
   const msg = lines.join('\n');
-  console.log('%c=== ตรวจสอบระบบบัญชี ===','font-weight:bold;color:#0EA5E9');
   console.log(msg);
   alert(msg);
 }
 let _sessionGuardTimer = null;
 
 async function _validateSession(){
-  if(!currentUser || currentUser.role==='admin') return; // admin ไม่ต้องเช็ค
-  if(!_isOnline) return; // ออฟไลน์ข้ามไปก่อน
+  if(!currentUser || !_isOnline || document.hidden) return;
   try{
-    const {data,error}=await _sb.from("accounts").select("*")
+    if(_secureMode){
+      const r=await _rpc('staff_session',{p_token:_staffToken});
+      if(r.error) return;                                  // เครือข่าย/เซิร์ฟเวอร์ — ข้าม
+      if(!r.data?.ok){ _forceLogout(t('acc_force_logout')); return; }
+      return;
+    }
+    const {data,error}=await _sb.from("accounts").select("username,is_active")
       .eq("username",currentUser.username).maybeSingle();
-    if(error) return; // query ผิดพลาด (คอลัมน์หาย?) — ข้าม
-    // บัญชีถูกลบ
+    if(error) return;
     if(!data){ _forceLogout(t('acc_deleted_msg')); return; }
-    // บัญชีถูกปิดใช้งาน
     if(!_accIsActive(data.is_active)){ _forceLogout(t('acc_deactivated_msg')); return; }
   }catch(e){ /* network error — ข้าม */ }
 }
 
 function _forceLogout(msg){
-  try{ if(_sessionGuardTimer) clearInterval(_sessionGuardTimer); }catch(e){}
-  _sessionGuardTimer=null;
-  const user = currentUser?.username || '';
-  currentUser=null;
-  // แสดงข้อความบนหน้า login
+  _teardown();
   const app=document.getElementById("app");
   const login=document.getElementById("login-screen");
   if(app) app.style.display="none";
   if(login) login.style.display="flex";
   const err=document.getElementById("ln-err");
   if(err){ err.textContent=msg||t('acc_force_logout'); err.style.display="block"; }
-  const uEl=document.getElementById("ln-user"); if(uEl) uEl.value=user;
-  const pEl=document.getElementById("ln-pass"); if(pEl) pEl.value="";
   try{ showToast(msg||t('acc_force_logout'),'error'); }catch(e){}
 }
 
+let _guardVisAdded=false;
 function _startSessionGuard(){
   if(_sessionGuardTimer) clearInterval(_sessionGuardTimer);
-  // ตรวจทุก 20 วินาที
-  _sessionGuardTimer = setInterval(_validateSession, 20000);
-  // ตรวจทันทีเมื่อกลับมาที่หน้าจอ
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) _validateSession(); });
+  // ตรวจทุก 60 วินาที (เบา: ดึงแค่สถานะบัญชี)
+  _sessionGuardTimer = setInterval(_validateSession, 60000);
+  if(!_guardVisAdded){
+    _guardVisAdded=true;
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) _validateSession(); });
+  }
+  setTimeout(_validateSession, 3000);
 }
 function renderStaffList(){
   const staffs=ACCOUNTS.filter(a=>a.role==="staff"||a.role==="staff_biller"||a.role==="staff_cashier");
@@ -3158,17 +3435,17 @@ function renderStaffList(){
     staffs.map(a=>{
       const active = a.isActive!==false;
       return `<tr style="${active?'':'opacity:.55;background:var(--red-l)'}">
-      <td style="font-weight:600">${a.displayName}</td>
-      <td class="mono" style="color:var(--muted)">${a.username}</td>
-      <td class="mono" style="color:var(--muted)">${a.password}</td>
+      <td style="font-weight:600">${esc(a.displayName)}</td>
+      <td class="mono" style="color:var(--muted)">${esc(a.username)}</td>
+      <td class="mono" style="color:var(--muted)">•••••• <button onclick="resetStaffPassword('${escJs(a.username)}')" title="ตั้งรหัสผ่านใหม่" style="font-size:.66rem;padding:.12rem .4rem;border-radius:5px;cursor:pointer;border:1px solid var(--sky-m);background:var(--sky-l);color:var(--sky-d);margin-left:4px">🔑</button></td>
       <td><span class="badge ${roleBadge[a.role]||"badge-sent"}" style="font-size:.58rem">${(a.role==="staff_cashier"?t("role_cashier"):t("role_biller")).toUpperCase()}</span></td>
       <td><span class="badge ${active?'badge-paid':'badge-cancelled'}" style="font-size:.6rem">${active?t('acc_active'):t('acc_inactive')}</span></td>
       <td style="white-space:nowrap">
-        <button onclick="toggleStaffActive('${a.username}',${active?'false':'true'})" title="${active?t('acc_deactivate'):t('acc_activate')}"
+        <button onclick="toggleStaffActive('${escJs(a.username)}',${active?'false':'true'})" title="${active?t('acc_deactivate'):t('acc_activate')}"
           style="font-size:.7rem;padding:.25rem .6rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:4px">
           ${active?'⏸ '+t('acc_deactivate'):'▶ '+t('acc_activate')}
         </button>
-        <button class="btn-danger" onclick="removeStaffAccount('${a.username}')">${t("btn_delete")}</button>
+        <button class="btn-danger" onclick="removeStaffAccount('${escJs(a.username)}')">${t("btn_delete")}</button>
       </td>
     </tr>`;}).join("")+`</tbody></table></div>`;
 }
@@ -3404,12 +3681,12 @@ function renderStaffDetailTable() {
         : `<td class="mono" style="color:var(--sky-d);font-size:.74rem">${it.billNo||'—'}</td>`;
       return `<tr>
         <td class="mono" style="font-size:.74rem">${o.poNo||'—'}</td>
-        <td style="font-weight:600">${o.customer||'—'}</td>
+        <td style="font-weight:600">${esc(o.customer||'—')}</td>
         <td style="font-size:.74rem"><div>${dateStr}</div><div style="color:var(--muted)">${timeStr}</div></td>
         <td class="mono" style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
         ${mid}
         <td>${locHtml}</td>
-        <td style="font-size:.72rem;color:var(--muted)">${o.note||'—'}</td>
+        <td style="font-size:.72rem;color:var(--muted)">${esc(o.note||'—')}</td>
       </tr>`;
     }).join('');
   }
@@ -3482,7 +3759,7 @@ function sdExportCSV(){
   const csv=BOM+[headers.join(','),...rows].join('\r\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download=`staff-${_sdStaff.displayName}-${_sdMode}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download=`staff-${esc(_sdStaff.displayName)}-${_sdMode}-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
 
@@ -4027,18 +4304,18 @@ function _fallbackPrintReceipt(o){
     <div class="hr"></div>
     ${rc?`<div class="b">ເລກທີໃບຮັບເງິນ: ${rc.receipt_no}</div>`:''}
     <div>ເລກທີບິນ: ${o.poNo||'-'}</div>
-    <div>ລູກຄ້າ: ${o.customer||'-'}</div>
+    <div>ລູກຄ້າ: ${esc(o.customer||'-')}</div>
     <div class="sm">ວັນທີອອກບິນ: ${issued.d} ${issued.t}</div>
     ${o.status==='paid'?`<div class="sm">ວັນທີຊຳລະ: ${paid.d} ${paid.t}</div>`:''}
-    <div class="sm">ຜູ້ຈົດບິນ: ${o.createdBy||'-'}</div>
-    ${o.paidBy?`<div class="sm">ຜູ້ຮັບຊຳລະ: ${o.paidBy}</div>`:''}
+    <div class="sm">ຜູ້ຈົດບິນ: ${esc(o.createdBy||'-')}</div>
+    ${o.paidBy?`<div class="sm">ຜູ້ຮັບຊຳລະ: ${esc(o.paidBy)}</div>`:''}
     ${loc?`<div class="sm">ສະຖານທີ່: ${loc}</div>`:''}
     <div class="hr"></div>
     ${itemsHtml}
     <div class="hr"></div>
     <div class="row tot"><span>ນ້ຳໜັກລວມ</span><span>${N(o.totalQty)} ກກ.</span></div>
     <div class="row tot"><span>ຍອດເງິນລວມ</span><span>₭${N(o.grandTotal,0)}</span></div>
-    ${o.note?`<div class="hr"></div><div class="sm">ໝາຍເຫດ: ${o.note}</div>`:''}
+    ${o.note?`<div class="hr"></div><div class="sm">ໝາຍເຫດ: ${esc(o.note)}</div>`:''}
     <div class="hr"></div>
     ${_qrURL?`<div class="c" style="margin:6px 0"><div class="sm" style="margin-bottom:4px">ສະແກນກວດສອບໃບຮັບເງິນ</div><img src="${_qrURL}" style="width:${_printerWidth===80?'46mm':'36mm'};height:auto;image-rendering:pixelated"></div><div class="hr"></div>`:''}
     <div class="c">ຂອບໃຈຫຼາຍໆ</div>
@@ -4159,12 +4436,12 @@ function renderCancelled(){
     const dt=_billDateTime(o.createdAt||o.date);
     return `<tr style="opacity:.85">
       <td class="mono" style="font-size:.74rem;text-decoration:line-through;color:var(--muted)">${o.poNo||'—'}</td>
-      <td style="font-weight:600">${o.customer||'—'}</td>
+      <td style="font-weight:600">${esc(o.customer||'—')}</td>
       <td style="font-size:.74rem"><div>${dt.d}</div><div style="color:var(--muted)">${dt.t}</div></td>
       <td class="mono" style="text-align:right;color:var(--muted)">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
       <td class="mono" style="text-align:right;color:var(--muted);text-decoration:line-through">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
-      <td style="font-size:.78rem">${o.createdBy||'—'}</td>
-      <td style="font-size:.72rem;color:var(--red-d);max-width:180px">${o.cancelReason||'—'}</td>
+      <td style="font-size:.78rem">${esc(o.createdBy||'—')}</td>
+      <td style="font-size:.72rem;color:var(--red-d);max-width:180px">${esc(o.cancelReason||'—')}</td>
       <td><span class="badge badge-cancelled">${t('status_cancelled')}</span></td>
       <td><button onclick="openBillDetail('${o.id}')" style="font-size:.7rem;padding:.25rem .6rem;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:5px;cursor:pointer;white-space:nowrap">${t('btn_view_full')}</button></td>
     </tr>`;
@@ -4281,10 +4558,10 @@ function _openBillDetailInner(orderId){
   document.getElementById('bd-body').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:.5rem">
       <div>
-        ${infoRow(t('col_customer'), o.customer||'—')}
+        ${infoRow(t('col_customer'), esc(o.customer||'—'))}
         ${infoRow(t('col_status'), statusBadge)}
-        ${infoRow(t('col_biller'), o.createdBy||'—')}
-        ${infoRow(t('col_payer'), o.paidBy||'—')}
+        ${infoRow(t('col_biller'), esc(o.createdBy||'—'))}
+        ${infoRow(t('col_payer'), esc(o.paidBy||'—'))}
       </div>
       <div>
         ${infoRow(t('col_issue_dt'), issued.d+' '+issued.t)}
@@ -4304,7 +4581,7 @@ function _openBillDetailInner(orderId){
         <div class="bebas text-green" style="font-size:1.5rem">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</div>
       </div>
     </div>
-    ${o.note?`<div style="margin-top:.8rem;padding:.7rem 1rem;background:var(--surface2);border-radius:var(--r);font-size:.8rem"><span style="color:var(--muted)">📝 หมายเหตุ: </span>${o.note}</div>`:''}
+    ${o.note?`<div style="margin-top:.8rem;padding:.7rem 1rem;background:var(--surface2);border-radius:var(--r);font-size:.8rem"><span style="color:var(--muted)">📝 หมายเหตุ: </span>${esc(o.note)}</div>`:''}
     <div style="margin-top:1rem;text-align:center">
       ${(function(){const u=_makeQRDataURL(_buildReceiptQRData(o),170);return u?`<img src="${u}" style="width:150px;height:150px;image-rendering:pixelated;border:1px solid var(--border);border-radius:8px;padding:6px;background:#fff"><div style="font-size:.68rem;color:var(--muted);margin-top:4px">📱 สแกนเพื่อตรวจสอบใบเสร็จ</div>`:'';})()}
     </div>
@@ -4342,15 +4619,15 @@ function renderBillHistory(){
     const locHtml=locParts.length?`<span style="color:var(--gold);font-size:.72rem">${locParts.join(', ')}</span>`:'<span style="color:var(--muted2)">—</span>';
     return `<tr>
       <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${o.poNo||'—'}</td>
-      <td style="font-weight:600">${o.customer||'—'}</td>
+      <td style="font-weight:600">${esc(o.customer||'—')}</td>
       <td style="font-size:.72rem"><div>${issued.d}</div><div style="color:var(--muted)">${issued.t}</div></td>
       <td style="font-size:.72rem"><div style="color:var(--green-d)">${paid.d}</div><div style="color:var(--muted)">${paid.t}</div></td>
       <td class="mono" style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
       <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(o.grandTotal||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
-      <td style="font-size:.76rem">${o.createdBy||'—'}</td>
-      <td style="font-size:.76rem;color:var(--sky-d)">${o.paidBy||'—'}</td>
+      <td style="font-size:.76rem">${esc(o.createdBy||'—')}</td>
+      <td style="font-size:.76rem;color:var(--sky-d)">${esc(o.paidBy||'—')}</td>
       <td>${locHtml}</td>
-      <td style="font-size:.72rem;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(o.note||'').replace(/"/g,'&quot;')}">${o.note||'—'}</td>
+      <td style="font-size:.72rem;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(o.note||'')}">${esc(o.note||'—')}</td>
       <td><span class="badge badge-paid">${t('badge_paid')}</span></td>
       <td><button onclick="openBillDetail('${o.id}')" style="font-size:.7rem;padding:.25rem .6rem;background:var(--sky);color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap">${t('btn_view_full')}</button> <button onclick="thermalPrint('${o.id}')" style="font-size:.7rem;padding:.25rem .5rem;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:5px;cursor:pointer;white-space:nowrap" title="พิมพ์ใบเสร็จ">🖨</button></td>
     </tr>`;
@@ -4366,7 +4643,7 @@ function bhExportCSV(){
 }
 function bhExportPDF(){
   const list=_bhGetList();
-  const rows=list.map(it=>{const o=it.o;const i=_billDateTime(o.createdAt||o.date);const p=_billDateTime(o.paidAt||o.date);return `<tr><td>${o.poNo||'—'}</td><td>${o.customer||'—'}</td><td>${i.d} ${i.t}</td><td>${p.d} ${p.t}</td><td style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td><td style="text-align:right">₭${(o.grandTotal||0).toLocaleString('th-TH')}</td><td>${o.createdBy||'—'}</td><td>${o.paidBy||'—'}</td><td>${it.loc||'—'}</td><td>${o.note||'—'}</td><td>ชำระแล้ว</td></tr>`;}).join('');
+  const rows=list.map(it=>{const o=it.o;const i=_billDateTime(o.createdAt||o.date);const p=_billDateTime(o.paidAt||o.date);return `<tr><td>${o.poNo||'—'}</td><td>${esc(o.customer||'—')}</td><td>${i.d} ${i.t}</td><td>${p.d} ${p.t}</td><td style="text-align:right">${(o.totalQty||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td><td style="text-align:right">₭${(o.grandTotal||0).toLocaleString('th-TH')}</td><td>${esc(o.createdBy||'—')}</td><td>${esc(o.paidBy||'—')}</td><td>${it.loc||'—'}</td><td>${esc(o.note||'—')}</td><td>ชำระแล้ว</td></tr>`;}).join('');
   _printPDF('ประวัติใบบิลที่ชำระแล้ว',['เลขที่บิล','ลูกค้า','วันเวลาออกบิล','วันเวลาชำระ','น้ำหนัก(กก.)','ยอดชำระ','ผู้จดบิล','ผู้รับชำระ','สถานที่','หมายเหตุ','สถานะ'],rows);
 }
 
@@ -4506,11 +4783,11 @@ function renderReport(){
     ? `<div class="card"><div class="empty-state"><div style="font-size:2rem">📋</div><div>${t("empty")}</div></div></div>`
     : staffData.map(s=>`
     <div class="card" style="margin-bottom:1.2rem">
-      <div class="card-header" style="background:var(--surface2);cursor:pointer" onclick="openStaffDetail('${s.name.replace(/'/g,"\\'")}','pay')" title="คลิกดูรายละเอียดเชิงลึก">
+      <div class="card-header" style="background:var(--surface2);cursor:pointer" onclick="openStaffDetail('${escJs(s.name)}','pay')" title="คลิกดูรายละเอียดเชิงลึก">
         <div style="display:flex;align-items:center;gap:1rem">
-          <div style="width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;flex-shrink:0">${s.name.charAt(0)}</div>
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;flex-shrink:0">${esc(s.name.charAt(0))}</div>
           <div>
-            <div style="font-size:.95rem;font-weight:600;letter-spacing:.04em">${s.name} <span style="font-size:.62rem;color:var(--sky);font-weight:400">🔍 ดูเชิงลึก</span></div>
+            <div style="font-size:.95rem;font-weight:600;letter-spacing:.04em">${esc(s.name)} <span style="font-size:.62rem;color:var(--sky);font-weight:400">🔍 ดูเชิงลึก</span></div>
             <div style="font-size:.65rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:1px">${s.count} ${t("unit_item")} · ₭${s.totalAmt.toLocaleString("th-TH",{maximumFractionDigits:0})} · ${s.totalKg.toLocaleString("th-TH",{maximumFractionDigits:2})} ${t("unit_kg")}</div>
           </div>
         </div>
@@ -4524,7 +4801,7 @@ function renderReport(){
           <thead><tr><th>${t("col_id")}</th><th>${t("col_customer")}</th><th>${t("col_date")}</th><th>${t("col_kg")}</th><th>${t("col_pay")}</th></tr></thead>
           <tbody>${s.orders.map(o=>`<tr onclick="openDetail('${o.id}')" style="cursor:pointer">
             <td class="mono text-accent fw6" style="white-space:nowrap">${o.poNo}</td>
-            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
+            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.customer)}</td>
             <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
             <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</td>
             <td class="mono fw6">₭${(o.grandTotal||0).toLocaleString("th-TH",{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
@@ -4553,11 +4830,11 @@ function renderReport(){
         ${billers.map(b=>{
           const clickable = b.name!=="—";
           return `
-          <div ${clickable?`onclick="openStaffDetail('${b.name.replace(/'/g,"\\'")}','bill')" style="cursor:pointer"`:'style="cursor:default"'} class="biller-card" style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--sky);border-radius:var(--r);padding:.8rem 1rem;transition:all .15s" ${clickable?`onmouseover="this.style.background='var(--sky-l)'" onmouseout="this.style.background='var(--surface)'"`:''}>
+          <div ${clickable?`onclick="openStaffDetail('${escJs(b.name)}','bill')" style="cursor:pointer"`:'style="cursor:default"'} class="biller-card" style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--sky);border-radius:var(--r);padding:.8rem 1rem;transition:all .15s" ${clickable?`onmouseover="this.style.background='var(--sky-l)'" onmouseout="this.style.background='var(--surface)'"`:''}>
             <div style="display:flex;align-items:center;gap:.7rem">
-              <div style="width:32px;height:32px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:#fff;flex-shrink:0">${(b.name||'?').charAt(0)}</div>
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;color:#fff;flex-shrink:0">${esc((b.name||'?').charAt(0))}</div>
               <div style="min-width:0">
-                <div style="font-size:.85rem;font-weight:600">${b.name}${clickable?` <span style="font-size:.6rem;color:var(--sky)">🔍</span>`:''}</div>
+                <div style="font-size:.85rem;font-weight:600">${esc(b.name)}${clickable?` <span style="font-size:.6rem;color:var(--sky)">🔍</span>`:''}</div>
                 <div style="font-size:.66rem;color:var(--muted);font-family:'IBM Plex Mono',monospace">${b.count} ${t('al_items')} · ${b.kg.toLocaleString("th-TH",{maximumFractionDigits:1})} ${t('unit_kg')}</div>
               </div>
             </div>
@@ -4570,8 +4847,8 @@ function renderReport(){
 let customers=[];
 async function loadCustomers(){
   try{
-    const {data,error}=await _sb.from("customers").select("*").order("name");
-    if(!error&&data&&data.length>0){
+    const data=await _fetchAll(()=>_sb.from("customers").select("*").order("name").order("id"));
+    if(data){
       customers=data.map(c=>({
         id:String(c.id),
         name:c.name,
@@ -4588,26 +4865,28 @@ async function loadCustomers(){
     }
   }catch(e){console.warn("Supabase customers load error",e);}
   // Fallback to localStorage
-  const r=localStorage.getItem("rubber_customers");
-  customers=r?JSON.parse(r):[];
+  const r=_jparse(localStorage.getItem("rubber_customers"), []);
+  customers=Array.isArray(r)?r:[];
 }
-async function saveCustomers(){
-  await ss("rubber_customers",JSON.stringify(customers));
-  // Also sync to Supabase customers table
-  try{
-    for(const c of customers){
-      await _sb.from("customers").upsert({
-        id:String(c.id),
-        name:c.name,
-        phone:c.phone||"",
-        house:c.house||"",
-        subdistrict:c.subdistrict||"",
-        district:c.district||"",
-        province:c.province||"",
-        auto_created:c.autoCreated||false
-      },{onConflict:"id"});
+// บันทึกลูกค้า: ส่งเป็นชุดเดียว (เดิมยิงทีละคน N คำขอ) และตรวจ error
+function _custRow(c){
+  return { id:String(c.id), name:c.name, phone:c.phone||"", house:c.house||"",
+           subdistrict:c.subdistrict||"", district:c.district||"", province:c.province||"",
+           auto_created:c.autoCreated||false };
+}
+async function saveCustomers(changed){
+  try{ localStorage.setItem("rubber_customers",JSON.stringify(customers)); }catch(e){}
+  const list = (changed && changed.length) ? changed : customers;
+  for(let i=0;i<list.length;i+=500){
+    const rows = list.slice(i,i+500).map(_custRow);
+    let error=null;
+    try{ ({error} = await _sb.from("customers").upsert(rows,{onConflict:"id"})); }
+    catch(e){ error={message:e?.message||String(e)}; }
+    if(error){
+      console.warn("customers sync error", error.message);
+      rows.forEach(r=>_enqueueSync('customer', r));
     }
-  }catch(e){console.warn("customers sync error",e);}
+  }
 }
 async function addCustomer(){
   const name=document.getElementById("cust-name").value.trim();
@@ -4624,15 +4903,21 @@ async function addCustomer(){
     province:document.getElementById("cust-province").value.trim(),
     createdAt:new Date().toISOString()
   });
-  await saveCustomers();
+  await saveCustomers([customers[customers.length-1]]);
   ["cust-name","cust-phone","cust-house","cust-subdistrict","cust-district","cust-province"].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value="";
   });
   renderCustomers();updateCustomerDatalist();showToast("เพิ่มลูกค้าแล้ว");
 }
 async function removeCustomer(id){
-  customers=customers.filter(c=>c.id!=id);
-  await saveCustomers();renderCustomers();updateCustomerDatalist();showToast("ลบลูกค้าแล้ว");
+  customers=customers.filter(c=>String(c.id)!==String(id));
+  try{ localStorage.setItem("rubber_customers",JSON.stringify(customers)); }catch(e){}
+  // เดิมไม่เคยลบในฐานข้อมูล → ลูกค้าที่ลบกลับมาหลังรีโหลด
+  let error=null;
+  try{ ({error} = await _sb.from("customers").delete().eq("id",String(id))); }
+  catch(e){ error={message:e?.message||String(e)}; }
+  if(error){ _enqueueSync('customer_delete',{id:String(id)}); }
+  renderCustomers();updateCustomerDatalist();showToast("ลบลูกค้าแล้ว");
 }
 function renderCustomers(){
   const q=(document.getElementById("cust-search")?.value||"").trim();
@@ -4671,8 +4956,8 @@ function renderCustomers(){
     const addr=[c.house,c.subdistrict,c.district,c.province].filter(Boolean).join(", ")||"—";
     return`<tr onclick="openCustDetail(${c.id})" style="cursor:pointer">
       <td class="mono" style="color:var(--muted);font-size:.7rem">${c.id}</td>
-      <td style="font-weight:600">${c.name}</td>
-      <td class="mono" style="color:var(--muted)">${c.phone||"—"}</td>
+      <td style="font-weight:600">${esc(c.name)}</td>
+      <td class="mono" style="color:var(--muted)">${esc(c.phone||"—")}</td>
       <td style="font-size:.75rem;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${addr}">${addr}</td>
       <td class="mono text-accent fw6">${kg.toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</td>
       <td class="mono" style="color:var(--muted)">${latest?thaiShort(latest.date):"—"}</td>
@@ -4693,9 +4978,9 @@ function openCustDetail(id){
   document.getElementById("cust-detail-info").innerHTML=`
     <div style="background:var(--surface2);border:1px solid var(--border);padding:1rem 1.2rem;margin-bottom:1rem;grid-column:1/-1">
       <div style="display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap">
-        <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#fff;flex-shrink:0">${c.name.charAt(0)}</div>
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:#fff;flex-shrink:0">${esc(c.name.charAt(0))}</div>
         <div>
-          <div style="font-size:1.1rem;font-weight:600">${c.name}</div>
+          <div style="font-size:1.1rem;font-weight:600">${esc(c.name)}</div>
           <div class="mono" style="font-size:.7rem;color:var(--gold);margin-top:2px">${t("col_code")}: ${c.id}</div>
         </div>
         <div style="margin-left:auto;display:flex;gap:1.5rem;text-align:right">
@@ -4706,12 +4991,12 @@ function openCustDetail(id){
       </div>
     </div>
     <div><div class="form-label">${t("col_code")}</div><div class="mono" style="font-size:.9rem;color:var(--gold)">${c.id}</div></div>
-    <div><div class="form-label">${t("cust_name")}</div><div style="font-size:.85rem;font-weight:600">${c.name}</div></div>
-    <div><div class="form-label">${t("cust_phone")}</div><div class="mono" style="font-size:.85rem">${c.phone||"—"}</div></div>
-    <div><div class="form-label">${t("cust_house")}</div><div style="font-size:.85rem">${c.house||"—"}</div></div>
-    <div><div class="form-label">${t("cust_sub")}</div><div style="font-size:.85rem">${c.subdistrict||"—"}</div></div>
-    <div><div class="form-label">${t("cust_dist")}</div><div style="font-size:.85rem">${c.district||"—"}</div></div>
-    <div><div class="form-label">${t("cust_prov")}</div><div style="font-size:.85rem">${c.province||"—"}</div></div>
+    <div><div class="form-label">${t("cust_name")}</div><div style="font-size:.85rem;font-weight:600">${esc(c.name)}</div></div>
+    <div><div class="form-label">${t("cust_phone")}</div><div class="mono" style="font-size:.85rem">${esc(c.phone||"—")}</div></div>
+    <div><div class="form-label">${t("cust_house")}</div><div style="font-size:.85rem">${esc(c.house||"—")}</div></div>
+    <div><div class="form-label">${t("cust_sub")}</div><div style="font-size:.85rem">${esc(c.subdistrict||"—")}</div></div>
+    <div><div class="form-label">${t("cust_dist")}</div><div style="font-size:.85rem">${esc(c.district||"—")}</div></div>
+    <div><div class="form-label">${t("cust_prov")}</div><div style="font-size:.85rem">${esc(c.province||"—")}</div></div>
     <div><div class="form-label">${t("col_last")}</div><div style="font-size:.85rem">${thaiLong(c.createdAt?.slice(0,10))}</div></div>
   `;
   const custOrders=orders.filter(o=>o.customer===c.name).sort((a,b)=>b.date.localeCompare(a.date));
@@ -4735,7 +5020,7 @@ function closeCustDetail(){
 function updateCustomerDatalist(){
   let dl=document.getElementById("cust-datalist");
   if(!dl){dl=document.createElement("datalist");dl.id="cust-datalist";document.body.appendChild(dl);}
-  dl.innerHTML=customers.map(c=>`<option value="${c.name}">`).join("");
+  dl.innerHTML=customers.map(c=>`<option value="${esc(c.name)}">`).join("");
   const input=document.getElementById("form-customer");
   if(input)input.setAttribute("list","cust-datalist");
 }
@@ -4855,13 +5140,13 @@ function renderMyWork(){
 
   tbody.innerHTML=filtered.map(o=>`<tr onclick="openDetail('${o.id}')" style="cursor:pointer">
     <td class="mono text-accent fw6">${o.poNo}</td>
-    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.customer}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.customer)}</td>
     <td class="mono" style="color:var(--muted)">${thaiShort(o.date)}</td>
     <td class="mono">${(o.totalQty||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2})} ${t("unit_kg")}</td>
     <td class="mono fw6">₭${(o.grandTotal||0).toLocaleString("th-TH",{maximumFractionDigits:0})}</td>
     ${isBiller
-      ? `<td><span class="badge ${badgeCls[o.status]}">${badgeLbl()[o.status]}</span></td><td style="font-size:.75rem;color:var(--green)">${o.paidBy||"—"}</td>`
-      : `<td style="font-size:.75rem;color:var(--blue)">${o.createdBy||"—"}</td>`
+      ? `<td><span class="badge ${badgeCls[o.status]}">${badgeLbl()[o.status]}</span></td><td style="font-size:.75rem;color:var(--green)">${esc(o.paidBy||"—")}</td>`
+      : `<td style="font-size:.75rem;color:var(--blue)">${esc(o.createdBy||"—")}</td>`
     }
   </tr>`).join("");
 }
@@ -4959,10 +5244,10 @@ function printReceipt(){
   <!-- ຂໍ້ມູນໃບ -->
   <div class="row"><span class="label">ເລກທີໃບເກັບ:</span><span class="po-number">${o.poNo}</span></div>
   <div class="row"><span class="label">ວັນທີ:</span><span class="bold">${laoDate(o.date)}</span></div>
-  <div class="row"><span class="label">ຊື່ລູກຄ້າ:</span><span class="bold">${o.customer}</span></div>
-  <div class="row"><span class="label">ຜູ້ຈົດບິນ:</span><span>${o.createdBy||"—"}</span></div>
-  ${o.paidBy?`<div class="row"><span class="label">ຜູ້ຮັບເງິນ:</span><span>${o.paidBy}</span></div>`:""}
-  ${o.note?`<div class="row"><span class="label">ໝາຍເຫດ:</span><span style="font-size:11px">${o.note}</span></div>`:""}
+  <div class="row"><span class="label">ຊື່ລູກຄ້າ:</span><span class="bold">${esc(o.customer)}</span></div>
+  <div class="row"><span class="label">ຜູ້ຈົດບິນ:</span><span>${esc(o.createdBy||"—")}</span></div>
+  ${o.paidBy?`<div class="row"><span class="label">ຜູ້ຮັບເງິນ:</span><span>${esc(o.paidBy)}</span></div>`:""}
+  ${o.note?`<div class="row"><span class="label">ໝາຍເຫດ:</span><span style="font-size:11px">${esc(o.note)}</span></div>`:""}
 
   <div class="divider"></div>
 
@@ -5118,144 +5403,141 @@ window.addEventListener("click", (e) => {
 
 // Release lock after payment
 const _originalExecPay = execPay;
-execPay = async function(id, payer) {
+execPay = async function(id, payer, opts) {
   window._currentLockId = null; // Clear before paying (unlock after save)
   _syncPaused = true;
-  await _originalExecPay(id, payer);
-  await unlockBill(id);
-  setTimeout(() => { _syncPaused = false; console.log("▶ Sync resumed"); }, 1500);
+  try {
+    // ส่ง opts ต่อด้วย (เดิมตกหล่น → วิธีชำระ/หมายเหตุไม่เคยถูกบันทึกในใบเสร็จ)
+    return await _originalExecPay(id, payer, opts);
+  } finally {
+    unlockBill(id);
+    setTimeout(() => { _syncPaused = false; }, 1500);
+  }
 };
 
 // ── REAL-TIME AUTO SYNC ──
 let _realtimeChannel = null;
+let _realtimeStatus = '';
 let _syncPaused = false;
-let _lastSyncTime = 0;
+let _syncInFlight = false;
+let _pollTimer = null;
+let _visHandlerAdded = false;
 
-// Core: pull latest data from Supabase and update UI if changed
+// ดึงเฉพาะบิลที่เปลี่ยนตั้งแต่ครั้งล่าสุด แล้วอัปเดตทุกฟิลด์ (ไม่ใช่แค่สถานะ)
 async function syncFromSupabase(silent=false, force=false) {
-  // Polling (force=true from setInterval) ignores _syncPaused
-  // Only realtime events respect _syncPaused
   if (_syncPaused && !force) return;
+  if (_syncInFlight || !currentUser) return;   // กันทำงานซ้อน (realtime + polling พร้อมกัน)
+  _syncInFlight = true;
   try {
-    const since = _lastSyncTime
-      ? new Date(_lastSyncTime - 5000).toISOString()
-      : new Date(Date.now() - 86400000 * 30).toISOString(); // 30 days
-
-    const { data, error } = await _sb
-      .from("orders")
-      .select("id,po_no,customer,date,note,status,subtotal,total_qty,grand_total,created_by,paid_by,paid_at,sent_at,cancel_reason,created_at,updated_at")
-      .gte("updated_at", since)
-      .order("updated_at", { ascending: false });
-
+    const since = _lastServerUpdatedAt
+      ? new Date(new Date(_lastServerUpdatedAt).getTime() - 3000).toISOString()
+      : new Date(Date.now() - 86400000 * 2).toISOString();
+    const { data, error } = await _sb.from("orders").select(ORDER_COLS)
+      .gte("updated_at", since).order("updated_at", { ascending: true }).limit(1000);
     if (error || !data) return;
+    if (data.length === 0) return;
 
-    let changed = false;
+    const queued = _queuedOrderIds();
+    const changedRows = [];
     for (const row of data) {
-      const idx = orders.findIndex(o => String(o.id) === String(row.id));
+      if (row.updated_at && row.updated_at > _lastServerUpdatedAt) _lastServerUpdatedAt = row.updated_at;
+      const id = String(row.id);
+      if (queued.has(id)) continue;   // มีการแก้ในเครื่องที่ยังไม่ซิงก์ — อย่าทับ
+      const local = orders.find(o => String(o.id) === id);
+      if (!local || (local.updatedAt||'') !== (row.updated_at||'')) changedRows.push(row);
+    }
+    if (changedRows.length === 0) return;
+
+    const itemsBy = await _fetchItemsFor(changedRows.map(r => String(r.id)));
+    for (const row of changedRows) {
+      const id = String(row.id);
+      const fresh = mapRow(row, itemsBy[id] || []);
+      const idx = orders.findIndex(o => String(o.id) === id);
       if (idx === -1) {
-        // New order — fetch its items
-        const { data: items } = await _sb.from("order_items").select("*").eq("order_id", String(row.id));
-        orders.unshift(mapRow(row, items || []));
-        changed = true;
+        orders.unshift(fresh);
         if (!silent) showToast(`📋 บิลใหม่ ${row.po_no} จาก ${row.created_by||""}`, "info");
       } else {
-        // Update existing
-        const o = orders[idx];
-        if (o.status !== row.status || o.paidBy !== row.paid_by) {
-          o.status = row.status;
-          o.paidBy = row.paid_by || o.paidBy;
-          o.paidAt = row.paid_at || o.paidAt;
-          o.sentAt = row.sent_at || o.sentAt;
-          o.cancelReason = row.cancel_reason || "";
-          changed = true;
-          if (!silent && row.status === "paid") {
-            showToast(`✅ ${row.po_no} ชำระแล้วโดย ${row.paid_by||""}`, "info");
-          }
+        const before = orders[idx];
+        if (!itemsBy[id] && before.items) fresh.items = before.items;
+        if (!silent && before.status !== "paid" && row.status === "paid") {
+          showToast(`✅ ${row.po_no} ชำระแล้วโดย ${row.paid_by||""}`, "info");
         }
+        orders[idx] = fresh;
       }
     }
-    if (changed) {
-      _lastSyncTime = Date.now();
-      localStorage.setItem("rubber_orders", JSON.stringify(orders));
-      renderHistory();
-      renderPending();
-    }
+    // เรียงใหม่ตามเวลาสร้าง (ล่าสุดก่อน)
+    orders.sort((a,b) => String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+    _cacheOrders();
+    _renderOrderViews();
   } catch(e) {
     console.warn("syncFromSupabase error:", e);
+  } finally {
+    _syncInFlight = false;
   }
+}
+
+function _removeOrderLocal(id){
+  const before = orders.length;
+  orders = orders.filter(o => String(o.id) !== String(id));
+  if (orders.length !== before) { _cacheOrders(); _renderOrderViews(); }
+}
+
+function _schedulePoll(){
+  clearTimeout(_pollTimer);
+  if(!currentUser) return;
+  // realtime ทำงาน → ดึงทุก 30 วิ เพื่อเก็บตก; ไม่ทำงาน/ถูก RLS กั้น → ทุก 10 วิ
+  const ms = (_realtimeStatus === 'SUBSCRIBED' && !_secureMode) ? 30000 : 10000;
+  _pollTimer = setTimeout(async () => {
+    if (!document.hidden && _isOnline) await syncFromSupabase(true, true);
+    _schedulePoll();
+  }, ms);
 }
 
 function startRealtimeSync() {
   if (_realtimeChannel) return;
-  _lastSyncTime = Date.now();
-
-  // Method 1: Supabase Realtime (instant)
   try {
     _realtimeChannel = _sb
       .channel("db-orders-" + Math.random().toString(36).slice(2,8))
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "orders"
-      }, async (payload) => {
-        console.log("🔄 Realtime event:", payload.eventType, payload.new?.po_no || payload.old?.id);
-        // Ignore own changes (brief pause after our own save)
-        if (_syncPaused) {
-          console.log("⏸ Sync paused, skipping");
-          return;
-        }
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, async (payload) => {
+        if (payload.eventType === "DELETE") { _removeOrderLocal(payload.old?.id); return; }
+        if (_syncPaused) return;
         await syncFromSupabase(false, false);
       })
       .subscribe((status, err) => {
-        console.log("📡 Realtime status:", status, err||"");
+        _realtimeStatus = status;
         const dot = document.getElementById("sync-indicator");
         if (!dot) return;
         if (status === "SUBSCRIBED") {
           dot.style.background = "var(--green)";
           dot.title = "🟢 Real-time เชื่อมต่อแล้ว";
-          console.log("✅ Realtime SUBSCRIBED");
-        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
           dot.style.background = "var(--accent)";
-          dot.title = "🔴 Real-time ขัดข้อง — ใช้ polling";
-          console.warn("⚠ Realtime error, falling back to polling");
+          dot.title = "🔴 Real-time ขัดข้อง — ใช้การดึงข้อมูลเป็นระยะ";
         } else {
           dot.style.background = "var(--gold)";
           dot.title = "🟡 กำลังเชื่อมต่อ...";
         }
       });
-    console.log("📡 Realtime subscription started");
   } catch(e) {
     console.warn("Realtime unavailable:", e);
   }
-
-  // Method 2: Polling fallback every 10s (catches missed events)
-  setInterval(() => syncFromSupabase(true, true), 5000);
-  console.log("⏱ Polling started (5s interval)");
+  _schedulePoll();
+  // กลับมาที่แอป → ดึงข้อมูลทันที
+  if (!_visHandlerAdded) {
+    _visHandlerAdded = true;
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && currentUser && _isOnline) syncFromSupabase(true, true);
+    });
+  }
 }
 
-function mapRow(row, items) {
-  return {
-    id: row.id,
-    poNo: row.po_no,
-    customer: row.customer,
-    date: row.date,
-    note: row.note || "",
-    status: row.status,
-    subtotal: parseFloat(row.subtotal) || 0,
-    totalQty: parseFloat(row.total_qty) || 0,
-    grandTotal: parseFloat(row.grand_total) || 0,
-    createdBy: row.created_by || "",
-    paidBy: row.paid_by || "",
-    cancelReason: row.cancel_reason || "",
-    createdAt: row.created_at,
-    paidAt: row.paid_at || "",
-    sentAt: row.sent_at || "",
-    items: items.map(it => ({
-      productId: it.product_id,
-      qty: it.qty,
-      price: parseFloat(it.price) || 0
-    }))
-  };
+function _stopRealtimeSync(){
+  clearTimeout(_pollTimer); _pollTimer = null;
+  if (_realtimeChannel) {
+    try { _sb.removeChannel(_realtimeChannel); } catch(e) {}
+    _realtimeChannel = null;
+  }
+  _realtimeStatus = '';
 }
 
 // Pause sync during save to prevent echo (use flag directly, no override)
@@ -6447,6 +6729,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (sel) sel.value = saved;
   applyLang();
   _setupPWA();
+  // เปิดแอปใหม่/รีเฟรช → กู้ session เดิม ไม่ต้องล็อกอินซ้ำ
+  _restoreSession().catch(e=>{ console.warn('restore session:', e); _hideLoading(); });
 });
 
 // =====================================================
@@ -6455,83 +6739,26 @@ document.addEventListener("DOMContentLoaded", () => {
 let _deferredInstallPrompt = null;
 
 function _setupPWA(){
-  // 1) Manifest แบบ inline (blob)
+  // 1) Manifest เป็นไฟล์จริง (manifest.json) — เบราว์เซอร์ไม่รองรับ manifest แบบ blob สำหรับการติดตั้ง
   try{
-    const icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230EA5E9'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E";
-    const manifest = {
-      name: "RubberLedger", short_name: "RubberLedger",
-      start_url: ".", scope: ".", display: "standalone",
-      background_color: "#ffffff", theme_color: "#0EA5E9",
-      description: "ระบบจัดการรับซื้อยางพารา",
-      icons: [
-        { src: icon, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
-        { src: icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-      ]
-    };
-    const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-    const mURL = URL.createObjectURL(mBlob);
     let link = document.querySelector('link[rel="manifest"]');
-    if(!link){ link=document.createElement('link'); link.rel='manifest'; document.head.appendChild(link); }
-    link.href = mURL;
+    if(!link){ link=document.createElement('link'); link.rel='manifest'; link.href='manifest.json'; document.head.appendChild(link); }
   }catch(e){ console.warn('manifest:', e); }
 
-  // 2) Service Worker (offline shell cache) — เฉพาะเมื่อเปิดผ่าน https/localhost
+  // 2) Service Worker เป็นไฟล์จริง (sw.js) — เดิมสร้างจาก blob: ซึ่งเบราว์เซอร์ไม่อนุญาต จึงไม่เคยทำงาน
   if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
-    const swCode = `
-      // ⬆️ ต้องขยับเลขเวอร์ชันนี้ทุกครั้งที่ deploy โค้ดใหม่ที่สำคัญ
-      // เพื่อล้างแคชเก่าทิ้ง (กันเครื่องผู้ใช้ค้างเวอร์ชันบั๊กตลอดไป)
-      const CACHE='rubberledger-v2';
-      self.addEventListener('install', e=>{ self.skipWaiting(); });
-      self.addEventListener('activate', e=>{
-        e.waitUntil(
-          caches.keys()
-            .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
-            .then(()=>clients.claim())
-        );
+    navigator.serviceWorker.register('sw.js', {scope:'./'}).then(reg=>{
+      // มีเวอร์ชันใหม่ → แจ้งให้รีเฟรช
+      reg.addEventListener('updatefound', ()=>{
+        const nw = reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange', ()=>{
+          if(nw.state==='installed' && navigator.serviceWorker.controller){
+            showToast('🔄 มีเวอร์ชันใหม่ — รีเฟรชหน้าเพื่อใช้งาน','info');
+          }
+        });
       });
-      self.addEventListener('fetch', e=>{
-        const req=e.request;
-        if(req.method!=='GET') return;
-        const url=new URL(req.url);
-        // ไม่ cache Supabase/API — ให้ผ่านตรง (offline queue จัดการเอง)
-        if(url.hostname.includes('supabase') || url.hostname.includes('anthropic')) return;
-
-        // 📄 หน้า HTML หลัก (navigation) → network-first เสมอ
-        // กันแอปค้างเวอร์ชันเก่าเวลาเรา deploy โค้ดใหม่ (ปัญหาที่เคยเจอ)
-        // ถ้าออฟไลน์จริงๆ ค่อย fallback ไปแคชเก่า
-        if(req.mode==='navigate' || req.destination==='document'){
-          e.respondWith(
-            fetch(req).then(res=>{
-              if(res && res.status===200){
-                caches.open(CACHE).then(cache=>{ try{ cache.put(req, res.clone()); }catch(_){} });
-              }
-              return res;
-            }).catch(()=> caches.match(req))
-          );
-          return;
-        }
-
-        // ไฟล์อื่น (ฟอนต์/รูป/ไลบรารี) → cache-first เพื่อความไวและใช้งานออฟไลน์ได้
-        e.respondWith(
-          caches.open(CACHE).then(cache=>
-            cache.match(req).then(hit=>{
-              const net=fetch(req).then(res=>{
-                if(res && res.status===200 && (url.protocol==='https:'||url.protocol==='http:')){
-                  try{ cache.put(req, res.clone()); }catch(_){}
-                }
-                return res;
-              }).catch(()=>hit);
-              return hit || net;
-            })
-          )
-        );
-      });
-    `;
-    try{
-      const swBlob = new Blob([swCode], {type:'text/javascript'});
-      const swURL = URL.createObjectURL(swBlob);
-      navigator.serviceWorker.register(swURL).catch(err=>console.warn('SW reg:', err));
-    }catch(e){ console.warn('SW:', e); }
+    }).catch(err=>console.warn('SW reg:', err));
   }
 
   // 3) ปุ่มติดตั้ง (Android/Chrome)
@@ -6567,19 +6794,16 @@ let _rcPage = 1;
 const RC_PER_PAGE = 50;
 
 // สร้างใบเสร็จเมื่อชำระเงิน
+// ถ้าบันทึกไม่สำเร็จ → เข้าคิวรอซิงก์ (ไม่หายเงียบ ๆ อีกต่อไป)
 async function createReceipt(order, payerName, opts) {
   opts = opts || {};
   const loc = _getMyLocation();
   const workLocation = _fmtLocation(loc);
-  const receiptNo = _genReceiptNo();
-  const nowISO = new Date().toISOString();
-
-  // เพิ่ม counter
-  let counter = parseInt(localStorage.getItem('rl_receipt_counter')||'0',10)+1;
-  localStorage.setItem('rl_receipt_counter', String(counter));
+  const ts = new Date().toISOString();
+  let num = await _nextReceiptNo();
 
   const receipt = {
-    receipt_no:     receiptNo,
+    receipt_no:     num.no,
     order_id:       String(order.id),
     po_no:          order.poNo || '',
     customer:       order.customer || '',
@@ -6591,38 +6815,41 @@ async function createReceipt(order, payerName, opts) {
     issued_role:    currentUser?.role || '',
     work_location:  workLocation,
     note:           opts.note || '',
-    issued_at:      nowISO,
-    created_at:     nowISO
+    issued_at:      ts,
+    created_at:     ts
   };
 
-  try {
-    const { error } = await _sb.from('receipts').insert(receipt);
-    if (error) {
-      console.error('createReceipt error:', error.message);
-    } else {
-      _receipts.unshift(receipt);
-      // sync counter ขึ้น Supabase
-      _sb.from('app_data').upsert({key:'receipt_counter',value:String(counter),updated_at:nowISO}).then(()=>{});
+  let saved = false;
+  if (_isOnline) {
+    for (let attempt = 0; attempt < 3 && !saved; attempt++) {
+      try {
+        const { error } = await _sb.from('receipts').insert(receipt);
+        if (!error) { saved = true; break; }
+        if (error.code === '23505') {          // เลขชนกับเครื่องอื่น → ขอเลขใหม่
+          num = await _nextReceiptNo(); receipt.receipt_no = num.no; continue;
+        }
+        console.error('createReceipt error:', error.message);
+        break;
+      } catch(e) { console.warn('createReceipt:', e); break; }
     }
-  } catch(e) { console.warn('createReceipt:', e); }
-
+  }
+  if (!saved) {
+    _enqueueSync('receipt', receipt);
+    showToast('⚠ ใบเสร็จ ' + receipt.receipt_no + ' ยังไม่ได้บันทึกขึ้นระบบ — เข้าคิวรอซิงก์แล้ว', 'error');
+  }
+  _receipts.unshift(saved ? receipt : {...receipt, _pending:true});
   return receipt;
 }
 
 async function loadReceipts() {
   try {
-    const { data, error } = await _sb
-      .from('receipts')
-      .select('*')
-      .order('issued_at', { ascending: false })
-      .limit(500);
-    if (!error && data) {
-      _receipts = data;
-      // อัปเดต counter ให้ตรงกับล่าสุด
-      const cnt = parseInt(localStorage.getItem('rl_receipt_counter')||'0',10);
-      if (data.length > cnt) localStorage.setItem('rl_receipt_counter', String(data.length));
-      _rcPopulateIssuerFilter();
-    }
+    _receipts = await _fetchAll(() => _sb.from('receipts').select('*')
+      .order('issued_at', { ascending: false }).order('receipt_no', { ascending: false }));
+    // ใบเสร็จที่ยังรอซิงก์ในเครื่อง
+    _syncQueue.filter(q => q.type === 'receipt').forEach(q => {
+      if (!_receipts.find(r => r.receipt_no === q.data.receipt_no)) _receipts.unshift({...q.data, _pending:true});
+    });
+    _rcPopulateIssuerFilter();
   } catch(e) { console.warn('loadReceipts:', e); }
 }
 
@@ -6631,7 +6858,7 @@ function _rcPopulateIssuerFilter() {
   if (!sel) return;
   const issuers = [...new Set(_receipts.map(r => r.issued_by_name||r.issued_by))].filter(Boolean).sort();
   sel.innerHTML = '<option value="">ทุกพนักงาน</option>' +
-    issuers.map(a => `<option value="${a}">${a}</option>`).join('');
+    issuers.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
 }
 
 // ดึงใบเสร็จของ order (สำหรับหน้ารายละเอียด)
@@ -6709,7 +6936,7 @@ function renderReceipts() {
       const locHtml = locParts.length ? `<span style="color:var(--gold);font-size:.72rem">${locParts.join(', ')}</span>` : '<span style="color:var(--muted2)">—</span>';
       return `<tr>
         <td class="mono" style="font-size:.74rem;color:var(--sky-d)">${r.receipt_no||'—'}</td>
-        <td style="font-weight:600">${r.customer||'—'}</td>
+        <td style="font-weight:600">${esc(r.customer||'—')}</td>
         <td style="font-size:.74rem"><div>${dateStr}</div><div style="color:var(--muted)">${timeStr}</div></td>
         <td class="mono" style="text-align:right">${(parseFloat(r.total_qty)||0).toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
         <td>${locHtml}</td>
@@ -6717,14 +6944,14 @@ function renderReceipts() {
         <td class="mono fw6" style="text-align:right;color:var(--green-d)">₭${(parseFloat(r.amount)||0).toLocaleString('th-TH',{maximumFractionDigits:0})}</td>
       </tr>`;
     }).join('');
-    const more = s.count>5 ? `<div style="text-align:center;padding:.5rem;font-size:.72rem;color:var(--sky);cursor:pointer" onclick="openStaffDetail('${s.name.replace(/'/g,"\\'")}','bill')">ดูทั้งหมด ${s.count} ใบ →</div>` : '';
+    const more = s.count>5 ? `<div style="text-align:center;padding:.5rem;font-size:.72rem;color:var(--sky);cursor:pointer" onclick="openStaffDetail('${escJs(s.name)}','bill')">ดูทั้งหมด ${s.count} ใบ →</div>` : '';
     return `
     <div class="card" style="margin-bottom:1.2rem">
-      <div class="card-header" style="background:var(--surface2);cursor:pointer" onclick="openStaffDetail('${s.name.replace(/'/g,"\\'")}','bill')" title="คลิกดูรายละเอียดเชิงลึก">
+      <div class="card-header" style="background:var(--surface2);cursor:pointer" onclick="openStaffDetail('${escJs(s.name)}','bill')" title="คลิกดูรายละเอียดเชิงลึก">
         <div style="display:flex;align-items:center;gap:1rem">
-          <div style="width:34px;height:34px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;flex-shrink:0">${s.name.charAt(0)}</div>
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#fff;flex-shrink:0">${esc(s.name.charAt(0))}</div>
           <div>
-            <div style="font-size:.95rem;font-weight:600;letter-spacing:.04em">${s.name} <span style="font-size:.62rem;color:var(--sky);font-weight:400">🔍 ดูเชิงลึก</span></div>
+            <div style="font-size:.95rem;font-weight:600;letter-spacing:.04em">${esc(s.name)} <span style="font-size:.62rem;color:var(--sky);font-weight:400">🔍 ดูเชิงลึก</span></div>
             <div style="font-size:.65rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:1px">${s.count} ใบ · ₭${s.totalAmt.toLocaleString('th-TH',{maximumFractionDigits:0})} · ${s.totalKg.toLocaleString('th-TH',{maximumFractionDigits:2})} กก.</div>
           </div>
         </div>
@@ -6800,10 +7027,14 @@ async function saveMyLocation() {
   // บันทึกลง accounts ใน Supabase ด้วย
   if (currentUser) {
     try {
-      await _sb.from('accounts').update({
-        loc_village: village, loc_district: district,
-        loc_city: city, loc_province: province
-      }).eq('username', currentUser.username);
+      if (_secureMode) {
+        await _rpc('staff_save_location', {p_token:_staffToken, p_village:village, p_district:district, p_city:city, p_province:province});
+      } else {
+        await _sb.from('accounts').update({
+          loc_village: village, loc_district: district,
+          loc_city: city, loc_province: province
+        }).eq('username', currentUser.username);
+      }
     } catch(e) { console.warn('saveMyLocation DB:', e); }
   }
 
@@ -6853,7 +7084,7 @@ async function loadActivityLogs() {
       .from('activity_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(500);
+      .limit(1000);
     if (!error && data) {
       _activityLogs = data;
       _alPopulateActorFilter();
@@ -6866,7 +7097,7 @@ function _alPopulateActorFilter() {
   if (!sel) return;
   const actors = [...new Set(_activityLogs.map(l => l.actor))].sort();
   sel.innerHTML = '<option value="" data-i18n="al_all_users">ทุกผู้ใช้</option>' +
-    actors.map(a => `<option value="${a}">${a}</option>`).join('');
+    actors.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
 }
 
 function alClearFilters() {
@@ -6946,11 +7177,11 @@ function renderActivityLog() {
         <div style="color:var(--muted)">${timeStr}</div>
       </td>
       <td><span style="font-size:.72rem;color:${color};white-space:nowrap;">${label}</span></td>
-      <td style="font-size:.78rem;font-weight:600;color:var(--text)">${l.actor}<br><span style="font-weight:400;font-size:.68rem;color:var(--muted)">${l.actor_role||''}</span></td>
-      <td style="font-size:.7rem;color:var(--muted)">${l.actor_role}</td>
+      <td style="font-size:.78rem;font-weight:600;color:var(--text)">${esc(l.actor)}<br><span style="font-weight:400;font-size:.68rem;color:var(--muted)">${esc(l.actor_role||'')}</span></td>
+      <td style="font-size:.7rem;color:var(--muted)">${esc(l.actor_role)}</td>
       <td>${locHtml}</td>
-      <td style="font-size:.72rem;color:var(--blue)">${l.target_ref || '—'}</td>
-      <td style="font-size:.72rem;color:var(--muted)">${l.detail || '—'}</td>
+      <td style="font-size:.72rem;color:var(--blue)">${esc(l.target_ref || '—')}</td>
+      <td style="font-size:.72rem;color:var(--muted)">${esc(l.detail || '—')}</td>
     </tr>`;
   }).join('');
 
@@ -7124,7 +7355,7 @@ function _renderAISummary(d){
       <div style="display:grid;gap:8px;margin-bottom:12px">
         ${d.insights.map(i=>`<div style="display:flex;gap:10px;background:rgba(255,255,255,.55);border-radius:8px;padding:9px 12px">
           <span style="font-size:1.1rem;flex-shrink:0">${i.icon||'•'}</span>
-          <div><span style="font-weight:700;color:var(--violet-d)">${i.title||''}</span> <span style="color:var(--text2)">${i.detail||''}</span></div>
+          <div><span style="font-weight:700;color:var(--violet-d)">${esc(i.title||'')}</span> <span style="color:var(--text2)">${esc(i.detail||'')}</span></div>
         </div>`).join('')}
       </div>`:''}
     ${Array.isArray(d.recommendations)&&d.recommendations.length?`
@@ -7137,7 +7368,28 @@ function _renderAISummary(d){
   `;
 }
 
+// โหลด Chart.js เฉพาะตอนเปิดแดชบอร์ด (ไม่ต้องโหลดทุกครั้งที่เปิดแอป)
+let _chartJsPromise = null;
+function _loadChartJs(){
+  if (typeof Chart !== 'undefined') return Promise.resolve();
+  if (!_chartJsPromise) {
+    _chartJsPromise = new Promise((resolve, reject) => {
+      const sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+      sc.onload = () => resolve();
+      sc.onerror = () => { _chartJsPromise = null; reject(new Error('โหลด Chart.js ไม่ได้')); };
+      document.head.appendChild(sc);
+    });
+  }
+  return _chartJsPromise;
+}
 function renderDashboard() {
+  if (typeof Chart === 'undefined') {
+    _dashLoadingState();
+    _loadChartJs().then(() => { if (activeTab === 'dashboard') renderDashboard(); })
+      .catch(e => showToast('⚠ ' + e.message, 'error'));
+    return;
+  }
   if (!orders || orders.length === 0) { _dashLoadingState(); return; }
 
   const paid    = orders.filter(o => o.status === 'paid');
