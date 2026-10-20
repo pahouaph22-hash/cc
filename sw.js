@@ -15,6 +15,23 @@ const PRECACHE = [
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
 ];
 
+const SCOPE_PATH = new URL(self.registration.scope).pathname;   // เช่น /cc/
+const OWN_FILES = ['', 'index.html', 'rubber-ledger.html', 'customer-portal.html', 'manifest.json'];
+const CDN_LIBS = [
+  '/npm/@supabase/supabase-js@2.118.0/',
+  '/npm/qrcode-generator@1.4.4/',
+  '/npm/chart.js@4.4.0/'
+];
+function isOwnRequest(url) {
+  if (url.origin === self.location.origin) {
+    if (!url.pathname.startsWith(SCOPE_PATH)) return false;
+    const rest = url.pathname.slice(SCOPE_PATH.length);
+    return OWN_FILES.includes(rest) || rest.startsWith('icons/');
+  }
+  if (url.hostname === 'cdn.jsdelivr.net') return CDN_LIBS.some((p) => url.pathname.startsWith(p));
+  return false;
+}
+
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE).then((cache) =>
@@ -39,6 +56,10 @@ self.addEventListener('fetch', (e) => {
 
   // ไม่แคช Supabase / API — ข้อมูลต้องสดเสมอ (คิวออฟไลน์ในแอปจัดการเอง)
   if (url.hostname.includes('supabase')) return;
+
+  // ดูแลเฉพาะไฟล์ของ RubberLedger — เว็บอื่นในโฟลเดอร์เดียวกัน (english/, chinese/, reminder/ ฯลฯ)
+  // ปล่อยผ่านตามปกติ ไม่ถูกแคช
+  if (!isOwnRequest(url)) return;
 
   // หน้า HTML → network-first (ได้เวอร์ชันล่าสุดเสมอ) ถ้าออฟไลน์ค่อยใช้แคช
   if (req.mode === 'navigate' || req.destination === 'document') {
