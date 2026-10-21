@@ -900,7 +900,7 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%"><table class="order-table" id="history-table" style="min-width:600px">
         <thead><tr><th id="h-col-id" data-i18n="col_id">เลขที่</th><th id="h-col-cust" data-i18n="col_customer">ลูกค้า</th><th id="h-col-date" data-i18n="col_date">วันที่</th><th id="h-subtotal" data-i18n="col_amount">ยอดรวม</th><th id="h-col-status" data-i18n="col_status">สถานะ</th><th id="last-col-header" data-i18n="col_action">การจัดการ</th><th id="h-col-actor" data-i18n="col_actor">ดำเนินการ</th></tr></thead>
         <tbody id="history-body"></tbody>
-      </table>
+      </table></div>
     </div>
     <div id="history-stats"></div>
   </div>
@@ -1633,7 +1633,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.21-1240";
+const APP_VERSION = "2026.10.21-1300";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -2860,23 +2860,6 @@ function openDetail(id){
   document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
   document.getElementById("pane-detail").style.display="block";
 
-  // ── DEBUG TRACE (ชั่วคราว) — แสดงบนหน้าจอโดยตรง ไม่ต้องเปิด DevTools ──
-  try{
-    const pane=document.getElementById("pane-detail");
-    let dbg=document.getElementById("_debug-trace");
-    if(!dbg){ dbg=document.createElement("div"); dbg.id="_debug-trace"; pane.insertBefore(dbg, pane.firstChild); }
-    const found=orders.find(x=>x.id==id);
-    const foundStrict=orders.find(x=>String(x.id)===String(id));
-    dbg.style.cssText="border:2px solid #3b82f6;background:#eff6ff;padding:1rem;margin-bottom:1rem;font-family:monospace;font-size:.7rem;color:#1e3a8a;white-space:pre-wrap;word-break:break-all";
-    dbg.textContent =
-      "🔍 DEBUG TRACE — สกรีนช็อตกล่องนี้ส่งทีมพัฒนา\n" +
-      "id ที่ส่งเข้ามา: " + JSON.stringify(id) + " (type: " + typeof id + ")\n" +
-      "จำนวนบิลทั้งหมดใน orders[]: " + orders.length + "\n" +
-      "เจอด้วย == : " + (found ? "✅ พบ (id จริง=" + JSON.stringify(found.id) + ", type=" + typeof found.id + ")" : "❌ ไม่พบ") + "\n" +
-      "เจอด้วย String()===: " + (foundStrict ? "✅ พบ" : "❌ ไม่พบ") + "\n" +
-      (found ? ("poNo=" + found.poNo + " | customer=" + found.customer + " | status=" + found.status + " | items=" + (found.items ? found.items.length : "undefined") + "\n") : "") +
-      "เวลา: " + new Date().toLocaleTimeString('th-TH');
-  }catch(dbgErr){ console.error('debug trace error:', dbgErr); }
 
   try{
     _openDetailInner(id);
@@ -2895,8 +2878,8 @@ function openDetail(id){
   }
 }
 function _openDetailInner(id){
-  const o=orders.find(x=>x.id==id);
-  if(!o)return;
+  const o=orders.find(x=>String(x.id)===String(id));
+  if(!o){ showToast("ไม่พบบิลนี้ — อาจถูกลบหรือยังโหลดไม่เสร็จ","error"); closeDetail(); return; }
   window._currentDetailOrder=o;
   document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
   document.getElementById("pane-detail").style.display="block";
@@ -2906,7 +2889,7 @@ function _openDetailInner(id){
   document.getElementById("detail-po").textContent=o.poNo;
   document.getElementById("detail-badge").innerHTML=`<span class="badge ${badgeCls}">${badgeLabel}</span>`;
   const fields=[[t("col_customer"),o.customer],[t("bill_date"),thaiLong(o.date)],...(o.createdBy?[[t("col_actor"),o.createdBy]]:[]),...(o.paidBy?[[t("col_pay"),o.paidBy]]:[]),...(o.cancelReason?[[t("cancel_reason").replace(" *",""),o.cancelReason]]:[])];
-  document.getElementById("detail-info").innerHTML=fields.map(([l,v])=>`<div style="margin-bottom:.8rem"><div class="form-label">${l}</div><div style="font-size:.85rem">${v}</div></div>`).join("");
+  document.getElementById("detail-info").innerHTML=fields.map(([l,v])=>`<div style="margin-bottom:.8rem"><div class="form-label">${l}</div><div style="font-size:.85rem">${esc(v)}</div></div>`).join("");
 
   // แสดงข้อมูลใบเสร็จ (ถ้ามี)
   const rcCard=document.getElementById("detail-receipt-card");
@@ -2921,12 +2904,12 @@ function _openDetailInner(id){
     const locFmt=receipt.work_location||'—';
     rcBody.innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem 1.2rem;">
-        <div><div class="form-label">เลขที่ใบเสร็จ</div><div style="font-size:.95rem;font-weight:700;color:var(--sky-d);font-family:'IBM Plex Mono',monospace">${receipt.receipt_no}</div></div>
+        <div><div class="form-label">เลขที่ใบเสร็จ</div><div style="font-size:.95rem;font-weight:700;color:var(--sky-d);font-family:'IBM Plex Mono',monospace">${esc(receipt.receipt_no)}</div></div>
         <div><div class="form-label">วิธีชำระ</div><div style="font-size:.85rem">${methodLabel}</div></div>
         <div><div class="form-label">📅 วันที่ออกใบเสร็จ</div><div style="font-size:.85rem">${dateStr}</div></div>
         <div><div class="form-label">🕐 เวลา</div><div style="font-size:.85rem">${timeStr} น.</div></div>
         <div><div class="form-label">👤 ผู้จดใบเสร็จ</div><div style="font-size:.85rem;font-weight:600">${esc(receipt.issued_by_name||receipt.issued_by)}</div></div>
-        <div><div class="form-label">📍 สถานที่ออกใบเสร็จ</div><div style="font-size:.82rem;color:var(--gold)">${locFmt}</div></div>
+        <div><div class="form-label">📍 สถานที่ออกใบเสร็จ</div><div style="font-size:.82rem;color:var(--gold)">${esc(locFmt)}</div></div>
       </div>
       ${receipt.note?`<div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)"><div class="form-label">หมายเหตุ</div><div style="font-size:.82rem;color:var(--text2)">${esc(receipt.note)}</div></div>`:''}
     `;
