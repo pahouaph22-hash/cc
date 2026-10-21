@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS customer_sessions (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_cust_sess_exp ON customer_sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_cust_sess_account ON customer_sessions(account_id);
 
 CREATE TABLE IF NOT EXISTS news (
   id            BIGSERIAL PRIMARY KEY,
@@ -438,7 +439,7 @@ ALTER TABLE public.staff_sessions ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.staff_sessions FROM anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public._staff_public(a public.accounts)
-RETURNS JSONB LANGUAGE sql STABLE AS $$
+RETURNS JSONB LANGUAGE sql STABLE SET search_path = public AS $$
   SELECT (to_jsonb(a) - 'password' - 'pass_hash' - 'failed_count' - 'locked_until')
          || jsonb_build_object('has_password', a.pass_hash IS NOT NULL)
 $$;

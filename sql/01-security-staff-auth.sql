@@ -72,7 +72,7 @@ REVOKE ALL ON public.staff_sessions FROM anon, authenticated;
 
 -- ข้อมูลพนักงานที่ส่งให้หน้าเว็บได้ (ไม่มีรหัสผ่าน)
 CREATE OR REPLACE FUNCTION public._staff_public(a public.accounts)
-RETURNS JSONB LANGUAGE sql STABLE AS $$
+RETURNS JSONB LANGUAGE sql STABLE SET search_path = public AS $$
   SELECT (to_jsonb(a) - 'password' - 'pass_hash' - 'failed_count' - 'locked_until')
          || jsonb_build_object('has_password', a.pass_hash IS NOT NULL)
 $$;
