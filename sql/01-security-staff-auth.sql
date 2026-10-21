@@ -80,7 +80,7 @@ $$;
 -- หา account จาก token (NULL = ไม่ถูกต้อง/หมดอายุ/ถูกปิด)
 CREATE OR REPLACE FUNCTION public._staff_by_token(p_token TEXT)
 RETURNS public.accounts
-LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE;
 BEGIN
   IF p_token IS NULL OR p_token = '' THEN RETURN NULL; END IF;
@@ -95,7 +95,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public._require_staff(p_token TEXT)
 RETURNS public.accounts
-LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE;
 BEGIN
   a := public._staff_by_token(p_token);
@@ -107,7 +107,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public._require_admin(p_token TEXT)
 RETURNS public.accounts
-LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE;
 BEGIN
   a := public._require_staff(p_token);
@@ -120,7 +120,7 @@ END $$;
 -- ใช้ใน RLS (ขั้นที่ 2): token ส่งมาใน header x-staff-token
 CREATE OR REPLACE FUNCTION public.request_staff_ok()
 RETURNS BOOLEAN
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, extensions AS $$
   SELECT (public._staff_by_token(
             COALESCE(current_setting('request.headers', true)::json ->> 'x-staff-token', '')
           )).username IS NOT NULL
@@ -131,7 +131,7 @@ $$;
 -- ─────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.staff_login(p_username TEXT, p_password TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE; v_tok TEXT;
 BEGIN
   SELECT * INTO a FROM public.accounts WHERE username = TRIM(p_username) LIMIT 1;
@@ -163,7 +163,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.staff_session(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE;
 BEGIN
   a := public._staff_by_token(p_token);
@@ -175,7 +175,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.staff_logout(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 BEGIN
   DELETE FROM public.staff_sessions WHERE token = p_token;
   RETURN json_build_object('ok', true);
@@ -183,7 +183,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.staff_change_password(p_token TEXT, p_old TEXT, p_new TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE;
 BEGIN
   a := public._require_staff(p_token);
@@ -203,7 +203,7 @@ END $$;
 CREATE OR REPLACE FUNCTION public.staff_save_location(
   p_token TEXT, p_village TEXT, p_district TEXT, p_city TEXT, p_province TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a public.accounts%ROWTYPE;
 BEGIN
   a := public._require_staff(p_token);
@@ -219,7 +219,7 @@ END $$;
 -- ─────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.admin_staff_list(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v JSONB;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -231,7 +231,7 @@ END $$;
 CREATE OR REPLACE FUNCTION public.admin_staff_add(
   p_token TEXT, p_username TEXT, p_password TEXT, p_role TEXT, p_display_name TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 BEGIN
   PERFORM public._require_admin(p_token);
   IF COALESCE(TRIM(p_username),'') = '' OR length(COALESCE(p_password,'')) < 6 THEN
@@ -251,7 +251,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_staff_set_active(p_token TEXT, p_username TEXT, p_active BOOLEAN)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE me public.accounts%ROWTYPE; n INT;
 BEGIN
   me := public._require_admin(p_token);
@@ -271,7 +271,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_staff_set_password(p_token TEXT, p_username TEXT, p_new TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -290,7 +290,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_staff_delete(p_token TEXT, p_username TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -314,7 +314,7 @@ DROP FUNCTION IF EXISTS public.admin_delete_customer_account(TEXT);
 
 CREATE OR REPLACE FUNCTION public.admin_customer_login_info(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v JSON;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -335,7 +335,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_set_customer_active(p_token TEXT, p_name TEXT, p_active BOOLEAN)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -353,7 +353,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_reset_customer_password(p_token TEXT, p_name TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT; v_po TEXT;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -369,7 +369,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_delete_customer_account(p_token TEXT, p_name TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -389,7 +389,7 @@ REVOKE ALL ON public.news FROM anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.admin_news_list(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v JSON;
 BEGIN
   PERFORM public._require_admin(p_token);
@@ -402,7 +402,7 @@ CREATE OR REPLACE FUNCTION public.admin_news_save(
   p_token TEXT, p_id BIGINT, p_title TEXT, p_body TEXT, p_category TEXT,
   p_pinned BOOLEAN, p_published BOOLEAN)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE me public.accounts%ROWTYPE; v_id BIGINT;
 BEGIN
   me := public._require_admin(p_token);
@@ -428,7 +428,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.admin_news_delete(p_token TEXT, p_id BIGINT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 BEGIN
   PERFORM public._require_admin(p_token);
   DELETE FROM public.news WHERE id = p_id;
@@ -447,7 +447,7 @@ REVOKE ALL ON public.doc_counters FROM anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.next_receipt_no(p_token TEXT)
 RETURNS TEXT
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE k TEXT; v_base INT; v_n INT;
 BEGIN
   PERFORM public._require_staff(p_token);
@@ -502,6 +502,12 @@ DO $$ BEGIN
   END IF;
   IF to_regprocedure('public._cust_by_token(text)') IS NOT NULL THEN
     REVOKE EXECUTE ON FUNCTION public._cust_by_token(TEXT) FROM PUBLIC, anon, authenticated;
+  END IF;
+  IF to_regprocedure('public.gen_customer_code()') IS NOT NULL THEN
+    REVOKE EXECUTE ON FUNCTION public.gen_customer_code() FROM PUBLIC, anon, authenticated;
+  END IF;
+  IF to_regprocedure('public._touch_updated_at()') IS NOT NULL THEN
+    REVOKE EXECUTE ON FUNCTION public._touch_updated_at() FROM PUBLIC, anon, authenticated;
   END IF;
 END $$;
 

@@ -134,7 +134,7 @@ END $$;
 
 -- เลขที่บิลล่าสุดของลูกค้า = รหัสผ่านเริ่มต้น
 CREATE OR REPLACE FUNCTION _latest_po(p_name TEXT)
-RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v TEXT;
 BEGIN
   SELECT o.po_no INTO v
@@ -149,7 +149,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION _cust_by_token(p_token TEXT)
 RETURNS customer_accounts
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a customer_accounts%ROWTYPE;
 BEGIN
   SELECT ca.* INTO a
@@ -164,7 +164,7 @@ END $$;
 -- ══════════════════════════════════════
 CREATE OR REPLACE FUNCTION customer_check_user(p_username TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
   v_exists BOOLEAN;
   a customer_accounts%ROWTYPE;
@@ -188,7 +188,7 @@ CREATE OR REPLACE FUNCTION customer_login(
   p_username TEXT,
   p_password TEXT
 ) RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
   a        customer_accounts%ROWTYPE;
   c        customers%ROWTYPE;
@@ -299,7 +299,7 @@ CREATE OR REPLACE FUNCTION customer_set_password(
   p_new   TEXT,
   p_old   TEXT DEFAULT NULL
 ) RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE a customer_accounts%ROWTYPE;
 BEGIN
   a := _cust_by_token(p_token);
@@ -333,7 +333,7 @@ END $$;
 -- ══════════════════════════════════════
 CREATE OR REPLACE FUNCTION customer_profile(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
   a customer_accounts%ROWTYPE;
   c customers%ROWTYPE;
@@ -386,7 +386,7 @@ CREATE OR REPLACE FUNCTION customer_orders(
   p_to     DATE DEFAULT NULL,
   p_status TEXT DEFAULT NULL
 ) RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
   a customer_accounts%ROWTYPE;
   v_rows JSON;
@@ -422,7 +422,7 @@ END $$;
 -- ══════════════════════════════════════
 CREATE OR REPLACE FUNCTION customer_news(p_limit INT DEFAULT 30)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v_rows JSON;
 BEGIN
   SELECT COALESCE(json_agg(n ORDER BY n.is_pinned DESC, n.published_at DESC), '[]'::json) INTO v_rows
@@ -440,7 +440,7 @@ END $$;
 -- ══════════════════════════════════════
 CREATE OR REPLACE FUNCTION customer_logout(p_token TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 BEGIN
   DELETE FROM customer_sessions WHERE token = p_token;
   RETURN json_build_object('ok', true);
@@ -452,7 +452,7 @@ END $$;
 -- ══════════════════════════════════════
 CREATE OR REPLACE FUNCTION admin_list_customer_accounts()
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v JSON;
 BEGIN
   SELECT COALESCE(json_agg(x ORDER BY x.customer_name), '[]'::json) INTO v
@@ -470,7 +470,7 @@ END $$;
 -- รายชื่อลูกค้าทั้งหมด + สถานะ + รหัสชั่วคราว (เลขบิลล่าสุด) สำหรับแจ้งลูกค้า
 CREATE OR REPLACE FUNCTION admin_customer_login_info()
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE v JSON;
 BEGIN
   SELECT COALESCE(json_agg(x ORDER BY x.name), '[]'::json) INTO v
@@ -491,7 +491,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION admin_set_customer_active(p_name TEXT, p_active BOOLEAN)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT;
 BEGIN
   UPDATE customer_accounts SET is_active = p_active
@@ -504,7 +504,7 @@ END $$;
 -- รีเซ็ต → กลับไปใช้เลขบิลล่าสุด + บังคับตั้งรหัสใหม่
 CREATE OR REPLACE FUNCTION admin_reset_customer_password(p_name TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT; v_po TEXT;
 BEGIN
   v_po := _latest_po(p_name);
@@ -519,7 +519,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION admin_delete_customer_account(p_name TEXT)
 RETURNS JSON
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE n INT;
 BEGIN
   DELETE FROM customer_accounts

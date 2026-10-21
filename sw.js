@@ -1,6 +1,6 @@
 // RubberLedger Service Worker
 // ⬆️ เปลี่ยนเลขนี้ทุกครั้งที่ deploy เพื่อล้างแคชเก่า
-const CACHE = 'rubberledger-2026.10.20-2340';
+const CACHE = 'rubberledger-2026.10.21-1240';
 
 // ไฟล์ที่ต้องมีเพื่อเปิดแอปได้ตอนออฟไลน์
 const PRECACHE = [
