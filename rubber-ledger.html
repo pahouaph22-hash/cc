@@ -1584,9 +1584,18 @@ font{border:none!important;outline:none!important;display:inline!important}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
-const SUPABASE_URL = 'https://jvraxijtgzahflkohdsf.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_sclOoiWbDHWLe3xPIy5vMw_MqjHrfnH';
+const SUPABASE_URL = 'https://kgiyiflrwgiflpqglqky.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_1_q1v3vtUwHZ92JaEXbCLQ_uNOvCACu';
 // _sb ถูกสร้างใหม่หลังล็อกอิน เพื่อแนบ staff token ไปกับทุกคำขอ (ใช้กับ RLS ขั้นที่ 2)
+// ย้ายฐานข้อมูลแล้ว → ล้างแคช/คิว/session ของฐานข้อมูลเดิมในเครื่องนี้ครั้งเดียว
+// (กันบิลเก่าที่ค้างในเครื่องถูกส่งเข้าฐานข้อมูลใหม่)
+try {
+  if (localStorage.getItem('rl_backend') !== SUPABASE_URL) {
+    ['rubber_orders','rl_sync_queue','rl_session','rubber_customers','rubber_prices',
+     'rubber_po_counter','rl_receipt_counter','rubber_accounts'].forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('rl_backend', SUPABASE_URL);
+  }
+} catch(e) {}
 let _staffToken = null;
 let _sb = null;
 function _makeClient(token){
@@ -1624,7 +1633,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.20-2340";
+const APP_VERSION = "2026.10.21-1240";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
