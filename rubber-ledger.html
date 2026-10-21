@@ -340,9 +340,11 @@ font{border:none!important;outline:none!important;display:inline!important}
    ITEM ROW
    ══════════════════════════════════════ */
 .item-row{
-  display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;
+  display:grid;grid-template-columns:42px 2fr 1fr 1fr 1fr auto;
   gap:.55rem;align-items:end;margin-bottom:.6rem;
 }
+.item-no{align-self:center;text-align:center}
+.item-no:not(.form-label){font-weight:700;font-size:.85rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
 
 /* ══════════════════════════════════════
    PENDING CARD — Orange accent
@@ -487,7 +489,7 @@ font{border:none!important;outline:none!important;display:inline!important}
   .grid3{grid-template-columns:1fr 1fr}
   .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
   .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
-  .item-row{grid-template-columns:2fr 1fr 1fr 1fr auto;gap:.5rem}
+  .item-row{grid-template-columns:36px 2fr 1fr 1fr 1fr auto;gap:.5rem}
 }
 @media(max-width:899px){
   body{font-size:13px}
@@ -502,7 +504,7 @@ font{border:none!important;outline:none!important;display:inline!important}
   .order-table th,.order-table td{padding:.55rem .7rem}
   .pending-card-header{flex-wrap:wrap;gap:.4rem}
   .modal-box{max-width:90%;padding:1.3rem}
-  .item-row{grid-template-columns:2fr 1fr 1fr 1fr auto}
+  .item-row{grid-template-columns:36px 2fr 1fr 1fr 1fr auto}
 }
 
 /* ══════════════════════════════════════
@@ -528,6 +530,10 @@ font{border:none!important;outline:none!important;display:inline!important}
   .stat-grid[style*="repeat(3"]{grid-template-columns:1fr 1fr!important}
   .stat-grid[style*="repeat(4"]{grid-template-columns:1fr 1fr!important}
   .item-row{grid-template-columns:1fr 1fr!important;gap:.4rem!important}
+  .item-no{grid-column:1/-1;text-align:left}
+  .item-no:not(.form-label){font-size:.75rem}
+  .item-no:not(.form-label)::before{content:'#'}
+  .form-label.item-no{display:none}
   .pending-card-header{flex-wrap:wrap;gap:.3rem}
 }
 
@@ -543,6 +549,10 @@ font{border:none!important;outline:none!important;display:inline!important}
   .order-table td div[style*="flex"]{flex-wrap:wrap;gap:.25rem!important}
   .stat-grid[style*="repeat(3"]{grid-template-columns:repeat(2,1fr)!important}
   .item-row{grid-template-columns:1fr 1fr!important;gap:.35rem!important}
+  .item-no{grid-column:1/-1;text-align:left}
+  .item-no:not(.form-label){font-size:.75rem}
+  .item-no:not(.form-label)::before{content:'#'}
+  .form-label.item-no{display:none}
   .btn-danger,.btn-gold{width:100%;text-align:center;padding:.35rem .5rem!important;font-size:.68rem!important}
   .card-body{padding:.75rem .65rem}
   .card-header{padding:.55rem .65rem;font-size:.78rem}
@@ -842,7 +852,7 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div class="card-header"><span id="items-title-label" data-i18n="items_title">รายการสินค้า</span> <button class="btn-secondary" id="btn-add-item" style="font-size:.7rem;padding:.25rem .8rem" onclick="addItemRow()" data-i18n="btn_add_item">+ เพิ่มรายการ</button></div>
       <div class="card-body">
         <div class="item-row" style="margin-bottom:.4rem">
-          <div class="form-label" data-i18n="col_product">สินค้า</div><div class="form-label" data-i18n="col_qty">จำนวน (กก.)</div>
+          <div class="form-label item-no" data-i18n="col_no">ลำดับ</div><div class="form-label" data-i18n="col_product">สินค้า</div><div class="form-label" data-i18n="col_qty">จำนวน (กก.)</div>
           <div class="form-label" data-i18n="col_price">ราคา/กก. (ກີບ)</div><div class="form-label" data-i18n="col_subtotal">ยอดรวม</div><div></div>
         </div>
         <input type="hidden" id="selected-old-member-id"><div id="items-container"></div>
@@ -1633,7 +1643,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.21-1300";
+const APP_VERSION = "2026.10.21-1335";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -2328,6 +2338,7 @@ function addItemRow(){
   const div=document.createElement("div");
   div.className="item-row";div.id="item-"+id;
   div.innerHTML=`
+    <div class="item-no"></div>
     <select onchange="onProductChange(${id},this.value)">
       <option value="RUBBER">${t("product_rubber")}</option>
       <option value="SHIPPING">${t("product_shipping")}</option>
@@ -2337,7 +2348,14 @@ function addItemRow(){
     <div class="mono text-accent fw6" id="row-total-${id}" style="align-self:center;font-size:.88rem">—</div>
     <button class="btn-danger" onclick="removeItem(${id})">✕</button>`;
   c.appendChild(div);
+  _renumberItems();
   calcAll();
+}
+// ใส่เลขลำดับ 1, 2, 3, ... ตามลำดับแถว (เรียงใหม่ทุกครั้งที่เพิ่ม/ลบแถว)
+function _renumberItems(){
+  document.querySelectorAll("#items-container .item-row").forEach((row,i)=>{
+    const n=row.querySelector(".item-no"); if(n) n.textContent=String(i+1);
+  });
 }
 function onProductChange(id,prod){
   const price=savedPrices[prod]||62.50;
@@ -2356,7 +2374,7 @@ function onPriceChange(id){
 }
 function removeItem(id){
   const el=document.getElementById("item-"+id);
-  if(el&&document.getElementById("items-container").children.length>1){el.remove();calcAll();}
+  if(el&&document.getElementById("items-container").children.length>1){el.remove();_renumberItems();calcAll();}
 }
 function getRubberQty(){
   let total=0;
@@ -5609,6 +5627,7 @@ const LANG_DICT = {
     col_qty: "จำนวน (กก.)",
     col_price: "ราคา/กก. (กีบ)",
     col_subtotal: "ยอดรวม",
+    col_no: "ลำดับ",
     note_label: "หมายเหตุ",
     status_label: "สถานะ",
     status_draft: "แบบร่าง",
@@ -5939,6 +5958,7 @@ const LANG_DICT = {
     col_qty: "ຈຳນວນ (ກກ.)",
     col_price: "ລາຄາ/ກກ. (₭)",
     col_subtotal: "ຍອດລວມ",
+    col_no: "ລຳດັບ",
     note_label: "ໝາຍເຫດ",
     status_label: "ສະຖານະ",
     status_draft: "ແບບຮ່າງ",
@@ -6268,6 +6288,7 @@ const LANG_DICT = {
     col_product: "Product",
     col_qty: "Quantity (kg)",
     col_price: "Price/kg (₭)",
+    col_no: "No.",
     col_subtotal: "Subtotal",
     note_label: "Note",
     status_label: "Status",
