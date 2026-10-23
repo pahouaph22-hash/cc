@@ -484,6 +484,63 @@ font{border:none!important;outline:none!important;display:inline!important}
 /* ══════════════════════════════════════
    RESPONSIVE — TABLET (≤900px)
    ══════════════════════════════════════ */
+/* ══════════════ ACCOUNTING ══════════════ */
+.ac-head{display:flex;justify-content:space-between;align-items:flex-end;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem}
+.ac-sub{font-size:.72rem;color:var(--muted);font-weight:400}
+.ac-filter{padding:.8rem 1rem;margin-bottom:1rem}
+.ac-filter-row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:flex-end}
+.ac-f{display:flex;flex-direction:column;gap:.25rem;min-width:140px}
+.ac-f .form-label{margin:0}
+.ac-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:1rem}
+.ac-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-height:104px}
+.ac-card-l{font-size:.74rem;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.ac-card-v{font-size:1.45rem;font-weight:700;margin:.25rem 0;font-variant-numeric:tabular-nums;color:var(--text)}
+.ac-card-v small{font-size:.8rem;color:var(--muted);font-weight:500}
+.ac-card-s{font-size:.7rem;color:var(--muted);line-height:1.45}
+.ac-card-profit{border-width:2px}
+.ac-card-profit.ac-pos{border-color:var(--green-m);background:var(--green-l)}
+.ac-card-profit.ac-neg{border-color:#FECACA;background:#FEF2F2}
+.ac-card-warn{border-color:#FED7AA;background:#FFF7ED}
+.ac-pos,.ac-pos .ac-card-v{color:var(--green-d)}
+.ac-neg,.ac-neg .ac-card-v{color:#B91C1C}
+.ac-warn{color:#C2410C;font-weight:600}
+.ac-nodata{display:inline-block;font-size:.72rem;font-weight:600;color:var(--muted);background:var(--surface3);border:1px dashed var(--border2);border-radius:999px;padding:.05rem .55rem}
+.ac-card-v .ac-nodata{font-size:.85rem;padding:.15rem .7rem}
+.ac-table th.num,.ac-table td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ac-table td{vertical-align:top}
+.ac-mrow{cursor:pointer}
+.ac-mrow:hover td{background:var(--sky-l)}
+.ac-sel td{background:var(--sky-l)!important;box-shadow:inset 0 -2px 0 var(--sky)}
+.ac-total td{font-weight:700;background:var(--surface2);border-top:2px solid var(--border2)}
+.ac-muted td{opacity:.55}
+.ac-strike td{text-decoration:line-through}
+.ac-alert{border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.82rem}
+.ac-alert ul{margin:.6rem 0 0;padding-left:1.2rem;max-height:240px;overflow-y:auto}
+.ac-alert li{margin:.2rem 0}
+.ac-alert summary{cursor:pointer;font-weight:600}
+.ac-alert-ok{background:var(--green-l);border:1px solid var(--green-m);color:var(--green-d)}
+.ac-alert-warn{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412}
+.ac-alert-err{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
+.ac-link{color:var(--sky-d);font-weight:700;font-family:'IBM Plex Mono',monospace}
+.ac-tabs-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap}
+.ac-subtabs{display:flex;gap:.3rem;flex-wrap:wrap}
+.ac-subtabs button{background:transparent;border:1px solid var(--border);border-radius:999px;padding:.3rem .8rem;font-size:.74rem;cursor:pointer;color:var(--text2);font-family:inherit}
+.ac-subtabs button.active{background:var(--sky);border-color:var(--sky);color:#fff}
+.ac-chip{display:inline-flex;gap:.5rem;align-items:center;margin:.6rem 1rem 0;background:var(--sky-l);color:var(--sky-d);border-radius:999px;padding:.2rem .4rem .2rem .8rem;font-size:.75rem;font-weight:600}
+.ac-chip button{border:none;background:#fff;color:var(--sky-d);border-radius:999px;padding:.1rem .5rem;cursor:pointer;font-size:.7rem}
+.ac-btn{font-size:.68rem;padding:.2rem .5rem;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text2);margin:0 2px 2px 0;font-family:inherit}
+.ac-btn:hover{border-color:var(--sky);color:var(--sky-d)}
+.ac-btn-del{color:#B91C1C;border-color:#FECACA}
+.ac-hist{border-left:3px solid var(--sky-m);padding:.4rem .7rem;margin-bottom:.6rem;font-size:.8rem}
+.ac-hist-c{margin-top:.25rem;color:var(--text2);font-size:.76rem}
+#pane-accounting .card{margin-bottom:1rem}
+@media(max-width:640px){
+  .ac-kpi{grid-template-columns:1fr 1fr;gap:8px}
+  .ac-card{padding:10px 12px;min-height:0}
+  .ac-card-v{font-size:1.05rem}
+  .ac-f{min-width:calc(50% - .4rem);flex:1}
+}
+
 @media(max-width:900px){
   .tab-pane.active{padding:1.2rem 1rem}
   .grid3{grid-template-columns:1fr 1fr}
@@ -650,6 +707,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none" data-i18n="tab_billhistory">📚 ประวัติใบบิลที่ชำระแล้ว</button>
     <button class="tab-btn" id="tab-cancelled-btn" onclick="switchTab('cancelled',this)" style="display:none" data-i18n="tab_cancelled">🚫 ใบบิลที่ยกเลิก</button>
     <div style="flex:1"></div>
+    <button class="tab-btn" id="tab-accounting-btn" onclick="switchTab('accounting',this)" style="display:none" data-i18n="tab_accounting">💰 บัญชี</button>
     <button class="tab-btn" id="tab-activitylog-btn" onclick="switchTab('activitylog',this)" style="display:none" data-i18n="tab_activitylog">🕐 กิจกรรม</button>
     <button class="tab-btn" id="tab-portal-btn" onclick="switchTab('portal',this)" style="display:none" data-i18n="tab_portal">🌐 ลูกค้าออนไลน์</button>
     <button class="tab-btn" id="tab-settings-btn" onclick="switchTab('settings',this)" style="display:none" data-i18n="tab_settings">⚙ ตั้งค่า</button>
@@ -1375,6 +1433,73 @@ font{border:none!important;outline:none!important;display:inline!important}
   </div>
 
   <!-- TAB: ACTIVITY LOG -->
+  <!-- TAB: ACCOUNTING (บัญชีรายรับ–รายจ่าย) — admin only -->
+  <div class="tab-pane" id="pane-accounting">
+    <div class="ac-head">
+      <div>
+        <div class="bebas" style="font-size:1.7rem;letter-spacing:.06em" data-ac="title">บัญชีรายรับ–รายจ่าย</div>
+        <div class="ac-sub" id="ac-generated"></div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="acExportCSV()" data-ac="export">⬇ CSV</button>
+        <button class="btn-secondary" onclick="acLoad()" data-ac="refresh">↻ รีเฟรช</button>
+      </div>
+    </div>
+
+    <div class="card ac-filter">
+      <div class="ac-filter-row">
+        <label class="ac-f"><span class="form-label" data-ac="period">ช่วงเวลา</span>
+          <select id="ac-preset" onchange="acPresetChange()">
+            <option value="this_month" data-ac="p_this_month">เดือนนี้</option>
+            <option value="last_month" data-ac="p_last_month">เดือนที่แล้ว</option>
+            <option value="last_3" data-ac="p_last_3">3 เดือนล่าสุด</option>
+            <option value="this_year" data-ac="p_this_year">ปีนี้</option>
+            <option value="all" data-ac="p_all">ทั้งหมด</option>
+            <option value="custom" data-ac="p_custom">กำหนดเอง</option>
+          </select>
+        </label>
+        <label class="ac-f"><span class="form-label" data-ac="from">ตั้งแต่</span><input type="date" id="ac-from" onchange="acDateChange()"></label>
+        <label class="ac-f"><span class="form-label" data-ac="to">ถึง</span><input type="date" id="ac-to" onchange="acDateChange()"></label>
+        <label class="ac-f"><span class="form-label" data-ac="count_bills">บิลที่นับเป็นต้นทุน</span>
+          <select id="ac-inc" onchange="acLoad()">
+            <option value="1" data-ac="inc_all">ทุกบิล (ยกเว้นยกเลิก)</option>
+            <option value="0" data-ac="inc_paid">เฉพาะชำระแล้ว</option>
+          </select>
+        </label>
+        <label class="ac-f" style="flex:1;min-width:180px"><span class="form-label" data-ac="search">ค้นหา</span>
+          <input type="text" id="ac-search" oninput="_deb(acRenderDetail)" data-ac-ph="search_ph" placeholder="PO, ลูกค้า, รายละเอียด, ผู้ซื้อ...">
+        </label>
+      </div>
+    </div>
+
+    <div id="ac-issues"></div>
+    <div id="ac-kpi" class="ac-kpi"></div>
+
+    <div class="card">
+      <div class="card-header"><span data-ac="by_month">สรุปแยกตามเดือน</span><span class="ac-sub" data-ac="by_month_hint">กดที่เดือนเพื่อดูรายการต้นทาง</span></div>
+      <div class="card-body" style="padding:0"><div style="overflow-x:auto"><table class="order-table ac-table" id="ac-month-table"></table></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span data-ac="chart_title">เปรียบเทียบผลประกอบการรายเดือน</span></div>
+      <div class="card-body"><div style="position:relative;height:300px"><canvas id="ac-chart"></canvas></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header ac-tabs-head">
+        <div class="ac-subtabs" id="ac-subtabs">
+          <button data-sub="bills" onclick="acSub('bills')" data-ac="sub_bills">บิลรับซื้อ</button>
+          <button data-sub="expenses" onclick="acSub('expenses')" data-ac="sub_expenses">ค่าใช้จ่าย</button>
+          <button data-sub="sales" onclick="acSub('sales')" data-ac="sub_sales">การขายยาง</button>
+          <button data-sub="cats" onclick="acSub('cats')" data-ac="sub_cats">ประเภทค่าใช้จ่าย</button>
+        </div>
+        <div id="ac-sub-actions" style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap"></div>
+      </div>
+      <div id="ac-month-chip"></div>
+      <div class="card-body" style="padding:0"><div style="overflow-x:auto" id="ac-detail"></div></div>
+    </div>
+  </div>
+
   <div class="tab-pane" id="pane-activitylog">
     <div style="text-align:center;margin-bottom:1.2rem">
       <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="al_title">🕐 บันทึกกิจกรรม</div>
@@ -1485,6 +1610,16 @@ font{border:none!important;outline:none!important;display:inline!important}
       <button class="btn-secondary" onclick="closePayModal()">ยกเลิก</button>
       <button class="btn-pay" onclick="confirmPay()">✓ ยืนยันชำระ + ออกใบเสร็จ</button>
     </div>
+  </div>
+</div>
+
+<!-- ACCOUNTING MODAL (ค่าใช้จ่าย / การขาย / ประวัติ) -->
+<div class="modal-overlay" id="ac-modal" style="display:none" onclick="if(event.target===this)acCloseModal()">
+  <div class="modal-box" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <div class="bebas text-accent" style="font-size:1.25rem;letter-spacing:.06em;margin-bottom:.8rem" id="ac-modal-title"></div>
+    <div id="ac-modal-body"></div>
+    <div id="ac-modal-err" style="display:none;color:var(--red-d);font-size:.8rem;margin:.4rem 0"></div>
+    <div style="display:flex;gap:.6rem;justify-content:flex-end;margin-top:.9rem" id="ac-modal-actions"></div>
   </div>
 </div>
 
@@ -1643,7 +1778,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.21-1335";
+const APP_VERSION = "2026.10.23-1715";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -2283,6 +2418,7 @@ async function initApp(){
     show("tab-billhistory-btn", isAdmin);
     show("tab-cancelled-btn", isAdmin);
     show("tab-portal-btn", isAdmin);
+    show("tab-accounting-btn", isAdmin);
     const note=document.getElementById("role-restriction-note");
     if(note){
       if(currentUser?.role==="staff_cashier"){ note.style.display="block"; note.textContent="⚠ "+t("no_perm"); }
@@ -2537,7 +2673,7 @@ function clearOldMember(){
 // ── TABS ──
 let activeTab="create";
 function switchTab(tab,btn){
-  if((tab==="settings"||tab==="report")&&currentUser?.role!=="admin"){showToast("ไม่มีสิทธิ์เข้าถึงหน้านี้","error");return;}
+  if((tab==="settings"||tab==="report"||tab==="accounting")&&currentUser?.role!=="admin"){showToast("ไม่มีสิทธิ์เข้าถึงหน้านี้","error");return;}
   document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById("pane-detail").style.display="none";
@@ -2557,6 +2693,7 @@ function switchTab(tab,btn){
     if(tab==="mywork")renderMyWork();
     if(tab==="dashboard")renderDashboard();
     if(tab==="activitylog")renderActivityLog();
+    if(tab==="accounting"&&currentUser?.role==="admin")acOpen();
   }catch(e){
     console.error("switchTab render error ["+tab+"]:", e);
     if(pane){
@@ -5628,6 +5765,7 @@ const LANG_DICT = {
     col_price: "ราคา/กก. (กีบ)",
     col_subtotal: "ยอดรวม",
     col_no: "ลำดับ",
+    tab_accounting: "💰 บัญชี",
     note_label: "หมายเหตุ",
     status_label: "สถานะ",
     status_draft: "แบบร่าง",
@@ -5959,6 +6097,7 @@ const LANG_DICT = {
     col_price: "ລາຄາ/ກກ. (₭)",
     col_subtotal: "ຍອດລວມ",
     col_no: "ລຳດັບ",
+    tab_accounting: "💰 ບັນຊີ",
     note_label: "ໝາຍເຫດ",
     status_label: "ສະຖານະ",
     status_draft: "ແບບຮ່າງ",
@@ -6289,6 +6428,7 @@ const LANG_DICT = {
     col_qty: "Quantity (kg)",
     col_price: "Price/kg (₭)",
     col_no: "No.",
+    tab_accounting: "💰 Accounts",
     col_subtotal: "Subtotal",
     note_label: "Note",
     status_label: "Status",
@@ -6730,6 +6870,7 @@ function setLang(lang) {
   };
   document.body.style.fontFamily = fontMap[lang] || fontMap.th;
   applyLang();
+  try{ _acApplyLang(); if(acState.report) acRender(); }catch(e){}
   showToast(lang === "th" ? "TH เปลี่ยนภาษาไทย" : lang === "lo" ? "LA ປ່ຽນພາສາລາວ" : "EN Language changed", "info");
 }
 
@@ -7562,6 +7703,615 @@ function _kpiCard(icon, label, value, color) {
 function _dashLoadingState() {
   const kpiEl = document.getElementById('dash-kpi');
   if (kpiEl) kpiEl.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:20px;">กำลังโหลดข้อมูล...</div>`;
+}
+
+
+// =====================================================
+// ACCOUNTING — บัญชีรายรับ–รายจ่าย (แอดมินเท่านั้น)
+// ตัวเลขสรุปทั้งหมดคำนวณในฐานข้อมูล (RPC acct_report) ไม่คำนวณจากแคชในเครื่อง
+// =====================================================
+const AC_I18N = {
+  th: {
+    title:'บัญชีรายรับ–รายจ่าย', export:'⬇ CSV', refresh:'↻ รีเฟรช', period:'ช่วงเวลา', from:'ตั้งแต่', to:'ถึง',
+    p_this_month:'เดือนนี้', p_last_month:'เดือนที่แล้ว', p_last_3:'3 เดือนล่าสุด', p_this_year:'ปีนี้', p_all:'ทั้งหมด', p_custom:'กำหนดเอง',
+    count_bills:'บิลที่นับเป็นต้นทุน', inc_all:'ทุกบิล (ยกเว้นยกเลิก)', inc_paid:'เฉพาะชำระแล้ว', search:'ค้นหา',
+    search_ph:'PO, ลูกค้า, รายละเอียด, ผู้ซื้อ...', by_month:'สรุปแยกตามเดือน', by_month_hint:'กดที่เดือนเพื่อดูรายการต้นทาง',
+    chart_title:'เปรียบเทียบผลประกอบการรายเดือน', sub_bills:'บิลรับซื้อ', sub_expenses:'ค่าใช้จ่าย', sub_sales:'การขายยาง', sub_cats:'ประเภทค่าใช้จ่าย',
+    k_kg:'ยางที่รับซื้อ', k_cost:'ต้นทุนรับซื้อยาง', k_exp:'ค่าใช้จ่ายเพิ่มเติม', k_rev:'รายรับจากการขาย', k_profit:'กำไร / ขาดทุนสุทธิ',
+    k_unpaid:'ค้างจ่ายผู้ขาย', k_stock:'ยางคงเหลือ (ซื้อ − ขาย)', k_cash:'จ่ายเงินจริง (ตามวันชำระ)',
+    bills:'บิล', avg:'เฉลี่ย', no_data:'ไม่มีข้อมูล', no_sales_hint:'ยังไม่มีการบันทึกการขายในช่วงนี้ จึงยังคำนวณกำไรไม่ได้',
+    partial_sales:'มี {n} เดือนที่ยังไม่มีข้อมูลการขาย — กำไรรวมนับรายรับเฉพาะที่บันทึกไว้',
+    month:'เดือน', kg:'กก.', price_kg:'ราคา/กก.', rubber_cost:'ค่ายาง', ship_cost:'ค่าจัดส่งในบิล', purchase_cost:'ต้นทุนรับซื้อ',
+    expenses:'ค่าใช้จ่าย', revenue:'รายรับขาย', profit:'กำไร/ขาดทุน', unpaid:'ค้างจ่าย', cash_paid:'จ่ายจริง', total:'รวมทั้งหมด',
+    sold_kg:'ขาย (กก.)', sell_price:'ราคาขาย/กก.',
+    date:'วันที่', po:'เลขที่บิล', customer:'ผู้ขาย (ลูกค้า)', amount:'จำนวนเงิน', status:'สถานะ', paid_at:'วันที่ชำระ', receipt:'ใบเสร็จ',
+    not_counted:'ไม่นับ', category:'ประเภท', description:'รายละเอียด', note:'หมายเหตุ', by:'บันทึกโดย', edited:'แก้ไขล่าสุด',
+    buyer:'ผู้ซื้อ', doc_no:'เลขเอกสาร', actions:'', add_expense:'+ บันทึกค่าใช้จ่าย', add_sale:'+ บันทึกการขาย', add_cat:'+ เพิ่มประเภท',
+    show_deleted:'แสดงรายการที่ลบ', edit:'แก้ไข', history:'ประวัติ', del:'ลบ', restore:'กู้คืน', deleted:'ลบแล้ว',
+    save:'บันทึก', cancel:'ยกเลิก', close:'ปิด', required:'กรุณากรอกข้อมูลที่มี * ให้ครบ', amount_gt0:'จำนวนเงินต้องมากกว่า 0',
+    expense_new:'บันทึกค่าใช้จ่าย', expense_edit:'แก้ไขค่าใช้จ่าย', sale_new:'บันทึกการขายยาง', sale_edit:'แก้ไขการขายยาง',
+    hist_title:'ประวัติการแก้ไข', a_insert:'สร้าง', a_update:'แก้ไข', a_delete:'ลบ', a_restore:'กู้คืน',
+    cat_name:'ชื่อประเภท', active:'ใช้งาน', inactive:'ปิดใช้', rename:'เปลี่ยนชื่อ', toggle:'เปิด/ปิด',
+    confirm_del:'ลบรายการนี้? (ยังกู้คืนได้ และเก็บประวัติไว้)', saved:'บันทึกแล้ว — ยอดสรุปอัปเดตแล้ว',
+    issues_title:'ตรวจพบข้อมูลที่ควรตรวจสอบ {n} รายการ', issues_ok:'ตรวจความถูกต้องของข้อมูลแล้ว: ไม่พบปัญหา',
+    excluded:'ไม่นับ: บิลยกเลิก {c} ใบ (₭{ca})', excluded_unpaid:' · บิลยังไม่ชำระ {u} ใบ (₭{ua})',
+    month_chip:'แสดงเฉพาะเดือน {m}', clear:'✕ ทั้งหมด', counted_total:'รวม (เฉพาะที่นับ)', rows:'รายการ',
+    calc_hint:'คำนวณ {q} × {p} = {a}', amount_auto:'จำนวนเงิน (คำนวณอัตโนมัติ แก้ได้)',
+    generated:'ข้อมูลจากฐานข้อมูล ณ {t}', loading:'กำลังคำนวณจากฐานข้อมูล...', load_err:'โหลดข้อมูลบัญชีไม่สำเร็จ',
+    need_db:'ฐานข้อมูลยังไม่ได้ติดตั้งระบบบัญชี — ต้องรัน sql/03-accounting.sql', no_rows:'ไม่มีรายการ',
+    s_draft:'ร่าง', s_sent:'รอชำระ', s_paid:'ชำระแล้ว', s_cancelled:'ยกเลิก', profit_pos:'กำไร', profit_neg:'ขาดทุน',
+    i_items_mismatch:'ยอดบิลไม่ตรงกับผลรวมรายการสินค้า', i_kg_mismatch:'กก.ในบิลไม่ตรงกับรายการสินค้า', i_no_items:'บิลไม่มีรายการสินค้า',
+    i_receipt_amount_mismatch:'ยอดใบเสร็จไม่ตรงกับยอดบิล', i_multiple_receipts:'บิลมีใบเสร็จมากกว่า 1 ใบ', i_receipt_on_unpaid:'มีใบเสร็จแต่บิลยังไม่เป็น "ชำระแล้ว"',
+    i_paid_without_receipt:'ชำระแล้วแต่ไม่มีใบเสร็จ', i_paid_without_date:'ชำระแล้วแต่ไม่มีวันที่ชำระ', i_zero_amount:'บิลยอดเป็นศูนย์หรือติดลบ',
+    i_bill_date_missing:'บิลไม่มีวันที่ (ใช้วันที่สร้างแทน)', i_sale_amount_mismatch:'ยอดขายไม่เท่ากับ กก. × ราคา',
+    cash_note:'จ่ายจริง = ยอดบิลที่ชำระในเดือนนั้นตามวันที่ชำระ (ข้อมูลประกอบ ไม่บวกซ้ำกับต้นทุน)'
+  },
+  lo: {
+    title:'ບັນຊີລາຍຮັບ–ລາຍຈ່າຍ', export:'⬇ CSV', refresh:'↻ ໂຫຼດໃໝ່', period:'ຊ່ວງເວລາ', from:'ຕັ້ງແຕ່', to:'ເຖິງ',
+    p_this_month:'ເດືອນນີ້', p_last_month:'ເດືອນແລ້ວ', p_last_3:'3 ເດືອນລ່າສຸດ', p_this_year:'ປີນີ້', p_all:'ທັງໝົດ', p_custom:'ກຳນົດເອງ',
+    count_bills:'ບິນທີ່ນັບເປັນຕົ້ນທຶນ', inc_all:'ທຸກບິນ (ຍົກເວັ້ນຍົກເລີກ)', inc_paid:'ສະເພາະຊຳລະແລ້ວ', search:'ຄົ້ນຫາ',
+    search_ph:'PO, ລູກຄ້າ, ລາຍລະອຽດ, ຜູ້ຊື້...', by_month:'ສະຫຼຸບແຍກຕາມເດືອນ', by_month_hint:'ກົດທີ່ເດືອນເພື່ອເບິ່ງລາຍການຕົ້ນທາງ',
+    chart_title:'ປຽບທຽບຜົນປະກອບການລາຍເດືອນ', sub_bills:'ບິນຮັບຊື້', sub_expenses:'ຄ່າໃຊ້ຈ່າຍ', sub_sales:'ການຂາຍຢາງ', sub_cats:'ປະເພດຄ່າໃຊ້ຈ່າຍ',
+    k_kg:'ຢາງທີ່ຮັບຊື້', k_cost:'ຕົ້ນທຶນຮັບຊື້ຢາງ', k_exp:'ຄ່າໃຊ້ຈ່າຍເພີ່ມເຕີມ', k_rev:'ລາຍຮັບຈາກການຂາຍ', k_profit:'ກຳໄລ / ຂາດທຶນສຸດທິ',
+    k_unpaid:'ຄ້າງຈ່າຍຜູ້ຂາຍ', k_stock:'ຢາງຄົງເຫຼືອ (ຊື້ − ຂາຍ)', k_cash:'ຈ່າຍເງິນຈິງ (ຕາມວັນຊຳລະ)',
+    bills:'ບິນ', avg:'ສະເລ່ຍ', no_data:'ບໍ່ມີຂໍ້ມູນ', no_sales_hint:'ຍັງບໍ່ມີການບັນທຶກການຂາຍໃນຊ່ວງນີ້ ຈຶ່ງຍັງຄິດໄລ່ກຳໄລບໍ່ໄດ້',
+    partial_sales:'ມີ {n} ເດືອນທີ່ຍັງບໍ່ມີຂໍ້ມູນການຂາຍ — ກຳໄລລວມນັບລາຍຮັບສະເພາະທີ່ບັນທຶກໄວ້',
+    month:'ເດືອນ', kg:'ກິໂລ', price_kg:'ລາຄາ/ກິໂລ', rubber_cost:'ຄ່າຢາງ', ship_cost:'ຄ່າຂົນສົ່ງໃນບິນ', purchase_cost:'ຕົ້ນທຶນຮັບຊື້',
+    expenses:'ຄ່າໃຊ້ຈ່າຍ', revenue:'ລາຍຮັບຂາຍ', profit:'ກຳໄລ/ຂາດທຶນ', unpaid:'ຄ້າງຈ່າຍ', cash_paid:'ຈ່າຍຈິງ', total:'ລວມທັງໝົດ',
+    sold_kg:'ຂາຍ (ກິໂລ)', sell_price:'ລາຄາຂາຍ/ກິໂລ',
+    date:'ວັນທີ', po:'ເລກທີບິນ', customer:'ຜູ້ຂາຍ (ລູກຄ້າ)', amount:'ຈຳນວນເງິນ', status:'ສະຖານະ', paid_at:'ວັນທີຊຳລະ', receipt:'ໃບຮັບເງິນ',
+    not_counted:'ບໍ່ນັບ', category:'ປະເພດ', description:'ລາຍລະອຽດ', note:'ໝາຍເຫດ', by:'ບັນທຶກໂດຍ', edited:'ແກ້ໄຂລ່າສຸດ',
+    buyer:'ຜູ້ຊື້', doc_no:'ເລກເອກະສານ', actions:'', add_expense:'+ ບັນທຶກຄ່າໃຊ້ຈ່າຍ', add_sale:'+ ບັນທຶກການຂາຍ', add_cat:'+ ເພີ່ມປະເພດ',
+    show_deleted:'ສະແດງລາຍການທີ່ລຶບ', edit:'ແກ້ໄຂ', history:'ປະຫວັດ', del:'ລຶບ', restore:'ກູ້ຄືນ', deleted:'ລຶບແລ້ວ',
+    save:'ບັນທຶກ', cancel:'ຍົກເລີກ', close:'ປິດ', required:'ກະລຸນາປ້ອນຂໍ້ມູນທີ່ມີ * ໃຫ້ຄົບ', amount_gt0:'ຈຳນວນເງິນຕ້ອງຫຼາຍກວ່າ 0',
+    expense_new:'ບັນທຶກຄ່າໃຊ້ຈ່າຍ', expense_edit:'ແກ້ໄຂຄ່າໃຊ້ຈ່າຍ', sale_new:'ບັນທຶກການຂາຍຢາງ', sale_edit:'ແກ້ໄຂການຂາຍຢາງ',
+    hist_title:'ປະຫວັດການແກ້ໄຂ', a_insert:'ສ້າງ', a_update:'ແກ້ໄຂ', a_delete:'ລຶບ', a_restore:'ກູ້ຄືນ',
+    cat_name:'ຊື່ປະເພດ', active:'ໃຊ້ງານ', inactive:'ປິດໃຊ້', rename:'ປ່ຽນຊື່', toggle:'ເປີດ/ປິດ',
+    confirm_del:'ລຶບລາຍການນີ້? (ຍັງກູ້ຄືນໄດ້ ແລະ ເກັບປະຫວັດໄວ້)', saved:'ບັນທຶກແລ້ວ — ຍອດສະຫຼຸບອັບເດດແລ້ວ',
+    issues_title:'ກວດພົບຂໍ້ມູນທີ່ຄວນກວດສອບ {n} ລາຍການ', issues_ok:'ກວດຄວາມຖືກຕ້ອງຂອງຂໍ້ມູນແລ້ວ: ບໍ່ພົບບັນຫາ',
+    excluded:'ບໍ່ນັບ: ບິນຍົກເລີກ {c} ໃບ (₭{ca})', excluded_unpaid:' · ບິນຍັງບໍ່ຊຳລະ {u} ໃບ (₭{ua})',
+    month_chip:'ສະແດງສະເພາະເດືອນ {m}', clear:'✕ ທັງໝົດ', counted_total:'ລວມ (ສະເພາະທີ່ນັບ)', rows:'ລາຍການ',
+    calc_hint:'ຄິດໄລ່ {q} × {p} = {a}', amount_auto:'ຈຳນວນເງິນ (ຄິດໄລ່ອັດຕະໂນມັດ ແກ້ໄດ້)',
+    generated:'ຂໍ້ມູນຈາກຖານຂໍ້ມູນ ເວລາ {t}', loading:'ກຳລັງຄິດໄລ່ຈາກຖານຂໍ້ມູນ...', load_err:'ໂຫຼດຂໍ້ມູນບັນຊີບໍ່ສຳເລັດ',
+    need_db:'ຖານຂໍ້ມູນຍັງບໍ່ໄດ້ຕິດຕັ້ງລະບົບບັນຊີ — ຕ້ອງລັນ sql/03-accounting.sql', no_rows:'ບໍ່ມີລາຍການ',
+    s_draft:'ແບບຮ່າງ', s_sent:'ລໍຖ້າຊຳລະ', s_paid:'ຊຳລະແລ້ວ', s_cancelled:'ຍົກເລີກ', profit_pos:'ກຳໄລ', profit_neg:'ຂາດທຶນ',
+    i_items_mismatch:'ຍອດບິນບໍ່ກົງກັບຜົນລວມລາຍການສິນຄ້າ', i_kg_mismatch:'ກິໂລໃນບິນບໍ່ກົງກັບລາຍການສິນຄ້າ', i_no_items:'ບິນບໍ່ມີລາຍການສິນຄ້າ',
+    i_receipt_amount_mismatch:'ຍອດໃບຮັບເງິນບໍ່ກົງກັບຍອດບິນ', i_multiple_receipts:'ບິນມີໃບຮັບເງິນຫຼາຍກວ່າ 1 ໃບ', i_receipt_on_unpaid:'ມີໃບຮັບເງິນ ແຕ່ບິນຍັງບໍ່ເປັນ "ຊຳລະແລ້ວ"',
+    i_paid_without_receipt:'ຊຳລະແລ້ວ ແຕ່ບໍ່ມີໃບຮັບເງິນ', i_paid_without_date:'ຊຳລະແລ້ວ ແຕ່ບໍ່ມີວັນທີຊຳລະ', i_zero_amount:'ບິນຍອດເປັນສູນ ຫຼື ຕິດລົບ',
+    i_bill_date_missing:'ບິນບໍ່ມີວັນທີ (ໃຊ້ວັນທີສ້າງແທນ)', i_sale_amount_mismatch:'ຍອດຂາຍບໍ່ເທົ່າກັບ ກິໂລ × ລາຄາ',
+    cash_note:'ຈ່າຍຈິງ = ຍອດບິນທີ່ຊຳລະໃນເດືອນນັ້ນຕາມວັນທີຊຳລະ (ຂໍ້ມູນປະກອບ ບໍ່ບວກຊ້ຳກັບຕົ້ນທຶນ)'
+  },
+  en: {
+    title:'Income & Expense Accounts', export:'⬇ CSV', refresh:'↻ Refresh', period:'Period', from:'From', to:'To',
+    p_this_month:'This month', p_last_month:'Last month', p_last_3:'Last 3 months', p_this_year:'This year', p_all:'All time', p_custom:'Custom',
+    count_bills:'Bills counted as cost', inc_all:'All bills (except cancelled)', inc_paid:'Paid bills only', search:'Search',
+    search_ph:'PO, customer, description, buyer...', by_month:'Monthly summary', by_month_hint:'Click a month to see source records',
+    chart_title:'Monthly performance comparison', sub_bills:'Purchase bills', sub_expenses:'Expenses', sub_sales:'Rubber sales', sub_cats:'Expense categories',
+    k_kg:'Rubber purchased', k_cost:'Rubber purchase cost', k_exp:'Other expenses', k_rev:'Sales revenue', k_profit:'Net profit / loss',
+    k_unpaid:'Owed to sellers', k_stock:'Stock (bought − sold)', k_cash:'Cash paid (by payment date)',
+    bills:'bills', avg:'avg', no_data:'No data', no_sales_hint:'No sales recorded in this period, so profit cannot be calculated',
+    partial_sales:'{n} month(s) have no sales data — total profit only counts recorded revenue',
+    month:'Month', kg:'kg', price_kg:'Price/kg', rubber_cost:'Rubber', ship_cost:'Shipping in bills', purchase_cost:'Purchase cost',
+    expenses:'Expenses', revenue:'Revenue', profit:'Profit/Loss', unpaid:'Unpaid', cash_paid:'Cash paid', total:'Total',
+    sold_kg:'Sold (kg)', sell_price:'Sell price/kg',
+    date:'Date', po:'Bill no.', customer:'Seller (customer)', amount:'Amount', status:'Status', paid_at:'Paid on', receipt:'Receipt',
+    not_counted:'not counted', category:'Category', description:'Description', note:'Note', by:'Recorded by', edited:'Last edited',
+    buyer:'Buyer', doc_no:'Doc no.', actions:'', add_expense:'+ Add expense', add_sale:'+ Add sale', add_cat:'+ Add category',
+    show_deleted:'Show deleted', edit:'Edit', history:'History', del:'Delete', restore:'Restore', deleted:'deleted',
+    save:'Save', cancel:'Cancel', close:'Close', required:'Please fill in all fields marked *', amount_gt0:'Amount must be greater than 0',
+    expense_new:'Add expense', expense_edit:'Edit expense', sale_new:'Add rubber sale', sale_edit:'Edit rubber sale',
+    hist_title:'Change history', a_insert:'Created', a_update:'Edited', a_delete:'Deleted', a_restore:'Restored',
+    cat_name:'Category name', active:'Active', inactive:'Inactive', rename:'Rename', toggle:'On/Off',
+    confirm_del:'Delete this record? (It can be restored; history is kept)', saved:'Saved — summary updated',
+    issues_title:'{n} data issue(s) to review', issues_ok:'Data checked: no issues found',
+    excluded:'Not counted: {c} cancelled bill(s) (₭{ca})', excluded_unpaid:' · {u} unpaid bill(s) (₭{ua})',
+    month_chip:'Showing {m} only', clear:'✕ All', counted_total:'Total (counted only)', rows:'rows',
+    calc_hint:'{q} × {p} = {a}', amount_auto:'Amount (auto-calculated, editable)',
+    generated:'Live from database at {t}', loading:'Calculating from database...', load_err:'Could not load accounting data',
+    need_db:'Accounting is not installed in the database yet — run sql/03-accounting.sql', no_rows:'No records',
+    s_draft:'Draft', s_sent:'Awaiting payment', s_paid:'Paid', s_cancelled:'Cancelled', profit_pos:'Profit', profit_neg:'Loss',
+    i_items_mismatch:'Bill total differs from its line items', i_kg_mismatch:'Bill kg differs from line items', i_no_items:'Bill has no line items',
+    i_receipt_amount_mismatch:'Receipt amount differs from bill', i_multiple_receipts:'Bill has more than one receipt', i_receipt_on_unpaid:'Receipt exists but bill is not "paid"',
+    i_paid_without_receipt:'Paid but no receipt', i_paid_without_date:'Paid but no payment date', i_zero_amount:'Zero or negative bill',
+    i_bill_date_missing:'Bill has no date (creation date used)', i_sale_amount_mismatch:'Sale amount ≠ kg × price',
+    cash_note:'Cash paid = bills paid in that month by payment date (for reference; not added to cost again)'
+  }
+};
+function acT(k, vars){
+  const d = AC_I18N[currentLang] || AC_I18N.th;
+  let s = (d[k] !== undefined) ? d[k] : (AC_I18N.th[k] !== undefined ? AC_I18N.th[k] : k);
+  if (vars) Object.keys(vars).forEach(v => { s = s.split('{'+v+'}').join(vars[v]); });
+  return s;
+}
+function _acApplyLang(){
+  document.querySelectorAll('#pane-accounting [data-ac]').forEach(el => { el.textContent = acT(el.getAttribute('data-ac')); });
+  document.querySelectorAll('#pane-accounting [data-ac-ph]').forEach(el => { el.placeholder = acT(el.getAttribute('data-ac-ph')); });
+}
+
+const acState = { sub:'bills', month:null, report:null, bills:[], expenses:[], sales:[], cats:[], showDeleted:false, loading:false, chart:null, issueIds:new Set() };
+
+function _acLocale(){ return currentLang==='lo' ? 'lo-LA' : currentLang==='en' ? 'en-GB' : 'th-TH'; }
+function _acNum(v, dec){ if (v===null || v===undefined || v==='') return null; const n = Number(v); return isFinite(n) ? n : null; }
+function acMoney(v){
+  const n = _acNum(v); if (n===null) return `<span class="ac-nodata">${acT('no_data')}</span>`;
+  const neg = n < 0;
+  return (neg?'−':'') + '₭' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits: (Math.abs(n)%1?2:0), maximumFractionDigits:2});
+}
+function acMoneyPlain(v){ const n=_acNum(v); return n===null ? '' : String(Math.round(n*100)/100); }
+function acKg(v){ const n=_acNum(v); return n===null ? '—' : n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function acMonthLabel(m){
+  if (!m) return '—';
+  const [y,mo] = m.split('-').map(Number);
+  try { return new Date(y, mo-1, 1).toLocaleDateString(_acLocale(), {month:'short', year:'numeric'}); } catch(e){ return m; }
+}
+function acDate(d){ if(!d) return '—'; const s=String(d).slice(0,10); const [y,m,dd]=s.split('-'); return `${dd}/${m}/${y}`; }
+function acDateTime(ts){ if(!ts) return '—'; const d=new Date(ts); if(isNaN(d)) return '—'; const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function _acYmd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ── ช่วงเวลา ──
+function acPresetChange(){
+  const p = document.getElementById('ac-preset').value;
+  const now = new Date(); let f=null, t=null;
+  if (p==='this_month'){ f=new Date(now.getFullYear(), now.getMonth(), 1); t=new Date(now.getFullYear(), now.getMonth()+1, 0); }
+  else if (p==='last_month'){ f=new Date(now.getFullYear(), now.getMonth()-1, 1); t=new Date(now.getFullYear(), now.getMonth(), 0); }
+  else if (p==='last_3'){ f=new Date(now.getFullYear(), now.getMonth()-2, 1); t=new Date(now.getFullYear(), now.getMonth()+1, 0); }
+  else if (p==='this_year'){ f=new Date(now.getFullYear(), 0, 1); t=new Date(now.getFullYear(), 11, 31); }
+  if (p !== 'custom'){
+    document.getElementById('ac-from').value = f ? _acYmd(f) : '';
+    document.getElementById('ac-to').value   = t ? _acYmd(t) : '';
+  }
+  try{ localStorage.setItem('rl_ac_preset', p); }catch(e){}
+  acState.month = null;
+  acLoad();
+}
+function acDateChange(){
+  document.getElementById('ac-preset').value = 'custom';
+  try{ localStorage.setItem('rl_ac_preset', 'custom'); }catch(e){}
+  acState.month = null;
+  acLoad();
+}
+
+// เปิดแท็บ
+function acOpen(){
+  _acApplyLang();
+  const sel = document.getElementById('ac-preset');
+  if (!acState._init){
+    acState._init = true;
+    let p = 'this_month'; try{ p = localStorage.getItem('rl_ac_preset') || 'this_month'; }catch(e){}
+    if (p === 'custom') p = 'this_month';
+    sel.value = p;
+    acPresetChange();
+    return;
+  }
+  acLoad();
+}
+
+// ── โหลดข้อมูลจริงจากฐานข้อมูล ──
+async function acLoad(){
+  if (currentUser?.role !== 'admin') return;
+  const from = document.getElementById('ac-from').value || null;
+  const to   = document.getElementById('ac-to').value || null;
+  const inc  = document.getElementById('ac-inc').value === '1';
+  if (from && to && from > to){ showToast('⚠ '+acT('from')+' > '+acT('to'), 'error'); return; }
+  acState.loading = true;
+  document.getElementById('ac-kpi').innerHTML = `<div class="ac-sub" style="padding:1rem">${acT('loading')}</div>`;
+  try{
+    const args = { p_token:_staffToken, p_from:from, p_to:to, p_include_unpaid:inc };
+    const qExp = () => { let q=_sb.from('expenses').select('*').order('expense_date',{ascending:false}).order('id',{ascending:false}); if(from) q=q.gte('expense_date',from); if(to) q=q.lte('expense_date',to); return q; };
+    const qSal = () => { let q=_sb.from('rubber_sales').select('*').order('sale_date',{ascending:false}).order('id',{ascending:false}); if(from) q=q.gte('sale_date',from); if(to) q=q.lte('sale_date',to); return q; };
+    const [rep, bills, exps, sales, cats] = await Promise.all([
+      _rpc('acct_report', args),
+      _rpc('acct_bills', args),
+      _fetchAll(qExp).catch(e=>({__err:e})),
+      _fetchAll(qSal).catch(e=>({__err:e})),
+      _sb.from('expense_categories').select('*').order('sort_order').order('name')
+    ]);
+    if (rep.error){
+      const msg = _rpcMissing(rep.error) ? acT('need_db') : (acT('load_err')+': '+(rep.error.message||''));
+      document.getElementById('ac-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(msg)}</div>`;
+      acState.loading=false; return;
+    }
+    if (!rep.data?.ok){ document.getElementById('ac-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(acT('load_err'))}</div>`; acState.loading=false; return; }
+    acState.report   = rep.data;
+    acState.bills    = bills.data?.bills || [];
+    acState.expenses = Array.isArray(exps) ? exps : [];
+    acState.sales    = Array.isArray(sales) ? sales : [];
+    acState.cats     = cats.data || [];
+    acState.issueIds = new Set((rep.data.issues||[]).map(i=>String(i.order_id)));
+    if (exps.__err || sales.__err || cats.error) showToast('⚠ '+acT('load_err'), 'error');
+  }catch(e){
+    console.error('acLoad', e);
+    document.getElementById('ac-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(acT('load_err'))}</div>`;
+    acState.loading=false; return;
+  }
+  acState.loading = false;
+  acRender();
+}
+
+function acRender(){
+  const r = acState.report; if (!r) return;
+  document.getElementById('ac-generated').textContent = acT('generated', {t: acDateTime(r.generated_at)});
+  _acRenderIssues(); _acRenderKpi(); _acRenderMonths(); _acRenderChart(); acRenderDetail();
+}
+
+// ── ตรวจความถูกต้อง ──
+function _acRenderIssues(){
+  const r = acState.report, el = document.getElementById('ac-issues');
+  const iss = r.issues || [];
+  const ex = r.excluded || {};
+  let exTxt = '';
+  if ((ex.cancelled_n||0) > 0 || (ex.unpaid_excluded_n||0) > 0){
+    exTxt = acT('excluded', {c: ex.cancelled_n||0, ca: Number(ex.cancelled_amt||0).toLocaleString('en-US')});
+    if ((ex.unpaid_excluded_n||0) > 0) exTxt += acT('excluded_unpaid', {u: ex.unpaid_excluded_n, ua: Number(ex.unpaid_excluded_amt||0).toLocaleString('en-US')});
+  }
+  if (!iss.length){
+    el.innerHTML = `<div class="ac-alert ac-alert-ok">✅ ${esc(acT('issues_ok'))}${exTxt?` <span class="ac-sub">· ${esc(exTxt)}</span>`:''}</div>`;
+    return;
+  }
+  const rows = iss.map(i => {
+    const info = i.info || {};
+    let det = '';
+    if (info.bill !== undefined && info.items !== undefined) det = `${acMoney(info.bill)} ≠ ${acMoney(info.items)}`;
+    else if (info.bill !== undefined && info.receipts !== undefined) det = `${acMoney(info.bill)} ≠ ${acMoney(info.receipts)} (${esc(info.receipt_nos||'')})`;
+    else if (info.amount !== undefined) det = `${acMoney(info.amount)} ≠ ${acMoney(info.qty_x_price)}`;
+    else if (info.receipt_nos) det = esc(info.receipt_nos);
+    const isSale = String(i.order_id).startsWith('sale:');
+    const click = isSale ? `acEditSale(${Number(String(i.order_id).slice(5))})` : `acOpenBill('${escJs(i.order_id)}')`;
+    return `<li><a href="javascript:void(0)" onclick="${click}" class="ac-link">${esc(i.po_no||'')}</a> <span class="ac-sub">${esc(acMonthLabel(i.month))}</span> — ${esc(acT('i_'+i.code))} ${det?`<span class="mono">${det}</span>`:''}</li>`;
+  }).join('');
+  el.innerHTML = `<details class="ac-alert ac-alert-warn"><summary>⚠ ${esc(acT('issues_title',{n:iss.length}))}${exTxt?` <span class="ac-sub">· ${esc(exTxt)}</span>`:''}</summary><ul>${rows}</ul></details>`;
+}
+
+// ── การ์ดสรุป ──
+function _acRenderKpi(){
+  const T = acState.report.totals || {};
+  const profit = _acNum(T.net_profit);
+  const profitCls = profit===null ? '' : (profit >= 0 ? 'ac-pos' : 'ac-neg');
+  const profitSub = profit===null ? acT('no_sales_hint')
+                  : (T.months_without_sales > 0 ? acT('partial_sales',{n:T.months_without_sales}) : (profit>=0?acT('profit_pos'):acT('profit_neg')));
+  const card = (label, value, sub, cls) => `<div class="ac-card ${cls||''}"><div class="ac-card-l">${esc(label)}</div><div class="ac-card-v">${value}</div><div class="ac-card-s">${sub||''}</div></div>`;
+  const priceRange = (T.price_min!=null && T.price_max!=null && Number(T.price_min)!==Number(T.price_max))
+     ? ` (${acMoney(T.price_min)}–${acMoney(T.price_max)})` : '';
+  document.getElementById('ac-kpi').innerHTML = [
+    card(acT('k_kg'), `${acKg(T.kg)} <small>${acT('kg')}</small>`, `${T.n_bills||0} ${acT('bills')} · ${acT('avg')} ${T.avg_price!=null?acMoney(T.avg_price)+'/'+acT('kg'):acT('no_data')}${priceRange}`),
+    card(acT('k_cost'), acMoney(T.purchase_cost), `${acT('rubber_cost')} ${acMoney(T.rubber_amt)} · ${acT('ship_cost')} ${acMoney(T.ship_amt)}`),
+    card(acT('k_exp'), acMoney(T.expenses), `${T.n_expenses||0} ${acT('rows')}`),
+    card(acT('k_rev'), T.revenue==null ? `<span class="ac-nodata">${acT('no_data')}</span>` : acMoney(T.revenue),
+         T.revenue==null ? '' : `${acKg(T.sold_kg)} ${acT('kg')} · ${acT('avg')} ${acMoney(T.avg_sell_price)}/${acT('kg')}`),
+    card(acT('k_profit'), profit===null ? `<span class="ac-nodata">${acT('no_data')}</span>` : acMoney(profit), esc(profitSub), 'ac-card-profit '+profitCls),
+    card(acT('k_unpaid'), acMoney(T.unpaid_amt), `${T.n_unpaid||0} ${acT('bills')}`, Number(T.unpaid_amt)>0?'ac-card-warn':''),
+    card(acT('k_cash'), acMoney(T.cash_paid), esc(acT('cash_note'))),
+    card(acT('k_stock'), `${acKg(T.stock_kg)} <small>${acT('kg')}</small>`, T.n_sales>0 ? '' : esc(acT('no_sales_hint')))
+  ].join('');
+}
+
+// ── ตารางรายเดือน ──
+function _acRenderMonths(){
+  const M = acState.report.months || [], T = acState.report.totals || {};
+  const th = ['month','kg','price_kg','rubber_cost','ship_cost','purchase_cost','expenses','revenue','profit','unpaid','cash_paid','sold_kg']
+             .map(k=>`<th class="${k==='month'?'':'num'}">${esc(acT(k))}</th>`).join('');
+  const pr = (m) => {
+    if (m.avg_price==null) return `<span class="ac-nodata">${acT('no_data')}</span>`;
+    const rng = (m.price_min!=null && m.price_max!=null && Number(m.price_min)!==Number(m.price_max)) ? `<div class="ac-sub">${acMoney(m.price_min)}–${acMoney(m.price_max)}</div>` : '';
+    return acMoney(m.avg_price)+rng;
+  };
+  const profitCell = (v) => { const n=_acNum(v); if(n===null) return `<span class="ac-nodata">${acT('no_data')}</span>`; return `<span class="${n>=0?'ac-pos':'ac-neg'}">${acMoney(n)}</span>`; };
+  const rows = M.map(m => `<tr class="ac-mrow ${acState.month===m.month?'ac-sel':''}" onclick="acPickMonth('${escJs(m.month)}')">
+      <td><b>${esc(acMonthLabel(m.month))}</b><div class="ac-sub">${m.n_bills} ${acT('bills')}</div></td>
+      <td class="num">${acKg(m.kg)}</td><td class="num">${pr(m)}</td>
+      <td class="num">${acMoney(m.rubber_amt)}</td><td class="num">${acMoney(m.ship_amt)}</td>
+      <td class="num"><b>${acMoney(m.purchase_cost)}</b></td><td class="num">${acMoney(m.expenses)}</td>
+      <td class="num">${m.n_sales>0?acMoney(m.revenue):`<span class="ac-nodata">${acT('no_data')}</span>`}</td>
+      <td class="num">${profitCell(m.net_profit)}</td>
+      <td class="num">${Number(m.unpaid_amt)>0?`<span class="ac-warn">${acMoney(m.unpaid_amt)}</span>`:acMoney(0)}</td>
+      <td class="num">${acMoney(m.cash_paid)}</td><td class="num">${m.n_sales>0?acKg(m.sold_kg):'—'}</td>
+    </tr>`).join('');
+  const foot = `<tr class="ac-total"><td>${esc(acT('total'))}</td><td class="num">${acKg(T.kg)}</td>
+      <td class="num">${T.avg_price!=null?acMoney(T.avg_price):'—'}</td><td class="num">${acMoney(T.rubber_amt)}</td><td class="num">${acMoney(T.ship_amt)}</td>
+      <td class="num">${acMoney(T.purchase_cost)}</td><td class="num">${acMoney(T.expenses)}</td>
+      <td class="num">${T.revenue==null?`<span class="ac-nodata">${acT('no_data')}</span>`:acMoney(T.revenue)}</td>
+      <td class="num">${profitCell(T.net_profit)}</td><td class="num">${acMoney(T.unpaid_amt)}</td><td class="num">${acMoney(T.cash_paid)}</td>
+      <td class="num">${T.n_sales>0?acKg(T.sold_kg):'—'}</td></tr>`;
+  document.getElementById('ac-month-table').innerHTML = `<thead><tr>${th}</tr></thead><tbody>${rows || `<tr><td colspan="12" class="empty-state">${acT('no_rows')}</td></tr>`}</tbody>${M.length?`<tfoot>${foot}</tfoot>`:''}`;
+}
+function acPickMonth(m){
+  acState.month = (acState.month === m) ? null : m;
+  _acRenderMonths(); acRenderDetail();
+  document.getElementById('ac-subtabs').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── กราฟ ──
+async function _acRenderChart(){
+  const M = acState.report.months || [];
+  const cv = document.getElementById('ac-chart'); if (!cv) return;
+  try { await _loadChartJs(); } catch(e){ return; }
+  if (acState.chart) { try{ acState.chart.destroy(); }catch(e){} acState.chart = null; }
+  if (!M.length) return;
+  const labels = M.map(m=>acMonthLabel(m.month));
+  const nz = v => _acNum(v);
+  acState.chart = new Chart(cv, {
+    data: { labels, datasets: [
+      { type:'bar', label:acT('purchase_cost'), data:M.map(m=>nz(m.purchase_cost)), backgroundColor:'#0EA5E9', borderRadius:4, order:2 },
+      { type:'bar', label:acT('expenses'), data:M.map(m=>nz(m.expenses)), backgroundColor:'#F59E0B', borderRadius:4, order:2 },
+      { type:'bar', label:acT('revenue'), data:M.map(m=>m.n_sales>0?nz(m.revenue):null), backgroundColor:'#16A34A', borderRadius:4, order:2 },
+      { type:'line', label:acT('profit'), data:M.map(m=>nz(m.net_profit)), borderColor:'#7C3AED', backgroundColor:'#7C3AED', tension:.25, spanGaps:false, pointRadius:4, order:1 }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:(c)=> c.raw==null ? `${c.dataset.label}: ${acT('no_data')}` : `${c.dataset.label}: ₭${Number(c.raw).toLocaleString('en-US')}`}} },
+      scales:{ y:{ ticks:{ callback:(v)=> '₭'+Number(v).toLocaleString('en-US', {notation:'compact'}) } } } }
+  });
+}
+
+// ── รายการต้นทาง ──
+function acSub(s){ acState.sub = s; acRenderDetail(); }
+function _acInMonth(d){ return !acState.month || String(d||'').slice(0,7) === acState.month; }
+function _acMatch(txt){ const q=(document.getElementById('ac-search')?.value||'').trim().toLowerCase(); return !q || String(txt).toLowerCase().includes(q); }
+function acRenderDetail(){
+  document.querySelectorAll('#ac-subtabs button').forEach(b=>b.classList.toggle('active', b.dataset.sub===acState.sub));
+  const chip = document.getElementById('ac-month-chip');
+  chip.innerHTML = acState.month && acState.sub!=='cats'
+    ? `<div class="ac-chip">${esc(acT('month_chip',{m:acMonthLabel(acState.month)}))} <button onclick="acPickMonth('${escJs(acState.month)}')">${esc(acT('clear'))}</button></div>` : '';
+  const act = document.getElementById('ac-sub-actions');
+  if (acState.sub==='bills') act.innerHTML = '';
+  else if (acState.sub==='expenses') act.innerHTML = `<label class="ac-sub"><input type="checkbox" ${acState.showDeleted?'checked':''} onchange="acState.showDeleted=this.checked;acRenderDetail()"> ${esc(acT('show_deleted'))}</label><button class="btn-primary" style="padding:.35rem .8rem;font-size:.75rem" onclick="acEditExpense()">${esc(acT('add_expense'))}</button>`;
+  else if (acState.sub==='sales') act.innerHTML = `<label class="ac-sub"><input type="checkbox" ${acState.showDeleted?'checked':''} onchange="acState.showDeleted=this.checked;acRenderDetail()"> ${esc(acT('show_deleted'))}</label><button class="btn-primary" style="padding:.35rem .8rem;font-size:.75rem" onclick="acEditSale()">${esc(acT('add_sale'))}</button>`;
+  else act.innerHTML = `<button class="btn-primary" style="padding:.35rem .8rem;font-size:.75rem" onclick="acAddCat()">${esc(acT('add_cat'))}</button>`;
+  const box = document.getElementById('ac-detail');
+  if (acState.sub==='bills') box.innerHTML = _acBillsTable();
+  else if (acState.sub==='expenses') box.innerHTML = _acExpensesTable();
+  else if (acState.sub==='sales') box.innerHTML = _acSalesTable();
+  else box.innerHTML = _acCatsTable();
+}
+function _acStatus(s){ return `<span class="badge badge-${esc(s)}">${esc(acT('s_'+s))}</span>`; }
+function _acBillsTable(){
+  const inc = document.getElementById('ac-inc').value === '1';
+  const rows = acState.bills.filter(b => _acInMonth(b.bill_date) && _acMatch([b.po_no,b.customer,b.created_by,b.paid_by,b.receipt_nos].join(' ')));
+  let sKg=0, sAmt=0, sR=0, sS=0, n=0;
+  const body = rows.map(b => {
+    const counted = b.status!=='cancelled' && (inc || b.status==='paid');
+    if (counted){ sKg+=Number(b.total_qty)||0; sAmt+=Number(b.grand_total)||0; sR+=Number(b.rubber_amt)||0; sS+=Number(b.ship_amt)||0; n++; }
+    const pr = b.price_min==null ? '—' : (Number(b.price_min)===Number(b.price_max) ? acMoney(b.price_min) : `${acMoney(b.price_min)}–${acMoney(b.price_max)}`);
+    const warn = acState.issueIds.has(String(b.order_id)) ? ' <span title="!" class="ac-warn">⚠</span>' : '';
+    return `<tr class="${counted?'':'ac-muted'}" onclick="acOpenBill('${escJs(b.order_id)}')" style="cursor:pointer">
+      <td>${acDate(b.bill_date)}${b.date_missing?' <span class="ac-warn">*</span>':''}</td>
+      <td class="mono"><b>${esc(b.po_no)}</b>${warn}</td><td>${esc(b.customer)}</td>
+      <td class="num">${acKg(b.total_qty)}</td><td class="num">${pr}</td>
+      <td class="num">${acMoney(b.rubber_amt)}</td><td class="num">${acMoney(b.ship_amt)}</td>
+      <td class="num"><b>${acMoney(b.grand_total)}</b>${counted?'':`<div class="ac-sub">${esc(acT('not_counted'))}</div>`}</td>
+      <td>${_acStatus(b.status)}</td><td>${b.paid_at?acDateTime(b.paid_at):'—'}</td>
+      <td class="mono" style="font-size:.72rem">${esc(b.receipt_nos||'—')}</td></tr>`;
+  }).join('');
+  const head = ['date','po','customer','kg','price_kg','rubber_cost','ship_cost','amount','status','paid_at','receipt'].map(k=>`<th class="${['kg','price_kg','rubber_cost','ship_cost','amount'].includes(k)?'num':''}">${esc(acT(k))}</th>`).join('');
+  return `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="11" class="empty-state">${acT('no_rows')}</td></tr>`}</tbody>
+    ${rows.length?`<tfoot><tr class="ac-total"><td colspan="3">${esc(acT('counted_total'))} · ${n} ${esc(acT('bills'))}</td><td class="num">${acKg(sKg)}</td><td></td><td class="num">${acMoney(sR)}</td><td class="num">${acMoney(sS)}</td><td class="num">${acMoney(sAmt)}</td><td colspan="3"></td></tr></tfoot>`:''}</table>`;
+}
+function acOpenBill(id){
+  if (!orders.find(o=>String(o.id)===String(id))){ showToast('⚠ '+acT('no_rows'), 'error'); return; }
+  openDetail(id);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function _acCatName(id){ const c = acState.cats.find(x=>String(x.id)===String(id)); return c ? c.name : '#'+id; }
+function _acExpensesTable(){
+  const rows = acState.expenses.filter(e => (acState.showDeleted || !e.is_deleted) && _acInMonth(e.expense_date)
+                 && _acMatch([_acCatName(e.category_id), e.description, e.note, e.created_by].join(' ')));
+  let sum=0;
+  const body = rows.map(e => {
+    if (!e.is_deleted) sum += Number(e.amount)||0;
+    return `<tr class="${e.is_deleted?'ac-muted ac-strike':''}">
+      <td>${acDate(e.expense_date)}</td><td>${esc(_acCatName(e.category_id))}</td><td>${esc(e.description)}</td>
+      <td class="num"><b>${acMoney(e.amount)}</b></td><td style="max-width:200px">${esc(e.note||'')}</td>
+      <td>${esc(e.created_by||'—')}<div class="ac-sub">${acDateTime(e.created_at)}</div></td>
+      <td>${e.updated_at?`${esc(e.updated_by||'')}<div class="ac-sub">${acDateTime(e.updated_at)}</div>`:'—'}${e.is_deleted?`<div class="ac-neg">${esc(acT('deleted'))}</div>`:''}</td>
+      <td style="white-space:nowrap">${_acRowBtns('expenses', e)}</td></tr>`;
+  }).join('');
+  const head = ['date','category','description','amount','note','by','edited','actions'].map(k=>`<th class="${k==='amount'?'num':''}">${esc(acT(k))}</th>`).join('');
+  return `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="8" class="empty-state">${acT('no_rows')}</td></tr>`}</tbody>
+    ${rows.length?`<tfoot><tr class="ac-total"><td colspan="3">${esc(acT('counted_total'))}</td><td class="num">${acMoney(sum)}</td><td colspan="4"></td></tr></tfoot>`:''}</table>`;
+}
+function _acSalesTable(){
+  const rows = acState.sales.filter(s => (acState.showDeleted || !s.is_deleted) && _acInMonth(s.sale_date)
+                 && _acMatch([s.buyer, s.doc_no, s.note, s.created_by].join(' ')));
+  let sum=0, kg=0;
+  const body = rows.map(s => {
+    if (!s.is_deleted){ sum += Number(s.amount)||0; kg += Number(s.qty_kg)||0; }
+    const mism = Math.abs(Number(s.amount) - Number(s.qty_kg)*Number(s.price_per_kg)) > 1;
+    return `<tr class="${s.is_deleted?'ac-muted ac-strike':''}">
+      <td>${acDate(s.sale_date)}</td><td>${esc(s.buyer)}</td><td class="mono">${esc(s.doc_no||'—')}</td>
+      <td class="num">${acKg(s.qty_kg)}</td><td class="num">${acMoney(s.price_per_kg)}</td>
+      <td class="num"><b>${acMoney(s.amount)}</b>${mism?' <span class="ac-warn" title="'+esc(acT('i_sale_amount_mismatch'))+'">⚠</span>':''}</td>
+      <td style="max-width:200px">${esc(s.note||'')}</td>
+      <td>${esc(s.created_by||'—')}<div class="ac-sub">${acDateTime(s.created_at)}</div>${s.is_deleted?`<div class="ac-neg">${esc(acT('deleted'))}</div>`:''}</td>
+      <td style="white-space:nowrap">${_acRowBtns('rubber_sales', s)}</td></tr>`;
+  }).join('');
+  const head = ['date','buyer','doc_no','kg','price_kg','amount','note','by','actions'].map(k=>`<th class="${['kg','price_kg','amount'].includes(k)?'num':''}">${esc(acT(k))}</th>`).join('');
+  return `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${body || `<tr><td colspan="9" class="empty-state">${acT('no_rows')}</td></tr>`}</tbody>
+    ${rows.length?`<tfoot><tr class="ac-total"><td colspan="3">${esc(acT('counted_total'))}</td><td class="num">${acKg(kg)}</td><td></td><td class="num">${acMoney(sum)}</td><td colspan="3"></td></tr></tfoot>`:''}</table>`;
+}
+function _acRowBtns(table, r){
+  const ed = table==='expenses' ? `acEditExpense(${r.id})` : `acEditSale(${r.id})`;
+  return `${r.is_deleted?'':`<button class="ac-btn" onclick="${ed}">${esc(acT('edit'))}</button>`}
+    <button class="ac-btn" onclick="acHistory('${table}',${r.id})">${esc(acT('history'))}</button>
+    ${r.is_deleted ? `<button class="ac-btn" onclick="acSoftDelete('${table}',${r.id},false)">${esc(acT('restore'))}</button>`
+                   : `<button class="ac-btn ac-btn-del" onclick="acSoftDelete('${table}',${r.id},true)">${esc(acT('del'))}</button>`}`;
+}
+function _acCatsTable(){
+  const body = acState.cats.map(c => `<tr class="${c.is_active?'':'ac-muted'}">
+      <td>${esc(c.name)}</td><td>${c.is_active?esc(acT('active')):esc(acT('inactive'))}</td>
+      <td>${acState.expenses.filter(e=>!e.is_deleted && String(e.category_id)===String(c.id)).length}</td>
+      <td style="white-space:nowrap"><button class="ac-btn" onclick="acRenameCat(${c.id})">${esc(acT('rename'))}</button>
+        <button class="ac-btn" onclick="acToggleCat(${c.id})">${esc(acT('toggle'))}</button>
+        <button class="ac-btn" onclick="acHistory('expense_categories',${c.id})">${esc(acT('history'))}</button></td></tr>`).join('');
+  return `<table class="order-table ac-table"><thead><tr><th>${esc(acT('cat_name'))}</th><th>${esc(acT('status'))}</th><th>${esc(acT('rows'))}</th><th></th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+// ── Modal ──
+function acCloseModal(){ document.getElementById('ac-modal').style.display='none'; }
+function _acModal(title, bodyHtml, onSave){
+  document.getElementById('ac-modal-title').textContent = title;
+  document.getElementById('ac-modal-body').innerHTML = bodyHtml;
+  const err = document.getElementById('ac-modal-err'); err.style.display='none'; err.textContent='';
+  const act = document.getElementById('ac-modal-actions');
+  act.innerHTML = `<button class="btn-secondary" onclick="acCloseModal()">${esc(onSave?acT('cancel'):acT('close'))}</button>` + (onSave?`<button class="btn-primary" id="ac-save-btn">${esc(acT('save'))}</button>`:'');
+  if (onSave) document.getElementById('ac-save-btn').onclick = async () => {
+    const btn = document.getElementById('ac-save-btn'); btn.disabled = true;
+    try { await onSave(); } finally { btn.disabled = false; }
+  };
+  document.getElementById('ac-modal').style.display='flex';
+}
+function _acErr(msg){ const e=document.getElementById('ac-modal-err'); e.textContent='⚠ '+msg; e.style.display='block'; }
+function _acField(id, label, input){ return `<div class="form-group"><label class="form-label" for="${id}">${label}</label>${input}</div>`; }
+function _acDbErr(error){
+  const m = error?.message || '';
+  if (/row-level security|permission/i.test(m)) return 'ไม่มีสิทธิ์ (ต้องเป็นแอดมิน) / ບໍ່ມີສິດ';
+  if (/check constraint/i.test(m)) return acT('amount_gt0');
+  if (/duplicate key/i.test(m)) return 'มีชื่อนี้อยู่แล้ว / ມີຊື່ນີ້ແລ້ວ';
+  return m || 'error';
+}
+async function _acAfterSave(){ acCloseModal(); showToast('✅ '+acT('saved')); await acLoad(); }
+
+function acEditExpense(id){
+  const e = id ? acState.expenses.find(x=>x.id===id) : null;
+  const cats = acState.cats.filter(c => c.is_active || (e && String(c.id)===String(e.category_id)));
+  const opts = cats.map(c=>`<option value="${c.id}" ${e&&String(e.category_id)===String(c.id)?'selected':''}>${esc(c.name)}</option>`).join('');
+  const body =
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">`+
+    _acField('ac-e-date', acT('date')+' *', `<input type="date" id="ac-e-date" value="${esc(e?String(e.expense_date).slice(0,10):nowISO())}">`)+
+    _acField('ac-e-cat', acT('category')+' *', `<select id="ac-e-cat">${opts}</select>`)+`</div>`+
+    _acField('ac-e-desc', acT('description')+' *', `<input type="text" id="ac-e-desc" maxlength="300" value="${esc(e?e.description:'')}">`)+
+    _acField('ac-e-amt', acT('amount')+' (₭) *', `<input type="number" id="ac-e-amt" min="0" step="0.01" inputmode="decimal" value="${e?esc(acMoneyPlain(e.amount)):''}">`)+
+    _acField('ac-e-note', acT('note'), `<textarea id="ac-e-note" rows="2" maxlength="1000">${esc(e?e.note||'':'')}</textarea>`);
+  _acModal(e?acT('expense_edit'):acT('expense_new'), body, async () => {
+    const row = {
+      expense_date: document.getElementById('ac-e-date').value,
+      category_id: Number(document.getElementById('ac-e-cat').value),
+      description: document.getElementById('ac-e-desc').value.trim(),
+      amount: Number(document.getElementById('ac-e-amt').value),
+      note: document.getElementById('ac-e-note').value.trim()
+    };
+    if (!row.expense_date || !row.category_id || !row.description || !document.getElementById('ac-e-amt').value) return _acErr(acT('required'));
+    if (!(row.amount > 0)) return _acErr(acT('amount_gt0'));
+    const { data, error } = e ? await _sb.from('expenses').update(row).eq('id', e.id).select('id')
+                              : await _sb.from('expenses').insert(row).select('id');
+    if (error || !data || !data.length) return _acErr(_acDbErr(error));
+    logActivity(e?'expense_edit':'expense_add', String(data[0].id), row.description, `₭${row.amount}`);
+    await _acAfterSave();
+  });
+}
+
+function acEditSale(id){
+  const s = id ? acState.sales.find(x=>x.id===id) : null;
+  if (id && !s){ acSub('sales'); return; }
+  const body =
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">`+
+    _acField('ac-s-date', acT('date')+' *', `<input type="date" id="ac-s-date" value="${esc(s?String(s.sale_date).slice(0,10):nowISO())}">`)+
+    _acField('ac-s-doc', acT('doc_no'), `<input type="text" id="ac-s-doc" maxlength="60" value="${esc(s?s.doc_no||'':'')}">`)+`</div>`+
+    _acField('ac-s-buyer', acT('buyer')+' *', `<input type="text" id="ac-s-buyer" maxlength="200" value="${esc(s?s.buyer:'')}">`)+
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">`+
+    _acField('ac-s-kg', acT('kg')+' *', `<input type="number" id="ac-s-kg" min="0" step="0.01" inputmode="decimal" value="${s?esc(acMoneyPlain(s.qty_kg)):''}" oninput="_acSaleCalc()">`)+
+    _acField('ac-s-price', acT('sell_price')+' (₭) *', `<input type="number" id="ac-s-price" min="0" step="0.01" inputmode="decimal" value="${s?esc(acMoneyPlain(s.price_per_kg)):''}" oninput="_acSaleCalc()">`)+`</div>`+
+    _acField('ac-s-amt', acT('amount_auto')+' *', `<input type="number" id="ac-s-amt" min="0" step="0.01" inputmode="decimal" value="${s?esc(acMoneyPlain(s.amount)):''}" oninput="this.dataset.touched='1';_acSaleCalc(true)"><div class="ac-sub" id="ac-s-hint"></div>`)+
+    _acField('ac-s-note', acT('note'), `<textarea id="ac-s-note" rows="2" maxlength="1000">${esc(s?s.note||'':'')}</textarea>`);
+  _acModal(s?acT('sale_edit'):acT('sale_new'), body, async () => {
+    const amtEl = document.getElementById('ac-s-amt');
+    const row = {
+      sale_date: document.getElementById('ac-s-date').value,
+      buyer: document.getElementById('ac-s-buyer').value.trim(),
+      doc_no: document.getElementById('ac-s-doc').value.trim(),
+      qty_kg: Number(document.getElementById('ac-s-kg').value),
+      price_per_kg: Number(document.getElementById('ac-s-price').value),
+      amount: Number(amtEl.value),
+      note: document.getElementById('ac-s-note').value.trim()
+    };
+    if (!row.sale_date || !row.buyer || !document.getElementById('ac-s-kg').value || !document.getElementById('ac-s-price').value || amtEl.value==='') return _acErr(acT('required'));
+    if (!(row.qty_kg > 0) || row.price_per_kg < 0 || row.amount < 0) return _acErr(acT('amount_gt0'));
+    const { data, error } = s ? await _sb.from('rubber_sales').update(row).eq('id', s.id).select('id')
+                              : await _sb.from('rubber_sales').insert(row).select('id');
+    if (error || !data || !data.length) return _acErr(_acDbErr(error));
+    logActivity(s?'sale_edit':'sale_add', String(data[0].id), row.buyer, `${row.qty_kg} kg × ₭${row.price_per_kg} = ₭${row.amount}`);
+    await _acAfterSave();
+  });
+  if (s) document.getElementById('ac-s-amt').dataset.touched = '1';
+  _acSaleCalc(true);
+}
+function _acSaleCalc(fromAmount){
+  const kg = Number(document.getElementById('ac-s-kg')?.value||0), p = Number(document.getElementById('ac-s-price')?.value||0);
+  const amtEl = document.getElementById('ac-s-amt'); if (!amtEl) return;
+  const calc = Math.round(kg*p*100)/100;
+  if (!fromAmount && amtEl.dataset.touched!=='1') amtEl.value = (kg && p) ? calc : '';
+  const hint = document.getElementById('ac-s-hint');
+  const diff = Math.abs(Number(amtEl.value||0) - calc) > 1;
+  hint.innerHTML = (kg && p) ? `${esc(acT('calc_hint',{q:acKg(kg), p:'₭'+p.toLocaleString('en-US'), a:'₭'+calc.toLocaleString('en-US')}))}${diff?` <span class="ac-warn">⚠ ${esc(acT('i_sale_amount_mismatch'))}</span>`:''}` : '';
+}
+
+async function acSoftDelete(table, id, del){
+  if (del && !confirm(acT('confirm_del'))) return;
+  const { data, error } = await _sb.from(table).update({ is_deleted: !!del }).eq('id', id).select('id');
+  if (error || !data || !data.length){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  logActivity((del?'delete_':'restore_')+table, String(id), '', '');
+  showToast('✅ '+acT('saved'));
+  await acLoad();
+}
+
+async function acAddCat(){
+  const name = (prompt(acT('cat_name')+':')||'').trim(); if (!name) return;
+  const maxOrd = acState.cats.reduce((m,c)=>Math.max(m, c.sort_order||0), 0);
+  const { error } = await _sb.from('expense_categories').insert({ name, sort_order: Math.min(maxOrd+10, 10000) });
+  if (error){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  showToast('✅ '+acT('saved')); await acLoad();
+}
+async function acRenameCat(id){
+  const c = acState.cats.find(x=>x.id===id); if (!c) return;
+  const name = (prompt(acT('cat_name')+':', c.name)||'').trim(); if (!name || name===c.name) return;
+  const { error } = await _sb.from('expense_categories').update({ name }).eq('id', id);
+  if (error){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  showToast('✅ '+acT('saved')); await acLoad();
+}
+async function acToggleCat(id){
+  const c = acState.cats.find(x=>x.id===id); if (!c) return;
+  const { error } = await _sb.from('expense_categories').update({ is_active: !c.is_active }).eq('id', id);
+  if (error){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  await acLoad();
+}
+
+// ── ประวัติการแก้ไข ──
+const _AC_FIELDS = { expense_date:'date', sale_date:'date', category_id:'category', description:'description', amount:'amount',
+  note:'note', buyer:'buyer', qty_kg:'kg', price_per_kg:'price_kg', doc_no:'doc_no', name:'cat_name', is_active:'active', is_deleted:'deleted' };
+async function acHistory(table, id){
+  const { data, error } = await _sb.from('acct_audit').select('*').eq('table_name', table).eq('row_id', String(id)).order('at', {ascending:true});
+  if (error){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  const fmt = (k, v) => {
+    if (v===null || v===undefined || v==='') return '—';
+    if (k==='category_id') return esc(_acCatName(v));
+    if (k==='amount' || k==='price_per_kg') return acMoney(v);
+    if (k==='is_deleted' || k==='is_active') return v ? '✓' : '✗';
+    return esc(v);
+  };
+  const items = (data||[]).map(h => {
+    let changes = '';
+    if (h.action==='insert'){
+      changes = Object.keys(_AC_FIELDS).filter(k=>h.new_data && k in h.new_data && k!=='is_deleted' && k!=='is_active')
+        .map(k=>`<div>${esc(acT(_AC_FIELDS[k]))}: <b>${fmt(k,h.new_data[k])}</b></div>`).join('');
+    } else {
+      changes = Object.keys(_AC_FIELDS).filter(k=>h.old_data && h.new_data && JSON.stringify(h.old_data[k])!==JSON.stringify(h.new_data[k]))
+        .map(k=>`<div>${esc(acT(_AC_FIELDS[k]))}: <s>${fmt(k,h.old_data[k])}</s> → <b>${fmt(k,h.new_data[k])}</b></div>`).join('');
+    }
+    return `<div class="ac-hist"><div><b>${esc(acT('a_'+h.action))}</b> · ${esc(h.actor||'—')} · <span class="ac-sub">${acDateTime(h.at)}</span></div><div class="ac-hist-c">${changes||'—'}</div></div>`;
+  }).join('');
+  _acModal(acT('hist_title'), items || `<div class="ac-sub">${acT('no_rows')}</div>`, null);
+}
+
+// ── ส่งออก CSV (ตารางรายเดือน) ──
+function acExportCSV(){
+  const r = acState.report; if (!r) return;
+  const cols = ['month','n_bills','kg','avg_price','price_min','price_max','rubber_amt','ship_amt','purchase_cost','expenses','revenue','net_profit','paid_amt','unpaid_amt','cash_paid','sold_kg'];
+  const q = v => { if (v===null || v===undefined) return ''; const s=String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const lines = [cols.join(',')].concat((r.months||[]).map(m => cols.map(c=>q(m[c])).join(',')));
+  const T = r.totals || {};
+  lines.push(['TOTAL', T.n_bills, T.kg, T.avg_price, T.price_min, T.price_max, T.rubber_amt, T.ship_amt, T.purchase_cost, T.expenses, T.revenue, T.net_profit, T.paid_amt, T.unpaid_amt, T.cash_paid, T.sold_kg].map(q).join(','));
+  const blob = new Blob(['﻿'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `rubberledger-accounts-${r.from||'all'}_${r.to||'all'}.csv`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
 
 </script>
