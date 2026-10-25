@@ -535,6 +535,12 @@ font{border:none!important;outline:none!important;display:inline!important}
 .ac-hist-c{margin-top:.25rem;color:var(--text2);font-size:.76rem}
 .sl-kind{display:inline-block;font-size:.68rem;font-weight:700;border:1px solid;border-radius:999px;padding:.05rem .5rem;white-space:nowrap;background:#fff}
 .ac-card-in{border-color:var(--green-m)}
+.sl-ver{display:inline-block;font-size:.66rem;font-weight:700;border-radius:999px;padding:.03rem .45rem;margin-top:.2rem}
+.sl-ver.ok{background:var(--green-l);color:var(--green-d)}
+.sl-ver.wait{background:#FFF7ED;color:#C2410C}
+.sl-row{cursor:pointer}
+.sl-row:hover td{background:var(--sky-l)}
+.ac-btn.sl-verify{border-color:var(--green-m);color:var(--green-d);font-weight:700}
 #pane-staffledger .card{margin-bottom:1rem}
 #pane-accounting .card{margin-bottom:1rem}
 @media(max-width:640px){
@@ -1839,7 +1845,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.25-2300";
+const APP_VERSION = "2026.10.25-2330";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -3658,6 +3664,7 @@ function renderStaffList(){
           style="font-size:.7rem;padding:.25rem .6rem;border-radius:5px;cursor:pointer;border:1px solid ${active?'var(--gold)':'var(--green)'};background:${active?'var(--gold-l)':'var(--green-l)'};color:${active?'var(--gold-d)':'var(--green-d)'};margin-right:4px">
           ${active?'⏸ '+t('acc_deactivate'):'▶ '+t('acc_activate')}
         </button>
+        ${a.role==='staff_cashier'?`<button onclick="slOpenFor('${escJs(a.username)}')" style="font-size:.7rem;padding:.25rem .6rem;border-radius:5px;cursor:pointer;border:1px solid var(--green-m);background:var(--green-l);color:var(--green-d);margin-right:4px">${esc(slT('open_account'))}</button>`:''}
         <button class="btn-danger" onclick="removeStaffAccount('${escJs(a.username)}')">${t("btn_delete")}</button>
       </td>
     </tr>`;}).join("")+`</tbody></table></div>`;
@@ -8407,7 +8414,17 @@ const SL_I18N = {
     i_receipt_amount_mismatch:'ยอดใบเสร็จไม่ตรงกับยอดบิล', i_receipt_order_not_paid:'มีใบเสร็จแต่บิลไม่อยู่ในสถานะ "ชำระแล้ว"', i_multiple_receipts:'บิลมีใบเสร็จมากกว่า 1 ใบ',
     loading:'กำลังคำนวณจากฐานข้อมูล...', load_err:'โหลดบัญชีไม่สำเร็จ', need_db:'ฐานข้อมูลยังไม่ได้ติดตั้งบัญชีพนักงาน — ต้องรัน sql/04-staff-ledger.sql',
     generated:'ข้อมูลจากฐานข้อมูล ณ {t}', export:'⬇ CSV', refresh:'↻ รีเฟรช', edit:'แก้ไข', history:'ประวัติ', del:'ลบ',
-    method_lbl:'วิธีรับ/จ่าย', saved:'บันทึกแล้ว', confirm_del:'ลบรายการนี้? (กู้คืนได้ และเก็บประวัติไว้)', role_cashier:'พนักงานจ่ายเงิน', role_admin:'แอดมิน'
+    method_lbl:'วิธีรับ/จ่าย', saved:'บันทึกแล้ว', confirm_del:'ลบรายการนี้? (กู้คืนได้ และเก็บประวัติไว้)', role_cashier:'พนักงานจ่ายเงิน', role_admin:'แอดมิน',
+    add_my_in:'+ บันทึกเงินที่ได้รับ', add_my_ret:'+ ส่งเงินคืน', in_new_self:'บันทึกเงินที่ได้รับ', ret_new_self:'บันทึกการส่งเงินคืน',
+    source:'แหล่งที่มาของเงิน', source_ret:'ส่งคืนให้ใคร / ช่องทาง', ref_no:'เลขอ้างอิง (เช่น เลขโอน, เลขใบเบิก)', amount_total:'ยอดเงินรวมที่ได้รับ',
+    src_hint:'เช่น รับจากผู้จัดการ, ถอนจากธนาคาร, โอนจากบริษัท, เงินยกมาก่อนใช้ระบบ',
+    verified:'ยืนยันแล้ว', pending:'รอยืนยัน', verify:'✓ ยืนยัน', unverify:'ยกเลิกยืนยัน', verify_ok:'ยืนยันรายการแล้ว',
+    pending_sum:'รอแอดมินยืนยัน {a} ({n} รายการ)', by_source:'แยกตามแหล่งที่มา', no_source:'ไม่ระบุแหล่งที่มา',
+    detail_title:'รายละเอียดรายการ', d_status:'สถานะ', d_rec_by:'บันทึกโดย', d_rec_at:'บันทึกเมื่อ', d_edit_by:'แก้ไขล่าสุดโดย', d_edit_at:'แก้ไขล่าสุดเมื่อ',
+    d_ver_by:'ยืนยันโดย', d_ver_at:'ยืนยันเมื่อ', d_bill:'เลขที่บิล', d_receipt:'เลขใบเสร็จ', d_issued:'ออกใบเสร็จเมื่อ', d_issuer:'ผู้ออกใบเสร็จ',
+    d_payer:'ชื่อผู้จ่ายในบิล', d_biller:'ผู้จดบิล', d_bill_total:'ยอดบิล', d_items:'รายการสินค้า', d_bill_note:'หมายเหตุในบิล', d_location:'สถานที่',
+    d_category:'ประเภท', d_desc:'รายละเอียด', d_open_bill:'เปิดบิลต้นทาง', d_history:'ประวัติการแก้ไข', locked_hint:'รายการนี้ยืนยันแล้ว — แก้ไขได้เฉพาะแอดมิน',
+    open_account:'💵 บัญชี', form_hint:'หลังบันทึก รายการจะรอแอดมินยืนยัน — แก้ไข/ลบได้จนกว่าจะยืนยัน', rubber:'ยางพารา', shipping:'ค่าจัดส่ง'
   },
   lo: {
     my_title:'ບັນຊີຂອງຂ້ອຍ', staff_title:'ບັນຊີເງິນສົດພະນັກງານ', tab_mine:'💵 ບັນຊີຂອງຂ້ອຍ', tab_staff:'💵 ບັນຊີພະນັກງານ',
@@ -8429,7 +8446,17 @@ const SL_I18N = {
     i_receipt_amount_mismatch:'ຍອດໃບຮັບເງິນບໍ່ກົງກັບຍອດບິນ', i_receipt_order_not_paid:'ມີໃບຮັບເງິນ ແຕ່ບິນບໍ່ຢູ່ໃນສະຖານະ "ຊຳລະແລ້ວ"', i_multiple_receipts:'ບິນມີໃບຮັບເງິນຫຼາຍກວ່າ 1 ໃບ',
     loading:'ກຳລັງຄິດໄລ່ຈາກຖານຂໍ້ມູນ...', load_err:'ໂຫຼດບັນຊີບໍ່ສຳເລັດ', need_db:'ຖານຂໍ້ມູນຍັງບໍ່ໄດ້ຕິດຕັ້ງບັນຊີພະນັກງານ — ຕ້ອງລັນ sql/04-staff-ledger.sql',
     generated:'ຂໍ້ມູນຈາກຖານຂໍ້ມູນ ເວລາ {t}', export:'⬇ CSV', refresh:'↻ ໂຫຼດໃໝ່', edit:'ແກ້ໄຂ', history:'ປະຫວັດ', del:'ລຶບ',
-    method_lbl:'ວິທີຮັບ/ຈ່າຍ', saved:'ບັນທຶກແລ້ວ', confirm_del:'ລຶບລາຍການນີ້? (ກູ້ຄືນໄດ້ ແລະ ເກັບປະຫວັດໄວ້)', role_cashier:'ພະນັກງານຈ່າຍເງິນ', role_admin:'ແອັດມິນ'
+    method_lbl:'ວິທີຮັບ/ຈ່າຍ', saved:'ບັນທຶກແລ້ວ', confirm_del:'ລຶບລາຍການນີ້? (ກູ້ຄືນໄດ້ ແລະ ເກັບປະຫວັດໄວ້)', role_cashier:'ພະນັກງານຈ່າຍເງິນ', role_admin:'ແອັດມິນ',
+    add_my_in:'+ ບັນທຶກເງິນທີ່ໄດ້ຮັບ', add_my_ret:'+ ສົ່ງເງິນຄືນ', in_new_self:'ບັນທຶກເງິນທີ່ໄດ້ຮັບ', ret_new_self:'ບັນທຶກການສົ່ງເງິນຄືນ',
+    source:'ແຫຼ່ງທີ່ມາຂອງເງິນ', source_ret:'ສົ່ງຄືນໃຫ້ໃຜ / ຊ່ອງທາງ', ref_no:'ເລກອ້າງອີງ (ເຊັ່ນ ເລກໂອນ, ເລກໃບເບີກ)', amount_total:'ຍອດເງິນລວມທີ່ໄດ້ຮັບ',
+    src_hint:'ເຊັ່ນ ຮັບຈາກຜູ້ຈັດການ, ຖອນຈາກທະນາຄານ, ໂອນຈາກບໍລິສັດ, ເງິນຍົກມາກ່ອນໃຊ້ລະບົບ',
+    verified:'ຢືນຢັນແລ້ວ', pending:'ລໍຖ້າຢືນຢັນ', verify:'✓ ຢືນຢັນ', unverify:'ຍົກເລີກຢືນຢັນ', verify_ok:'ຢືນຢັນລາຍການແລ້ວ',
+    pending_sum:'ລໍຖ້າແອັດມິນຢືນຢັນ {a} ({n} ລາຍການ)', by_source:'ແຍກຕາມແຫຼ່ງທີ່ມາ', no_source:'ບໍ່ລະບຸແຫຼ່ງທີ່ມາ',
+    detail_title:'ລາຍລະອຽດລາຍການ', d_status:'ສະຖານະ', d_rec_by:'ບັນທຶກໂດຍ', d_rec_at:'ບັນທຶກເມື່ອ', d_edit_by:'ແກ້ໄຂລ່າສຸດໂດຍ', d_edit_at:'ແກ້ໄຂລ່າສຸດເມື່ອ',
+    d_ver_by:'ຢືນຢັນໂດຍ', d_ver_at:'ຢືນຢັນເມື່ອ', d_bill:'ເລກທີບິນ', d_receipt:'ເລກໃບຮັບເງິນ', d_issued:'ອອກໃບຮັບເງິນເມື່ອ', d_issuer:'ຜູ້ອອກໃບຮັບເງິນ',
+    d_payer:'ຊື່ຜູ້ຈ່າຍໃນບິນ', d_biller:'ຜູ້ຈົດບິນ', d_bill_total:'ຍອດບິນ', d_items:'ລາຍການສິນຄ້າ', d_bill_note:'ໝາຍເຫດໃນບິນ', d_location:'ສະຖານທີ່',
+    d_category:'ປະເພດ', d_desc:'ລາຍລະອຽດ', d_open_bill:'ເປີດບິນຕົ້ນທາງ', d_history:'ປະຫວັດການແກ້ໄຂ', locked_hint:'ລາຍການນີ້ຢືນຢັນແລ້ວ — ແກ້ໄຂໄດ້ສະເພາະແອັດມິນ',
+    open_account:'💵 ບັນຊີ', form_hint:'ຫຼັງບັນທຶກ ລາຍການຈະລໍຖ້າແອັດມິນຢືນຢັນ — ແກ້ໄຂ/ລຶບໄດ້ຈົນກວ່າຈະຢືນຢັນ', rubber:'ຢາງພາລາ', shipping:'ຄ່າຂົນສົ່ງ'
   },
   en: {
     my_title:'My account', staff_title:'Staff cash accounts', tab_mine:'💵 My account', tab_staff:'💵 Staff accounts',
@@ -8451,7 +8478,17 @@ const SL_I18N = {
     i_receipt_amount_mismatch:'Receipt amount differs from bill', i_receipt_order_not_paid:'Receipt exists but bill is not "paid"', i_multiple_receipts:'Bill has more than one receipt',
     loading:'Calculating from database...', load_err:'Could not load account', need_db:'Staff accounts are not installed in the database yet — run sql/04-staff-ledger.sql',
     generated:'Live from database at {t}', export:'⬇ CSV', refresh:'↻ Refresh', edit:'Edit', history:'History', del:'Delete',
-    method_lbl:'Method', saved:'Saved', confirm_del:'Delete this entry? (It can be restored; history is kept)', role_cashier:'Cashier', role_admin:'Admin'
+    method_lbl:'Method', saved:'Saved', confirm_del:'Delete this entry? (It can be restored; history is kept)', role_cashier:'Cashier', role_admin:'Admin',
+    add_my_in:'+ Record money received', add_my_ret:'+ Return cash', in_new_self:'Record money received', ret_new_self:'Record cash returned',
+    source:'Source of money', source_ret:'Returned to / channel', ref_no:'Reference (e.g. transfer no., voucher no.)', amount_total:'Total amount received',
+    src_hint:'e.g. from manager, bank withdrawal, company transfer, opening balance before using system',
+    verified:'Verified', pending:'Pending', verify:'✓ Verify', unverify:'Unverify', verify_ok:'Entry verified',
+    pending_sum:'Awaiting admin verification {a} ({n} entries)', by_source:'By source', no_source:'No source given',
+    detail_title:'Entry details', d_status:'Status', d_rec_by:'Recorded by', d_rec_at:'Recorded at', d_edit_by:'Last edited by', d_edit_at:'Last edited at',
+    d_ver_by:'Verified by', d_ver_at:'Verified at', d_bill:'Bill no.', d_receipt:'Receipt no.', d_issued:'Receipt issued at', d_issuer:'Receipt issued by',
+    d_payer:'Payer name on bill', d_biller:'Bill written by', d_bill_total:'Bill total', d_items:'Items', d_bill_note:'Bill note', d_location:'Location',
+    d_category:'Category', d_desc:'Description', d_open_bill:'Open source bill', d_history:'Change history', locked_hint:'This entry is verified — only an admin can edit it',
+    open_account:'💵 Account', form_hint:'After saving, the entry awaits admin verification — you can edit/delete it until then', rubber:'Rubber', shipping:'Shipping'
   }
 };
 function slT(k, vars){
@@ -8538,7 +8575,9 @@ function slRender(){
     (admin ? `<button class="btn-primary" style="padding:.4rem .8rem;font-size:.75rem" onclick="slEditMove(null,'advance')">${esc(slT('add_adv'))}</button>
               <button class="btn-secondary" onclick="slEditMove(null,'return')">${esc(slT('add_ret'))}</button>
               <button class="btn-secondary" onclick="slEditExpense()">${esc(slT('add_staff_exp'))}</button>`
-           : `<button class="btn-primary" style="padding:.4rem .8rem;font-size:.75rem" onclick="slEditExpense()">${esc(slT('add_my_exp'))}</button>`) +
+           : `<button class="btn-primary" style="padding:.4rem .8rem;font-size:.75rem" onclick="slEditMove(null,'advance')">${esc(slT('add_my_in'))}</button>
+              <button class="btn-secondary" onclick="slEditMove(null,'return')">${esc(slT('add_my_ret'))}</button>
+              <button class="btn-secondary" onclick="slEditExpense()">${esc(slT('add_my_exp'))}</button>`) +
     `<button class="btn-secondary" onclick="slExportCSV()">${esc(slT('export'))}</button><button class="btn-secondary" onclick="slLoad()">${esc(slT('refresh'))}</button>`;
   _slRenderIssues(); _slRenderKpi(); slRenderLines(); _slRenderDaily();
 }
@@ -8560,7 +8599,9 @@ function _slRenderKpi(){
   const closing = _acNum(S.closing);
   document.getElementById('sl-kpi').innerHTML = [
     card(slT('k_opening'), S.has_cash_records ? acMoney(S.opening) : nd, ''),
-    card(slT('k_in'), acMoney(S.cash_in), `${S.n_advances||0} ${esc(slT('times'))}`, 'ac-card-in'),
+    card(slT('k_in'), acMoney(S.cash_in), `${S.n_advances||0} ${esc(slT('times'))}`
+         + (Number(S.unverified_in)>0 ? `<br><span class="ac-warn">⏳ ${esc(slT('pending_sum',{a:'₭'+Number(S.unverified_in).toLocaleString('en-US'), n:S.n_unverified||0}))}</span>` : '')
+         + ((slState.data.by_source||[]).length ? '<br>' + (slState.data.by_source||[]).map(x=>`${esc(x.source||slT('no_source'))}: ${acMoney(x.amount)}`).join('<br>') : ''), 'ac-card-in'),
     card(slT('k_paid'), acMoney(S.paid_out), `${S.n_payments||0} ${esc(slT('bills'))} · ${acKg(S.kg)} ${esc(slT('kg'))}${S.avg_price!=null?` · ${esc(slT('avg'))} ${acMoney(S.avg_price)}${esc(slT('per_kg'))}`:''}${methods?`<br>${methods}`:''}`),
     card(slT('k_exp'), acMoney(S.expense_out), `${S.n_expenses||0} ${esc(acT('rows'))}`),
     card(slT('k_ret'), acMoney(S.returned), ''),
@@ -8587,15 +8628,24 @@ function slRenderLines(){
     let ref = esc(l.ref||'');
     if (l.kind==='payment') ref = `<a href="javascript:void(0)" class="ac-link" onclick="acOpenBill('${escJs(l.src_id)}')">${esc(l.ref2||'')}</a><div class="ac-sub mono">${esc(l.ref)}</div>`;
     const party = l.kind==='payment' ? `<b>${esc(l.party||'')}</b>${l.location?`<div class="ac-sub">📍 ${esc(l.location)}</div>`:''}`
-                : l.kind==='expense' ? `<b>${esc(l.ref2||'')}</b><div>${esc(l.detail||'')}</div>` : esc(l.detail||'');
+                : l.kind==='expense' ? `<b>${esc(l.ref2||'')}</b><div>${esc(l.detail||'')}</div>`
+                : `<b>${esc(l.party||'')}</b>${l.detail?`<div>${esc(l.detail)}</div>`:''}${l.ref2?`<div class="ac-sub mono">${esc(l.ref2)}</div>`:''}
+                   <div>${l.verified?`<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>`:`<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`}</div>`;
     const pr = l.price_min==null ? '' : (Number(l.price_min)===Number(l.price_max) ? acMoney(l.price_min) : `${acMoney(l.price_min)}–${acMoney(l.price_max)}`);
     const method = l.method ? esc(l.method==='transfer'?slT('transfer'):slT('cash')) : '';
     const bal = l.balance==null ? '—' : `<span class="${Number(l.balance)<0?'ac-neg':''}">${acMoney(l.balance)}</span>`;
     let btns = '';
     if (l.src_table==='expenses') btns = `<button class="ac-btn" onclick="slEditExpense(${Number(l.src_id)})">${esc(slT('edit'))}</button><button class="ac-btn" onclick="acHistory('expenses',${Number(l.src_id)})">${esc(slT('history'))}</button><button class="ac-btn ac-btn-del" onclick="slSoftDelete('expenses',${Number(l.src_id)})">${esc(slT('del'))}</button>`;
-    else if (l.src_table==='staff_cash_moves') btns = (admin?`<button class="ac-btn" onclick="slEditMove(${Number(l.src_id)})">${esc(slT('edit'))}</button>`:'') + `<button class="ac-btn" onclick="acHistory('staff_cash_moves',${Number(l.src_id)})">${esc(slT('history'))}</button>` + (admin?`<button class="ac-btn ac-btn-del" onclick="slSoftDelete('staff_cash_moves',${Number(l.src_id)})">${esc(slT('del'))}</button>`:'');
+    else if (l.src_table==='staff_cash_moves'){
+      const canEdit = admin || !l.verified;
+      btns = (admin && !l.verified ? `<button class="ac-btn sl-verify" onclick="slVerify(${Number(l.src_id)},true)">${esc(slT('verify'))}</button>` : '')
+           + (canEdit?`<button class="ac-btn" onclick="slEditMove(${Number(l.src_id)})">${esc(slT('edit'))}</button>`:'')
+           + `<button class="ac-btn" onclick="acHistory('staff_cash_moves',${Number(l.src_id)})">${esc(slT('history'))}</button>`
+           + (canEdit?`<button class="ac-btn ac-btn-del" onclick="slSoftDelete('staff_cash_moves',${Number(l.src_id)})">${esc(slT('del'))}</button>`:'');
+    }
     const t = l.kind==='payment' ? acDateTime(l.ts) : acDate(l.date);
-    return `<tr><td style="white-space:nowrap">${t}</td><td>${_slKindBadge(l.kind)}</td><td>${ref}</td><td>${party}</td>
+    const idx = (d.lines||[]).indexOf(l);
+    return `<tr class="sl-row" onclick="if(!event.target.closest('button,a'))slShowDetail(${idx})"><td style="white-space:nowrap">${t}</td><td>${_slKindBadge(l.kind)}</td><td>${ref}</td><td>${party}</td>
       <td class="num">${l.kg!=null?acKg(l.kg):''}</td><td class="num">${pr}</td><td>${method}</td>
       <td class="num ac-pos">${Number(l.in)?acMoney(l.in):''}</td><td class="num">${Number(l.out)?acMoney(l.out):''}</td>
       <td class="num"><b>${bal}</b></td><td style="white-space:nowrap">${btns}</td></tr>`;
@@ -8652,31 +8702,114 @@ async function slEditExpense(id){
     await _slAfterSave();
   });
 }
+const SL_SOURCES = {
+  th: ['รับจากผู้จัดการ','รับจากแอดมิน','ถอนจากธนาคาร','โอนจากบริษัท','เงินยกมาก่อนใช้ระบบ'],
+  lo: ['ຮັບຈາກຜູ້ຈັດການ','ຮັບຈາກແອັດມິນ','ຖອນຈາກທະນາຄານ','ໂອນຈາກບໍລິສັດ','ເງິນຍົກມາກ່ອນໃຊ້ລະບົບ'],
+  en: ['From manager','From admin','Bank withdrawal','Company transfer','Opening balance before system']
+};
 async function slEditMove(id, kind){
-  if (!_slIsAdmin()) return;
+  const admin = _slIsAdmin();
   let m = null;
   if (id){ const r = await _sb.from('staff_cash_moves').select('*').eq('id', id).maybeSingle(); m = r.data; if (!m) return; kind = m.kind; }
+  if (m && m.verified_at && !admin){ showToast('🔒 '+slT('locked_hint'), 'error'); return; }
   const staffName = slState.user.display_name || slState.user.username;
+  const isIn = kind === 'advance';
+  const opts = (SL_SOURCES[currentLang]||SL_SOURCES.th).map(x=>`<option value="${esc(x)}">`).join('');
   const body =
     `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">`+
     _acField('sl-m-date', acT('date')+' *', `<input type="date" id="sl-m-date" value="${esc(m?String(m.move_date).slice(0,10):nowISO())}">`)+
     _acField('sl-m-method', slT('method_lbl'), `<select id="sl-m-method"><option value="cash" ${m&&m.method==='transfer'?'':'selected'}>${esc(slT('cash'))}</option><option value="transfer" ${m&&m.method==='transfer'?'selected':''}>${esc(slT('transfer'))}</option></select>`)+`</div>`+
-    _acField('sl-m-amt', acT('amount')+' (₭) *', `<input type="number" id="sl-m-amt" min="0" step="0.01" inputmode="decimal" value="${m?esc(acMoneyPlain(m.amount)):''}">`)+
-    _acField('sl-m-note', acT('note'), `<textarea id="sl-m-note" rows="2" maxlength="1000">${esc(m?m.note||'':'')}</textarea>`);
-  _acModal(m ? slT('move_edit') : (kind==='advance' ? slT('adv_new',{n:staffName}) : slT('ret_new',{n:staffName})), body, async () => {
+    _acField('sl-m-amt', (isIn?slT('amount_total'):acT('amount'))+' (₭) *', `<input type="number" id="sl-m-amt" min="0" step="0.01" inputmode="decimal" value="${m?esc(acMoneyPlain(m.amount)):''}">`)+
+    _acField('sl-m-src', (isIn?slT('source'):slT('source_ret'))+(isIn?' *':''), `<input type="text" id="sl-m-src" list="sl-src-list" maxlength="200" value="${esc(m?m.source||'':'')}" placeholder="${esc(slT('src_hint'))}"><datalist id="sl-src-list">${opts}</datalist>`)+
+    _acField('sl-m-ref', slT('ref_no'), `<input type="text" id="sl-m-ref" maxlength="100" value="${esc(m?m.ref_no||'':'')}">`)+
+    _acField('sl-m-note', acT('note'), `<textarea id="sl-m-note" rows="2" maxlength="1000">${esc(m?m.note||'':'')}</textarea>`)+
+    (admin ? '' : `<div class="ac-sub">⏳ ${esc(slT('form_hint'))}</div>`);
+  const title = m ? slT('move_edit') : admin ? (isIn ? slT('adv_new',{n:staffName}) : slT('ret_new',{n:staffName})) : (isIn ? slT('in_new_self') : slT('ret_new_self'));
+  _acModal(title, body, async () => {
     const amtRaw = document.getElementById('sl-m-amt').value;
     const row = { move_date: document.getElementById('sl-m-date').value, method: document.getElementById('sl-m-method').value,
-                  amount: Number(amtRaw), note: document.getElementById('sl-m-note').value.trim() };
-    if (!row.move_date || amtRaw==='') return _acErr(acT('required'));
+                  amount: Number(amtRaw), source: document.getElementById('sl-m-src').value.trim(),
+                  ref_no: document.getElementById('sl-m-ref').value.trim(), note: document.getElementById('sl-m-note').value.trim() };
+    if (!row.move_date || amtRaw==='' || (isIn && !row.source)) return _acErr(acT('required'));
     if (!(row.amount > 0)) return _acErr(acT('amount_gt0'));
     if (!m){ row.kind = kind; row.staff_username = slState.user.username; }
     const { data, error } = m ? await _sb.from('staff_cash_moves').update(row).eq('id', m.id).select('id')
                               : await _sb.from('staff_cash_moves').insert(row).select('id');
-    if (error || !data || !data.length) return _acErr(_acDbErr(error));
-    logActivity('cash_'+(m?'edit':kind), String(data[0].id), staffName, `₭${row.amount}`);
+    if (error || !data || !data.length) return _acErr(/already_verified/.test(error?.message||'') ? slT('locked_hint') : _acDbErr(error));
+    logActivity('cash_'+(m?'edit':kind), String(data[0].id), staffName, `₭${row.amount} · ${row.source}`);
     await _slAfterSave();
   });
 }
+async function slVerify(id, on){
+  if (!_slIsAdmin()) return;
+  const { data, error } = await _sb.from('staff_cash_moves').update({ verified_at: on ? new Date().toISOString() : null }).eq('id', id).select('id');
+  if (error || !data || !data.length){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  logActivity(on?'cash_verify':'cash_unverify', String(id), slState.user?.username||'', '');
+  showToast('✅ '+slT('verify_ok')); acCloseModal(); await slLoad();
+}
+
+// ── รายละเอียดเต็มของแต่ละรายการ (คลิกที่แถว) ──
+async function slShowDetail(idx){
+  const l = (slState.data?.lines||[])[idx]; if (!l) return;
+  const m = l.meta || {}, admin = _slIsAdmin();
+  const row = (k, v) => (v===null || v===undefined || v==='') ? '' : `<tr><th style="text-align:left;width:42%;color:var(--muted);font-weight:600;padding:.35rem .5rem">${esc(k)}</th><td style="padding:.35rem .5rem">${v}</td></tr>`;
+  const meth = (x) => x ? esc(x==='transfer'?slT('transfer'):slT('cash')) : '';
+  let rows = row(slT('kind'), _slKindBadge(l.kind)) + row(acT('date'), l.kind==='payment'?acDateTime(l.ts):acDate(l.date));
+  if (l.src_table === 'staff_cash_moves'){
+    rows += row(l.kind==='advance'?slT('amount_total'):acT('amount'), `<b>${acMoney(m.amount)}</b>`)
+          + row(l.kind==='advance'?slT('source'):slT('source_ret'), esc(m.source||'') || `<span class="ac-nodata">${esc(slT('no_source'))}</span>`)
+          + row(slT('method_lbl'), meth(m.method)) + row(slT('ref_no'), esc(m.ref_no||'')) + row(acT('note'), esc(m.note||''))
+          + row(slT('d_status'), l.verified ? `<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>` : `<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`)
+          + row(slT('d_ver_by'), esc(m.verified_by||'')) + row(slT('d_ver_at'), m.verified_at?acDateTime(m.verified_at):'');
+  } else if (l.src_table === 'expenses'){
+    rows += row(slT('d_category'), esc(m.category||'')) + row(slT('d_desc'), esc(m.description||''))
+          + row(acT('amount'), `<b>${acMoney(m.amount)}</b>`) + row(acT('note'), esc(m.note||''));
+  } else {
+    const items = (m.items||[]).map(it => `${esc(it.product==='SHIPPING'?slT('shipping'):slT('rubber'))}: ${acKg(it.qty)} ${esc(slT('kg'))} × ${acMoney(it.price)} = ${acMoney((Number(it.qty)||0)*(Number(it.price)||0))}`).join('<br>');
+    rows += row(slT('d_bill'), `<a href="javascript:void(0)" class="ac-link" onclick="acCloseModal();acOpenBill('${escJs(l.src_id)}')">${esc(m.po_no||'')}</a>`)
+          + row(slT('d_receipt'), `<span class="mono">${esc(m.receipt_no||'')}</span>`)
+          + row(acT('customer'), esc(m.customer||'')) + row(acT('kg'), m.kg!=null?acKg(m.kg):'')
+          + row(slT('d_items'), items) + row(slT('out'), `<b>${acMoney(m.amount)}</b>`) + row(slT('d_bill_total'), acMoney(m.bill_total))
+          + row(slT('method_lbl'), meth(m.pay_method)) + row(slT('d_issued'), m.issued_at?acDateTime(m.issued_at):'')
+          + row(slT('d_issuer'), esc((m.issued_by_name||'') + (m.issued_by?` (${m.issued_by})`:'')))
+          + row(slT('d_payer'), esc(m.paid_by||'')) + row(slT('d_biller'), esc(m.created_by||''))
+          + row(slT('d_location'), esc(m.location||'')) + row(acT('note'), esc(m.note||'')) + row(slT('d_bill_note'), esc(m.bill_note||''));
+  }
+  rows += row(slT('d_rec_by'), esc(m.created_by && l.src_table!=='orders' ? m.created_by : '')) + row(slT('d_rec_at'), (m.created_at && l.src_table!=='orders')?acDateTime(m.created_at):'')
+        + row(slT('d_edit_by'), esc(m.updated_by||'')) + row(slT('d_edit_at'), m.updated_at?acDateTime(m.updated_at):'')
+        + row(slT('balance'), l.balance!=null ? `<b>${acMoney(l.balance)}</b>` : '');
+  let hist = '';
+  if (l.src_table !== 'orders'){
+    const { data } = await _sb.from('acct_audit').select('*').eq('table_name', l.src_table).eq('row_id', String(l.src_id)).order('at', {ascending:true});
+    hist = (data||[]).map(h => `<div class="ac-hist"><b>${esc(acT('a_'+h.action))}</b> · ${esc(h.actor||'—')} · <span class="ac-sub">${acDateTime(h.at)}</span>${
+      h.action==='update' && h.old_data ? '<div class="ac-hist-c">' + ['amount','source','move_date','expense_date','method','ref_no','note','description','verified_at']
+        .filter(k => k in (h.new_data||{}) && JSON.stringify(h.old_data[k])!==JSON.stringify(h.new_data[k]))
+        .map(k => { const f = v => v==null ? '—' : (k==='verified_at' ? acDateTime(v) : esc(v)); return `${esc(({source:slT('source'),ref_no:'Ref',method:slT('method_lbl'),verified_at:slT('d_ver_at')})[k] || (_AC_FIELDS[k] ? acT(_AC_FIELDS[k]) : k))}: <s>${f(h.old_data[k])}</s> → <b>${f(h.new_data[k])}</b>`; }).join('<br>') + '</div>' : ''}</div>`).join('');
+  }
+  _acModal(slT('detail_title'), `<table style="width:100%;border-collapse:collapse;font-size:.85rem">${rows}</table>${hist?`<div style="margin-top:.8rem"><div class="form-label">${esc(slT('d_history'))}</div>${hist}</div>`:''}`, null);
+  if (l.src_table === 'staff_cash_moves'){
+    const act = document.getElementById('ac-modal-actions');
+    const canEdit = admin || !l.verified;
+    act.innerHTML = (admin ? `<button class="btn-secondary" onclick="slVerify(${Number(l.src_id)},${l.verified?'false':'true'})">${esc(l.verified?slT('unverify'):slT('verify'))}</button>` : '')
+      + (canEdit ? `<button class="btn-secondary" onclick="acCloseModal();slEditMove(${Number(l.src_id)})">${esc(slT('edit'))}</button>` : `<span class="ac-sub">🔒 ${esc(slT('locked_hint'))}</span>`)
+      + `<button class="btn-primary" onclick="acCloseModal()">${esc(acT('close'))}</button>`;
+  } else if (l.src_table === 'expenses'){
+    document.getElementById('ac-modal-actions').innerHTML = `<button class="btn-secondary" onclick="acCloseModal();slEditExpense(${Number(l.src_id)})">${esc(slT('edit'))}</button><button class="btn-primary" onclick="acCloseModal()">${esc(acT('close'))}</button>`;
+  }
+}
+
+// เปิดบัญชีของพนักงานคนที่เลือกจากหน้าตั้งค่า (แอดมิน)
+async function slOpenFor(username){
+  if (!_slIsAdmin()) return;
+  switchTab('staffledger', document.getElementById('tab-staffledger-btn'));
+  await new Promise(r=>setTimeout(r, 300));
+  const sel = document.getElementById('sl-staff');
+  if (sel && ![...sel.options].some(o=>o.value===username)){
+    const o = document.createElement('option'); o.value = username; o.textContent = username; sel.appendChild(o);
+  }
+  if (sel){ sel.value = username; slLoad(); }
+}
+
 async function slSoftDelete(table, id){
   if (!confirm(slT('confirm_del'))) return;
   const { data, error } = await _sb.from(table).update({ is_deleted:true }).eq('id', id).select('id');
