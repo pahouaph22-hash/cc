@@ -533,6 +533,9 @@ font{border:none!important;outline:none!important;display:inline!important}
 .ac-btn-del{color:#B91C1C;border-color:#FECACA}
 .ac-hist{border-left:3px solid var(--sky-m);padding:.4rem .7rem;margin-bottom:.6rem;font-size:.8rem}
 .ac-hist-c{margin-top:.25rem;color:var(--text2);font-size:.76rem}
+.sl-kind{display:inline-block;font-size:.68rem;font-weight:700;border:1px solid;border-radius:999px;padding:.05rem .5rem;white-space:nowrap;background:#fff}
+.ac-card-in{border-color:var(--green-m)}
+#pane-staffledger .card{margin-bottom:1rem}
 #pane-accounting .card{margin-bottom:1rem}
 @media(max-width:640px){
   .ac-kpi{grid-template-columns:1fr 1fr;gap:8px}
@@ -703,6 +706,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     <button class="tab-btn" id="tab-pending-btn" onclick="switchTab('pending',this)" data-i18n="tab_pending">รอชำระ</button>
     <button class="tab-btn" id="tab-history-btn" onclick="switchTab('history',this)" data-i18n="tab_history">ประวัติการเก็บเงิน</button>
     <button class="tab-btn" id="tab-mywork-btn" onclick="switchTab('mywork',this)" style="display:none" data-i18n="tab_mywork">รายละเอียดการดำเนินการ</button>
+    <button class="tab-btn" id="tab-staffledger-btn" onclick="switchTab('staffledger',this)" style="display:none">💵 บัญชีของฉัน</button>
     <button class="tab-btn" id="tab-report-btn" onclick="switchTab('report',this)" style="display:none" data-i18n="tab_report">📊 รายละเอียด</button>
     <button class="tab-btn" id="tab-billhistory-btn" onclick="switchTab('billhistory',this)" style="display:none" data-i18n="tab_billhistory">📚 ประวัติใบบิลที่ชำระแล้ว</button>
     <button class="tab-btn" id="tab-cancelled-btn" onclick="switchTab('cancelled',this)" style="display:none" data-i18n="tab_cancelled">🚫 ใบบิลที่ยกเลิก</button>
@@ -1500,6 +1504,63 @@ font{border:none!important;outline:none!important;display:inline!important}
     </div>
   </div>
 
+  <!-- TAB: STAFF LEDGER (บัญชีเงินสดพนักงานจ่ายเงิน) -->
+  <div class="tab-pane" id="pane-staffledger">
+    <div class="ac-head">
+      <div>
+        <div class="bebas" style="font-size:1.7rem;letter-spacing:.06em" id="sl-title"></div>
+        <div class="ac-sub" id="sl-generated"></div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center" id="sl-actions"></div>
+    </div>
+
+    <div class="card ac-filter">
+      <div class="ac-filter-row">
+        <label class="ac-f" id="sl-staff-wrap" style="display:none"><span class="form-label" data-sl="staff">พนักงาน</span>
+          <select id="sl-staff" onchange="slLoad()"></select>
+        </label>
+        <label class="ac-f"><span class="form-label" data-sl="period">ช่วงเวลา</span>
+          <select id="sl-preset" onchange="slPresetChange()">
+            <option value="today" data-sl="p_today">วันนี้</option>
+            <option value="yesterday" data-sl="p_yesterday">เมื่อวาน</option>
+            <option value="last_7" data-sl="p_last_7">7 วันล่าสุด</option>
+            <option value="this_month" data-sl="p_this_month">เดือนนี้</option>
+            <option value="last_month" data-sl="p_last_month">เดือนที่แล้ว</option>
+            <option value="all" data-sl="p_all">ทั้งหมด</option>
+            <option value="custom" data-sl="p_custom">กำหนดเอง</option>
+          </select>
+        </label>
+        <label class="ac-f"><span class="form-label" data-sl="from">ตั้งแต่</span><input type="date" id="sl-from" onchange="slDateChange()"></label>
+        <label class="ac-f"><span class="form-label" data-sl="to">ถึง</span><input type="date" id="sl-to" onchange="slDateChange()"></label>
+        <label class="ac-f"><span class="form-label" data-sl="type">ประเภท</span>
+          <select id="sl-type" onchange="slRenderLines()">
+            <option value="" data-sl="t_all">ทั้งหมด</option>
+            <option value="in" data-sl="t_in">รายรับ</option>
+            <option value="payment" data-sl="t_payment">จ่ายค่ายาง</option>
+            <option value="expense" data-sl="t_expense">ค่าใช้จ่าย</option>
+            <option value="return" data-sl="t_return">ส่งเงินคืน</option>
+          </select>
+        </label>
+        <label class="ac-f" style="flex:1;min-width:180px"><span class="form-label" data-sl="search">ค้นหา</span>
+          <input type="text" id="sl-search" oninput="_deb(slRenderLines)" data-sl-ph="search_ph" placeholder="เลขใบเสร็จ, PO, ผู้ขาย, รายละเอียด...">
+        </label>
+      </div>
+    </div>
+
+    <div id="sl-issues"></div>
+    <div id="sl-kpi" class="ac-kpi"></div>
+
+    <div class="card">
+      <div class="card-header"><span data-sl="statement">รายการเดินบัญชี</span><span class="ac-sub" data-sl="statement_hint">เรียงตามเวลา พร้อมยอดคงเหลือหลังแต่ละรายการ</span></div>
+      <div class="card-body" style="padding:0"><div style="overflow-x:auto" id="sl-lines"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span data-sl="daily">สรุปรายวัน</span></div>
+      <div class="card-body" style="padding:0"><div style="overflow-x:auto" id="sl-daily"></div></div>
+    </div>
+  </div>
+
   <div class="tab-pane" id="pane-activitylog">
     <div style="text-align:center;margin-bottom:1.2rem">
       <div class="bebas" style="font-size:1.8rem;letter-spacing:.08em" data-i18n="al_title">🕐 บันทึกกิจกรรม</div>
@@ -1778,7 +1839,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.23-1715";
+const APP_VERSION = "2026.10.25-2300";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -2379,6 +2440,7 @@ function _teardown(){
   _staffToken=null;
   _clearSession();
   orders=[]; ACCOUNTS=[];
+  try{ slState.data=null; slState.people=[]; slState._init=false; acState.report=null; acState._init=false; acState.cats=[]; }catch(e){}
   try{ _receipts=[]; _activityLogs=[]; }catch(e){}
   // ล้างแคชบิลในเครื่อง ยกเว้นมีงานรอซิงก์ (กันข้อมูลหาย)
   if(_syncQueue.length===0){ try{ localStorage.removeItem("rubber_orders"); }catch(e){} }
@@ -2419,6 +2481,8 @@ async function initApp(){
     show("tab-cancelled-btn", isAdmin);
     show("tab-portal-btn", isAdmin);
     show("tab-accounting-btn", isAdmin);
+    show("tab-staffledger-btn", isAdmin || currentUser?.role==="staff_cashier");
+    try{ _slApplyLang(); }catch(e){}
     const note=document.getElementById("role-restriction-note");
     if(note){
       if(currentUser?.role==="staff_cashier"){ note.style.display="block"; note.textContent="⚠ "+t("no_perm"); }
@@ -2673,6 +2737,7 @@ function clearOldMember(){
 // ── TABS ──
 let activeTab="create";
 function switchTab(tab,btn){
+  if(tab==="staffledger"&&currentUser?.role!=="admin"&&currentUser?.role!=="staff_cashier"){showToast(t("no_perm"),"error");return;}
   if((tab==="settings"||tab==="report"||tab==="accounting")&&currentUser?.role!=="admin"){showToast("ไม่มีสิทธิ์เข้าถึงหน้านี้","error");return;}
   document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
@@ -2694,6 +2759,7 @@ function switchTab(tab,btn){
     if(tab==="dashboard")renderDashboard();
     if(tab==="activitylog")renderActivityLog();
     if(tab==="accounting"&&currentUser?.role==="admin")acOpen();
+    if(tab==="staffledger"&&(currentUser?.role==="admin"||currentUser?.role==="staff_cashier"))slOpen();
   }catch(e){
     console.error("switchTab render error ["+tab+"]:", e);
     if(pane){
@@ -6871,6 +6937,7 @@ function setLang(lang) {
   document.body.style.fontFamily = fontMap[lang] || fontMap.th;
   applyLang();
   try{ _acApplyLang(); if(acState.report) acRender(); }catch(e){}
+  try{ _slApplyLang(); if(slState.data) slRender(); }catch(e){}
   showToast(lang === "th" ? "TH เปลี่ยนภาษาไทย" : lang === "lo" ? "LA ປ່ຽນພາສາລາວ" : "EN Language changed", "info");
 }
 
@@ -8098,7 +8165,7 @@ function _acExpensesTable(){
   const body = rows.map(e => {
     if (!e.is_deleted) sum += Number(e.amount)||0;
     return `<tr class="${e.is_deleted?'ac-muted ac-strike':''}">
-      <td>${acDate(e.expense_date)}</td><td>${esc(_acCatName(e.category_id))}</td><td>${esc(e.description)}</td>
+      <td>${acDate(e.expense_date)}</td><td>${esc(_acCatName(e.category_id))}</td><td>${esc(e.description)}${e.staff_username?`<div class="ac-sub">💵 ${esc(e.staff_username)}</div>`:''}</td>
       <td class="num"><b>${acMoney(e.amount)}</b></td><td style="max-width:200px">${esc(e.note||'')}</td>
       <td>${esc(e.created_by||'—')}<div class="ac-sub">${acDateTime(e.created_at)}</div></td>
       <td>${e.updated_at?`${esc(e.updated_by||'')}<div class="ac-sub">${acDateTime(e.updated_at)}</div>`:'—'}${e.is_deleted?`<div class="ac-neg">${esc(acT('deleted'))}</div>`:''}</td>
@@ -8274,7 +8341,7 @@ async function acToggleCat(id){
 }
 
 // ── ประวัติการแก้ไข ──
-const _AC_FIELDS = { expense_date:'date', sale_date:'date', category_id:'category', description:'description', amount:'amount',
+const _AC_FIELDS = { expense_date:'date', sale_date:'date', move_date:'date', category_id:'category', description:'description', amount:'amount',
   note:'note', buyer:'buyer', qty_kg:'kg', price_per_kg:'price_kg', doc_no:'doc_no', name:'cat_name', is_active:'active', is_deleted:'deleted' };
 async function acHistory(table, id){
   const { data, error } = await _sb.from('acct_audit').select('*').eq('table_name', table).eq('row_id', String(id)).order('at', {ascending:true});
@@ -8311,6 +8378,325 @@ function acExportCSV(){
   const blob = new Blob(['﻿'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `rubberledger-accounts-${r.from||'all'}_${r.to||'all'}.csv`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+
+// =====================================================
+// STAFF LEDGER — บัญชีเงินสดของพนักงานจ่ายเงิน
+// พนักงานจ่ายเงินเห็นเฉพาะของตัวเอง (บังคับในฐานข้อมูล) / แอดมินเลือกดูได้ทุกคน
+// =====================================================
+const SL_I18N = {
+  th: {
+    my_title:'บัญชีของฉัน', staff_title:'บัญชีเงินสดพนักงาน', tab_mine:'💵 บัญชีของฉัน', tab_staff:'💵 บัญชีพนักงาน',
+    staff:'พนักงาน', period:'ช่วงเวลา', from:'ตั้งแต่', to:'ถึง', type:'ประเภท', search:'ค้นหา',
+    p_today:'วันนี้', p_yesterday:'เมื่อวาน', p_last_7:'7 วันล่าสุด', p_this_month:'เดือนนี้', p_last_month:'เดือนที่แล้ว', p_all:'ทั้งหมด', p_custom:'กำหนดเอง',
+    t_all:'ทั้งหมด', t_in:'รายรับ (เงินทดรอง)', t_payment:'จ่ายค่ายาง', t_expense:'ค่าใช้จ่าย', t_return:'ส่งเงินคืน',
+    search_ph:'เลขใบเสร็จ, PO, ผู้ขาย, รายละเอียด...', statement:'รายการเดินบัญชี', statement_hint:'เรียงตามเวลา พร้อมยอดคงเหลือหลังแต่ละรายการ',
+    daily:'สรุปรายวัน', k_opening:'ยอดยกมา', k_in:'รายรับ: เงินทดรองที่ได้รับ', k_paid:'รายจ่าย: จ่ายค่ายางให้ผู้ขาย',
+    k_exp:'รายจ่าย: ค่าใช้จ่ายที่จ่ายเอง', k_ret:'รายจ่าย: ส่งเงินคืนบริษัท', k_total_out:'รายจ่ายรวม', k_closing:'เงินคงเหลือในมือ',
+    times:'ครั้ง', bills:'บิล', kg:'กก.', avg:'เฉลี่ย', per_kg:'/กก.', cash:'เงินสด', transfer:'โอน',
+    no_cash_hint:'ยังไม่มีการบันทึกเงินทดรองให้พนักงานคนนี้ จึงยังคำนวณเงินคงเหลือไม่ได้ (ให้แอดมินบันทึก "ให้เงินทดรอง")',
+    closing_hint:'= ยกมา + รับ − จ่าย ณ สิ้นช่วงเวลา (ใช้ตรวจนับเงินสด)',
+    date:'วันที่/เวลา', kind:'ประเภท', ref:'เลขที่', party:'ผู้ขาย / รายละเอียด', price:'ราคา/กก.', method:'วิธีจ่าย',
+    in:'รับ', out:'จ่าย', balance:'คงเหลือ', total:'รวม', net:'สุทธิ', n_pay:'บิล', no_rows:'ไม่มีรายการในช่วงนี้',
+    kind_advance:'รับเงินทดรอง', kind_payment:'จ่ายค่ายาง', kind_expense:'ค่าใช้จ่าย', kind_return:'ส่งเงินคืน',
+    add_my_exp:'+ บันทึกค่าใช้จ่ายที่ฉันจ่าย', add_staff_exp:'+ ค่าใช้จ่ายของพนักงาน', add_adv:'+ ให้เงินทดรอง', add_ret:'+ รับเงินคืน',
+    adv_new:'ให้เงินทดรองแก่ {n}', ret_new:'รับเงินคืนจาก {n}', move_edit:'แก้ไขรายการเงิน', exp_new_for:'ค่าใช้จ่ายที่ {n} จ่าย',
+    issues_title:'ตรวจพบข้อมูลที่ควรตรวจสอบ {n} รายการ', issues_ok:'ตรวจความถูกต้องแล้ว: ยอดใบเสร็จตรงกับบิลทั้งหมด',
+    i_receipt_amount_mismatch:'ยอดใบเสร็จไม่ตรงกับยอดบิล', i_receipt_order_not_paid:'มีใบเสร็จแต่บิลไม่อยู่ในสถานะ "ชำระแล้ว"', i_multiple_receipts:'บิลมีใบเสร็จมากกว่า 1 ใบ',
+    loading:'กำลังคำนวณจากฐานข้อมูล...', load_err:'โหลดบัญชีไม่สำเร็จ', need_db:'ฐานข้อมูลยังไม่ได้ติดตั้งบัญชีพนักงาน — ต้องรัน sql/04-staff-ledger.sql',
+    generated:'ข้อมูลจากฐานข้อมูล ณ {t}', export:'⬇ CSV', refresh:'↻ รีเฟรช', edit:'แก้ไข', history:'ประวัติ', del:'ลบ',
+    method_lbl:'วิธีรับ/จ่าย', saved:'บันทึกแล้ว', confirm_del:'ลบรายการนี้? (กู้คืนได้ และเก็บประวัติไว้)', role_cashier:'พนักงานจ่ายเงิน', role_admin:'แอดมิน'
+  },
+  lo: {
+    my_title:'ບັນຊີຂອງຂ້ອຍ', staff_title:'ບັນຊີເງິນສົດພະນັກງານ', tab_mine:'💵 ບັນຊີຂອງຂ້ອຍ', tab_staff:'💵 ບັນຊີພະນັກງານ',
+    staff:'ພະນັກງານ', period:'ຊ່ວງເວລາ', from:'ຕັ້ງແຕ່', to:'ເຖິງ', type:'ປະເພດ', search:'ຄົ້ນຫາ',
+    p_today:'ມື້ນີ້', p_yesterday:'ມື້ວານ', p_last_7:'7 ມື້ລ່າສຸດ', p_this_month:'ເດືອນນີ້', p_last_month:'ເດືອນແລ້ວ', p_all:'ທັງໝົດ', p_custom:'ກຳນົດເອງ',
+    t_all:'ທັງໝົດ', t_in:'ລາຍຮັບ (ເງິນທົດລອງ)', t_payment:'ຈ່າຍຄ່າຢາງ', t_expense:'ຄ່າໃຊ້ຈ່າຍ', t_return:'ສົ່ງເງິນຄືນ',
+    search_ph:'ເລກໃບຮັບເງິນ, PO, ຜູ້ຂາຍ, ລາຍລະອຽດ...', statement:'ລາຍການເດີນບັນຊີ', statement_hint:'ລຽງຕາມເວລາ ພ້ອມຍອດຄົງເຫຼືອຫຼັງແຕ່ລະລາຍການ',
+    daily:'ສະຫຼຸບລາຍວັນ', k_opening:'ຍອດຍົກມາ', k_in:'ລາຍຮັບ: ເງິນທົດລອງທີ່ໄດ້ຮັບ', k_paid:'ລາຍຈ່າຍ: ຈ່າຍຄ່າຢາງໃຫ້ຜູ້ຂາຍ',
+    k_exp:'ລາຍຈ່າຍ: ຄ່າໃຊ້ຈ່າຍທີ່ຈ່າຍເອງ', k_ret:'ລາຍຈ່າຍ: ສົ່ງເງິນຄືນບໍລິສັດ', k_total_out:'ລາຍຈ່າຍລວມ', k_closing:'ເງິນຄົງເຫຼືອໃນມື',
+    times:'ຄັ້ງ', bills:'ບິນ', kg:'ກິໂລ', avg:'ສະເລ່ຍ', per_kg:'/ກິໂລ', cash:'ເງິນສົດ', transfer:'ໂອນ',
+    no_cash_hint:'ຍັງບໍ່ມີການບັນທຶກເງິນທົດລອງໃຫ້ພະນັກງານຄົນນີ້ ຈຶ່ງຍັງຄິດໄລ່ເງິນຄົງເຫຼືອບໍ່ໄດ້ (ໃຫ້ແອັດມິນບັນທຶກ "ໃຫ້ເງິນທົດລອງ")',
+    closing_hint:'= ຍົກມາ + ຮັບ − ຈ່າຍ ໃນທ້າຍຊ່ວງເວລາ (ໃຊ້ກວດນັບເງິນສົດ)',
+    date:'ວັນທີ/ເວລາ', kind:'ປະເພດ', ref:'ເລກທີ', party:'ຜູ້ຂາຍ / ລາຍລະອຽດ', price:'ລາຄາ/ກິໂລ', method:'ວິທີຈ່າຍ',
+    in:'ຮັບ', out:'ຈ່າຍ', balance:'ຄົງເຫຼືອ', total:'ລວມ', net:'ສຸດທິ', n_pay:'ບິນ', no_rows:'ບໍ່ມີລາຍການໃນຊ່ວງນີ້',
+    kind_advance:'ຮັບເງິນທົດລອງ', kind_payment:'ຈ່າຍຄ່າຢາງ', kind_expense:'ຄ່າໃຊ້ຈ່າຍ', kind_return:'ສົ່ງເງິນຄືນ',
+    add_my_exp:'+ ບັນທຶກຄ່າໃຊ້ຈ່າຍທີ່ຂ້ອຍຈ່າຍ', add_staff_exp:'+ ຄ່າໃຊ້ຈ່າຍຂອງພະນັກງານ', add_adv:'+ ໃຫ້ເງິນທົດລອງ', add_ret:'+ ຮັບເງິນຄືນ',
+    adv_new:'ໃຫ້ເງິນທົດລອງແກ່ {n}', ret_new:'ຮັບເງິນຄືນຈາກ {n}', move_edit:'ແກ້ໄຂລາຍການເງິນ', exp_new_for:'ຄ່າໃຊ້ຈ່າຍທີ່ {n} ຈ່າຍ',
+    issues_title:'ກວດພົບຂໍ້ມູນທີ່ຄວນກວດສອບ {n} ລາຍການ', issues_ok:'ກວດຄວາມຖືກຕ້ອງແລ້ວ: ຍອດໃບຮັບເງິນກົງກັບບິນທັງໝົດ',
+    i_receipt_amount_mismatch:'ຍອດໃບຮັບເງິນບໍ່ກົງກັບຍອດບິນ', i_receipt_order_not_paid:'ມີໃບຮັບເງິນ ແຕ່ບິນບໍ່ຢູ່ໃນສະຖານະ "ຊຳລະແລ້ວ"', i_multiple_receipts:'ບິນມີໃບຮັບເງິນຫຼາຍກວ່າ 1 ໃບ',
+    loading:'ກຳລັງຄິດໄລ່ຈາກຖານຂໍ້ມູນ...', load_err:'ໂຫຼດບັນຊີບໍ່ສຳເລັດ', need_db:'ຖານຂໍ້ມູນຍັງບໍ່ໄດ້ຕິດຕັ້ງບັນຊີພະນັກງານ — ຕ້ອງລັນ sql/04-staff-ledger.sql',
+    generated:'ຂໍ້ມູນຈາກຖານຂໍ້ມູນ ເວລາ {t}', export:'⬇ CSV', refresh:'↻ ໂຫຼດໃໝ່', edit:'ແກ້ໄຂ', history:'ປະຫວັດ', del:'ລຶບ',
+    method_lbl:'ວິທີຮັບ/ຈ່າຍ', saved:'ບັນທຶກແລ້ວ', confirm_del:'ລຶບລາຍການນີ້? (ກູ້ຄືນໄດ້ ແລະ ເກັບປະຫວັດໄວ້)', role_cashier:'ພະນັກງານຈ່າຍເງິນ', role_admin:'ແອັດມິນ'
+  },
+  en: {
+    my_title:'My account', staff_title:'Staff cash accounts', tab_mine:'💵 My account', tab_staff:'💵 Staff accounts',
+    staff:'Staff', period:'Period', from:'From', to:'To', type:'Type', search:'Search',
+    p_today:'Today', p_yesterday:'Yesterday', p_last_7:'Last 7 days', p_this_month:'This month', p_last_month:'Last month', p_all:'All time', p_custom:'Custom',
+    t_all:'All', t_in:'Income (cash advances)', t_payment:'Rubber payments', t_expense:'Expenses', t_return:'Cash returned',
+    search_ph:'Receipt no., PO, seller, description...', statement:'Statement', statement_hint:'In time order, with the balance after each entry',
+    daily:'Daily summary', k_opening:'Opening balance', k_in:'Income: cash advances received', k_paid:'Expense: rubber paid to sellers',
+    k_exp:'Expense: costs paid by staff', k_ret:'Expense: cash returned to company', k_total_out:'Total paid out', k_closing:'Cash on hand',
+    times:'times', bills:'bills', kg:'kg', avg:'avg', per_kg:'/kg', cash:'Cash', transfer:'Transfer',
+    no_cash_hint:'No cash advance has been recorded for this staff member, so cash on hand cannot be calculated (admin: use "Give advance")',
+    closing_hint:'= opening + received − paid at end of period (use for cash count)',
+    date:'Date/time', kind:'Type', ref:'No.', party:'Seller / details', price:'Price/kg', method:'Method',
+    in:'In', out:'Out', balance:'Balance', total:'Total', net:'Net', n_pay:'bills', no_rows:'No entries in this period',
+    kind_advance:'Cash advance', kind_payment:'Rubber payment', kind_expense:'Expense', kind_return:'Cash returned',
+    add_my_exp:'+ Add expense I paid', add_staff_exp:'+ Staff expense', add_adv:'+ Give advance', add_ret:'+ Receive return',
+    adv_new:'Give cash advance to {n}', ret_new:'Receive cash back from {n}', move_edit:'Edit cash entry', exp_new_for:'Expense paid by {n}',
+    issues_title:'{n} data issue(s) to review', issues_ok:'Checked: all receipts match their bills',
+    i_receipt_amount_mismatch:'Receipt amount differs from bill', i_receipt_order_not_paid:'Receipt exists but bill is not "paid"', i_multiple_receipts:'Bill has more than one receipt',
+    loading:'Calculating from database...', load_err:'Could not load account', need_db:'Staff accounts are not installed in the database yet — run sql/04-staff-ledger.sql',
+    generated:'Live from database at {t}', export:'⬇ CSV', refresh:'↻ Refresh', edit:'Edit', history:'History', del:'Delete',
+    method_lbl:'Method', saved:'Saved', confirm_del:'Delete this entry? (It can be restored; history is kept)', role_cashier:'Cashier', role_admin:'Admin'
+  }
+};
+function slT(k, vars){
+  const d = SL_I18N[currentLang] || SL_I18N.th;
+  let s = d[k] !== undefined ? d[k] : (SL_I18N.th[k] !== undefined ? SL_I18N.th[k] : acT(k));
+  if (vars) Object.keys(vars).forEach(v => { s = s.split('{'+v+'}').join(vars[v]); });
+  return s;
+}
+const slState = { data:null, people:[], _init:false, user:null };
+function _slIsAdmin(){ return currentUser?.role === 'admin'; }
+function _slApplyLang(){
+  document.querySelectorAll('#pane-staffledger [data-sl]').forEach(el => { el.textContent = slT(el.getAttribute('data-sl')); });
+  document.querySelectorAll('#pane-staffledger [data-sl-ph]').forEach(el => { el.placeholder = slT(el.getAttribute('data-sl-ph')); });
+  const b = document.getElementById('tab-staffledger-btn');
+  if (b) b.textContent = _slIsAdmin() ? slT('tab_staff') : slT('tab_mine');
+}
+
+function slPresetChange(){
+  const p = document.getElementById('sl-preset').value, now = new Date();
+  let f=null, t=null;
+  const day = (o)=>{ const d=new Date(now); d.setDate(d.getDate()+o); return d; };
+  if (p==='today'){ f=t=now; }
+  else if (p==='yesterday'){ f=t=day(-1); }
+  else if (p==='last_7'){ f=day(-6); t=now; }
+  else if (p==='this_month'){ f=new Date(now.getFullYear(), now.getMonth(), 1); t=new Date(now.getFullYear(), now.getMonth()+1, 0); }
+  else if (p==='last_month'){ f=new Date(now.getFullYear(), now.getMonth()-1, 1); t=new Date(now.getFullYear(), now.getMonth(), 0); }
+  if (p !== 'custom'){
+    document.getElementById('sl-from').value = f ? _acYmd(f) : '';
+    document.getElementById('sl-to').value   = t ? _acYmd(t) : '';
+  }
+  try{ localStorage.setItem('rl_sl_preset', p); }catch(e){}
+  slLoad();
+}
+function slDateChange(){ document.getElementById('sl-preset').value='custom'; slLoad(); }
+
+async function slOpen(){
+  _slApplyLang();
+  const admin = _slIsAdmin();
+  document.getElementById('sl-staff-wrap').style.display = admin ? '' : 'none';
+  if (admin && !slState.people.length){
+    const r = await _rpc('staff_ledger_people', { p_token:_staffToken });
+    if (!r.error && r.data?.ok){
+      slState.people = r.data.people || [];
+      document.getElementById('sl-staff').innerHTML = slState.people.map(p =>
+        `<option value="${esc(p.username)}">${esc(p.display_name||p.username)} (${esc(p.role==='admin'?slT('role_admin'):slT('role_cashier'))})${p.is_active===false?' ⏸':''}</option>`).join('');
+    }
+  }
+  if (!slState._init){
+    slState._init = true;
+    let p = 'this_month'; try{ p = localStorage.getItem('rl_sl_preset') || 'this_month'; }catch(e){}
+    if (p==='custom') p='this_month';
+    document.getElementById('sl-preset').value = p;
+    slPresetChange(); return;
+  }
+  slLoad();
+}
+
+async function slLoad(){
+  if (!currentUser) return;
+  const from = document.getElementById('sl-from').value || null, to = document.getElementById('sl-to').value || null;
+  const who  = _slIsAdmin() ? (document.getElementById('sl-staff').value || null) : null;
+  document.getElementById('sl-kpi').innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(slT('loading'))}</div>`;
+  const r = await _rpc('staff_ledger', { p_token:_staffToken, p_username:who, p_from:from, p_to:to });
+  if (r.error || !r.data?.ok){
+    const msg = r.error && _rpcMissing(r.error) ? slT('need_db') : slT('load_err') + (r.error?': '+(r.error.message||''):'');
+    document.getElementById('sl-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(msg)}</div>`;
+    document.getElementById('sl-lines').innerHTML = ''; document.getElementById('sl-daily').innerHTML = '';
+    return;
+  }
+  slState.data = r.data; slState.user = r.data.staff;
+  if (!acState.cats.length){
+    const c = await _sb.from('expense_categories').select('*').order('sort_order').order('name');
+    if (!c.error) acState.cats = c.data || [];
+  }
+  slRender();
+}
+
+function slRender(){
+  const d = slState.data; if (!d) return;
+  const admin = _slIsAdmin(), name = d.staff.display_name || d.staff.username;
+  document.getElementById('sl-title').textContent = admin ? `${slT('staff_title')} — ${name}` : `${slT('my_title')} — ${name}`;
+  document.getElementById('sl-generated').textContent = acT('generated', {t: acDateTime(d.generated_at)});
+  document.getElementById('sl-actions').innerHTML =
+    (admin ? `<button class="btn-primary" style="padding:.4rem .8rem;font-size:.75rem" onclick="slEditMove(null,'advance')">${esc(slT('add_adv'))}</button>
+              <button class="btn-secondary" onclick="slEditMove(null,'return')">${esc(slT('add_ret'))}</button>
+              <button class="btn-secondary" onclick="slEditExpense()">${esc(slT('add_staff_exp'))}</button>`
+           : `<button class="btn-primary" style="padding:.4rem .8rem;font-size:.75rem" onclick="slEditExpense()">${esc(slT('add_my_exp'))}</button>`) +
+    `<button class="btn-secondary" onclick="slExportCSV()">${esc(slT('export'))}</button><button class="btn-secondary" onclick="slLoad()">${esc(slT('refresh'))}</button>`;
+  _slRenderIssues(); _slRenderKpi(); slRenderLines(); _slRenderDaily();
+}
+
+function _slRenderIssues(){
+  const iss = slState.data.issues || [], el = document.getElementById('sl-issues');
+  if (!slState.data.summary.n_payments){ el.innerHTML=''; return; }
+  if (!iss.length){ el.innerHTML = `<div class="ac-alert ac-alert-ok">✅ ${esc(slT('issues_ok'))}</div>`; return; }
+  el.innerHTML = `<details class="ac-alert ac-alert-warn" open><summary>⚠ ${esc(slT('issues_title',{n:iss.length}))}</summary><ul>${iss.map(i =>
+    `<li><a href="javascript:void(0)" class="ac-link" onclick="acOpenBill('${escJs(i.src_id)}')">${esc(i.ref2||i.ref)}</a> <span class="mono">${esc(i.ref||'')}</span> — ${esc(slT('i_'+i.code))}
+     ${i.info && i.info.receipt!==undefined ? `<span class="mono">${acMoney(i.info.receipt)} ≠ ${acMoney(i.info.bill)}</span>` : ''}</li>`).join('')}</ul></details>`;
+}
+
+function _slRenderKpi(){
+  const S = slState.data.summary, M = slState.data.by_method || {};
+  const card = (l, v, s, cls) => `<div class="ac-card ${cls||''}"><div class="ac-card-l">${esc(l)}</div><div class="ac-card-v">${v}</div><div class="ac-card-s">${s||''}</div></div>`;
+  const nd = `<span class="ac-nodata">${esc(acT('no_data'))}</span>`;
+  const methods = Object.keys(M).map(k => `${esc(k==='transfer'?slT('transfer'):slT('cash'))} ${acMoney(M[k])}`).join(' · ');
+  const closing = _acNum(S.closing);
+  document.getElementById('sl-kpi').innerHTML = [
+    card(slT('k_opening'), S.has_cash_records ? acMoney(S.opening) : nd, ''),
+    card(slT('k_in'), acMoney(S.cash_in), `${S.n_advances||0} ${esc(slT('times'))}`, 'ac-card-in'),
+    card(slT('k_paid'), acMoney(S.paid_out), `${S.n_payments||0} ${esc(slT('bills'))} · ${acKg(S.kg)} ${esc(slT('kg'))}${S.avg_price!=null?` · ${esc(slT('avg'))} ${acMoney(S.avg_price)}${esc(slT('per_kg'))}`:''}${methods?`<br>${methods}`:''}`),
+    card(slT('k_exp'), acMoney(S.expense_out), `${S.n_expenses||0} ${esc(acT('rows'))}`),
+    card(slT('k_ret'), acMoney(S.returned), ''),
+    card(slT('k_total_out'), acMoney(S.total_out), ''),
+    card(slT('k_closing'), closing===null ? nd : acMoney(closing), esc(closing===null ? slT('no_cash_hint') : slT('closing_hint')),
+         'ac-card-profit ' + (closing===null ? '' : (closing>=0?'ac-pos':'ac-neg')))
+  ].join('');
+}
+
+function _slKindBadge(k){
+  const col = {advance:'var(--green-d)', payment:'var(--sky-d)', expense:'#B45309', return:'#7C3AED'}[k] || 'var(--muted)';
+  return `<span class="sl-kind" style="color:${col};border-color:${col}">${esc(slT('kind_'+k))}</span>`;
+}
+function slRenderLines(){
+  const d = slState.data; if (!d) return;
+  const type = document.getElementById('sl-type').value;
+  const q = (document.getElementById('sl-search').value||'').trim().toLowerCase();
+  const lines = (d.lines||[]).filter(l => (!type || (type==='in' ? l.kind==='advance' : l.kind===type))
+        && (!q || [l.ref,l.ref2,l.party,l.detail,l.location].join(' ').toLowerCase().includes(q)));
+  let tin=0, tout=0, tkg=0, np=0;
+  const admin = _slIsAdmin();
+  const body = lines.map(l => {
+    tin += Number(l.in)||0; tout += Number(l.out)||0; if (l.kind==='payment'){ tkg += Number(l.kg)||0; np++; }
+    let ref = esc(l.ref||'');
+    if (l.kind==='payment') ref = `<a href="javascript:void(0)" class="ac-link" onclick="acOpenBill('${escJs(l.src_id)}')">${esc(l.ref2||'')}</a><div class="ac-sub mono">${esc(l.ref)}</div>`;
+    const party = l.kind==='payment' ? `<b>${esc(l.party||'')}</b>${l.location?`<div class="ac-sub">📍 ${esc(l.location)}</div>`:''}`
+                : l.kind==='expense' ? `<b>${esc(l.ref2||'')}</b><div>${esc(l.detail||'')}</div>` : esc(l.detail||'');
+    const pr = l.price_min==null ? '' : (Number(l.price_min)===Number(l.price_max) ? acMoney(l.price_min) : `${acMoney(l.price_min)}–${acMoney(l.price_max)}`);
+    const method = l.method ? esc(l.method==='transfer'?slT('transfer'):slT('cash')) : '';
+    const bal = l.balance==null ? '—' : `<span class="${Number(l.balance)<0?'ac-neg':''}">${acMoney(l.balance)}</span>`;
+    let btns = '';
+    if (l.src_table==='expenses') btns = `<button class="ac-btn" onclick="slEditExpense(${Number(l.src_id)})">${esc(slT('edit'))}</button><button class="ac-btn" onclick="acHistory('expenses',${Number(l.src_id)})">${esc(slT('history'))}</button><button class="ac-btn ac-btn-del" onclick="slSoftDelete('expenses',${Number(l.src_id)})">${esc(slT('del'))}</button>`;
+    else if (l.src_table==='staff_cash_moves') btns = (admin?`<button class="ac-btn" onclick="slEditMove(${Number(l.src_id)})">${esc(slT('edit'))}</button>`:'') + `<button class="ac-btn" onclick="acHistory('staff_cash_moves',${Number(l.src_id)})">${esc(slT('history'))}</button>` + (admin?`<button class="ac-btn ac-btn-del" onclick="slSoftDelete('staff_cash_moves',${Number(l.src_id)})">${esc(slT('del'))}</button>`:'');
+    const t = l.kind==='payment' ? acDateTime(l.ts) : acDate(l.date);
+    return `<tr><td style="white-space:nowrap">${t}</td><td>${_slKindBadge(l.kind)}</td><td>${ref}</td><td>${party}</td>
+      <td class="num">${l.kg!=null?acKg(l.kg):''}</td><td class="num">${pr}</td><td>${method}</td>
+      <td class="num ac-pos">${Number(l.in)?acMoney(l.in):''}</td><td class="num">${Number(l.out)?acMoney(l.out):''}</td>
+      <td class="num"><b>${bal}</b></td><td style="white-space:nowrap">${btns}</td></tr>`;
+  }).join('');
+  const head = ['date','kind','ref','party','kg','price','method','in','out','balance',''].map(k=>`<th class="${['kg','price','in','out','balance'].includes(k)?'num':''}">${k?esc(slT(k)):''}</th>`).join('');
+  const S = d.summary;
+  const opening = S.has_cash_records && !type && !q
+      ? `<tr class="ac-muted"><td colspan="9"><i>${esc(slT('k_opening'))}</i></td><td class="num"><b>${acMoney(S.opening)}</b></td><td></td></tr>` : '';
+  document.getElementById('sl-lines').innerHTML = `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${opening}${body || `<tr><td colspan="11" class="empty-state">${esc(slT('no_rows'))}</td></tr>`}</tbody>
+    ${lines.length?`<tfoot><tr class="ac-total"><td colspan="4">${esc(slT('total'))} · ${lines.length} ${esc(acT('rows'))}${np?` · ${np} ${esc(slT('n_pay'))}`:''}</td><td class="num">${tkg?acKg(tkg):''}</td><td></td><td></td>
+      <td class="num">${acMoney(tin)}</td><td class="num">${acMoney(tout)}</td><td class="num">${(!type && !q && S.closing!=null)?acMoney(S.closing):''}</td><td></td></tr></tfoot>`:''}</table>`;
+}
+
+function _slRenderDaily(){
+  const D = slState.data.daily || [];
+  if (!D.length){ document.getElementById('sl-daily').innerHTML = `<div class="empty-state" style="padding:1rem">${esc(slT('no_rows'))}</div>`; return; }
+  const head = ['date','in','k_paid','n_pay','kg','k_exp','k_ret','net'].map((k,i)=>`<th class="${i?'num':''}">${esc(k==='date'?acT('date'):k.startsWith('k_')?slT(k).replace(/^[^:]+:\s*/,''):slT(k))}</th>`).join('');
+  let t = {cash_in:0, paid_out:0, n_payments:0, kg:0, expense_out:0, returned:0, net:0};
+  const rows = D.map(r => { Object.keys(t).forEach(k=>t[k]+=Number(r[k])||0);
+    return `<tr><td>${acDate(r.date)}</td><td class="num ac-pos">${Number(r.cash_in)?acMoney(r.cash_in):''}</td><td class="num">${Number(r.paid_out)?acMoney(r.paid_out):''}</td>
+      <td class="num">${r.n_payments||''}</td><td class="num">${Number(r.kg)?acKg(r.kg):''}</td><td class="num">${Number(r.expense_out)?acMoney(r.expense_out):''}</td>
+      <td class="num">${Number(r.returned)?acMoney(r.returned):''}</td><td class="num"><b class="${Number(r.net)<0?'ac-neg':'ac-pos'}">${acMoney(r.net)}</b></td></tr>`; }).join('');
+  document.getElementById('sl-daily').innerHTML = `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr class="ac-total"><td>${esc(slT('total'))}</td><td class="num">${acMoney(t.cash_in)}</td><td class="num">${acMoney(t.paid_out)}</td><td class="num">${t.n_payments}</td>
+    <td class="num">${acKg(t.kg)}</td><td class="num">${acMoney(t.expense_out)}</td><td class="num">${acMoney(t.returned)}</td><td class="num">${acMoney(t.net)}</td></tr></tfoot></table>`;
+}
+
+// ── บันทึก/แก้ไข ──
+async function _slAfterSave(){ acCloseModal(); showToast('✅ '+slT('saved')); await slLoad(); }
+async function slEditExpense(id){
+  let e = null;
+  if (id){ const r = await _sb.from('expenses').select('*').eq('id', id).maybeSingle(); e = r.data; if (!e){ showToast('⚠ '+acT('no_rows'),'error'); return; } }
+  const staffName = slState.user ? (slState.user.display_name || slState.user.username) : '';
+  const cats = acState.cats.filter(c => c.is_active || (e && String(c.id)===String(e.category_id)));
+  const opts = cats.map(c=>`<option value="${c.id}" ${e&&String(e.category_id)===String(c.id)?'selected':''}>${esc(c.name)}</option>`).join('');
+  const body =
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">`+
+    _acField('sl-e-date', acT('date')+' *', `<input type="date" id="sl-e-date" value="${esc(e?String(e.expense_date).slice(0,10):nowISO())}">`)+
+    _acField('sl-e-cat', acT('category')+' *', `<select id="sl-e-cat">${opts}</select>`)+`</div>`+
+    _acField('sl-e-desc', acT('description')+' *', `<input type="text" id="sl-e-desc" maxlength="300" value="${esc(e?e.description:'')}">`)+
+    _acField('sl-e-amt', acT('amount')+' (₭) *', `<input type="number" id="sl-e-amt" min="0" step="0.01" inputmode="decimal" value="${e?esc(acMoneyPlain(e.amount)):''}">`)+
+    _acField('sl-e-note', acT('note'), `<textarea id="sl-e-note" rows="2" maxlength="1000">${esc(e?e.note||'':'')}</textarea>`);
+  _acModal(e ? acT('expense_edit') : slT('exp_new_for', {n: staffName}), body, async () => {
+    const amtRaw = document.getElementById('sl-e-amt').value;
+    const row = { expense_date: document.getElementById('sl-e-date').value, category_id: Number(document.getElementById('sl-e-cat').value),
+                  description: document.getElementById('sl-e-desc').value.trim(), amount: Number(amtRaw), note: document.getElementById('sl-e-note').value.trim() };
+    if (!row.expense_date || !row.category_id || !row.description || amtRaw==='') return _acErr(acT('required'));
+    if (!(row.amount > 0)) return _acErr(acT('amount_gt0'));
+    if (_slIsAdmin()) row.staff_username = e ? e.staff_username : slState.user.username;   // พนักงาน: ฐานข้อมูลใส่ให้เอง
+    const { data, error } = e ? await _sb.from('expenses').update(row).eq('id', e.id).select('id')
+                              : await _sb.from('expenses').insert(row).select('id');
+    if (error || !data || !data.length) return _acErr(_acDbErr(error));
+    logActivity(e?'expense_edit':'expense_add', String(data[0].id), row.description, `₭${row.amount}`);
+    await _slAfterSave();
+  });
+}
+async function slEditMove(id, kind){
+  if (!_slIsAdmin()) return;
+  let m = null;
+  if (id){ const r = await _sb.from('staff_cash_moves').select('*').eq('id', id).maybeSingle(); m = r.data; if (!m) return; kind = m.kind; }
+  const staffName = slState.user.display_name || slState.user.username;
+  const body =
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">`+
+    _acField('sl-m-date', acT('date')+' *', `<input type="date" id="sl-m-date" value="${esc(m?String(m.move_date).slice(0,10):nowISO())}">`)+
+    _acField('sl-m-method', slT('method_lbl'), `<select id="sl-m-method"><option value="cash" ${m&&m.method==='transfer'?'':'selected'}>${esc(slT('cash'))}</option><option value="transfer" ${m&&m.method==='transfer'?'selected':''}>${esc(slT('transfer'))}</option></select>`)+`</div>`+
+    _acField('sl-m-amt', acT('amount')+' (₭) *', `<input type="number" id="sl-m-amt" min="0" step="0.01" inputmode="decimal" value="${m?esc(acMoneyPlain(m.amount)):''}">`)+
+    _acField('sl-m-note', acT('note'), `<textarea id="sl-m-note" rows="2" maxlength="1000">${esc(m?m.note||'':'')}</textarea>`);
+  _acModal(m ? slT('move_edit') : (kind==='advance' ? slT('adv_new',{n:staffName}) : slT('ret_new',{n:staffName})), body, async () => {
+    const amtRaw = document.getElementById('sl-m-amt').value;
+    const row = { move_date: document.getElementById('sl-m-date').value, method: document.getElementById('sl-m-method').value,
+                  amount: Number(amtRaw), note: document.getElementById('sl-m-note').value.trim() };
+    if (!row.move_date || amtRaw==='') return _acErr(acT('required'));
+    if (!(row.amount > 0)) return _acErr(acT('amount_gt0'));
+    if (!m){ row.kind = kind; row.staff_username = slState.user.username; }
+    const { data, error } = m ? await _sb.from('staff_cash_moves').update(row).eq('id', m.id).select('id')
+                              : await _sb.from('staff_cash_moves').insert(row).select('id');
+    if (error || !data || !data.length) return _acErr(_acDbErr(error));
+    logActivity('cash_'+(m?'edit':kind), String(data[0].id), staffName, `₭${row.amount}`);
+    await _slAfterSave();
+  });
+}
+async function slSoftDelete(table, id){
+  if (!confirm(slT('confirm_del'))) return;
+  const { data, error } = await _sb.from(table).update({ is_deleted:true }).eq('id', id).select('id');
+  if (error || !data || !data.length){ showToast('⚠ '+_acDbErr(error), 'error'); return; }
+  logActivity('delete_'+table, String(id), '', '');
+  showToast('✅ '+slT('saved')); await slLoad();
+}
+
+function slExportCSV(){
+  const d = slState.data; if (!d) return;
+  const q = v => { if (v===null || v===undefined) return ''; const s=String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const cols = ['date','ts','kind','ref','ref2','party','detail','kg','price_min','price_max','method','location','in','out','balance'];
+  const lines = [cols.join(',')];
+  if (d.summary.has_cash_records) lines.push(['','','opening','','','','','','','','','','','',d.summary.opening].map(q).join(','));
+  (d.lines||[]).forEach(l => lines.push(cols.map(c=>q(l[c])).join(',')));
+  const S = d.summary;
+  lines.push(['','','TOTAL','','','','',S.kg,'','','','',S.cash_in,S.total_out,S.closing].map(q).join(','));
+  const blob = new Blob(['﻿'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `rubberledger-staff-${d.staff.username}-${d.from||'all'}_${d.to||'all'}.csv`; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
 
