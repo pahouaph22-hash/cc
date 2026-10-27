@@ -607,6 +607,65 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-open-row td{color:var(--muted);font-style:italic}
 .sl-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
 .sl-sub-pill{cursor:pointer;font-size:.68rem;font-weight:600;background:#fff;border:1px solid #FECACA;color:#B91C1C;border-radius:999px;padding:.05rem .5rem}
+/* ── DASHBOARD (dark) ── */
+.dk{--dk-bg:#0B1018;--dk-card:#121A26;--dk-card2:#172131;--dk-bd:#223047;--dk-tx:#E6EBF2;--dk-mu:#8592A6;background:var(--dk-bg);color:var(--dk-tx);border-radius:18px;padding:22px;margin:4px 0 18px;box-shadow:0 10px 30px rgba(2,6,23,.25)}
+.dk .dk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.dk .dk-title{font-size:1.25rem;font-weight:700;letter-spacing:.01em}
+.dk .dk-muted{color:var(--dk-mu);font-size:.76rem}
+.dk .dk-pills{display:flex;gap:2px;background:var(--dk-card);border:1px solid var(--dk-bd);border-radius:10px;padding:3px}
+.dk .dk-pills button,.dk .dk-tabs button{background:transparent;border:0;color:var(--dk-mu);font:inherit;font-size:.74rem;padding:.35rem .7rem;border-radius:7px;cursor:pointer}
+.dk .dk-pills button.on,.dk .dk-tabs button.on{background:#24324A;color:#fff}
+.dk .dk-grid3{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.dk .dk-grid2{display:grid;grid-template-columns:1fr 1.1fr;gap:14px;margin-bottom:14px}
+.dk .dk-grid2b{display:grid;grid-template-columns:1fr 1.25fr;gap:14px}
+.dk .dk-card{background:var(--dk-card);border:1px solid var(--dk-bd);border-radius:14px;padding:16px;min-width:0}
+.dk .dk-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dk .dk-label{color:var(--dk-mu);font-size:.78rem;font-weight:600}
+.dk .dk-h{font-weight:700;font-size:.95rem}
+.dk .dk-big{font-size:1.7rem;font-weight:800;margin:.35rem 0 .15rem;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.dk .dk-chg{font-size:.76rem}
+.dk .dk-up{color:#22C55E!important}.dk .dk-down{color:#F43F5E!important}
+.dk .dk-spark-w{width:140px;flex:0 0 140px;margin-top:.6rem}
+.dk .dk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;border-top:1px solid var(--dk-bd);padding-top:12px}
+.dk .dk-stats span{display:block;color:var(--dk-mu);font-size:.7rem}.dk .dk-stats b{font-size:.92rem;font-variant-numeric:tabular-nums}
+.dk .dk-alloc-bars{display:flex;gap:3px;height:58px;align-items:flex-end;margin:14px 0 12px}
+.dk .dk-alloc-bars>div{display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.dk .dk-alloc-col{height:100%;border-radius:4px 4px 2px 2px;opacity:.9;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 2px,transparent 2px 6px)}
+.dk .dk-alloc-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px}
+.dk .dk-alloc-leg>div>div{font-size:.72rem;color:var(--dk-mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk .dk-alloc-leg i,.dk .dk-chip i{display:inline-block;width:8px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.dk .dk-alloc-leg b{display:block;font-size:1.05rem}.dk .dk-alloc-leg span{font-size:.68rem;color:var(--dk-mu)}
+.dk .dk-badge{background:#3B2A10;color:#FBBF24;border:1px solid #6B4A12;border-radius:7px;font-size:.68rem;padding:.15rem .45rem;white-space:nowrap}
+.dk .dk-mini-list{margin-top:.4rem;font-size:.74rem}.dk .dk-mini-list>div{display:flex;justify-content:space-between;color:var(--dk-mu);padding:.08rem 0}.dk .dk-mini-list b{color:var(--dk-tx)}
+.dk .dk-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.dk .dk-btn{background:transparent;border:1px solid var(--dk-bd);color:var(--dk-tx);border-radius:9px;padding:.6rem .5rem;font:inherit;font-size:.78rem;font-weight:600;cursor:pointer}
+.dk .dk-btn:hover{background:#1B2638}.dk .dk-btn-p{background:#2563EB;border-color:#2563EB;color:#fff}.dk .dk-btn-p:hover{background:#1D4ED8}
+.dk .dk-link{color:#60A5FA;font-size:.76rem;text-decoration:none;white-space:nowrap}
+.dk .dk-chips{display:flex;gap:8px;margin:12px 0;overflow-x:auto}
+.dk .dk-chip{background:var(--dk-card2);border:1px solid var(--dk-bd);border-radius:10px;padding:.45rem .7rem;min-width:110px}
+.dk .dk-chip>div{font-size:.72rem;color:var(--dk-mu);white-space:nowrap}.dk .dk-chip b{font-size:.86rem}
+.dk .dk-chart-w{position:relative;height:230px}
+.dk .dk-tabs{display:flex;gap:2px;background:var(--dk-card2);border-radius:9px;padding:3px}
+.dk .dk-watch{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:10px;overflow-x:auto;margin-top:12px;padding-bottom:4px}
+.dk .dk-w{background:var(--dk-card2);border:1px solid var(--dk-bd);border-radius:12px;padding:10px 10px 0;cursor:pointer;overflow:hidden;transition:border-color .15s}
+.dk .dk-w:hover{border-color:#3B82F6}
+.dk .dk-w-top{display:flex;align-items:center;gap:6px;font-size:.78rem;white-space:nowrap;overflow:hidden}.dk .dk-w-top b{overflow:hidden;text-overflow:ellipsis}
+.dk .dk-av{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:700;color:#0B1018;flex:0 0 20px}
+.dk .dk-w-v{font-size:1.15rem;font-weight:800;margin:.35rem 0 .1rem}.dk .dk-w-v small{font-size:.7rem;color:var(--dk-mu);font-weight:500}
+.dk .dk-w-s{display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:4px}
+.dk .dk-spark{display:block}
+.dk .dk-list{display:flex;flex-direction:column;margin-top:8px}
+.dk .dk-ev,.dk .dk-news{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--dk-bd);cursor:pointer;border-radius:8px}
+.dk .dk-ev:hover,.dk .dk-news:hover{background:#162033}
+.dk .dk-list>div:last-child{border-bottom:0}
+.dk .dk-date{border-left:3px solid #3B82F6;padding-left:8px;min-width:46px;line-height:1.1}.dk .dk-date span{display:block;font-size:.62rem;color:var(--dk-mu)}.dk .dk-date b{font-size:1.05rem}
+.dk .dk-ev-m{flex:1;min-width:0;display:flex;flex-direction:column}.dk .dk-ev-m b{font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk .dk-st{font-size:.66rem;border-radius:999px;padding:.15rem .5rem;white-space:nowrap}.dk .dk-st-sent{background:#3B2A10;color:#FBBF24}.dk .dk-st-draft{background:#1F2937;color:#9CA3AF}
+.dk .dk-thumb{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,#14532D,#1E3A5F);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex:0 0 46px}
+.dk .dk-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.dk .dk-tags span{font-size:.66rem;background:var(--dk-card2);border:1px solid var(--dk-bd);border-radius:6px;padding:.05rem .4rem;color:var(--dk-mu)}
+.dk .dk-empty{color:var(--dk-mu);font-size:.82rem;padding:1.4rem 0;text-align:center}
+@media(max-width:1000px){.dk .dk-grid3{grid-template-columns:1fr 1fr}.dk .dk-grid3>div:first-child{grid-column:1/-1}.dk .dk-grid2,.dk .dk-grid2b{grid-template-columns:1fr}}
+@media(max-width:640px){.dk{padding:14px;border-radius:14px}.dk .dk-grid3{grid-template-columns:1fr}.dk .dk-big{font-size:1.4rem}.dk .dk-spark-w{width:96px;flex-basis:96px}.dk .dk-pills{width:100%;overflow-x:auto}.dk .dk-pills button{flex:1;padding:.35rem .4rem}.dk .dk-chart-w{height:200px}.dk .dk-watch{grid-auto-columns:140px}}
 .sl-o-name{font-weight:700;font-size:.9rem}
 .sl-head-ret{background:#F5F3FF;color:#6D28D9;border-bottom:2px solid #8B5CF6}
 .sl-amt-ret{color:#6D28D9;font-weight:700}
@@ -864,39 +923,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 
   <!-- TAB: DASHBOARD -->
   <div class="tab-pane" id="pane-dashboard">
-    <div style="padding:8px 0 16px;">
-
-      <!-- AI Smart Summary — ปิดชั่วคราว (รอทำ backend proxy เพื่อเลี่ยง CORS)
-           โค้ดฟังก์ชัน generateAISummary/_collectDashboardStats/_renderAISummary ยังเก็บไว้ใน JS -->
-
-      <!-- KPI Cards -->
-      <div id="dash-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
-
-      <!-- Row: กราฟรายเดือน + Top ลูกค้า -->
-      <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:14px;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;" data-i18n="dash_monthly">📈 ยอดซื้อรายเดือน (บาท)</div>
-          <canvas id="dash-chart-monthly" height="200"></canvas>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;" data-i18n="dash_top_cust">🏆 Top ลูกค้า (กก.)</div>
-          <div id="dash-top-customers"></div>
-        </div>
-      </div>
-
-      <!-- Row: สถานะ + พนักงาน -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:14px;font-size:14px;" data-i18n="dash_status">📋 สถานะใบเก็บซื้อ</div>
-          <canvas id="dash-chart-status" height="180"></canvas>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
-          <div style="font-weight:600;color:var(--text);margin-bottom:12px;font-size:14px;" data-i18n="dash_by_staff">👤 ยอดรวมรายพนักงาน</div>
-          <div id="dash-staff-list"></div>
-        </div>
-      </div>
-
-    </div>
+    <div class="dk" id="dk-root"></div>
   </div>
 
   <!-- TAB: CUSTOMERS -->
@@ -1988,7 +2015,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1930";
+const APP_VERSION = "2026.10.27-2000";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -7754,7 +7781,7 @@ function _loadChartJs(){
   }
   return _chartJsPromise;
 }
-function renderDashboard() {
+function _renderDashboardLegacy() {
   if (typeof Chart === 'undefined') {
     _dashLoadingState();
     _loadChartJs().then(() => { if (activeTab === 'dashboard') renderDashboard(); })
@@ -10044,6 +10071,229 @@ function acShowQ(key){
   }
   _acModal(title, body, null);
   _slWide(true);
+}
+
+
+// =====================================================
+// DASHBOARD — ดีไซน์ใหม่ (โหมดมืด สไตล์แอปการเงิน) · ข้อมูลจริงจากบิล + บัญชีพนักงาน
+// =====================================================
+const DK_I18N = {
+  th: { overview:'ภาพรวม', sub:'ข้อมูลจริงจากระบบ · อัปเดต {t}', r7:'7 วัน', r1m:'1 เดือน', r3m:'3 เดือน', r6m:'6 เดือน', r1y:'1 ปี', rall:'ทั้งหมด',
+    bought:'ยอดรับซื้อ (จ่ายแล้ว)', bills:'บิล', weight:'น้ำหนัก', avg:'ราคาเฉลี่ย/กก.', vs_prev:'เทียบช่วงก่อน', kg:'กก.',
+    alloc:'สัดส่วนตามผู้จ่ายเงิน', cash:'เงินคงเหลือพนักงาน', my_cash:'เงินคงเหลือของฉัน', pending:'⏳ รอยืนยัน {a}', loading:'กำลังโหลด...',
+    add_in:'＋ บันทึกเงินที่ได้รับ', ret:'↩ ส่งเงินคืน', staff_acc:'💵 บัญชีพนักงาน', acct:'💰 บัญชี',
+    cum:'ยอดซื้อสะสม', details:'ดูรายละเอียด ›', total:'รวม', sellers:'ผู้ขาย', t_kg:'กก. สูงสุด', t_amt:'ยอดเงินสูงสุด', t_new:'ล่าสุด',
+    unpaid:'บิลรอชำระ', no_unpaid:'ไม่มีบิลค้างชำระ ✓', recent:'ความเคลื่อนไหวล่าสุด', paid_by:'จ่ายโดย {n}', no_data:'ยังไม่มีข้อมูลในช่วงนี้',
+    ago_m:'{n} นาทีที่แล้ว', ago_h:'{n} ชั่วโมงที่แล้ว', ago_d:'{n} วันที่แล้ว', now:'เมื่อสักครู่', s_sent:'รอชำระ', s_draft:'ร่าง', bought_from:'รับซื้อยางจาก {c}', price_trend:'แนวโน้มราคา' },
+  lo: { overview:'ພາບລວມ', sub:'ຂໍ້ມູນຈິງຈາກລະບົບ · ອັບເດດ {t}', r7:'7 ມື້', r1m:'1 ເດືອນ', r3m:'3 ເດືອນ', r6m:'6 ເດືອນ', r1y:'1 ປີ', rall:'ທັງໝົດ',
+    bought:'ຍອດຮັບຊື້ (ຈ່າຍແລ້ວ)', bills:'ບິນ', weight:'ນ້ຳໜັກ', avg:'ລາຄາສະເລ່ຍ/ກິໂລ', vs_prev:'ທຽບຊ່ວງກ່ອນ', kg:'ກິໂລ',
+    alloc:'ສັດສ່ວນຕາມຜູ້ຈ່າຍເງິນ', cash:'ເງິນຄົງເຫຼືອພະນັກງານ', my_cash:'ເງິນຄົງເຫຼືອຂອງຂ້ອຍ', pending:'⏳ ລໍຢືນຢັນ {a}', loading:'ກຳລັງໂຫຼດ...',
+    add_in:'＋ ບັນທຶກເງິນທີ່ໄດ້ຮັບ', ret:'↩ ສົ່ງເງິນຄືນ', staff_acc:'💵 ບັນຊີພະນັກງານ', acct:'💰 ບັນຊີ',
+    cum:'ຍອດຊື້ສະສົມ', details:'ເບິ່ງລາຍລະອຽດ ›', total:'ລວມ', sellers:'ຜູ້ຂາຍ', t_kg:'ກິໂລ ສູງສຸດ', t_amt:'ຍອດເງິນສູງສຸດ', t_new:'ລ່າສຸດ',
+    unpaid:'ບິນລໍຊຳລະ', no_unpaid:'ບໍ່ມີບິນຄ້າງຊຳລະ ✓', recent:'ຄວາມເຄື່ອນໄຫວລ່າສຸດ', paid_by:'ຈ່າຍໂດຍ {n}', no_data:'ຍັງບໍ່ມີຂໍ້ມູນໃນຊ່ວງນີ້',
+    ago_m:'{n} ນາທີກ່ອນ', ago_h:'{n} ຊົ່ວໂມງກ່ອນ', ago_d:'{n} ມື້ກ່ອນ', now:'ຫາກໍ່', s_sent:'ລໍຊຳລະ', s_draft:'ຮ່າງ', bought_from:'ຮັບຊື້ຢາງຈາກ {c}', price_trend:'ແນວໂນ້ມລາຄາ' },
+  en: { overview:'Overview', sub:'Live data from the system · updated {t}', r7:'7D', r1m:'1M', r3m:'3M', r6m:'6M', r1y:'1Y', rall:'All',
+    bought:'Rubber purchased (paid)', bills:'Bills', weight:'Weight', avg:'Avg price/kg', vs_prev:'vs previous period', kg:'kg',
+    alloc:'Share by payer', cash:'Staff cash balance', my_cash:'My cash balance', pending:'⏳ Pending {a}', loading:'Loading...',
+    add_in:'＋ Record money received', ret:'↩ Return money', staff_acc:'💵 Staff accounts', acct:'💰 Accounting',
+    cum:'Cumulative purchases', details:'View details ›', total:'Total', sellers:'Sellers', t_kg:'Top kg', t_amt:'Top amount', t_new:'Latest',
+    unpaid:'Bills awaiting payment', no_unpaid:'No unpaid bills ✓', recent:'Recent activity', paid_by:'Paid by {n}', no_data:'No data in this period',
+    ago_m:'{n} min ago', ago_h:'{n} h ago', ago_d:'{n} d ago', now:'just now', s_sent:'Awaiting', s_draft:'Draft', bought_from:'Bought rubber from {c}', price_trend:'Price trend' }
+};
+function dkT(k, v){ const d = DK_I18N[currentLang] || DK_I18N.th; let s = d[k] ?? DK_I18N.th[k] ?? k; if (v) Object.keys(v).forEach(x => s = s.split('{'+x+'}').join(v[x])); return s; }
+const DK = { range:'1m', tab:'kg', chart:null, cash:null, cashAt:0, cashBusy:false };
+try{ DK.range = localStorage.getItem('rl_dk_range') || '1m'; }catch(e){}
+const DK_COLORS = ['#22C55E','#F59E0B','#3B82F6','#A855F7','#EC4899','#14B8A6'];
+
+const _dkK = n => '₭' + Math.round(Number(n)||0).toLocaleString('en-US');
+const _dkKg = n => (Number(n)||0).toLocaleString('en-US', {maximumFractionDigits:1});
+function _dkShort(n){ n = Number(n)||0; const a = Math.abs(n);
+  return '₭' + (a>=1e9 ? (n/1e9).toFixed(2)+'B' : a>=1e6 ? (n/1e6).toFixed(1)+'M' : a>=1e3 ? (n/1e3).toFixed(0)+'K' : n.toFixed(0)); }
+function _dkYmd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function _dkPaidDay(o){ if (o.paidAt){ const d = new Date(o.paidAt); if (!isNaN(d)) return _dkYmd(d); } return String(o.date||'').slice(0,10); }
+function _dkPrice(o){ let q=0, a=0; (o.items||[]).forEach(i => { if (i.productId==='RUBBER' && i.qty){ q += i.qty; a += i.qty*i.price; } }); return q ? a/q : null; }
+function _dkAgo(ts){ const d = new Date(ts); if (isNaN(d)) return ''; const m = Math.max(0, Math.floor((Date.now()-d)/60000));
+  return m<1 ? dkT('now') : m<60 ? dkT('ago_m',{n:m}) : m<1440 ? dkT('ago_h',{n:Math.floor(m/60)}) : dkT('ago_d',{n:Math.floor(m/1440)}); }
+function _dkRangeDays(r){ return {'7d':7,'1m':30,'3m':91,'6m':182,'1y':365}[r] || null; }
+// เส้นกราฟเล็ก (SVG)
+function _dkSpark(vals, color, w, h, area){
+  vals = (vals||[]).map(v=>Number(v)||0); w = w||120; h = h||36;
+  if (vals.length < 2) vals = vals.length ? [vals[0], vals[0]] : [0,0];
+  const mn = Math.min(...vals), mx = Math.max(...vals), rg = (mx-mn) || 1;
+  const pts = vals.map((v,i) => [ (i/(vals.length-1))*w, h-2-((v-mn)/rg)*(h-4) ]);
+  const d = pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const gid = 'g'+Math.random().toString(36).slice(2,8);
+  return `<svg class="dk-spark" viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none" aria-hidden="true">
+    ${area?`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".45"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d} L${w} ${h} L0 ${h} Z" fill="url(#${gid})"/>`:''}
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+function dkSetRange(r){ DK.range = r; try{ localStorage.setItem('rl_dk_range', r); }catch(e){} renderDashboard(); }
+function dkSetTab(t){ DK.tab = t; renderDashboard(); }
+function dkGo(tab, after){
+  const btn = document.getElementById('tab-'+tab+'-btn');
+  switchTab(tab, btn);
+  if (after) setTimeout(after, 500);
+}
+
+async function _dkLoadCash(){
+  if (DK.cashBusy || (DK.cash && Date.now()-DK.cashAt < 60000)) return;
+  if (!currentUser || !_staffToken) return;
+  DK.cashBusy = true;
+  try{
+    if (currentUser.role === 'admin'){
+      const st = await _acLoadStaff(null, null);
+      DK.cash = { admin:true, rows: st.rows.filter(r=>r.close!==null || r.active) };
+    } else if (currentUser.role === 'staff_cashier'){
+      const r = await _rpc('staff_ledger', { p_token:_staffToken, p_username:null, p_from:null, p_to:null });
+      const S = r.data?.summary || {};
+      DK.cash = { admin:false, rows: r.data?.ok ? [{ name: currentUser.displayName||currentUser.username, close:_acNum(S.closing), pend:Number(S.unverified_in)||0 }] : [] };
+    } else DK.cash = { none:true, rows:[] };
+    DK.cashAt = Date.now();
+  }catch(e){ console.error('dk cash', e); DK.cash = { err:true, rows:[] }; }
+  DK.cashBusy = false;
+  if (activeTab === 'dashboard') _dkRenderCash();
+}
+function _dkRenderCash(){
+  const el = document.getElementById('dk-cash'); if (!el) return;
+  const C = DK.cash, admin = currentUser?.role === 'admin', cashier = currentUser?.role === 'staff_cashier';
+  if (!C){ el.innerHTML = `<div class="dk-label">${esc(admin?dkT('cash'):dkT('my_cash'))}</div><div class="dk-muted" style="margin-top:.8rem">${esc(dkT('loading'))}</div>`; return; }
+  if (C.none){ el.parentElement.style.display = 'none'; return; }
+  const tot = C.rows.reduce((s,r)=>s+(Number(r.close)||0),0), pend = C.rows.reduce((s,r)=>s+(Number(r.pend)||0),0);
+  el.innerHTML = `<div class="dk-row"><div class="dk-label">${esc(admin?dkT('cash'):dkT('my_cash'))}</div>${pend?`<span class="dk-badge">${esc(dkT('pending',{a:_dkShort(pend)}))}</span>`:''}</div>
+    <div class="dk-big">${_dkK(tot)}</div>
+    ${admin ? `<div class="dk-mini-list">${C.rows.slice().sort((a,b)=>(b.close||0)-(a.close||0)).slice(0,3).map(r=>`<div><span>${esc(r.name)}</span><b>${_dkShort(r.close||0)}</b></div>`).join('')}</div>` : ''}
+    <div class="dk-btns">${cashier
+      ? `<button class="dk-btn dk-btn-p" onclick="dkGo('staffledger',()=>slEditMove(null,'advance'))">${esc(dkT('add_in'))}</button><button class="dk-btn" onclick="dkGo('staffledger',()=>slEditMove(null,'return'))">${esc(dkT('ret'))}</button>`
+      : `<button class="dk-btn dk-btn-p" onclick="dkGo('staffledger')">${esc(dkT('staff_acc'))}</button><button class="dk-btn" onclick="dkGo('accounting')">${esc(dkT('acct'))}</button>`}</div>`;
+}
+
+function renderDashboard(){
+  const root = document.getElementById('dk-root'); if (!root) return;
+  if (typeof Chart === 'undefined'){
+    root.innerHTML = `<div class="dk-muted" style="padding:2rem">${esc(dkT('loading'))}</div>`;
+    _loadChartJs().then(() => { if (activeTab === 'dashboard') renderDashboard(); }).catch(e => showToast('⚠ '+e.message, 'error'));
+    return;
+  }
+  const all = (orders||[]);
+  const paidAll = all.filter(o => o.status === 'paid');
+  const days = _dkRangeDays(DK.range);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const fromD = days ? new Date(today.getTime() - (days-1)*86400000) : null;
+  const from = fromD ? _dkYmd(fromD) : null, to = _dkYmd(today);
+  const prevFrom = days ? _dkYmd(new Date(fromD.getTime() - days*86400000)) : null;
+  const inR = o => { const d = _dkPaidDay(o); return (!from || d >= from) && d <= to; };
+  const P = paidAll.filter(inR);
+  const prev = days ? paidAll.filter(o => { const d = _dkPaidDay(o); return d >= prevFrom && d < from; }) : [];
+  const sum = (a,k) => a.reduce((s,o)=>s+(Number(o[k])||0),0);
+  const amt = sum(P,'grandTotal'), kg = sum(P,'totalQty'), pAmt = sum(prev,'grandTotal');
+  const chg = days && pAmt ? (amt-pAmt)/pAmt*100 : null;
+  let rq=0, ra=0; P.forEach(o => (o.items||[]).forEach(i => { if (i.productId==='RUBBER' && i.qty){ rq+=i.qty; ra+=i.qty*i.price; } }));
+  const avg = rq ? ra/rq : null;
+
+  // วันในช่วง (สำหรับกราฟ)
+  const firstDay = from || (P.length ? P.map(_dkPaidDay).sort()[0] : to);
+  const dayList = []; for (let d = new Date(firstDay+'T00:00:00'); _dkYmd(d) <= to; d.setDate(d.getDate()+1)) dayList.push(_dkYmd(d));
+  const byDay = {}; P.forEach(o => { const d = _dkPaidDay(o); byDay[d] = (byDay[d]||0) + o.grandTotal; });
+  const daily = dayList.map(d => byDay[d]||0);
+
+  // ผู้จ่ายเงิน
+  const payers = {}; P.forEach(o => { const k = o.paidBy || o.createdBy || '—'; payers[k] = payers[k] || {name:k, amt:0, kg:0, n:0, byDay:{}}; const g = payers[k]; g.amt += o.grandTotal; g.kg += o.totalQty; g.n++; const d=_dkPaidDay(o); g.byDay[d]=(g.byDay[d]||0)+o.grandTotal; });
+  const PL = Object.values(payers).sort((a,b)=>b.amt-a.amt);
+  PL.forEach((p,i) => p.color = DK_COLORS[i % DK_COLORS.length]);
+
+  // ผู้ขาย
+  const sellers = {}; P.forEach(o => { const k = o.customer || '—'; sellers[k] = sellers[k] || {name:k, amt:0, kg:0, n:0, prices:[], last:'', lastId:null}; const g = sellers[k];
+    g.amt += o.grandTotal; g.kg += o.totalQty; g.n++; const pr = _dkPrice(o); if (pr!=null) g.prices.push({t:o.paidAt||o.date, p:pr}); const tt = o.paidAt||o.date||''; if (tt > g.last){ g.last = tt; g.lastId = o.id; } });
+  let SL = Object.values(sellers); SL.forEach(g => g.prices.sort((a,b)=>String(a.t).localeCompare(String(b.t))));
+  SL.sort(DK.tab==='amt' ? (a,b)=>b.amt-a.amt : DK.tab==='new' ? (a,b)=>String(b.last).localeCompare(String(a.last)) : (a,b)=>b.kg-a.kg);
+
+  const unpaid = all.filter(o => o.status==='sent' || o.status==='draft').sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const recent = paidAll.slice().sort((a,b)=>String(b.paidAt||b.date).localeCompare(String(a.paidAt||a.date))).slice(0,6);
+  const admin = currentUser?.role === 'admin';
+  const R = ['7d','1m','3m','6m','1y','all'], RL = {'7d':'r7','1m':'r1m','3m':'r3m','6m':'r6m','1y':'r1y','all':'rall'};
+  const up = chg!=null && chg>=0, chgTxt = chg==null ? '' : `<span class="${up?'dk-up':'dk-down'}">${up?'▲':'▼'} ${Math.abs(chg).toFixed(1)}%</span> <span class="dk-muted">${esc(dkT('vs_prev'))}</span>`;
+  const MON = currentLang==='en' ? ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'] : currentLang==='lo' ? ['ມ.ກ.','ກ.ພ.','ມ.ນ.','ມ.ສ.','ພ.ພ.','ມິ.ຖ.','ກ.ລ.','ສ.ຫ.','ກ.ຍ.','ຕ.ລ.','ພ.ຈ.','ທ.ວ.'] : ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  root.innerHTML = `
+  <div class="dk-head">
+    <div><div class="dk-title">${esc(dkT('overview'))}</div><div class="dk-muted">${esc(dkT('sub',{t:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}))}</div></div>
+    <div class="dk-pills">${R.map(r=>`<button class="${DK.range===r?'on':''}" onclick="dkSetRange('${r}')">${esc(dkT(RL[r]))}</button>`).join('')}</div>
+  </div>
+
+  <div class="dk-grid3">
+    <div class="dk-card">
+      <div class="dk-row"><div><div class="dk-label">${esc(dkT('bought'))}</div><div class="dk-big">${_dkK(amt)}</div><div class="dk-chg">${chgTxt}</div></div>
+        <div class="dk-spark-w">${_dkSpark(daily, up||chg==null?'#22C55E':'#F43F5E', 140, 46)}</div></div>
+      <div class="dk-stats">
+        <div><span>${esc(dkT('bills'))}</span><b>${P.length}</b></div>
+        <div><span>${esc(dkT('weight'))}</span><b class="dk-up">${_dkKg(kg)} ${esc(dkT('kg'))}</b></div>
+        <div><span>${esc(dkT('avg'))}</span><b class="dk-up">${avg!=null?_dkK(avg):'—'}</b></div>
+      </div>
+    </div>
+    <div class="dk-card">
+      <div class="dk-label">${esc(dkT('alloc'))}</div>
+      ${PL.length ? `<div class="dk-alloc-bars">${PL.map(p=>`<div style="flex:${Math.max(p.amt,amt*0.02)};"><div class="dk-alloc-col" style="background:${p.color}"></div></div>`).join('')}</div>
+      <div class="dk-alloc-leg">${PL.slice(0,4).map(p=>`<div><div><i style="background:${p.color}"></i>${esc(p.name)}</div><b>${amt?Math.round(p.amt/amt*100):0}%</b><span>${_dkShort(p.amt)}</span></div>`).join('')}</div>`
+      : `<div class="dk-muted" style="margin-top:1rem">${esc(dkT('no_data'))}</div>`}
+    </div>
+    <div class="dk-card"><div id="dk-cash"></div></div>
+  </div>
+
+  <div class="dk-grid2">
+    <div class="dk-card">
+      <div class="dk-row"><div class="dk-h">${esc(dkT('cum'))}</div>${admin?`<a class="dk-link" href="javascript:void(0)" onclick="dkGo('accounting')">${esc(dkT('details'))}</a>`:''}</div>
+      <div class="dk-chips">${[{name:dkT('total'), amt, color:'#E5E7EB'}, ...PL.slice(0,4)].map(p=>`<div class="dk-chip"><div><i style="background:${p.color}"></i>${esc(p.name)}</div><b>${_dkShort(p.amt)}</b></div>`).join('')}</div>
+      <div class="dk-chart-w"><canvas id="dk-chart"></canvas></div>
+    </div>
+    <div class="dk-card">
+      <div class="dk-row"><div class="dk-tabs">${['kg','amt','new'].map(k=>`<button class="${DK.tab===k?'on':''}" onclick="dkSetTab('${k}')">${esc(dkT('t_'+k))}</button>`).join('')}</div><div class="dk-muted">${esc(dkT('sellers'))} · ${SL.length}</div></div>
+      ${SL.length ? `<div class="dk-watch">${SL.slice(0,8).map(g => {
+        const pv = g.prices.map(x=>x.p), first = pv[0], last = pv[pv.length-1], pc = (first && pv.length>1) ? (last-first)/first*100 : 0, col = pc>=0 ? '#22C55E' : '#F43F5E';
+        return `<div class="dk-w" onclick="openDetail('${escJs(g.lastId)}')"><div class="dk-w-top"><span class="dk-av" style="background:${DK_COLORS[g.name.length % DK_COLORS.length]}">${esc(g.name.slice(0,1))}</span><b>${esc(g.name)}</b></div>
+          <div class="dk-w-v">${_dkKg(g.kg)} <small>${esc(dkT('kg'))}</small></div>
+          <div class="dk-w-s"><span class="${pc>=0?'dk-up':'dk-down'}">${pv.length>1?(pc>=0?'+':'')+pc.toFixed(2)+'%':_dkK(last||0)}</span><span class="dk-muted">${_dkShort(g.amt)}</span></div>
+          ${_dkSpark(pv.length>1?pv:[last||0,last||0], col, 120, 44, true)}</div>`; }).join('')}</div>`
+        : `<div class="dk-muted" style="margin-top:1rem">${esc(dkT('no_data'))}</div>`}
+    </div>
+  </div>
+
+  <div class="dk-grid2b">
+    <div class="dk-card">
+      <div class="dk-row"><div class="dk-h">${esc(dkT('unpaid'))} <span class="dk-muted">· ${unpaid.length}</span></div></div>
+      ${unpaid.length ? `<div class="dk-list">${unpaid.slice(0,6).map(o => { const d = new Date((o.date||'')+'T00:00:00');
+        return `<div class="dk-ev" onclick="openDetail('${escJs(o.id)}')"><div class="dk-date"><span>${isNaN(d)?'':MON[d.getMonth()]}</span><b>${isNaN(d)?'—':d.getDate()}</b></div>
+          <div class="dk-ev-m"><b>${esc(o.customer||'—')}</b><span class="dk-muted">${esc(o.poNo||'')} · ${_dkKg(o.totalQty)} ${esc(dkT('kg'))} · ${_dkK(o.grandTotal)}</span></div>
+          <span class="dk-st dk-st-${o.status}">${esc(dkT('s_'+o.status))}</span></div>`; }).join('')}</div>`
+        : `<div class="dk-empty">${esc(dkT('no_unpaid'))}</div>`}
+    </div>
+    <div class="dk-card">
+      <div class="dk-row"><div class="dk-h">${esc(dkT('recent'))}</div></div>
+      ${recent.length ? `<div class="dk-list">${recent.map(o => { const pr = _dkPrice(o);
+        return `<div class="dk-news" onclick="openDetail('${escJs(o.id)}')"><div class="dk-thumb">🌳</div>
+          <div class="dk-ev-m"><b>${esc(dkT('bought_from',{c:o.customer||'—'}))}</b><span class="dk-muted">${esc(dkT('paid_by',{n:o.paidBy||'—'}))} · ${esc(_dkAgo(o.paidAt||o.date))}</span>
+          <div class="dk-tags"><span>${esc(o.poNo||'')}</span><span class="dk-up">${_dkKg(o.totalQty)} ${esc(dkT('kg'))}</span>${pr!=null?`<span>${_dkK(pr)}/${esc(dkT('kg'))}</span>`:''}<span class="dk-down">−${_dkShort(o.grandTotal)}</span></div></div></div>`; }).join('')}</div>`
+        : `<div class="dk-empty">${esc(dkT('no_data'))}</div>`}
+    </div>
+  </div>`;
+
+  // กราฟยอดสะสม
+  if (DK.chart){ try{ DK.chart.destroy(); }catch(e){} DK.chart = null; }
+  const cv = document.getElementById('dk-chart');
+  if (cv && dayList.length){
+    const cum = arr => { let s = 0; return arr.map(v => s += v); };
+    const lbl = dayList.map(d => { const x = new Date(d+'T00:00:00'); return x.getDate()+' '+MON[x.getMonth()]; });
+    const ds = [{ label:dkT('total'), data:cum(daily), borderColor:'#E5E7EB', borderWidth:2, borderDash:[5,4], pointRadius:0, tension:.3 },
+      ...PL.slice(0,4).map(p => ({ label:p.name, data:cum(dayList.map(d=>p.byDay[d]||0)), borderColor:p.color, borderWidth:2.2, pointRadius:0, tension:.3 }))];
+    DK.chart = new Chart(cv, { type:'line', data:{ labels:lbl, datasets:ds },
+      options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+        plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0B1220', borderColor:'#273449', borderWidth:1, titleColor:'#E5E7EB', bodyColor:'#CBD5E1',
+          callbacks:{ label:c => `${c.dataset.label}: ${_dkK(c.raw)}` } } },
+        scales:{ x:{ ticks:{ color:'#6B7A90', maxTicksLimit:8, font:{size:10} }, grid:{ display:false } },
+                 y:{ ticks:{ color:'#6B7A90', font:{size:10}, callback:v => _dkShort(v) }, grid:{ color:'rgba(148,163,184,.08)' } } } } });
+  }
+  _dkRenderCash(); _dkLoadCash();
 }
 
 </script>
