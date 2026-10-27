@@ -666,6 +666,39 @@ font{border:none!important;outline:none!important;display:inline!important}
 .dk .dk-empty{color:var(--dk-mu);font-size:.82rem;padding:1.4rem 0;text-align:center}
 @media(max-width:1000px){.dk .dk-grid3{grid-template-columns:1fr 1fr}.dk .dk-grid3>div:first-child{grid-column:1/-1}.dk .dk-grid2,.dk .dk-grid2b{grid-template-columns:1fr}}
 @media(max-width:640px){.dk{padding:14px;border-radius:14px}.dk .dk-grid3{grid-template-columns:1fr}.dk .dk-big{font-size:1.4rem}.dk .dk-spark-w{width:96px;flex-basis:96px}.dk .dk-pills{width:100%;overflow-x:auto}.dk .dk-pills button{flex:1;padding:.35rem .4rem}.dk .dk-chart-w{height:200px}.dk .dk-watch{grid-auto-columns:140px}}
+/* ══════════════════════════════════════
+   SIDEBAR — เมนูแนวตั้ง
+   ══════════════════════════════════════ */
+#sb-toggle{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;width:36px;height:34px;font-size:1.05rem;line-height:1;cursor:pointer;margin-right:.7rem;flex-shrink:0}
+#sb-toggle:hover{background:rgba(255,255,255,.3)}
+#topbar{justify-content:flex-start}
+#tab-customers-btn::before{content:"👥 "}
+#tab-pending-btn::before{content:"⏳ "}
+#tab-history-btn::before{content:"🧾 "}
+#tab-mywork-btn::before{content:"📋 "}
+#app #tabs{flex-direction:column;flex-wrap:nowrap;overflow-x:hidden;overflow-y:auto;background:#fff;border-bottom:0;border-right:1px solid var(--border);
+  padding:.8rem .6rem 1rem;gap:2px;width:232px;position:fixed;left:0;bottom:0;z-index:45;box-shadow:2px 0 10px rgba(15,23,42,.04);scrollbar-width:thin}
+#app #tabs .tab-btn{display:flex;align-items:center;gap:.15rem;width:100%;text-align:left;justify-content:flex-start;text-transform:none;letter-spacing:0;font-size:.84rem;font-weight:600;
+  border:0;border-left:3px solid transparent;border-radius:8px;min-height:40px;padding:.55rem .8rem;white-space:normal;line-height:1.25;flex:0 0 auto}
+#app #tabs .tab-btn:hover:not(.active){background:var(--surface2);color:var(--text)}
+#app #tabs .tab-btn.active{background:var(--surface2);border-left-color:currentColor}
+#app #tabs>div[style*="flex:1"]{flex:1 1 auto;min-height:12px;border-bottom:1px solid var(--border);margin:6px 4px}
+#sb-backdrop{display:none}
+@media(min-width:900px){
+  #app{padding-left:232px;transition:padding-left .2s}
+  #app #topbar{margin-left:-232px;transition:margin-left .2s}
+  #app #tabs{top:54px;transition:transform .2s}
+  #app.sb-collapsed{padding-left:0}
+  #app.sb-collapsed #topbar{margin-left:0}
+  #app.sb-collapsed #tabs{transform:translateX(-100%)}
+}
+@media(max-width:899px){
+  #app #tabs{top:0;width:270px;max-width:82vw;z-index:120;transform:translateX(-102%);transition:transform .22s ease;padding-top:1rem}
+  #app.sb-open #tabs{transform:none;box-shadow:8px 0 30px rgba(15,23,42,.25)}
+  #app.sb-open #sb-backdrop{display:block;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:110}
+  #app #tabs .tab-btn{min-height:46px;font-size:.9rem}
+}
+@media print{#app{padding-left:0!important}#app #tabs,#sb-toggle{display:none!important}}
 /* แดชบอร์ดเต็มความกว้างจอ */
 #pane-dashboard.tab-pane{max-width:none!important;padding:1rem 1.2rem}
 #pane-dashboard .dk{margin:0;min-height:calc(100vh - 140px)}
@@ -897,6 +930,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 <!-- MAIN APP -->
 <div id="app" style="display:none">
   <div id="topbar">
+    <button id="sb-toggle" onclick="sbToggle()" title="เมนู" aria-label="Menu">☰</button>
     <div class="logo"><span class="logo-dot"></span>RUBBERLEDGER</div>
     <div id="sync-indicator-wrap" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.3)"></div>
     <span id="net-status" style="font-size:.68rem;font-weight:600;background:rgba(255,255,255,.9);padding:.15rem .5rem;border-radius:999px;white-space:nowrap;flex-shrink:0"></span>
@@ -915,6 +949,7 @@ font{border:none!important;outline:none!important;display:inline!important}
     </div>
   </div>
 
+  <div id="sb-backdrop" onclick="sbToggle(false)"></div>
   <div id="tabs">
     <button class="tab-btn" id="tab-dashboard-btn" onclick="switchTab('dashboard',this)" data-i18n="tab_dashboard">📊 แดชบอร์ด</button>
     <button class="tab-btn" id="tab-customers-btn" onclick="switchTab('customers',this)" data-i18n="tab_customers">ข้อมูลลูกค้า</button>
@@ -2027,7 +2062,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-2030";
+const APP_VERSION = "2026.10.27-2100";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -2925,6 +2960,7 @@ function clearOldMember(){
 // ── TABS ──
 let activeTab="create";
 function switchTab(tab,btn){
+  try{ document.getElementById('app').classList.remove('sb-open'); }catch(e){}
   if(tab==="staffledger"&&currentUser?.role!=="admin"&&currentUser?.role!=="staff_cashier"){showToast(t("no_perm"),"error");return;}
   if((tab==="settings"||tab==="report"||tab==="accounting")&&currentUser?.role!=="admin"){showToast("ไม่มีสิทธิ์เข้าถึงหน้านี้","error");return;}
   document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
@@ -10141,6 +10177,21 @@ function _dkSpark(vals, color, w, h, area){
     <path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
 }
 
+// ── เมนูแนวตั้ง (sidebar): จอใหญ่ = ซ่อน/แสดง, มือถือ = เปิดเป็นลิ้นชัก ──
+function sbToggle(force){
+  const app = document.getElementById('app'); if (!app) return;
+  if (window.innerWidth < 900){
+    const on = force === undefined ? !app.classList.contains('sb-open') : force;
+    app.classList.toggle('sb-open', on);
+  } else {
+    const off = !app.classList.contains('sb-collapsed');
+    app.classList.toggle('sb-collapsed', off);
+    try{ localStorage.setItem('rl_sb_collapsed', off ? '1' : '0'); }catch(e){}
+    try{ if (DK.chart) setTimeout(()=>DK.chart.resize(), 250); }catch(e){}
+  }
+}
+try{ if (localStorage.getItem('rl_sb_collapsed') === '1') document.addEventListener('DOMContentLoaded', () => document.getElementById('app')?.classList.add('sb-collapsed')); }catch(e){}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('app')?.classList.remove('sb-open'); });
 function dkFullscreen(){
   const el = document.getElementById('dk-root'); if (!el) return;
   const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
