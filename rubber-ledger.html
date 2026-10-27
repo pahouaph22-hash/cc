@@ -646,7 +646,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 .dk .dk-chip>div{font-size:.72rem;color:var(--dk-mu);white-space:nowrap}.dk .dk-chip b{font-size:.86rem}
 .dk .dk-chart-w{position:relative;height:230px}
 .dk .dk-tabs{display:flex;gap:2px;background:var(--dk-card2);border-radius:9px;padding:3px}
-.dk .dk-watch{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:10px;overflow-x:auto;margin-top:12px;padding-bottom:4px}
+.dk .dk-watch{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,210px);gap:10px;overflow-x:auto;margin-top:12px;padding-bottom:4px}
 .dk .dk-w{background:var(--dk-card2);border:1px solid var(--dk-bd);border-radius:12px;padding:10px 10px 0;cursor:pointer;overflow:hidden;transition:border-color .15s}
 .dk .dk-w:hover{border-color:#3B82F6}
 .dk .dk-w-top{display:flex;align-items:center;gap:6px;font-size:.78rem;white-space:nowrap;overflow:hidden}.dk .dk-w-top b{overflow:hidden;text-overflow:ellipsis}
@@ -666,6 +666,18 @@ font{border:none!important;outline:none!important;display:inline!important}
 .dk .dk-empty{color:var(--dk-mu);font-size:.82rem;padding:1.4rem 0;text-align:center}
 @media(max-width:1000px){.dk .dk-grid3{grid-template-columns:1fr 1fr}.dk .dk-grid3>div:first-child{grid-column:1/-1}.dk .dk-grid2,.dk .dk-grid2b{grid-template-columns:1fr}}
 @media(max-width:640px){.dk{padding:14px;border-radius:14px}.dk .dk-grid3{grid-template-columns:1fr}.dk .dk-big{font-size:1.4rem}.dk .dk-spark-w{width:96px;flex-basis:96px}.dk .dk-pills{width:100%;overflow-x:auto}.dk .dk-pills button{flex:1;padding:.35rem .4rem}.dk .dk-chart-w{height:200px}.dk .dk-watch{grid-auto-columns:140px}}
+/* แดชบอร์ดเต็มความกว้างจอ */
+#pane-dashboard.tab-pane{max-width:none!important;padding:1rem 1.2rem}
+#pane-dashboard .dk{margin:0;min-height:calc(100vh - 140px)}
+.dk .dk-fs{background:var(--dk-card);border:1px solid var(--dk-bd);color:var(--dk-tx);border-radius:10px;padding:.42rem .7rem;font:inherit;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.dk .dk-fs:hover{background:#1B2638}
+.dk .dk-head-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dk:fullscreen{overflow-y:auto;border-radius:0;min-height:100vh;padding:28px 32px}
+.dk:-webkit-full-screen{overflow-y:auto;border-radius:0;min-height:100vh;padding:28px 32px}
+.dk ::-webkit-scrollbar{height:8px;width:8px}.dk ::-webkit-scrollbar-track{background:transparent}.dk ::-webkit-scrollbar-thumb{background:#2A3A55;border-radius:8px}
+.dk *{scrollbar-color:#2A3A55 transparent;scrollbar-width:thin}
+@media(min-width:1500px){.dk .dk-chart-w{height:300px}.dk .dk-big{font-size:2rem}}
+@media(max-width:640px){#pane-dashboard.tab-pane{padding:.6rem .5rem}}
 .sl-o-name{font-weight:700;font-size:.9rem}
 .sl-head-ret{background:#F5F3FF;color:#6D28D9;border-bottom:2px solid #8B5CF6}
 .sl-amt-ret{color:#6D28D9;font-weight:700}
@@ -2015,7 +2027,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-2000";
+const APP_VERSION = "2026.10.27-2030";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -10084,21 +10096,21 @@ const DK_I18N = {
     add_in:'＋ บันทึกเงินที่ได้รับ', ret:'↩ ส่งเงินคืน', staff_acc:'💵 บัญชีพนักงาน', acct:'💰 บัญชี',
     cum:'ยอดซื้อสะสม', details:'ดูรายละเอียด ›', total:'รวม', sellers:'ผู้ขาย', t_kg:'กก. สูงสุด', t_amt:'ยอดเงินสูงสุด', t_new:'ล่าสุด',
     unpaid:'บิลรอชำระ', no_unpaid:'ไม่มีบิลค้างชำระ ✓', recent:'ความเคลื่อนไหวล่าสุด', paid_by:'จ่ายโดย {n}', no_data:'ยังไม่มีข้อมูลในช่วงนี้',
-    ago_m:'{n} นาทีที่แล้ว', ago_h:'{n} ชั่วโมงที่แล้ว', ago_d:'{n} วันที่แล้ว', now:'เมื่อสักครู่', s_sent:'รอชำระ', s_draft:'ร่าง', bought_from:'รับซื้อยางจาก {c}', price_trend:'แนวโน้มราคา' },
+    ago_m:'{n} นาทีที่แล้ว', ago_h:'{n} ชั่วโมงที่แล้ว', ago_d:'{n} วันที่แล้ว', now:'เมื่อสักครู่', s_sent:'รอชำระ', s_draft:'ร่าง', bought_from:'รับซื้อยางจาก {c}', fs:'เต็มจอ', fs_exit:'ออกจากเต็มจอ', fs_na:'เบราว์เซอร์นี้ไม่รองรับโหมดเต็มจอ', price_trend:'แนวโน้มราคา' },
   lo: { overview:'ພາບລວມ', sub:'ຂໍ້ມູນຈິງຈາກລະບົບ · ອັບເດດ {t}', r7:'7 ມື້', r1m:'1 ເດືອນ', r3m:'3 ເດືອນ', r6m:'6 ເດືອນ', r1y:'1 ປີ', rall:'ທັງໝົດ',
     bought:'ຍອດຮັບຊື້ (ຈ່າຍແລ້ວ)', bills:'ບິນ', weight:'ນ້ຳໜັກ', avg:'ລາຄາສະເລ່ຍ/ກິໂລ', vs_prev:'ທຽບຊ່ວງກ່ອນ', kg:'ກິໂລ',
     alloc:'ສັດສ່ວນຕາມຜູ້ຈ່າຍເງິນ', cash:'ເງິນຄົງເຫຼືອພະນັກງານ', my_cash:'ເງິນຄົງເຫຼືອຂອງຂ້ອຍ', pending:'⏳ ລໍຢືນຢັນ {a}', loading:'ກຳລັງໂຫຼດ...',
     add_in:'＋ ບັນທຶກເງິນທີ່ໄດ້ຮັບ', ret:'↩ ສົ່ງເງິນຄືນ', staff_acc:'💵 ບັນຊີພະນັກງານ', acct:'💰 ບັນຊີ',
     cum:'ຍອດຊື້ສະສົມ', details:'ເບິ່ງລາຍລະອຽດ ›', total:'ລວມ', sellers:'ຜູ້ຂາຍ', t_kg:'ກິໂລ ສູງສຸດ', t_amt:'ຍອດເງິນສູງສຸດ', t_new:'ລ່າສຸດ',
     unpaid:'ບິນລໍຊຳລະ', no_unpaid:'ບໍ່ມີບິນຄ້າງຊຳລະ ✓', recent:'ຄວາມເຄື່ອນໄຫວລ່າສຸດ', paid_by:'ຈ່າຍໂດຍ {n}', no_data:'ຍັງບໍ່ມີຂໍ້ມູນໃນຊ່ວງນີ້',
-    ago_m:'{n} ນາທີກ່ອນ', ago_h:'{n} ຊົ່ວໂມງກ່ອນ', ago_d:'{n} ມື້ກ່ອນ', now:'ຫາກໍ່', s_sent:'ລໍຊຳລະ', s_draft:'ຮ່າງ', bought_from:'ຮັບຊື້ຢາງຈາກ {c}', price_trend:'ແນວໂນ້ມລາຄາ' },
+    ago_m:'{n} ນາທີກ່ອນ', ago_h:'{n} ຊົ່ວໂມງກ່ອນ', ago_d:'{n} ມື້ກ່ອນ', now:'ຫາກໍ່', s_sent:'ລໍຊຳລະ', s_draft:'ຮ່າງ', bought_from:'ຮັບຊື້ຢາງຈາກ {c}', fs:'ເຕັມຈໍ', fs_exit:'ອອກຈາກເຕັມຈໍ', fs_na:'ບຣາວເຊີນີ້ບໍ່ຮອງຮັບໂໝດເຕັມຈໍ', price_trend:'ແນວໂນ້ມລາຄາ' },
   en: { overview:'Overview', sub:'Live data from the system · updated {t}', r7:'7D', r1m:'1M', r3m:'3M', r6m:'6M', r1y:'1Y', rall:'All',
     bought:'Rubber purchased (paid)', bills:'Bills', weight:'Weight', avg:'Avg price/kg', vs_prev:'vs previous period', kg:'kg',
     alloc:'Share by payer', cash:'Staff cash balance', my_cash:'My cash balance', pending:'⏳ Pending {a}', loading:'Loading...',
     add_in:'＋ Record money received', ret:'↩ Return money', staff_acc:'💵 Staff accounts', acct:'💰 Accounting',
     cum:'Cumulative purchases', details:'View details ›', total:'Total', sellers:'Sellers', t_kg:'Top kg', t_amt:'Top amount', t_new:'Latest',
     unpaid:'Bills awaiting payment', no_unpaid:'No unpaid bills ✓', recent:'Recent activity', paid_by:'Paid by {n}', no_data:'No data in this period',
-    ago_m:'{n} min ago', ago_h:'{n} h ago', ago_d:'{n} d ago', now:'just now', s_sent:'Awaiting', s_draft:'Draft', bought_from:'Bought rubber from {c}', price_trend:'Price trend' }
+    ago_m:'{n} min ago', ago_h:'{n} h ago', ago_d:'{n} d ago', now:'just now', s_sent:'Awaiting', s_draft:'Draft', bought_from:'Bought rubber from {c}', fs:'Full screen', fs_exit:'Exit full screen', fs_na:'Full screen is not supported in this browser', price_trend:'Price trend' }
 };
 function dkT(k, v){ const d = DK_I18N[currentLang] || DK_I18N.th; let s = d[k] ?? DK_I18N.th[k] ?? k; if (v) Object.keys(v).forEach(x => s = s.split('{'+x+'}').join(v[x])); return s; }
 const DK = { range:'1m', tab:'kg', chart:null, cash:null, cashAt:0, cashBusy:false };
@@ -10129,6 +10141,20 @@ function _dkSpark(vals, color, w, h, area){
     <path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
 }
 
+function dkFullscreen(){
+  const el = document.getElementById('dk-root'); if (!el) return;
+  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  try{
+    if (fsEl) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+  }catch(e){ showToast('⚠ '+dkT('fs_na'), 'error'); }
+}
+['fullscreenchange','webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => {
+  const b = document.getElementById('dk-fs-btn'); if (!b) return;
+  const on = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  b.textContent = on ? '✕ '+dkT('fs_exit') : '⛶ '+dkT('fs');
+  try{ if (DK.chart) DK.chart.resize(); }catch(e){}
+}));
 function dkSetRange(r){ DK.range = r; try{ localStorage.setItem('rl_dk_range', r); }catch(e){} renderDashboard(); }
 function dkSetTab(t){ DK.tab = t; renderDashboard(); }
 function dkGo(tab, after){
@@ -10219,7 +10245,8 @@ function renderDashboard(){
   root.innerHTML = `
   <div class="dk-head">
     <div><div class="dk-title">${esc(dkT('overview'))}</div><div class="dk-muted">${esc(dkT('sub',{t:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}))}</div></div>
-    <div class="dk-pills">${R.map(r=>`<button class="${DK.range===r?'on':''}" onclick="dkSetRange('${r}')">${esc(dkT(RL[r]))}</button>`).join('')}</div>
+    <div class="dk-head-r"><div class="dk-pills">${R.map(r=>`<button class="${DK.range===r?'on':''}" onclick="dkSetRange('${r}')">${esc(dkT(RL[r]))}</button>`).join('')}</div>
+      <button class="dk-fs" id="dk-fs-btn" onclick="dkFullscreen()">${(document.fullscreenElement||document.webkitFullscreenElement)?'✕ '+esc(dkT('fs_exit')):'⛶ '+esc(dkT('fs'))}</button></div>
   </div>
 
   <div class="dk-grid3">
