@@ -684,6 +684,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 #app #tabs .tab-btn.active{background:var(--surface2);border-left-color:currentColor}
 #app #tabs>div[style*="flex:1"]{flex:1 1 auto;min-height:12px;border-bottom:1px solid var(--border);margin:6px 4px}
 #sb-backdrop{display:none}
+#sb-hot{display:none}
 @media(min-width:900px){
   #app{padding-left:232px;transition:padding-left .2s}
   #app #topbar{margin-left:-232px;transition:margin-left .2s}
@@ -691,6 +692,11 @@ font{border:none!important;outline:none!important;display:inline!important}
   #app.sb-collapsed{padding-left:0}
   #app.sb-collapsed #topbar{margin-left:0}
   #app.sb-collapsed #tabs{transform:translateX(-100%)}
+  #app.sb-collapsed.sb-peek #tabs{transform:none;box-shadow:10px 0 34px rgba(15,23,42,.22);z-index:60}
+  #app.sb-collapsed #sb-hot{display:block;position:fixed;left:0;top:54px;bottom:0;width:14px;z-index:58;cursor:e-resize;
+    background:linear-gradient(90deg,rgba(14,165,233,.35),rgba(14,165,233,0));opacity:.55;transition:opacity .15s}
+  #app.sb-collapsed #sb-hot:hover{opacity:1}
+  #app.sb-collapsed.sb-peek #sb-hot{opacity:0}
 }
 @media(max-width:899px){
   #app #tabs{top:0;width:270px;max-width:82vw;z-index:120;transform:translateX(-102%);transition:transform .22s ease;padding-top:1rem}
@@ -950,6 +956,7 @@ font{border:none!important;outline:none!important;display:inline!important}
   </div>
 
   <div id="sb-backdrop" onclick="sbToggle(false)"></div>
+  <div id="sb-hot" title=""></div>
   <div id="tabs">
     <button class="tab-btn" id="tab-dashboard-btn" onclick="switchTab('dashboard',this)" data-i18n="tab_dashboard">📊 แดชบอร์ด</button>
     <button class="tab-btn" id="tab-customers-btn" onclick="switchTab('customers',this)" data-i18n="tab_customers">ข้อมูลลูกค้า</button>
@@ -1223,7 +1230,6 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div class="card-body" id="detail-note" style="font-size:.85rem;color:#aaa;line-height:1.6"></div>
     </div>
   </div>
-</div>
 
   <!-- TAB: CUSTOMER PORTAL ADMIN -->
   <div class="tab-pane" id="pane-portal">
@@ -1849,6 +1855,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 
   <!-- (RECEIPTS section moved into pane-report) -->
 
+</div><!-- /#app -->
 <!-- MODALS -->
 <div class="modal-overlay" id="pay-modal" style="display:none" onclick="if(event.target===this)closePayModal()">
   <div class="modal-box" style="max-width:480px">
@@ -2062,7 +2069,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-2100";
+const APP_VERSION = "2026.10.27-2130";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -10185,13 +10192,41 @@ function sbToggle(force){
     app.classList.toggle('sb-open', on);
   } else {
     const off = !app.classList.contains('sb-collapsed');
-    app.classList.toggle('sb-collapsed', off);
+    app.classList.toggle('sb-collapsed', off); app.classList.remove('sb-peek');
     try{ localStorage.setItem('rl_sb_collapsed', off ? '1' : '0'); }catch(e){}
     try{ if (DK.chart) setTimeout(()=>DK.chart.resize(), 250); }catch(e){}
   }
 }
 try{ if (localStorage.getItem('rl_sb_collapsed') === '1') document.addEventListener('DOMContentLoaded', () => document.getElementById('app')?.classList.add('sb-collapsed')); }catch(e){}
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('app')?.classList.remove('sb-open'); });
+// ซ่อนเมนูอัตโนมัติ (จอใหญ่): คลิกพื้นที่เนื้อหา → ซ่อน · เลื่อนเมาส์ไปขอบซ้าย → เมนูเลื่อนออกมา · เมาส์ออกจากเมนู → ซ่อนอีกครั้ง
+function _sbDesk(){ return window.innerWidth >= 900; }
+function _sbResize(){ try{ if (DK.chart) setTimeout(()=>DK.chart.resize(), 260); }catch(e){} }
+function sbHide(){
+  const app = document.getElementById('app'); if (!app) return;
+  const was = !app.classList.contains('sb-collapsed');
+  app.classList.add('sb-collapsed'); app.classList.remove('sb-peek');
+  if (was){ try{ localStorage.setItem('rl_sb_collapsed','1'); }catch(e){} _sbResize(); }
+}
+let _sbPeekT = null;
+function sbPeek(on){
+  const app = document.getElementById('app'); if (!app || !_sbDesk() || !app.classList.contains('sb-collapsed')) return;
+  clearTimeout(_sbPeekT);
+  if (on) app.classList.add('sb-peek');
+  else _sbPeekT = setTimeout(() => app.classList.remove('sb-peek'), 280);
+}
+document.addEventListener('click', e => {
+  if (!_sbDesk()) return;
+  const app = document.getElementById('app'); if (!app || app.style.display === 'none') return;
+  if (e.target.closest('#tabs, #topbar, #sb-hot, .modal-overlay, #toast')) return;
+  if (!e.target.closest('#app')) return;
+  sbHide();
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const hot = document.getElementById('sb-hot'), tabs = document.getElementById('tabs');
+  if (hot){ hot.addEventListener('mouseenter', () => sbPeek(true)); hot.addEventListener('mouseleave', () => sbPeek(false)); }
+  if (tabs){ tabs.addEventListener('mouseenter', () => sbPeek(true)); tabs.addEventListener('mouseleave', () => sbPeek(false)); }
+});
 function dkFullscreen(){
   const el = document.getElementById('dk-root'); if (!el) return;
   const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
