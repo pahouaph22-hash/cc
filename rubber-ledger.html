@@ -557,6 +557,90 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-calc td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sl-calc .ac-total td{font-weight:700;font-size:.95rem;border-top:2px solid var(--border2)}
 .sl-calc .sl-calc-note td{color:#9A3412;font-size:.8rem}
+.sl-sum-card{padding:1rem 1.1rem}
+.sl-sum-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.7rem 1.2rem;margin-bottom:.9rem}
+.sl-sum-title{font-weight:700;font-size:.95rem;flex-basis:100%}
+.sl-sum-dates{display:flex;align-items:flex-end;gap:.5rem}
+.sl-sum-dates label{display:flex;flex-direction:column;gap:.2rem;font-size:.7rem;color:var(--muted);font-weight:600}
+.sl-sum-dates input{padding:.45rem .6rem;font-size:.85rem}
+.sl-sum-dash{padding-bottom:.55rem;color:var(--muted)}
+.sl-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.sl-chip{border:1px solid var(--border);background:#fff;border-radius:999px;padding:.32rem .8rem;font-size:.75rem;cursor:pointer;color:var(--text2);font-family:inherit}
+.sl-chip:hover{border-color:var(--sky)}
+.sl-chip.on{background:var(--sky);border-color:var(--sky);color:#fff;font-weight:600}
+.sl-sum-boxes{display:flex;align-items:stretch;gap:.5rem;flex-wrap:wrap}
+.sl-box{flex:1;min-width:150px;border-radius:10px;padding:.75rem .9rem;cursor:pointer;border:1px solid var(--border);background:var(--surface2);transition:transform .12s,box-shadow .12s}
+.sl-box:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(15,23,42,.08)}
+.sl-box-l{font-size:.74rem;font-weight:700;letter-spacing:.02em}
+.sl-box-v{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:.15rem}
+.sl-box-s{font-size:.68rem;opacity:.8}
+.sl-box-open{color:var(--text2)}
+.sl-box-in{background:#F0FDF4;border-color:#BBF7D0;color:#15803D}
+.sl-box-out{background:#FEF2F2;border-color:#FECACA;color:#B91C1C}
+.sl-box-close{background:#EFF6FF;border-color:#93C5FD;color:#1D4ED8;border-width:2px}
+.sl-box-close .sl-box-v{font-size:1.45rem}
+.sl-op{align-self:center;font-size:1.3rem;font-weight:700;color:var(--muted2)}
+.sl-hint{font-size:.72rem;color:var(--muted);margin:.2rem .2rem .5rem}
+.sl-tbl-card{overflow:hidden;margin-bottom:1rem;padding:0}
+.sl-tbl-head{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;font-weight:700;font-size:.92rem}
+.sl-head-in{background:#F0FDF4;color:#15803D;border-bottom:2px solid #22C55E}
+.sl-head-out{background:#FEF2F2;color:#B91C1C;border-bottom:2px solid #EF4444}
+.sl-head-bal{background:#EFF6FF;color:#1D4ED8;border-bottom:2px solid #3B82F6}
+.sl-head-total{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.sl-cnt{font-weight:500;font-size:.72rem;opacity:.8;margin-left:.3rem}
+.sl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sl-tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+.sl-tbl th{text-align:left;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:.02em;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:#fff;white-space:nowrap}
+.sl-tbl td{padding:.6rem 1rem;border-bottom:1px solid var(--border);vertical-align:top}
+.sl-tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sl-tbl tbody tr:nth-child(even) td{background:#FAFBFC}
+.sl-tbl tbody tr.sl-row{cursor:pointer}
+.sl-tbl tbody tr.sl-row:hover td{background:#F1F5F9}
+.sl-d{white-space:nowrap;color:var(--text2)}
+.sl-amt-in{color:#15803D;font-weight:700}
+.sl-amt-out{color:#B91C1C;font-weight:700}
+.sl-amt-bal{color:#1D4ED8;font-weight:800}
+.sl-tbl tfoot td{font-weight:800;font-size:.9rem;border-bottom:none}
+.sl-foot-in td{background:#DCFCE7;color:#15803D}
+.sl-foot-out td{background:#FEE2E2;color:#B91C1C}
+.sl-foot-bal td{background:#DBEAFE;color:#1D4ED8}
+.sl-open-row td{color:var(--muted);font-style:italic}
+.sl-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
+.sl-sub-pill{cursor:pointer;font-size:.68rem;font-weight:600;background:#fff;border:1px solid #FECACA;color:#B91C1C;border-radius:999px;padding:.05rem .5rem}
+.c-unit{display:none}
+@media(max-width:640px){.c-unit{display:inline}}
+.sl-empty{padding:1.1rem 1rem;color:var(--muted);font-size:.82rem;text-align:center}
+@media(max-width:640px){
+  .sl-op{display:none}
+  .sl-box{min-width:calc(50% - .3rem)}
+  .sl-box-close{min-width:100%}
+  .sl-tbl td,.sl-tbl th{padding:.45rem .5rem}
+  .sl-tbl{font-size:.76rem}
+  .sl-head-total{font-size:.95rem}
+  .sl-stack thead{display:none}
+  .sl-stack tr{display:flex;flex-wrap:wrap;align-items:baseline;border-bottom:1px solid var(--border)}
+  .sl-stack td{display:block;border:none;padding:.15rem .7rem}
+  .sl-stack tbody td{background:transparent!important}
+  .sl-stack tr.sl-foot-in{background:#DCFCE7}
+  .sl-stack tr.sl-foot-out{background:#FEE2E2}
+  .sl-stack tr.sl-foot-bal{background:#DBEAFE}
+  .sl-stack-d td.c-meta{width:100%;text-align:left;padding-top:0;padding-bottom:.55rem;font-size:.74rem}
+  .sl-stack-d td.c-meta.sl-amt-in::before{content:attr(data-l) " ";font-weight:500;opacity:.7}
+  .sl-stack-d td.c-meta.sl-amt-out::before{content:attr(data-l) " ";font-weight:500;opacity:.7}
+  .sl-stack-d tr.sl-open-row td{padding-bottom:.55rem}
+  .sl-stack tbody tr:nth-child(even){background:#FAFBFC}
+  .sl-stack td.c-date{order:1;flex:1;padding-top:.6rem;font-size:.72rem}
+  .sl-stack td.c-amt{order:2;padding-top:.6rem;font-size:.9rem}
+  .sl-stack td.c-main{order:3;width:100%}
+  .sl-stack td.c-meta{order:4;padding-bottom:.6rem;text-align:left}
+  .sl-stack td.c-empty{display:none}
+  .sl-stack tfoot tr{border:none}
+  .sl-stack tfoot td{padding:.6rem .7rem}
+  .sl-stack tfoot td.c-ft{flex:1}
+  .sl-sum-dates{width:100%}
+  .sl-sum-dates label{flex:1}
+  .sl-sum-dates input{width:100%}
+}
 #pane-staffledger .card{margin-bottom:1rem}
 #pane-accounting .card{margin-bottom:1rem}
 @media(max-width:640px){
@@ -1570,17 +1654,13 @@ font{border:none!important;outline:none!important;display:inline!important}
     </div>
 
     <div id="sl-issues"></div>
-    <div id="sl-kpi" class="ac-kpi"></div>
+    <div id="sl-kpi" class="ac-kpi" style="display:none"></div>
 
-    <div class="card">
-      <div class="card-header"><span data-sl="statement">รายการเดินบัญชี</span><span class="ac-sub" data-sl="statement_hint">เรียงตามเวลา พร้อมยอดคงเหลือหลังแต่ละรายการ</span></div>
-      <div class="card-body" style="padding:0"><div style="overflow-x:auto" id="sl-lines"></div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><span data-sl="daily">สรุปรายวัน</span></div>
-      <div class="card-body" style="padding:0"><div style="overflow-x:auto" id="sl-daily"></div></div>
-    </div>
+    <div class="card sl-sum-card" id="sl-sum"></div>
+    <div class="sl-hint" id="sl-hint"></div>
+    <div class="card sl-tbl-card" id="sl-in"></div>
+    <div class="card sl-tbl-card" id="sl-out"></div>
+    <div class="card sl-tbl-card" id="sl-daily"></div>
   </div>
 
   <div class="tab-pane" id="pane-activitylog">
@@ -1861,7 +1941,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1500";
+const APP_VERSION = "2026.10.27-1530";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -8635,63 +8715,7 @@ function _slKindBadge(k){
   const col = {advance:'var(--green-d)', payment:'var(--sky-d)', expense:'#B45309', return:'#7C3AED'}[k] || 'var(--muted)';
   return `<span class="sl-kind" style="color:${col};border-color:${col}">${esc(slT('kind_'+k))}</span>`;
 }
-function slRenderLines(){
-  const d = slState.data; if (!d) return;
-  const type = document.getElementById('sl-type').value;
-  const q = (document.getElementById('sl-search').value||'').trim().toLowerCase();
-  const lines = (d.lines||[]).filter(l => (!type || (type==='in' ? l.kind==='advance' : l.kind===type))
-        && (!q || [l.ref,l.ref2,l.party,l.detail,l.location].join(' ').toLowerCase().includes(q)));
-  let tin=0, tout=0, tkg=0, np=0;
-  const admin = _slIsAdmin();
-  const body = lines.map(l => {
-    tin += Number(l.in)||0; tout += Number(l.out)||0; if (l.kind==='payment'){ tkg += Number(l.kg)||0; np++; }
-    let ref = esc(l.ref||'');
-    if (l.kind==='payment') ref = `<a href="javascript:void(0)" class="ac-link" onclick="acOpenBill('${escJs(l.src_id)}')">${esc(l.ref2||'')}</a><div class="ac-sub mono">${esc(l.ref)}</div>`;
-    const party = l.kind==='payment' ? `<b>${esc(l.party||'')}</b>${l.location?`<div class="ac-sub">📍 ${esc(l.location)}</div>`:''}`
-                : l.kind==='expense' ? `<b>${esc(l.ref2||'')}</b><div>${esc(l.detail||'')}</div>`
-                : `<b>${esc(l.party||'')}</b>${l.detail?`<div>${esc(l.detail)}</div>`:''}${l.ref2?`<div class="ac-sub mono">${esc(l.ref2)}</div>`:''}
-                   <div>${l.verified?`<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>`:`<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`}</div>`;
-    const pr = l.price_min==null ? '' : (Number(l.price_min)===Number(l.price_max) ? acMoney(l.price_min) : `${acMoney(l.price_min)}–${acMoney(l.price_max)}`);
-    const method = l.method ? esc(l.method==='transfer'?slT('transfer'):slT('cash')) : '';
-    const bal = l.balance==null ? '—' : `<span class="${Number(l.balance)<0?'ac-neg':''}">${acMoney(l.balance)}</span>`;
-    let btns = '';
-    if (l.src_table==='expenses') btns = `<button class="ac-btn" onclick="slEditExpense(${Number(l.src_id)})">${esc(slT('edit'))}</button><button class="ac-btn" onclick="acHistory('expenses',${Number(l.src_id)})">${esc(slT('history'))}</button><button class="ac-btn ac-btn-del" onclick="slSoftDelete('expenses',${Number(l.src_id)})">${esc(slT('del'))}</button>`;
-    else if (l.src_table==='staff_cash_moves'){
-      const canEdit = admin || !l.verified;
-      btns = (admin && !l.verified ? `<button class="ac-btn sl-verify" onclick="slVerify(${Number(l.src_id)},true)">${esc(slT('verify'))}</button>` : '')
-           + (canEdit?`<button class="ac-btn" onclick="slEditMove(${Number(l.src_id)})">${esc(slT('edit'))}</button>`:'')
-           + `<button class="ac-btn" onclick="acHistory('staff_cash_moves',${Number(l.src_id)})">${esc(slT('history'))}</button>`
-           + (canEdit?`<button class="ac-btn ac-btn-del" onclick="slSoftDelete('staff_cash_moves',${Number(l.src_id)})">${esc(slT('del'))}</button>`:'');
-    }
-    const t = l.kind==='payment' ? acDateTime(l.ts) : acDate(l.date);
-    const idx = (d.lines||[]).indexOf(l);
-    return `<tr class="sl-row" onclick="if(!event.target.closest('button,a'))slShowDetail(${idx})"><td style="white-space:nowrap">${t}</td><td>${_slKindBadge(l.kind)}</td><td>${ref}</td><td>${party}</td>
-      <td class="num">${l.kg!=null?acKg(l.kg):''}</td><td class="num">${pr}</td><td>${method}</td>
-      <td class="num ac-pos">${Number(l.in)?acMoney(l.in):''}</td><td class="num">${Number(l.out)?acMoney(l.out):''}</td>
-      <td class="num"><b>${bal}</b></td><td style="white-space:nowrap">${btns}</td></tr>`;
-  }).join('');
-  const head = ['date','kind','ref','party','kg','price','method','in','out','balance',''].map(k=>`<th class="${['kg','price','in','out','balance'].includes(k)?'num':''}">${k?esc(slT(k)):''}</th>`).join('');
-  const S = d.summary;
-  const opening = S.has_cash_records && !type && !q
-      ? `<tr class="ac-muted"><td colspan="9"><i>${esc(slT('k_opening'))}</i></td><td class="num"><b>${acMoney(S.opening)}</b></td><td></td></tr>` : '';
-  document.getElementById('sl-lines').innerHTML = `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${opening}${body || `<tr><td colspan="11" class="empty-state">${esc(slT('no_rows'))}</td></tr>`}</tbody>
-    ${lines.length?`<tfoot><tr class="ac-total"><td colspan="4">${esc(slT('total'))} · ${lines.length} ${esc(acT('rows'))}${np?` · ${np} ${esc(slT('n_pay'))}`:''}</td><td class="num">${tkg?acKg(tkg):''}</td><td></td><td></td>
-      <td class="num">${acMoney(tin)}</td><td class="num">${acMoney(tout)}</td><td class="num">${(!type && !q && S.closing!=null)?acMoney(S.closing):''}</td><td></td></tr></tfoot>`:''}</table>`;
-}
 
-function _slRenderDaily(){
-  const D = slState.data.daily || [];
-  if (!D.length){ document.getElementById('sl-daily').innerHTML = `<div class="empty-state" style="padding:1rem">${esc(slT('no_rows'))}</div>`; return; }
-  const head = ['date','in','k_paid','n_pay','kg','k_exp','k_ret','net'].map((k,i)=>`<th class="${i?'num':''}">${esc(k==='date'?acT('date'):k.startsWith('k_')?slT(k).replace(/^[^:]+:\s*/,''):slT(k))}</th>`).join('');
-  let t = {cash_in:0, paid_out:0, n_payments:0, kg:0, expense_out:0, returned:0, net:0};
-  const rows = D.map(r => { Object.keys(t).forEach(k=>t[k]+=Number(r[k])||0);
-    return `<tr><td>${acDate(r.date)}</td><td class="num ac-pos">${Number(r.cash_in)?acMoney(r.cash_in):''}</td><td class="num">${Number(r.paid_out)?acMoney(r.paid_out):''}</td>
-      <td class="num">${r.n_payments||''}</td><td class="num">${Number(r.kg)?acKg(r.kg):''}</td><td class="num">${Number(r.expense_out)?acMoney(r.expense_out):''}</td>
-      <td class="num">${Number(r.returned)?acMoney(r.returned):''}</td><td class="num"><b class="${Number(r.net)<0?'ac-neg':'ac-pos'}">${acMoney(r.net)}</b></td></tr>`; }).join('');
-  document.getElementById('sl-daily').innerHTML = `<table class="order-table ac-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody>
-    <tfoot><tr class="ac-total"><td>${esc(slT('total'))}</td><td class="num">${acMoney(t.cash_in)}</td><td class="num">${acMoney(t.paid_out)}</td><td class="num">${t.n_payments}</td>
-    <td class="num">${acKg(t.kg)}</td><td class="num">${acMoney(t.expense_out)}</td><td class="num">${acMoney(t.returned)}</td><td class="num">${acMoney(t.net)}</td></tr></tfoot></table>`;
-}
 
 // ── บันทึก/แก้ไข ──
 async function _slAfterSave(){ acCloseModal(); showToast('✅ '+slT('saved')); await slLoad(); }
@@ -9069,6 +9093,154 @@ async function slShowKpi(key){
 function _slWide(on){
   const box = document.querySelector('#ac-modal .modal-box');
   if (box) box.style.maxWidth = on ? '980px' : '560px';
+}
+
+
+// =====================================================
+// STAFF LEDGER — ตารางแบบเรียบง่าย: สรุปตามช่วงวันที่ + ตารางรายรับ (เขียว) + ตารางรายจ่าย (แดง) + คงเหลือรายวัน
+// =====================================================
+Object.assign(SL_I18N.th, {
+  sum_title:'สรุปยอดตามช่วงวันที่', sum_from:'ตั้งแต่วันที่', sum_to:'ถึงวันที่', q_today:'วันนี้', q_yesterday:'เมื่อวาน', q_7:'7 วัน', q_month:'เดือนนี้', q_last_month:'เดือนที่แล้ว', q_all:'ทั้งหมด',
+  s_open:'ยอดยกมา', s_in:'รายรับ', s_out:'รายจ่าย', s_close:'คงเหลือ',
+  in_title:'รายรับ', out_title:'รายจ่าย', bal_title:'ยอดคงเหลือรายวัน',
+  c_date:'วันที่', c_from:'ได้รับจาก', c_method:'วิธีรับ', c_status:'สถานะ', c_amount:'จำนวนเงิน',
+  c_type:'ประเภท', c_detail:'รายละเอียด', c_kg:'กก.', c_in:'รับ', c_out:'จ่าย', c_bal:'คงเหลือสิ้นวัน',
+  t_in:'รวมรายรับ', t_out:'รวมรายจ่าย', row_hint:'กดที่แถวเพื่อดูรายละเอียด / แก้ไข', no_in:'ไม่มีรายรับในช่วงนี้', no_out:'ไม่มีรายจ่ายในช่วงนี้',
+  ret_to:'คืนให้', items_n:'{n} รายการ'
+});
+Object.assign(SL_I18N.lo, {
+  sum_title:'ສະຫຼຸບຍອດຕາມຊ່ວງວັນທີ', sum_from:'ຕັ້ງແຕ່ວັນທີ', sum_to:'ເຖິງວັນທີ', q_today:'ມື້ນີ້', q_yesterday:'ມື້ວານ', q_7:'7 ມື້', q_month:'ເດືອນນີ້', q_last_month:'ເດືອນແລ້ວ', q_all:'ທັງໝົດ',
+  s_open:'ຍອດຍົກມາ', s_in:'ລາຍຮັບ', s_out:'ລາຍຈ່າຍ', s_close:'ຄົງເຫຼືອ',
+  in_title:'ລາຍຮັບ', out_title:'ລາຍຈ່າຍ', bal_title:'ຍອດຄົງເຫຼືອລາຍວັນ',
+  c_date:'ວັນທີ', c_from:'ໄດ້ຮັບຈາກ', c_method:'ວິທີຮັບ', c_status:'ສະຖານະ', c_amount:'ຈຳນວນເງິນ',
+  c_type:'ປະເພດ', c_detail:'ລາຍລະອຽດ', c_kg:'ກິໂລ', c_in:'ຮັບ', c_out:'ຈ່າຍ', c_bal:'ຄົງເຫຼືອທ້າຍມື້',
+  t_in:'ລວມລາຍຮັບ', t_out:'ລວມລາຍຈ່າຍ', row_hint:'ກົດທີ່ແຖວເພື່ອເບິ່ງລາຍລະອຽດ / ແກ້ໄຂ', no_in:'ບໍ່ມີລາຍຮັບໃນຊ່ວງນີ້', no_out:'ບໍ່ມີລາຍຈ່າຍໃນຊ່ວງນີ້',
+  ret_to:'ຄືນໃຫ້', items_n:'{n} ລາຍການ'
+});
+Object.assign(SL_I18N.en, {
+  sum_title:'Summary for selected dates', sum_from:'From', sum_to:'To', q_today:'Today', q_yesterday:'Yesterday', q_7:'7 days', q_month:'This month', q_last_month:'Last month', q_all:'All',
+  s_open:'Opening', s_in:'Income', s_out:'Expenses', s_close:'Balance',
+  in_title:'Income', out_title:'Expenses', bal_title:'Daily balance',
+  c_date:'Date', c_from:'Received from', c_method:'Method', c_status:'Status', c_amount:'Amount',
+  c_type:'Type', c_detail:'Details', c_kg:'kg', c_in:'In', c_out:'Out', c_bal:'End-of-day balance',
+  t_in:'Total income', t_out:'Total expenses', row_hint:'Click a row to view / edit', no_in:'No income in this period', no_out:'No expenses in this period',
+  ret_to:'Returned to', items_n:'{n} entries'
+});
+
+// ช่องวันที่ในแถบสรุป ใช้ค่าเดียวกับตัวกรองด้านบน
+function slSumDate(){
+  document.getElementById('sl-from').value = document.getElementById('sl-sum-from').value;
+  document.getElementById('sl-to').value   = document.getElementById('sl-sum-to').value;
+  slDateChange();
+}
+function slQuick(p){ document.getElementById('sl-preset').value = p; slPresetChange(); }
+
+function _slSumBar(){
+  const d = slState.data, S = d.summary;
+  const preset = document.getElementById('sl-preset').value;
+  const chip = (p, k) => `<button class="sl-chip ${preset===p?'on':''}" onclick="slQuick('${p}')">${esc(slT(k))}</button>`;
+  const closing = _acNum(S.closing);
+  const nd = `<span class="ac-nodata">${esc(acT('no_data'))}</span>`;
+  const out = (Number(S.total_out)||0);
+  document.getElementById('sl-sum').innerHTML = `
+    <div class="sl-sum-head">
+      <div class="sl-sum-title">📅 ${esc(slT('sum_title'))}</div>
+      <div class="sl-sum-dates">
+        <label><span>${esc(slT('sum_from'))}</span><input type="date" id="sl-sum-from" value="${esc(d.from||'')}" onchange="slSumDate()"></label>
+        <span class="sl-sum-dash">→</span>
+        <label><span>${esc(slT('sum_to'))}</span><input type="date" id="sl-sum-to" value="${esc(d.to||'')}" onchange="slSumDate()"></label>
+      </div>
+      <div class="sl-chips">${chip('today','q_today')}${chip('yesterday','q_yesterday')}${chip('last_7','q_7')}${chip('this_month','q_month')}${chip('last_month','q_last_month')}${chip('all','q_all')}</div>
+    </div>
+    <div class="sl-sum-boxes">
+      <div class="sl-box sl-box-open" onclick="slShowKpi('open')"><div class="sl-box-l">${esc(slT('s_open'))}</div><div class="sl-box-v">${S.has_cash_records?acMoney(S.opening):nd}</div></div>
+      <div class="sl-op">+</div>
+      <div class="sl-box sl-box-in" onclick="slShowKpi('in')"><div class="sl-box-l">💚 ${esc(slT('s_in'))}</div><div class="sl-box-v">${acMoney(S.cash_in)}</div><div class="sl-box-s">${esc(slT('items_n',{n:S.n_advances||0}))}</div></div>
+      <div class="sl-op">−</div>
+      <div class="sl-box sl-box-out" onclick="slShowKpi('out')"><div class="sl-box-l">🔻 ${esc(slT('s_out'))}</div><div class="sl-box-v">${acMoney(out)}</div><div class="sl-box-s">${esc(slT('items_n',{n:(S.n_payments||0)+(S.n_expenses||0)+((d.lines||[]).filter(l=>l.kind==='return').length)}))}</div></div>
+      <div class="sl-op">=</div>
+      <div class="sl-box sl-box-close" onclick="slShowKpi('close')"><div class="sl-box-l">💰 ${esc(slT('s_close'))}</div><div class="sl-box-v">${closing===null?nd:acMoney(closing)}</div></div>
+    </div>`;
+}
+
+function _slFiltered(){
+  const d = slState.data;
+  const type = document.getElementById('sl-type').value;
+  const q = (document.getElementById('sl-search').value||'').trim().toLowerCase();
+  return (d.lines||[]).filter(l => (!type || (type==='in' ? l.kind==='advance' : l.kind===type))
+        && (!q || [l.ref,l.ref2,l.party,l.detail,l.location].join(' ').toLowerCase().includes(q)));
+}
+function _slRow(l, cells){
+  const idx = (slState.data.lines||[]).indexOf(l);
+  return `<tr class="sl-row" tabindex="0" onclick="if(!event.target.closest('a'))slShowDetail(${idx})" onkeydown="if(event.key==='Enter')slShowDetail(${idx})">${cells}</tr>`;
+}
+
+function slRenderLines(){
+  const d = slState.data; if (!d) return;
+  _slSumBar();
+  const lines = _slFiltered();
+  const type = document.getElementById('sl-type').value;
+  const meth = l => l.method==='transfer' ? slT('transfer') : slT('cash');
+
+  // ── รายรับ ──
+  const ins = lines.filter(l => l.kind==='advance');
+  let tin = 0;
+  const inRows = ins.map(l => { tin += Number(l.in)||0;
+    return _slRow(l, `<td class="sl-d c-date">${acDate(l.date)}</td>
+      <td class="c-main"><b>${esc(l.party||slT('no_source'))}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}${l.ref2?`<div class="ac-sub mono">Ref: ${esc(l.ref2)}</div>`:''}</td>
+      <td class="c-meta">${esc(meth(l))}</td>
+      <td class="c-meta">${l.verified?`<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>`:`<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`}</td>
+      <td class="num sl-amt-in c-amt">+${acMoney(l.in)}</td>`); }).join('');
+  const showIn = !type || type==='in';
+  document.getElementById('sl-in').style.display = showIn ? '' : 'none';
+  document.getElementById('sl-in').innerHTML = `
+    <div class="sl-tbl-head sl-head-in"><span>💚 ${esc(slT('in_title'))} <span class="sl-cnt">${esc(slT('items_n',{n:ins.length}))}</span></span><span class="sl-head-total">+${acMoney(tin)}</span></div>
+    <div class="sl-scroll">${ins.length ? `<table class="sl-tbl sl-stack"><thead><tr><th>${esc(slT('c_date'))}</th><th>${esc(slT('c_from'))}</th><th>${esc(slT('c_method'))}</th><th>${esc(slT('c_status'))}</th><th class="num">${esc(slT('c_amount'))}</th></tr></thead>
+      <tbody>${inRows}</tbody><tfoot><tr class="sl-foot-in"><td colspan="4" class="c-ft">${esc(slT('t_in'))}</td><td class="num">+${acMoney(tin)}</td></tr></tfoot></table>`
+      : `<div class="sl-empty">${esc(slT('no_in'))}</div>`}</div>`;
+
+  // ── รายจ่าย ──
+  const outs = lines.filter(l => Number(l.out) > 0);
+  let tout = 0; const byKind = {};
+  const outRows = outs.map(l => { const a = Number(l.out)||0; tout += a; byKind[l.kind] = (byKind[l.kind]||0) + a;
+    let detail = '', kg = '';
+    if (l.kind==='payment'){
+      detail = `<b>${esc(l.party||'')}</b> · <a href="javascript:void(0)" class="ac-link" onclick="acOpenBill('${escJs(l.src_id)}')">${esc(l.ref2||'')}</a>`
+        + `<div class="ac-sub">${esc(l.ref||'')}${l.price_min!=null?` · ${acMoney(l.price_min)}${Number(l.price_min)!==Number(l.price_max)?'–'+acMoney(l.price_max):''}/${esc(slT('kg'))}`:''}</div>`;
+      kg = l.kg!=null ? acKg(l.kg) : '';
+    } else if (l.kind==='expense'){
+      detail = `<b>${esc(l.ref2||'')}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}`;
+    } else {
+      detail = `<b>${esc(slT('ret_to'))}: ${esc(l.party||'—')}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}`;
+    }
+    return _slRow(l, `<td class="sl-d c-date">${l.kind==='payment'?acDateTime(l.ts):acDate(l.date)}</td><td class="c-meta">${_slKindBadge(l.kind)}</td><td class="c-main">${detail}</td>
+      <td class="num c-meta${kg?'':' c-empty'}">${kg}${kg?`<span class="c-unit"> ${esc(slT('kg'))}</span>`:''}</td><td class="num sl-amt-out c-amt">−${acMoney(a)}</td>`); }).join('');
+  const showOut = !type || type!=='in';
+  document.getElementById('sl-out').style.display = showOut ? '' : 'none';
+  const kinds = ['payment','expense','return'].filter(k=>byKind[k]).map(k => `<span class="sl-sub-pill" role="button" tabindex="0" onclick="slShowKpi('${({payment:'paid',expense:'exp',return:'ret'})[k]}')">${esc(slT('kind_'+k))} ${acMoney(byKind[k])} ›</span>`).join('');
+  document.getElementById('sl-out').innerHTML = `
+    <div class="sl-tbl-head sl-head-out"><span>🔻 ${esc(slT('out_title'))} <span class="sl-cnt">${esc(slT('items_n',{n:outs.length}))}</span></span><span class="sl-head-total">−${acMoney(tout)}</span></div>
+    <div class="sl-scroll">${outs.length ? `<table class="sl-tbl sl-stack"><thead><tr><th>${esc(slT('c_date'))}</th><th>${esc(slT('c_type'))}</th><th>${esc(slT('c_detail'))}</th><th class="num">${esc(slT('c_kg'))}</th><th class="num">${esc(slT('c_amount'))}</th></tr></thead>
+      <tbody>${outRows}</tbody><tfoot><tr class="sl-foot-out"><td colspan="3" class="c-ft">${esc(slT('t_out'))} ${kinds?`<div class="sl-pills">${kinds}</div>`:''}</td><td class="c-empty"></td><td class="num">−${acMoney(tout)}</td></tr></tfoot></table>`
+      : `<div class="sl-empty">${esc(slT('no_out'))}</div>`}</div>`;
+  document.getElementById('sl-hint').textContent = '👆 ' + slT('row_hint');
+}
+
+function _slRenderDaily(){
+  const d = slState.data, D = d.daily || [], S = d.summary;
+  const el = document.getElementById('sl-daily');
+  if (!D.length){ el.innerHTML = `<div class="sl-empty">${esc(slT('no_rows'))}</div>`; return; }
+  let bal = Number(S.opening)||0; const hasBal = !!S.has_cash_records;
+  const rows = D.map(r => {
+    const tin = Number(r.cash_in)||0, tout = (Number(r.paid_out)||0)+(Number(r.expense_out)||0)+(Number(r.returned)||0);
+    bal += tin - tout;
+    return `<tr><td class="sl-d c-date">${acDate(r.date)}</td><td class="num sl-amt-in c-meta${tin?'':' c-empty'}" data-l="${esc(slT('c_in'))}">${tin?'+'+acMoney(tin):''}</td><td class="num sl-amt-out c-meta${tout?'':' c-empty'}" data-l="${esc(slT('c_out'))}">${tout?'−'+acMoney(tout):''}</td>
+      <td class="num sl-amt-bal c-amt">${hasBal?`<span class="${bal<0?'ac-neg':''}">${acMoney(bal)}</span>`:'—'}</td></tr>`;
+  }).join('');
+  el.innerHTML = `<div class="sl-tbl-head sl-head-bal"><span>💰 ${esc(slT('bal_title'))}</span><span class="sl-head-total">${S.closing!=null?acMoney(S.closing):''}</span></div>
+    <div class="sl-scroll"><table class="sl-tbl sl-stack sl-stack-d"><thead><tr><th>${esc(slT('c_date'))}</th><th class="num">${esc(slT('c_in'))}</th><th class="num">${esc(slT('c_out'))}</th><th class="num">${esc(slT('c_bal'))}</th></tr></thead>
+    <tbody>${S.has_cash_records?`<tr class="sl-open-row"><td class="c-date">${esc(slT('s_open'))}</td><td class="c-empty"></td><td class="c-empty"></td><td class="num c-amt">${acMoney(S.opening)}</td></tr>`:''}${rows}</tbody>
+    <tfoot><tr class="sl-foot-bal"><td class="c-date">${esc(slT('total'))}</td><td class="num c-meta">+${acMoney(S.cash_in)}</td><td class="num c-meta">−${acMoney(S.total_out)}</td><td class="num c-amt">${S.closing!=null?acMoney(S.closing):'—'}</td></tr></tfoot></table></div>`;
 }
 
 </script>
