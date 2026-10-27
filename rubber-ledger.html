@@ -1970,7 +1970,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1730";
+const APP_VERSION = "2026.10.27-1800";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -8168,7 +8168,9 @@ function _acRenderKpi(){
   const profitCls = profit===null ? '' : (profit >= 0 ? 'ac-pos' : 'ac-neg');
   const profitSub = profit===null ? acT('no_sales_hint')
                   : (T.months_without_sales > 0 ? acT('partial_sales',{n:T.months_without_sales}) : (profit>=0?acT('profit_pos'):acT('profit_neg')));
-  const card = (label, value, sub, cls) => `<div class="ac-card ${cls||''}"><div class="ac-card-l">${esc(label)}</div><div class="ac-card-v">${value}</div><div class="ac-card-s">${sub||''}</div></div>`;
+  const KEYS = ['kg','cost','exp','rev','profit','unpaid','cash','stock']; let ki = 0;
+  const card = (label, value, sub, cls) => { const k = KEYS[ki++];
+    return `<div class="ac-card sl-card-click ${cls||''}" role="button" tabindex="0" data-k="${k}" onclick="acShowKpi('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();acShowKpi('${k}')}"><div class="ac-card-l">${esc(label)}</div><div class="ac-card-v">${value}</div><div class="ac-card-s">${sub||''}</div><div class="sl-card-hint">${esc(acT('kd_hint'))}</div></div>`; };
   const priceRange = (T.price_min!=null && T.price_max!=null && Number(T.price_min)!==Number(T.price_max))
      ? ` (${acMoney(T.price_min)}–${acMoney(T.price_max)})` : '';
   document.getElementById('ac-kpi').innerHTML = [
@@ -9527,6 +9529,270 @@ function _slRenderAllLines(){
   box('sl-all-out', 'sl-head-out', '📤', 'o_all_out', outs.length, tout, '−',
       th('c_date')+th('o_staff')+th('c_type')+th('c_detail')+th('c_amount',1), outRows,
       `<tr class="sl-foot-out"><td colspan="4" class="c-ft">${esc(slT('t_out'))}</td><td class="num c-amt">−${acMoney(tout)}</td></tr>`, 'no_out');
+}
+
+
+// =====================================================
+// ACCOUNTING — กดการ์ดสรุปเพื่อดูรายละเอียดทั้งหมด (ข้อมูลจริงจากรายงาน + บิลต้นทาง)
+// =====================================================
+Object.assign(AC_I18N.th, {
+  kd_hint:'🔍 กดดูรายละเอียด', kd_period:'ช่วงเวลา', kd_match:'✓ ตรงกับยอดในการ์ด', kd_mismatch:'⚠ ผลรวมรายการไม่ตรงกับการ์ด',
+  kd_how:'วิธีคำนวณ', kd_by_price:'แยกตามราคา/กก.', kd_by_seller:'แยกตามผู้ขาย', kd_by_month:'แยกตามเดือน', kd_by_status:'แยกตามสถานะบิล',
+  kd_by_cat:'แยกตามประเภทค่าใช้จ่าย', kd_by_staff:'แยกตามผู้บันทึก / พนักงาน', kd_by_buyer:'แยกตามผู้ซื้อ', kd_by_payer:'แยกตามผู้จ่ายเงิน', kd_by_day:'แยกตามวันที่จ่าย',
+  kd_items:'รายการทั้งหมด', kd_click:'กดที่แถวเพื่อเปิดบิล / แก้ไข', kd_n:'จำนวน', kd_share:'สัดส่วน', kd_none:'ไม่มีรายการในช่วงนี้',
+  kd_bill_date:'วันที่บิล', kd_days:'รอมาแล้ว', kd_days_n:'{n} วัน', kd_by:'ผู้บันทึก', kd_buyer:'ผู้ซื้อ', kd_doc:'เลขเอกสาร', kd_note:'หมายเหตุ',
+  kd_desc:'รายละเอียด', kd_cat:'ประเภท', kd_staff:'พนักงาน', kd_other:'สินค้าอื่น', kd_loading:'กำลังโหลด...',
+  kd_counted_note:'นับเฉพาะบิลที่ไม่ยกเลิก{u}', kd_counted_paid:' และชำระแล้วเท่านั้น', kd_excl:'ไม่นับ: บิลยกเลิก {c} บิล',
+  kd_no_rev:'ยังไม่มีการบันทึกการขายยางในช่วงนี้ ระบบจึงไม่แสดงตัวเลข (ไม่เดา)', kd_add_sale:'+ บันทึกการขายยาง', kd_add_exp:'+ บันทึกค่าใช้จ่าย',
+  kd_no_profit:'คำนวณกำไรไม่ได้ เพราะยังไม่มีรายรับจากการขาย — ด้านล่างคือยอดเงินที่ใช้ไปแล้ว', kd_spent:'รวมเงินที่ใช้ไป (ต้นทุน + ค่าใช้จ่าย)',
+  kd_months_wo:'มี {n} เดือนที่ยังไม่ได้บันทึกการขาย — ต้นทุนของเดือนนั้นถูกหักแล้ว กำไรจะเพิ่มขึ้นเมื่อบันทึกการขายยางส่วนนั้น',
+  kd_cash_note:'นับตามวันที่กดชำระ ไม่ใช่วันที่ออกบิล จึงอาจต่างจากต้นทุนรับซื้อ (บิลเก่าที่จ่ายในช่วงนี้ถูกนับ / บิลในช่วงนี้ที่ยังไม่จ่ายไม่ถูกนับ)',
+  kd_cash_cmp:'เทียบกับต้นทุนรับซื้อ', kd_diff:'ส่วนต่าง', kd_bill_outside:'บิลนอกช่วง',
+  kd_stock_note:'ยางคงเหลือ = กก.ที่รับซื้อ − กก.ที่ขาย (ตามข้อมูลที่บันทึก) ยังไม่รวมน้ำหนักที่หายระหว่างเก็บ', kd_running:'คงเหลือสะสม',
+  kd_bought:'รับซื้อ', kd_payer:'ผู้จ่ายเงิน', kd_sold:'ขาย', kd_unpaid_none:'ไม่มีบิลค้างจ่าย ✓', kd_wavg:'ราคาเฉลี่ยถ่วงน้ำหนัก = ค่ายาง ÷ กก.ยาง'
+});
+Object.assign(AC_I18N.lo, {
+  kd_hint:'🔍 ກົດເບິ່ງລາຍລະອຽດ', kd_period:'ຊ່ວງເວລາ', kd_match:'✓ ກົງກັບຍອດໃນກາດ', kd_mismatch:'⚠ ຜົນລວມລາຍການບໍ່ກົງກັບກາດ',
+  kd_how:'ວິທີຄິດໄລ່', kd_by_price:'ແຍກຕາມລາຄາ/ກິໂລ', kd_by_seller:'ແຍກຕາມຜູ້ຂາຍ', kd_by_month:'ແຍກຕາມເດືອນ', kd_by_status:'ແຍກຕາມສະຖານະບິນ',
+  kd_by_cat:'ແຍກຕາມປະເພດຄ່າໃຊ້ຈ່າຍ', kd_by_staff:'ແຍກຕາມຜູ້ບັນທຶກ / ພະນັກງານ', kd_by_buyer:'ແຍກຕາມຜູ້ຊື້', kd_by_payer:'ແຍກຕາມຜູ້ຈ່າຍເງິນ', kd_by_day:'ແຍກຕາມວັນທີຈ່າຍ',
+  kd_items:'ລາຍການທັງໝົດ', kd_click:'ກົດທີ່ແຖວເພື່ອເປີດບິນ / ແກ້ໄຂ', kd_n:'ຈຳນວນ', kd_share:'ສັດສ່ວນ', kd_none:'ບໍ່ມີລາຍການໃນຊ່ວງນີ້',
+  kd_bill_date:'ວັນທີບິນ', kd_days:'ລໍມາແລ້ວ', kd_days_n:'{n} ມື້', kd_by:'ຜູ້ບັນທຶກ', kd_buyer:'ຜູ້ຊື້', kd_doc:'ເລກເອກະສານ', kd_note:'ໝາຍເຫດ',
+  kd_desc:'ລາຍລະອຽດ', kd_cat:'ປະເພດ', kd_staff:'ພະນັກງານ', kd_other:'ສິນຄ້າອື່ນ', kd_loading:'ກຳລັງໂຫຼດ...',
+  kd_counted_note:'ນັບສະເພາະບິນທີ່ບໍ່ຍົກເລີກ{u}', kd_counted_paid:' ແລະ ຊຳລະແລ້ວເທົ່ານັ້ນ', kd_excl:'ບໍ່ນັບ: ບິນຍົກເລີກ {c} ບິນ',
+  kd_no_rev:'ຍັງບໍ່ມີການບັນທຶກການຂາຍຢາງໃນຊ່ວງນີ້ ລະບົບຈຶ່ງບໍ່ສະແດງຕົວເລກ (ບໍ່ເດົາ)', kd_add_sale:'+ ບັນທຶກການຂາຍຢາງ', kd_add_exp:'+ ບັນທຶກຄ່າໃຊ້ຈ່າຍ',
+  kd_no_profit:'ຄິດໄລ່ກຳໄລບໍ່ໄດ້ ເພາະຍັງບໍ່ມີລາຍຮັບຈາກການຂາຍ — ດ້ານລຸ່ມແມ່ນຍອດເງິນທີ່ໃຊ້ໄປແລ້ວ', kd_spent:'ລວມເງິນທີ່ໃຊ້ໄປ (ຕົ້ນທຶນ + ຄ່າໃຊ້ຈ່າຍ)',
+  kd_months_wo:'ມີ {n} ເດືອນທີ່ຍັງບໍ່ໄດ້ບັນທຶກການຂາຍ — ຕົ້ນທຶນຂອງເດືອນນັ້ນຖືກຫັກແລ້ວ',
+  kd_cash_note:'ນັບຕາມວັນທີກົດຊຳລະ ບໍ່ແມ່ນວັນທີອອກບິນ ຈຶ່ງອາດຕ່າງຈາກຕົ້ນທຶນຮັບຊື້',
+  kd_cash_cmp:'ທຽບກັບຕົ້ນທຶນຮັບຊື້', kd_diff:'ສ່ວນຕ່າງ', kd_bill_outside:'ບິນນອກຊ່ວງ',
+  kd_stock_note:'ຢາງຄົງເຫຼືອ = ກິໂລທີ່ຮັບຊື້ − ກິໂລທີ່ຂາຍ (ຕາມຂໍ້ມູນທີ່ບັນທຶກ)', kd_running:'ຄົງເຫຼືອສະສົມ',
+  kd_bought:'ຮັບຊື້', kd_payer:'ຜູ້ຈ່າຍເງິນ', kd_sold:'ຂາຍ', kd_unpaid_none:'ບໍ່ມີບິນຄ້າງຈ່າຍ ✓', kd_wavg:'ລາຄາສະເລ່ຍຖ່ວງນ້ຳໜັກ = ຄ່າຢາງ ÷ ກິໂລຢາງ'
+});
+Object.assign(AC_I18N.en, {
+  kd_hint:'🔍 Click for details', kd_period:'Period', kd_match:'✓ Matches the card', kd_mismatch:'⚠ Rows do not add up to the card',
+  kd_how:'How it is calculated', kd_by_price:'By price per kg', kd_by_seller:'By seller', kd_by_month:'By month', kd_by_status:'By bill status',
+  kd_by_cat:'By expense category', kd_by_staff:'By recorder / staff', kd_by_buyer:'By buyer', kd_by_payer:'By who paid', kd_by_day:'By payment date',
+  kd_items:'All entries', kd_click:'Click a row to open the bill / edit', kd_n:'Count', kd_share:'Share', kd_none:'No entries in this period',
+  kd_bill_date:'Bill date', kd_days:'Waiting', kd_days_n:'{n} days', kd_by:'Recorded by', kd_buyer:'Buyer', kd_doc:'Doc no.', kd_note:'Note',
+  kd_desc:'Description', kd_cat:'Category', kd_staff:'Staff', kd_other:'Other items', kd_loading:'Loading...',
+  kd_counted_note:'Counts bills that are not cancelled{u}', kd_counted_paid:' and paid only', kd_excl:'Not counted: {c} cancelled bills',
+  kd_no_rev:'No rubber sales recorded in this period, so no figure is shown (no guessing)', kd_add_sale:'+ Record a sale', kd_add_exp:'+ Record an expense',
+  kd_no_profit:'Profit cannot be calculated without sales revenue — below is what has been spent', kd_spent:'Total spent (cost + expenses)',
+  kd_months_wo:'{n} months have no sales recorded — their costs are already deducted',
+  kd_cash_note:'Counted by payment date, not bill date, so it can differ from purchase cost',
+  kd_cash_cmp:'Compared with purchase cost', kd_diff:'Difference', kd_bill_outside:'Bill outside period',
+  kd_stock_note:'Stock = kg bought − kg sold (as recorded); storage weight loss is not included', kd_running:'Running stock',
+  kd_bought:'Bought', kd_payer:'Paid by', kd_sold:'Sold', kd_unpaid_none:'No unpaid bills ✓', kd_wavg:'Weighted average = rubber amount ÷ rubber kg'
+});
+
+function _akCheck(sum, exp){
+  const ok = Math.abs((Number(sum)||0) - (Number(exp)||0)) < 0.01;
+  return ok ? `<span class="sl-ver ok">${esc(acT('kd_match'))}</span>` : `<span class="sl-ver wait">${esc(acT('kd_mismatch'))}: ${acMoney(sum)} ≠ ${acMoney(exp)}</span>`;
+}
+function _akPeriod(){
+  const f = document.getElementById('ac-from').value, t = document.getElementById('ac-to').value;
+  return (f ? acDate(f) : '…') + ' – ' + (t ? acDate(t) : '…');
+}
+function _akHead(big, sub, check){
+  return `<div class="sl-kpi-head"><div><div class="ac-sub">${esc(acT('kd_period'))}: <b>${esc(_akPeriod())}</b></div>
+    <div class="sl-kpi-big">${big}</div><div class="ac-sub">${sub||''}</div></div><div>${check||''}</div></div>`;
+}
+function _akSec(title, inner, hint){ return `<div class="sl-kpi-sec"><div class="form-label">${esc(title)}${hint?` <span class="ac-sub">· ${esc(hint)}</span>`:''}</div>${inner}</div>`; }
+function _akCalc(rows){   // rows: [label, value, cls]
+  return `<table class="sl-calc">${rows.map(r => `<tr class="${r[2]||''}"><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('')}</table>`;
+}
+// ตารางกลุ่ม: groups = [{label, n, amount, kg?}]
+function _akGroups(groups, opt){
+  opt = opt || {};
+  if (!groups.length) return `<div class="ac-sub">${esc(acT('kd_none'))}</div>`;
+  const total = groups.reduce((s,g)=>s+(Number(g[opt.by||'amount'])||0), 0);
+  const rows = groups.sort((a,b)=> opt.keep ? 0 : (Number(b[opt.by||'amount'])||0)-(Number(a[opt.by||'amount'])||0)).map(g => {
+    const v = Number(g[opt.by||'amount'])||0, pct = total ? Math.round(v/total*1000)/10 : 0;
+    const bk = opt.by==='kg';
+    return `<tr><td>${g.label}</td><td class="num">${g.n}</td>${opt.kg?`<td class="num">${bk?`<b>${acKg(g.kg)}</b>`:acKg(g.kg)}</td>`:''}<td class="num">${bk?acMoney(g.amount):`<b>${acMoney(g.amount)}</b>`}</td>
+      <td style="width:26%"><div class="sl-bar"><span style="width:${Math.max(2,Math.min(100,pct))}%"></span></div><span class="ac-sub">${pct}%</span></td></tr>`;
+  }).join('');
+  return `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th></th><th class="num">${esc(acT('kd_n'))}</th>${opt.kg?`<th class="num">${esc(acT('kg'))}</th>`:''}<th class="num">${esc(acT('amount'))}</th><th>${esc(acT('kd_share'))}${opt.by==='kg'?` (${esc(acT('kg'))})`:''}</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function _akGroup(list, keyFn, amtFn, kgFn){
+  const m = new Map();
+  list.forEach(x => { const k = keyFn(x); const g = m.get(k) || {label:k, n:0, amount:0, kg:0}; g.n++; g.amount += Number(amtFn(x))||0; if (kgFn) g.kg += Number(kgFn(x))||0; m.set(k, g); });
+  return [...m.values()];
+}
+function _akCounted(){
+  const inc = document.getElementById('ac-inc').value === '1';
+  return acState.bills.filter(b => b.status!=='cancelled' && (inc || b.status==='paid'));
+}
+function _akPrice(b){ return b.price_min==null ? '—' : (Number(b.price_min)===Number(b.price_max) ? acMoney(b.price_min) : `${acMoney(b.price_min)}–${acMoney(b.price_max)}`); }
+function akBill(id){ acCloseModal(); acOpenBill(id); }
+// ตารางบิลต้นทาง
+function _akBillTable(list, cols, foot){
+  if (!list.length) return `<div class="empty-state" style="padding:1rem">${esc(acT('kd_none'))}</div>`;
+  const C = {
+    date:  [acT('date'), b => acDate(b.bill_date)],
+    po:    [acT('po'), b => `<span class="mono"><b>${esc(b.po_no)}</b></span>${acState.issueIds.has(String(b.order_id))?' <span class="ac-warn">⚠</span>':''}`],
+    cust:  [acT('customer'), b => esc(b.customer||'—')],
+    kg:    [acT('kg'), b => acKg(b.total_qty), 1],
+    price: [acT('price_kg'), b => _akPrice(b), 1],
+    rub:   [acT('rubber_cost'), b => acMoney(b.rubber_amt), 1],
+    ship:  [acT('ship_cost'), b => acMoney(b.ship_amt), 1],
+    other: [acT('kd_other'), b => Number(b.other_amt)?acMoney(b.other_amt):'—', 1],
+    total: [acT('amount'), b => `<b>${acMoney(b.grand_total)}</b>`, 1],
+    status:[acT('status'), b => _acStatus(b.status)],
+    days:  [acT('kd_days'), b => { const d = Math.floor((Date.now() - new Date(b.bill_date+'T00:00:00+07:00'))/86400000); return `<span class="${d>7?'ac-warn':''}">${esc(acT('kd_days_n',{n:Math.max(0,d)}))}</span>`; }, 1],
+    by:    [acT('kd_by'), b => esc(b.created_by||'—')],
+    paid:  [acT('paid_at'), b => b.paid_at ? acDateTime(b.paid_at) + (b.paid_by?`<div class="ac-sub">${esc(b.paid_by)}</div>`:'') : '—'],
+    rc:    [acT('receipt'), b => `<span class="mono" style="font-size:.72rem">${esc(b.receipt_nos||'—')}</span>`]
+  };
+  const head = cols.map(c => `<th class="${C[c][2]?'num':''}">${esc(C[c][0])}</th>`).join('');
+  const rows = list.map(b => `<tr class="sl-row" onclick="akBill('${escJs(b.order_id)}')">${cols.map(c => `<td class="${C[c][2]?'num':''}">${C[c][1](b)}</td>`).join('')}</tr>`).join('');
+  const sum = k => list.reduce((s,b)=>s+(Number(b[k])||0),0);
+  const F = { kg: acKg(sum('total_qty')), rub: acMoney(sum('rubber_amt')), ship: acMoney(sum('ship_amt')), other: acMoney(sum('other_amt')), total: acMoney(sum('grand_total')) };
+  const ft = `<tr class="ac-total">${cols.map((c,i) => `<td class="${C[c][2]?'num':''}">${i===0?esc(acT('total'))+` · ${list.length}`:(F[c]||'')}</td>`).join('')}</tr>`;
+  return `<table class="order-table ac-table sl-kpi-tbl"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody>${foot===false?'':`<tfoot>${ft}</tfoot>`}</table>`;
+}
+function _akMonthTable(cols){
+  const M = acState.report.months || [];
+  if (!M.length) return `<div class="ac-sub">${esc(acT('kd_none'))}</div>`;
+  const head = cols.map(c => `<th class="${c[2]?'num':''}">${esc(c[0])}</th>`).join('');
+  return `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('month'))}</th>${head}</tr></thead><tbody>${M.map(m =>
+    `<tr><td><b>${esc(acMonthLabel(m.month))}</b></td>${cols.map(c => `<td class="${c[2]?'num':''}">${c[1](m)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+async function acShowKpi(key){
+  const r = acState.report; if (!r) return;
+  const T = r.totals || {}, nd = `<span class="ac-nodata">${esc(acT('no_data'))}</span>`;
+  const inc = document.getElementById('ac-inc').value === '1';
+  const B = _akCounted();
+  const sum = (a, f) => a.reduce((s,x)=>s+(Number(typeof f==='function'?f(x):x[f])||0), 0);
+  const ex = r.excluded || {};
+  const countedNote = esc(acT('kd_counted_note',{u: inc?'':acT('kd_counted_paid')})) + ((ex.cancelled_n||0)>0 ? ' · ' + esc(acT('kd_excl',{c:ex.cancelled_n})) : '');
+  let title = '', body = '';
+  const profitCell = v => { const n=_acNum(v); return n===null ? nd : `<span class="${n>=0?'ac-pos':'ac-neg'}">${acMoney(n)}</span>`; };
+
+  if (key === 'kg'){
+    title = acT('k_kg');
+    const kg = sum(B,'total_qty'), rub = sum(B,'rubber_amt');
+    body = _akHead(`${acKg(T.kg)} <small>${esc(acT('kg'))}</small>`, `${T.n_bills||0} ${esc(acT('bills'))} · ${countedNote}`,
+             `<span class="sl-ver ${Math.abs(kg-Number(T.kg||0))<0.01?'ok':'wait'}">${esc(Math.abs(kg-Number(T.kg||0))<0.01?acT('kd_match'):acT('kd_mismatch'))}</span>`)
+      + _akSec(acT('kd_how'), _akCalc([
+          [esc(acT('kg')), acKg(kg)], [esc(acT('rubber_cost')), acMoney(rub)],
+          [esc(acT('kd_wavg')), T.avg_price!=null?acMoney(T.avg_price)+'/'+esc(acT('kg')):nd, 'ac-total'],
+          ...(T.price_min!=null?[[esc(acT('kd_by_price')), `${acMoney(T.price_min)} – ${acMoney(T.price_max)}`]]:[])]))
+      + _akSec(acT('kd_by_price'), _akGroups(_akGroup(B, b=>_akPrice(b), b=>b.rubber_amt, b=>b.total_qty), {kg:1, by:'kg'}))
+      + _akSec(acT('kd_by_seller'), _akGroups(_akGroup(B, b=>esc(b.customer||'—'), b=>b.rubber_amt, b=>b.total_qty), {kg:1, by:'kg'}))
+      + _akSec(acT('kd_by_month'), _akMonthTable([[acT('bills'), m=>m.n_bills, 1], [acT('kg'), m=>acKg(m.kg), 1], [acT('price_kg'), m=>m.avg_price!=null?acMoney(m.avg_price):nd, 1]]))
+      + _akSec(acT('kd_items'), _akBillTable(B, ['date','po','cust','kg','price','rub','status']), acT('kd_click'));
+  }
+  else if (key === 'cost'){
+    title = acT('k_cost');
+    const s = sum(B,'grand_total'), rub = sum(B,'rubber_amt'), ship = sum(B,'ship_amt'), oth = sum(B,'other_amt');
+    body = _akHead(acMoney(T.purchase_cost), `${T.n_bills||0} ${esc(acT('bills'))} · ${countedNote}`, _akCheck(s, T.purchase_cost))
+      + _akSec(acT('kd_how'), _akCalc([[esc(acT('rubber_cost')), acMoney(rub)], [`+ ${esc(acT('ship_cost'))}`, acMoney(ship)],
+          ...(oth?[[`+ ${esc(acT('kd_other'))}`, acMoney(oth)]]:[]), [`= ${esc(acT('k_cost'))}`, acMoney(rub+ship+oth), 'ac-total']]))
+      + _akSec(acT('kd_by_status'), _akGroups(_akGroup(B, b=>_acStatus(b.status), b=>b.grand_total)))
+      + _akSec(acT('kd_by_seller'), _akGroups(_akGroup(B, b=>esc(b.customer||'—'), b=>b.grand_total, b=>b.total_qty), {kg:1}))
+      + _akSec(acT('kd_by_month'), _akMonthTable([[acT('rubber_cost'), m=>acMoney(m.rubber_amt), 1], [acT('ship_cost'), m=>acMoney(m.ship_amt), 1], [acT('purchase_cost'), m=>`<b>${acMoney(m.purchase_cost)}</b>`, 1]]))
+      + _akSec(acT('kd_items'), _akBillTable(B, ['date','po','cust','kg','rub','ship', ...(oth?['other']:[]), 'total','status']), acT('kd_click'));
+  }
+  else if (key === 'exp'){
+    title = acT('k_exp');
+    const E = acState.expenses.filter(e => !e.is_deleted);
+    const s = sum(E,'amount');
+    const rows = E.map(e => `<tr class="sl-row" onclick="acCloseModal();acEditExpense(${Number(e.id)})"><td>${acDate(e.expense_date)}</td><td>${esc(_acCatName(e.category_id))}</td>
+        <td>${esc(e.description||'')}${e.note?`<div class="ac-sub">${esc(e.note)}</div>`:''}</td><td>${esc(e.staff_username||'—')}</td><td>${esc(e.created_by||'—')}</td><td class="num"><b>${acMoney(e.amount)}</b></td></tr>`).join('');
+    body = _akHead(acMoney(T.expenses), `${T.n_expenses||0} ${esc(acT('rows'))}`, _akCheck(s, T.expenses))
+      + (E.length ? '' : `<div class="ac-sub" style="margin:.6rem 0">${esc(acT('kd_none'))} <button class="btn-primary" style="padding:.3rem .7rem;font-size:.74rem;margin-left:.4rem" onclick="acCloseModal();acEditExpense()">${esc(acT('kd_add_exp'))}</button></div>`)
+      + (E.length ? _akSec(acT('kd_by_cat'), _akGroups(_akGroup(E, e=>esc(_acCatName(e.category_id)), e=>e.amount)))
+          + _akSec(acT('kd_by_staff'), _akGroups(_akGroup(E, e=>esc(e.staff_username ? '💵 '+e.staff_username : (e.created_by||'—')), e=>e.amount)))
+          + _akSec(acT('kd_by_month'), _akMonthTable([[acT('rows'), m=>m.n_expenses||0, 1], [acT('expenses'), m=>acMoney(m.expenses), 1]]))
+          + _akSec(acT('kd_items'), `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('date'))}</th><th>${esc(acT('kd_cat'))}</th><th>${esc(acT('kd_desc'))}</th><th>${esc(acT('kd_staff'))}</th><th>${esc(acT('kd_by'))}</th><th class="num">${esc(acT('amount'))}</th></tr></thead>
+              <tbody>${rows}</tbody><tfoot><tr class="ac-total"><td colspan="5">${esc(acT('total'))} · ${E.length}</td><td class="num">${acMoney(s)}</td></tr></tfoot></table>`, acT('kd_click')) : '');
+  }
+  else if (key === 'rev'){
+    title = acT('k_rev');
+    const S = acState.sales.filter(x => !x.is_deleted);
+    if (!S.length || T.revenue==null){
+      body = _akHead(nd, '', '') + `<div class="ac-alert ac-alert-warn">${esc(acT('kd_no_rev'))}</div>
+        <button class="btn-primary" style="padding:.4rem .9rem;font-size:.78rem" onclick="acCloseModal();acEditSale()">${esc(acT('kd_add_sale'))}</button>`;
+    } else {
+      const s = sum(S,'amount'), kg = sum(S,'qty_kg');
+      const rows = S.map(x => `<tr class="sl-row" onclick="acCloseModal();acEditSale(${Number(x.id)})"><td>${acDate(x.sale_date)}</td><td>${esc(x.buyer)}</td><td class="mono">${esc(x.doc_no||'—')}</td>
+          <td class="num">${acKg(x.qty_kg)}</td><td class="num">${acMoney(x.price_per_kg)}</td><td class="num"><b>${acMoney(x.amount)}</b></td><td>${esc(x.note||'')}</td></tr>`).join('');
+      body = _akHead(acMoney(T.revenue), `${S.length} ${esc(acT('rows'))} · ${acKg(kg)} ${esc(acT('kg'))} · ${esc(acT('avg'))} ${kg?acMoney(s/kg):'—'}/${esc(acT('kg'))}`, _akCheck(s, T.revenue))
+        + _akSec(acT('kd_by_buyer'), _akGroups(_akGroup(S, x=>esc(x.buyer), x=>x.amount, x=>x.qty_kg), {kg:1}))
+        + _akSec(acT('kd_by_month'), _akMonthTable([[acT('sold_kg'), m=>m.n_sales>0?acKg(m.sold_kg):'—', 1], [acT('revenue'), m=>m.n_sales>0?acMoney(m.revenue):nd, 1]]))
+        + _akSec(acT('kd_items'), `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('date'))}</th><th>${esc(acT('kd_buyer'))}</th><th>${esc(acT('kd_doc'))}</th><th class="num">${esc(acT('kg'))}</th><th class="num">${esc(acT('price_kg'))}</th><th class="num">${esc(acT('amount'))}</th><th>${esc(acT('kd_note'))}</th></tr></thead>
+            <tbody>${rows}</tbody><tfoot><tr class="ac-total"><td colspan="3">${esc(acT('total'))} · ${S.length}</td><td class="num">${acKg(kg)}</td><td></td><td class="num">${acMoney(s)}</td><td></td></tr></tfoot></table>`, acT('kd_click'));
+    }
+  }
+  else if (key === 'profit'){
+    title = acT('k_profit');
+    const profit = _acNum(T.net_profit);
+    const spent = (Number(T.purchase_cost)||0) + (Number(T.expenses)||0);
+    const calc = profit === null
+      ? `<div class="ac-alert ac-alert-warn">${esc(acT('kd_no_profit'))}</div>` + _akCalc([[esc(acT('k_cost')), acMoney(T.purchase_cost)], [`+ ${esc(acT('k_exp'))}`, acMoney(T.expenses)], [`= ${esc(acT('kd_spent'))}`, acMoney(spent), 'ac-total']])
+      : _akCalc([[esc(acT('k_rev')), acMoney(T.revenue)], [`− ${esc(acT('k_cost'))}`, acMoney(T.profit_cost ?? T.purchase_cost)], [`− ${esc(acT('k_exp'))}`, acMoney(T.profit_expenses ?? T.expenses)],
+                 [`= ${esc(acT('k_profit'))}`, profitCell(profit), 'ac-total'],
+                 ...(T.months_without_sales>0?[[`⚠ ${esc(acT('kd_months_wo',{n:T.months_without_sales}))}`, '', 'sl-calc-note']]:[])]);
+    body = _akHead(profit===null ? nd : profitCell(profit), '', '')
+      + _akSec(acT('kd_how'), calc)
+      + _akSec(acT('kd_by_month'), _akMonthTable([[acT('revenue'), m=>m.n_sales>0?acMoney(m.revenue):nd, 1], [acT('purchase_cost'), m=>acMoney(m.purchase_cost), 1], [acT('expenses'), m=>acMoney(m.expenses), 1], [acT('profit'), m=>profitCell(m.net_profit), 1]]));
+  }
+  else if (key === 'unpaid'){
+    title = acT('k_unpaid');
+    const U = B.filter(b => b.status !== 'paid');
+    const s = sum(U,'grand_total');
+    body = _akHead(acMoney(T.unpaid_amt), `${T.n_unpaid||0} ${esc(acT('bills'))}`, _akCheck(s, T.unpaid_amt))
+      + (U.length ? _akSec(acT('kd_by_seller'), _akGroups(_akGroup(U, b=>esc(b.customer||'—'), b=>b.grand_total, b=>b.total_qty), {kg:1}))
+          + _akSec(acT('kd_by_status'), _akGroups(_akGroup(U, b=>_acStatus(b.status), b=>b.grand_total)))
+          + _akSec(acT('kd_items'), _akBillTable(U.slice().sort((a,b)=>String(a.bill_date).localeCompare(String(b.bill_date))), ['date','days','po','cust','kg','total','status','by']), acT('kd_click'))
+        : `<div class="ac-alert ac-alert-ok">${esc(acT('kd_unpaid_none'))}</div>`);
+  }
+  else if (key === 'cash'){
+    title = acT('k_cash');
+    _acModal(title, `<div class="ac-sub" style="padding:1rem">${esc(acT('kd_loading'))}</div>`, null); _slWide(true);
+    const f = document.getElementById('ac-from').value, t = document.getElementById('ac-to').value;
+    const qPaid = () => { let q = _sb.from('orders').select('id,po_no,customer,date,grand_total,total_qty,paid_at,paid_by,status').eq('status','paid').not('paid_at','is',null).order('paid_at');
+      if (f) q = q.gte('paid_at', f+'T00:00:00+07:00');
+      if (t){ const d = new Date(t+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+1); q = q.lt('paid_at', d.toISOString().slice(0,10)+'T00:00:00+07:00'); }
+      return q; };
+    let P;
+    try { P = await _fetchAll(qPaid); } catch(e){ P = null; }
+    if (!Array.isArray(P)){ document.getElementById('ac-modal-body').innerHTML = `<div class="ac-alert ac-alert-err">${esc(acT('load_err'))}</div>`; return; }
+    const inB = new Map(acState.bills.map(b => [String(b.order_id), b]));
+    const L = P.map(o => { const b = inB.get(String(o.id)); return { order_id:o.id, po_no:o.po_no, customer:o.customer, bill_date: b ? b.bill_date : (o.date||''), outside: !b,
+        total_qty:o.total_qty, grand_total:o.grand_total, paid_at:o.paid_at, paid_by:o.paid_by, receipt_nos: b ? b.receipt_nos : '', status:'paid' }; });
+    const s = sum(L,'grand_total');
+    const dayKey = o => { const d = new Date(new Date(o.paid_at).getTime() + 7*3600000); return d.toISOString().slice(0,10); };
+    const rows = L.map(b => `<tr class="sl-row" onclick="akBill('${escJs(b.order_id)}')"><td>${acDateTime(b.paid_at)}</td><td class="mono"><b>${esc(b.po_no)}</b></td><td>${esc(b.customer||'—')}</td>
+        <td>${b.bill_date?acDate(b.bill_date):'—'}${b.outside?` <span class="sl-ver wait">${esc(acT('kd_bill_outside'))}</span>`:''}</td><td class="num">${acKg(b.total_qty)}</td>
+        <td class="num"><b>${acMoney(b.grand_total)}</b></td><td>${esc(b.paid_by||'—')}</td><td class="mono" style="font-size:.72rem">${esc(b.receipt_nos||'—')}</td></tr>`).join('');
+    body = _akHead(acMoney(T.cash_paid), `${L.length} ${esc(acT('bills'))}`, _akCheck(s, T.cash_paid))
+      + `<div class="ac-alert ac-alert-warn" style="font-size:.8rem">${esc(acT('kd_cash_note'))}</div>`
+      + _akSec(acT('kd_cash_cmp'), _akCalc([[esc(acT('k_cash')), acMoney(T.cash_paid)], [esc(acT('k_cost')), acMoney(T.purchase_cost)], [esc(acT('kd_diff')), acMoney((Number(T.cash_paid)||0)-(Number(T.purchase_cost)||0)), 'ac-total']]))
+      + (L.length ? _akSec(acT('kd_by_payer'), _akGroups(_akGroup(L, b=>esc(b.paid_by||'—'), b=>b.grand_total, b=>b.total_qty), {kg:1}))
+          + _akSec(acT('kd_by_day'), _akGroups(_akGroup(L, b=>acDate(dayKey(b)), b=>b.grand_total, b=>b.total_qty), {kg:1, keep:1}))
+          + _akSec(acT('kd_items'), `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('paid_at'))}</th><th>${esc(acT('po'))}</th><th>${esc(acT('customer'))}</th><th>${esc(acT('kd_bill_date'))}</th><th class="num">${esc(acT('kg'))}</th><th class="num">${esc(acT('amount'))}</th><th>${esc(acT('kd_payer'))}</th><th>${esc(acT('receipt'))}</th></tr></thead>
+              <tbody>${rows}</tbody><tfoot><tr class="ac-total"><td colspan="4">${esc(acT('total'))} · ${L.length}</td><td class="num">${acKg(sum(L,'total_qty'))}</td><td class="num">${acMoney(s)}</td><td colspan="2"></td></tr></tfoot></table>`, acT('kd_click'))
+        : `<div class="ac-sub">${esc(acT('kd_none'))}</div>`);
+    document.getElementById('ac-modal-body').innerHTML = body;
+    return;
+  }
+  else if (key === 'stock'){
+    title = acT('k_stock');
+    const M = acState.report.months || [];
+    let run = 0;
+    const rows = M.map(m => { run += (Number(m.kg)||0) - (m.n_sales>0 ? Number(m.sold_kg)||0 : 0);
+      return `<tr><td><b>${esc(acMonthLabel(m.month))}</b></td><td class="num">${acKg(m.kg)}</td><td class="num">${m.n_sales>0?acKg(m.sold_kg):'—'}</td><td class="num"><b>${acKg(run)}</b></td></tr>`; }).join('');
+    body = _akHead(`${acKg(T.stock_kg)} <small>${esc(acT('kg'))}</small>`, T.n_sales>0 ? '' : esc(acT('no_sales_hint')),
+             `<span class="sl-ver ${Math.abs(run-Number(T.stock_kg||0))<0.01?'ok':'wait'}">${esc(Math.abs(run-Number(T.stock_kg||0))<0.01?acT('kd_match'):acT('kd_mismatch'))}</span>`)
+      + _akSec(acT('kd_how'), _akCalc([[esc(acT('kd_bought')), acKg(T.kg)+' '+esc(acT('kg'))], [`− ${esc(acT('kd_sold'))}`, (T.n_sales>0?acKg(T.sold_kg):'0')+' '+esc(acT('kg'))], [`= ${esc(acT('k_stock'))}`, acKg(T.stock_kg)+' '+esc(acT('kg')), 'ac-total'],
+          [esc(acT('kd_stock_note')), '', 'sl-calc-note']]))
+      + _akSec(acT('kd_by_month'), M.length ? `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('month'))}</th><th class="num">${esc(acT('kd_bought'))}</th><th class="num">${esc(acT('kd_sold'))}</th><th class="num">${esc(acT('kd_running'))}</th></tr></thead><tbody>${rows}</tbody></table>` : `<div class="ac-sub">${esc(acT('kd_none'))}</div>`)
+      + (T.n_sales>0 ? '' : `<button class="btn-primary" style="padding:.4rem .9rem;font-size:.78rem" onclick="acCloseModal();acEditSale()">${esc(acT('kd_add_sale'))}</button>`);
+  }
+  _acModal(title, body, null);
+  _slWide(true);
 }
 
 </script>
