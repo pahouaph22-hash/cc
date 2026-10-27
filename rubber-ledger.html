@@ -607,6 +607,9 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-open-row td{color:var(--muted);font-style:italic}
 .sl-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
 .sl-sub-pill{cursor:pointer;font-size:.68rem;font-weight:600;background:#fff;border:1px solid #FECACA;color:#B91C1C;border-radius:999px;padding:.05rem .5rem}
+.sl-o-name{font-weight:700;font-size:.9rem}
+.sl-o-idle td{opacity:.55}
+.sl-o-chk{white-space:nowrap}
 .c-unit{display:none}
 @media(max-width:640px){.c-unit{display:inline}}
 .sl-empty{padding:1.1rem 1rem;color:var(--muted);font-size:.82rem;text-align:center}
@@ -624,10 +627,19 @@ font{border:none!important;outline:none!important;display:inline!important}
   .sl-stack tr.sl-foot-in{background:#DCFCE7}
   .sl-stack tr.sl-foot-out{background:#FEE2E2}
   .sl-stack tr.sl-foot-bal{background:#DBEAFE}
-  .sl-stack-d td.c-meta{width:100%;text-align:left;padding-top:0;padding-bottom:.55rem;font-size:.74rem}
+  table.sl-stack-d td.c-meta{width:100%;text-align:left;padding-top:0;padding-bottom:.55rem;font-size:.74rem}
   .sl-stack-d td.c-meta.sl-amt-in::before{content:attr(data-l) " ";font-weight:500;opacity:.7}
   .sl-stack-d td.c-meta.sl-amt-out::before{content:attr(data-l) " ";font-weight:500;opacity:.7}
   .sl-stack-d tr.sl-open-row td{padding-bottom:.55rem}
+  table.sl-stack-o td.c-date,table.sl-stack-o tfoot td.c-ft{order:1;flex:1 0 50%}
+  .sl-tbl-head{gap:.5rem}
+  .sl-head-total{white-space:nowrap}
+  .sl-stack-o td.c-amt{font-size:.95rem}
+  table.sl-stack-o td.c-date{font-size:.8rem}
+  table.sl-stack-o td.c-meta{width:50%;text-align:left;padding-top:.1rem;padding-bottom:.45rem;font-size:.76rem}
+  .sl-stack-o td.c-meta[data-l]::before{content:attr(data-l);display:block;font-size:.64rem;font-weight:600;color:var(--muted);opacity:.9}
+  .sl-stack-o td.sl-o-chk{width:100%}
+  .sl-stack-o tr{padding-bottom:.25rem}
   .sl-stack tbody tr:nth-child(even){background:#FAFBFC}
   .sl-stack td.c-date{order:1;flex:1;padding-top:.6rem;font-size:.72rem}
   .sl-stack td.c-amt{order:2;padding-top:.6rem;font-size:.9rem}
@@ -1941,7 +1953,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1530";
+const APP_VERSION = "2026.10.27-1700";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -7040,7 +7052,7 @@ function setLang(lang) {
   document.body.style.fontFamily = fontMap[lang] || fontMap.th;
   applyLang();
   try{ _acApplyLang(); if(acState.report) acRender(); }catch(e){}
-  try{ _slApplyLang(); if(slState.data) slRender(); }catch(e){}
+  try{ _slApplyLang(); const o=document.querySelector('#sl-staff option[value="__all__"]'); if(o) o.textContent=slT('all_opt'); if(slState.all && _slIsAll()) slRenderAll(); else if(slState.data) slRender(); }catch(e){}
   showToast(lang === "th" ? "TH เปลี่ยนภาษาไทย" : lang === "lo" ? "LA ປ່ຽນພາສາລາວ" : "EN Language changed", "info");
 }
 
@@ -8629,7 +8641,7 @@ async function slOpen(){
     const r = await _rpc('staff_ledger_people', { p_token:_staffToken });
     if (!r.error && r.data?.ok){
       slState.people = r.data.people || [];
-      document.getElementById('sl-staff').innerHTML = slState.people.map(p =>
+      document.getElementById('sl-staff').innerHTML = `<option value="${SL_ALL}">${esc(slT('all_opt'))}</option>` + slState.people.map(p =>
         `<option value="${esc(p.username)}">${esc(p.display_name||p.username)} (${esc(p.role==='admin'?slT('role_admin'):slT('role_cashier'))})${p.is_active===false?' ⏸':''}</option>`).join('');
     }
   }
@@ -8647,12 +8659,14 @@ async function slLoad(){
   if (!currentUser) return;
   const from = document.getElementById('sl-from').value || null, to = document.getElementById('sl-to').value || null;
   const who  = _slIsAdmin() ? (document.getElementById('sl-staff').value || null) : null;
+  if (who === SL_ALL) return slLoadAll();
+  slState.all = null; _slFilterBits(true);
   document.getElementById('sl-kpi').innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(slT('loading'))}</div>`;
   const r = await _rpc('staff_ledger', { p_token:_staffToken, p_username:who, p_from:from, p_to:to });
   if (r.error || !r.data?.ok){
     const msg = r.error && _rpcMissing(r.error) ? slT('need_db') : slT('load_err') + (r.error?': '+(r.error.message||''):'');
     document.getElementById('sl-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(msg)}</div>`;
-    document.getElementById('sl-lines').innerHTML = ''; document.getElementById('sl-daily').innerHTML = '';
+    ['sl-in','sl-out','sl-daily','sl-sum'].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = ''; });
     return;
   }
   slState.data = r.data; slState.user = r.data.staff;
@@ -8867,6 +8881,7 @@ async function slSoftDelete(table, id){
 }
 
 function slExportCSV(){
+  if (slState.all && _slIsAll()) return _slExportAllCSV();
   const d = slState.data; if (!d) return;
   const q = v => { if (v===null || v===undefined) return ''; const s=String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
   const cols = ['date','ts','kind','ref','ref2','party','detail','kg','price_min','price_max','method','location','in','out','balance'];
@@ -9241,6 +9256,180 @@ function _slRenderDaily(){
     <div class="sl-scroll"><table class="sl-tbl sl-stack sl-stack-d"><thead><tr><th>${esc(slT('c_date'))}</th><th class="num">${esc(slT('c_in'))}</th><th class="num">${esc(slT('c_out'))}</th><th class="num">${esc(slT('c_bal'))}</th></tr></thead>
     <tbody>${S.has_cash_records?`<tr class="sl-open-row"><td class="c-date">${esc(slT('s_open'))}</td><td class="c-empty"></td><td class="c-empty"></td><td class="num c-amt">${acMoney(S.opening)}</td></tr>`:''}${rows}</tbody>
     <tfoot><tr class="sl-foot-bal"><td class="c-date">${esc(slT('total'))}</td><td class="num c-meta">+${acMoney(S.cash_in)}</td><td class="num c-meta">−${acMoney(S.total_out)}</td><td class="num c-amt">${S.closing!=null?acMoney(S.closing):'—'}</td></tr></tfoot></table></div>`;
+}
+
+
+// =====================================================
+// STAFF LEDGER — ภาพรวมทุกคน (แอดมิน): รายรับ/รายจ่าย/คงเหลือ แยกตามพนักงาน
+// =====================================================
+Object.assign(SL_I18N.th, {
+  all_opt:'👥 ทุกคน (ภาพรวม)', all_title:'ภาพรวมบัญชีพนักงานทุกคน', all_working:'พนักงานที่มีรายการในช่วงนี้ {n} จาก {t} คน',
+  o_in_title:'รายรับแยกตามพนักงาน', o_out_title:'รายจ่ายแยกตามพนักงาน', o_bal_title:'ยอดคงเหลือแยกตามพนักงาน',
+  o_staff:'พนักงาน', o_n_in:'ครั้ง', o_verified:'ยืนยันแล้ว', o_pending:'รอยืนยัน', o_total_in:'รวมรับ',
+  o_paid:'จ่ายค่ายาง', o_bills:'บิล', o_exp:'ค่าใช้จ่าย', o_ret:'ส่งเงินคืน', o_total_out:'รวมจ่าย',
+  o_open:'ยกมา', o_close:'คงเหลือ', o_check:'ตรวจสอบ', o_ok:'ปกติ', o_issue:'{n} บิลต้องตรวจ', o_pend:'{n} รอยืนยัน',
+  o_no_in:'ไม่มีพนักงานได้รับเงินในช่วงนี้', o_no_out:'ไม่มีพนักงานจ่ายเงินในช่วงนี้', o_row_hint:'กดชื่อพนักงานเพื่อเปิดบัญชีของคนนั้น',
+  o_pick_hint:'เลือกพนักงานด้านบนเพื่อบันทึกรายการ', o_loading:'กำลังโหลดข้อมูลพนักงาน {n} คน...', o_fail:'โหลดไม่ได้', o_total:'รวมทุกคน',
+  o_idle:'ไม่มีรายการ', o_alert:'มี {n} คนที่ต้องตรวจสอบ'
+});
+Object.assign(SL_I18N.lo, {
+  all_opt:'👥 ທຸກຄົນ (ພາບລວມ)', all_title:'ພາບລວມບັນຊີພະນັກງານທຸກຄົນ', all_working:'ພະນັກງານທີ່ມີລາຍການໃນຊ່ວງນີ້ {n} ຈາກ {t} ຄົນ',
+  o_in_title:'ລາຍຮັບແຍກຕາມພະນັກງານ', o_out_title:'ລາຍຈ່າຍແຍກຕາມພະນັກງານ', o_bal_title:'ຍອດຄົງເຫຼືອແຍກຕາມພະນັກງານ',
+  o_staff:'ພະນັກງານ', o_n_in:'ຄັ້ງ', o_verified:'ຢືນຢັນແລ້ວ', o_pending:'ລໍຢືນຢັນ', o_total_in:'ລວມຮັບ',
+  o_paid:'ຈ່າຍຄ່າຢາງ', o_bills:'ບິນ', o_exp:'ຄ່າໃຊ້ຈ່າຍ', o_ret:'ສົ່ງເງິນຄືນ', o_total_out:'ລວມຈ່າຍ',
+  o_open:'ຍົກມາ', o_close:'ຄົງເຫຼືອ', o_check:'ກວດສອບ', o_ok:'ປົກກະຕິ', o_issue:'{n} ບິນຕ້ອງກວດ', o_pend:'{n} ລໍຢືນຢັນ',
+  o_no_in:'ບໍ່ມີພະນັກງານໄດ້ຮັບເງິນໃນຊ່ວງນີ້', o_no_out:'ບໍ່ມີພະນັກງານຈ່າຍເງິນໃນຊ່ວງນີ້', o_row_hint:'ກົດຊື່ພະນັກງານເພື່ອເປີດບັນຊີຂອງຄົນນັ້ນ',
+  o_pick_hint:'ເລືອກພະນັກງານດ້ານເທິງເພື່ອບັນທຶກລາຍການ', o_loading:'ກຳລັງໂຫຼດຂໍ້ມູນພະນັກງານ {n} ຄົນ...', o_fail:'ໂຫຼດບໍ່ໄດ້', o_total:'ລວມທຸກຄົນ',
+  o_idle:'ບໍ່ມີລາຍການ', o_alert:'ມີ {n} ຄົນທີ່ຕ້ອງກວດສອບ'
+});
+Object.assign(SL_I18N.en, {
+  all_opt:'👥 All staff (overview)', all_title:'All staff accounts — overview', all_working:'{n} of {t} staff have entries in this period',
+  o_in_title:'Income by staff', o_out_title:'Expenses by staff', o_bal_title:'Balance by staff',
+  o_staff:'Staff', o_n_in:'Times', o_verified:'Verified', o_pending:'Pending', o_total_in:'Total in',
+  o_paid:'Rubber paid', o_bills:'Bills', o_exp:'Expenses', o_ret:'Returned', o_total_out:'Total out',
+  o_open:'Opening', o_close:'Balance', o_check:'Check', o_ok:'OK', o_issue:'{n} bills to check', o_pend:'{n} pending',
+  o_no_in:'No staff received money in this period', o_no_out:'No staff paid out in this period', o_row_hint:'Click a staff name to open their account',
+  o_pick_hint:'Pick a staff member above to add entries', o_loading:'Loading {n} staff...', o_fail:'Failed to load', o_total:'All staff',
+  o_idle:'No entries', o_alert:'{n} staff need checking'
+});
+
+const SL_ALL = '__all__';
+function _slIsAll(){ return _slIsAdmin() && document.getElementById('sl-staff').value === SL_ALL; }
+function _slFilterBits(show){
+  ['sl-type','sl-search'].forEach(id => { const el = document.getElementById(id)?.closest('label'); if (el) el.style.display = show ? '' : 'none'; });
+}
+function slPickStaff(u){ const sel = document.getElementById('sl-staff'); sel.value = u; slLoad(); window.scrollTo({top:0, behavior:'smooth'}); }
+
+async function slLoadAll(){
+  const from = document.getElementById('sl-from').value || null, to = document.getElementById('sl-to').value || null;
+  const people = slState.people || [];
+  slState.data = null; slState.user = null;
+  _slFilterBits(false);
+  ['sl-kpi','sl-issues','sl-in','sl-out','sl-daily'].forEach(id => document.getElementById(id).innerHTML = '');
+  document.getElementById('sl-sum').innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(slT('o_loading',{n:people.length}))}</div>`;
+  const res = await Promise.all(people.map(p => _rpc('staff_ledger', { p_token:_staffToken, p_username:p.username, p_from:from, p_to:to })
+      .then(r => ({ p, ok: !r.error && r.data?.ok, d: r.data, err: r.error }))));
+  if (!_slIsAll()) return;   // ผู้ใช้เปลี่ยนไปเลือกคนอื่นระหว่างโหลด
+  const rows = res.map(({p, ok, d}) => {
+    const S = ok ? d.summary : {};
+    const n_ret = ok ? (d.lines||[]).filter(l => l.kind==='return').length : 0;
+    const n = (S.n_advances||0) + (S.n_payments||0) + (S.n_expenses||0) + n_ret;
+    return { p, ok, S, n, n_ret, issues: ok ? (d.issues||[]).length : 0,
+      name: p.display_name || p.username,
+      inn: Number(S.cash_in)||0, pend: Number(S.unverified_in)||0, n_pend: S.n_unverified||0,
+      paid: Number(S.paid_out)||0, exp: Number(S.expense_out)||0, ret: Number(S.returned)||0, out: Number(S.total_out)||0,
+      open: S.has_cash_records ? Number(S.opening)||0 : null, close: _acNum(S.closing) };
+  });
+  rows.sort((a,b) => (b.n>0) - (a.n>0) || (b.inn+b.out) - (a.inn+a.out) || a.name.localeCompare(b.name));
+  slState.all = { rows, from, to, generated_at: new Date().toISOString() };
+  slRenderAll();
+}
+
+function slRenderAll(){
+  const A = slState.all; if (!A) return;
+  const rows = A.rows, working = rows.filter(r => r.n > 0);
+  const sum = k => rows.reduce((s,r) => s + (Number(r[k])||0), 0);
+  const T = { inn:sum('inn'), pend:sum('pend'), paid:sum('paid'), exp:sum('exp'), ret:sum('ret'), out:sum('out'),
+              open: rows.some(r=>r.open!==null) ? sum('open') : null, close: rows.some(r=>r.close!==null) ? sum('close') : null };
+  const nm = r => `<a href="javascript:void(0)" class="ac-link sl-o-name" onclick="event.stopPropagation();slPickStaff('${escJs(r.p.username)}')">${esc(r.name)}</a>`
+                + `<div class="ac-sub">${esc(r.p.role==='admin'?slT('role_admin'):slT('role_cashier'))}${r.p.is_active===false?' · ⏸':''}</div>`;
+  const tr = (r, cells) => `<tr class="sl-row" tabindex="0" onclick="slPickStaff('${escJs(r.p.username)}')" onkeydown="if(event.key==='Enter')slPickStaff('${escJs(r.p.username)}')">${cells}</tr>`;
+  const dash = '<span class="ac-sub">—</span>';
+  const m = (v, cls, sign) => v ? `<span class="${cls}">${sign||''}${acMoney(v)}</span>` : dash;
+
+  // หัว + ปุ่ม
+  document.getElementById('sl-title').textContent = slT('all_title');
+  document.getElementById('sl-generated').textContent = acT('generated', {t: acDateTime(A.generated_at)}) + ' · ' + slT('all_working', {n:working.length, t:rows.length});
+  document.getElementById('sl-actions').innerHTML = `<span class="ac-sub" style="margin-right:.4rem">${esc(slT('o_pick_hint'))}</span>`
+    + `<button class="btn-secondary" onclick="slExportCSV()">${esc(slT('export'))}</button><button class="btn-secondary" onclick="slLoad()">${esc(slT('refresh'))}</button>`;
+
+  // แจ้งเตือน: คนที่มีบิลต้องตรวจ หรือเงินรอยืนยัน
+  const flag = rows.filter(r => r.issues || r.n_pend || !r.ok);
+  document.getElementById('sl-issues').innerHTML = flag.length
+    ? `<details class="ac-alert ac-alert-warn" open><summary>⚠ ${esc(slT('o_alert',{n:flag.length}))}</summary><ul>${flag.map(r =>
+        `<li><a href="javascript:void(0)" class="ac-link" onclick="slPickStaff('${escJs(r.p.username)}')">${esc(r.name)}</a> — ${[
+          !r.ok ? esc(slT('o_fail')) : '',
+          r.issues ? esc(slT('o_issue',{n:r.issues})) : '',
+          r.n_pend ? esc(slT('o_pend',{n:r.n_pend})) + ` (${acMoney(r.pend)})` : ''].filter(Boolean).join(' · ')}</li>`).join('')}</ul></details>`
+    : (working.length ? `<div class="ac-alert ac-alert-ok">✅ ${esc(slT('issues_ok'))}</div>` : '');
+
+  // แถบสรุปรวม (ใช้ช่องวันที่เดียวกับหน้าพนักงานรายคน)
+  const preset = document.getElementById('sl-preset').value;
+  const chip = (p, k) => `<button class="sl-chip ${preset===p?'on':''}" onclick="slQuick('${p}')">${esc(slT(k))}</button>`;
+  const nd = `<span class="ac-nodata">${esc(acT('no_data'))}</span>`;
+  document.getElementById('sl-sum').innerHTML = `
+    <div class="sl-sum-head">
+      <div class="sl-sum-title">📅 ${esc(slT('sum_title'))} · 👥 ${esc(slT('o_total'))} (${working.length}/${rows.length})</div>
+      <div class="sl-sum-dates">
+        <label><span>${esc(slT('sum_from'))}</span><input type="date" id="sl-sum-from" value="${esc(A.from||'')}" onchange="slSumDate()"></label>
+        <span class="sl-sum-dash">→</span>
+        <label><span>${esc(slT('sum_to'))}</span><input type="date" id="sl-sum-to" value="${esc(A.to||'')}" onchange="slSumDate()"></label>
+      </div>
+      <div class="sl-chips">${chip('today','q_today')}${chip('yesterday','q_yesterday')}${chip('last_7','q_7')}${chip('this_month','q_month')}${chip('last_month','q_last_month')}${chip('all','q_all')}</div>
+    </div>
+    <div class="sl-sum-boxes">
+      <div class="sl-box sl-box-open"><div class="sl-box-l">${esc(slT('s_open'))}</div><div class="sl-box-v">${T.open===null?nd:acMoney(T.open)}</div></div>
+      <div class="sl-op">+</div>
+      <div class="sl-box sl-box-in" onclick="document.getElementById('sl-in').scrollIntoView({behavior:'smooth'})"><div class="sl-box-l">💚 ${esc(slT('s_in'))}</div><div class="sl-box-v">${acMoney(T.inn)}</div><div class="sl-box-s">${rows.filter(r=>r.inn).length} ${esc(slT('o_staff'))}</div></div>
+      <div class="sl-op">−</div>
+      <div class="sl-box sl-box-out" onclick="document.getElementById('sl-out').scrollIntoView({behavior:'smooth'})"><div class="sl-box-l">🔻 ${esc(slT('s_out'))}</div><div class="sl-box-v">${acMoney(T.out)}</div><div class="sl-box-s">${rows.filter(r=>r.out).length} ${esc(slT('o_staff'))}</div></div>
+      <div class="sl-op">=</div>
+      <div class="sl-box sl-box-close" onclick="document.getElementById('sl-daily').scrollIntoView({behavior:'smooth'})"><div class="sl-box-l">💰 ${esc(slT('s_close'))}</div><div class="sl-box-v">${T.close===null?nd:acMoney(T.close)}</div></div>
+    </div>`;
+  document.getElementById('sl-hint').textContent = '👆 ' + slT('o_row_hint');
+
+  // ── ตารางรายรับแยกตามพนักงาน ──
+  const ins = rows.filter(r => r.inn);
+  document.getElementById('sl-in').style.display = '';
+  document.getElementById('sl-in').innerHTML = `
+    <div class="sl-tbl-head sl-head-in"><span>💚 ${esc(slT('o_in_title'))} <span class="sl-cnt">${ins.length} ${esc(slT('o_staff'))}</span></span><span class="sl-head-total">+${acMoney(T.inn)}</span></div>
+    <div class="sl-scroll">${ins.length ? `<table class="sl-tbl sl-stack sl-stack-o"><thead><tr><th>${esc(slT('o_staff'))}</th><th class="num">${esc(slT('o_n_in'))}</th><th class="num">${esc(slT('o_verified'))}</th><th class="num">${esc(slT('o_pending'))}</th><th class="num">${esc(slT('o_total_in'))}</th></tr></thead>
+      <tbody>${ins.map(r => tr(r, `<td class="c-date">${nm(r)}</td>
+        <td class="num c-meta" data-l="${esc(slT('o_n_in'))}">${r.S.n_advances||0}</td>
+        <td class="num c-meta" data-l="${esc(slT('o_verified'))}">${m(r.inn - r.pend,'')}</td>
+        <td class="num c-meta${r.pend?'':' c-empty'}" data-l="${esc(slT('o_pending'))}">${r.pend?`<span class="ac-warn">⏳ ${acMoney(r.pend)}</span>`:dash}</td>
+        <td class="num sl-amt-in c-amt">+${acMoney(r.inn)}</td>`)).join('')}</tbody>
+      <tfoot><tr class="sl-foot-in"><td class="c-ft">${esc(slT('t_in'))}</td><td class="num c-empty"></td><td class="num c-meta" data-l="${esc(slT('o_verified'))}">${acMoney(T.inn - T.pend)}</td><td class="num c-meta${T.pend?'':' c-empty'}" data-l="${esc(slT('o_pending'))}">${T.pend?'⏳ '+acMoney(T.pend):''}</td><td class="num c-amt">+${acMoney(T.inn)}</td></tr></tfoot></table>`
+      : `<div class="sl-empty">${esc(slT('o_no_in'))}</div>`}</div>`;
+
+  // ── ตารางรายจ่ายแยกตามพนักงาน ──
+  const outs = rows.filter(r => r.out);
+  document.getElementById('sl-out').style.display = '';
+  document.getElementById('sl-out').innerHTML = `
+    <div class="sl-tbl-head sl-head-out"><span>🔻 ${esc(slT('o_out_title'))} <span class="sl-cnt">${outs.length} ${esc(slT('o_staff'))}</span></span><span class="sl-head-total">−${acMoney(T.out)}</span></div>
+    <div class="sl-scroll">${outs.length ? `<table class="sl-tbl sl-stack sl-stack-o"><thead><tr><th>${esc(slT('o_staff'))}</th><th class="num">${esc(slT('o_paid'))}</th><th class="num">${esc(slT('o_exp'))}</th><th class="num">${esc(slT('o_ret'))}</th><th class="num">${esc(slT('o_total_out'))}</th></tr></thead>
+      <tbody>${outs.map(r => tr(r, `<td class="c-date">${nm(r)}</td>
+        <td class="num c-meta${r.paid?'':' c-empty'}" data-l="${esc(slT('o_paid'))}">${r.paid?`${acMoney(r.paid)}<div class="ac-sub">${r.S.n_payments||0} ${esc(slT('o_bills'))} · ${acKg(r.S.kg)} ${esc(slT('kg'))}</div>`:dash}</td>
+        <td class="num c-meta${r.exp?'':' c-empty'}" data-l="${esc(slT('o_exp'))}">${r.exp?`${acMoney(r.exp)}<div class="ac-sub">${r.S.n_expenses||0} ${esc(acT('rows'))}</div>`:dash}</td>
+        <td class="num c-meta${r.ret?'':' c-empty'}" data-l="${esc(slT('o_ret'))}">${r.ret?`${acMoney(r.ret)}<div class="ac-sub">${r.n_ret} ${esc(acT('rows'))}</div>`:dash}</td>
+        <td class="num sl-amt-out c-amt">−${acMoney(r.out)}</td>`)).join('')}</tbody>
+      <tfoot><tr class="sl-foot-out"><td class="c-ft">${esc(slT('t_out'))}</td><td class="num c-meta" data-l="${esc(slT('o_paid'))}">${acMoney(T.paid)}</td><td class="num c-meta" data-l="${esc(slT('o_exp'))}">${acMoney(T.exp)}</td><td class="num c-meta" data-l="${esc(slT('o_ret'))}">${acMoney(T.ret)}</td><td class="num c-amt">−${acMoney(T.out)}</td></tr></tfoot></table>`
+      : `<div class="sl-empty">${esc(slT('o_no_out'))}</div>`}</div>`;
+
+  // ── ตารางคงเหลือแยกตามพนักงาน (ทุกคน) ──
+  const chk = r => !r.ok ? `<span class="sl-ver wait">⚠ ${esc(slT('o_fail'))}</span>`
+    : (r.issues || r.n_pend) ? [r.issues?`<span class="sl-ver wait">⚠ ${esc(slT('o_issue',{n:r.issues}))}</span>`:'', r.n_pend?`<span class="sl-ver wait">⏳ ${esc(slT('o_pend',{n:r.n_pend}))}</span>`:''].join(' ')
+    : r.n ? `<span class="sl-ver ok">✓ ${esc(slT('o_ok'))}</span>` : `<span class="ac-sub">${esc(slT('o_idle'))}</span>`;
+  document.getElementById('sl-daily').innerHTML = `
+    <div class="sl-tbl-head sl-head-bal"><span>💰 ${esc(slT('o_bal_title'))} <span class="sl-cnt">${rows.length} ${esc(slT('o_staff'))}</span></span><span class="sl-head-total">${T.close===null?'':acMoney(T.close)}</span></div>
+    <div class="sl-scroll"><table class="sl-tbl sl-stack sl-stack-o"><thead><tr><th>${esc(slT('o_staff'))}</th><th class="num">${esc(slT('o_open'))}</th><th class="num">${esc(slT('c_in'))}</th><th class="num">${esc(slT('c_out'))}</th><th class="num">${esc(slT('o_close'))}</th><th>${esc(slT('o_check'))}</th></tr></thead>
+      <tbody>${rows.map(r => tr(r, `<td class="c-date">${nm(r)}</td>
+        <td class="num c-meta" data-l="${esc(slT('o_open'))}">${r.open===null?dash:acMoney(r.open)}</td>
+        <td class="num sl-amt-in c-meta${r.inn?'':' c-empty'}" data-l="${esc(slT('c_in'))}">${r.inn?'+'+acMoney(r.inn):dash}</td>
+        <td class="num sl-amt-out c-meta${r.out?'':' c-empty'}" data-l="${esc(slT('c_out'))}">${r.out?'−'+acMoney(r.out):dash}</td>
+        <td class="num sl-amt-bal c-amt">${r.close===null?dash:`<span class="${r.close<0?'ac-neg':''}">${acMoney(r.close)}</span>`}</td>
+        <td class="c-meta sl-o-chk">${chk(r)}</td>`).replace('<tr class="sl-row"', `<tr class="sl-row${r.n?'':' sl-o-idle'}"`)).join('')}</tbody>
+      <tfoot><tr class="sl-foot-bal"><td class="c-date">${esc(slT('o_total'))}</td><td class="num c-meta" data-l="${esc(slT('o_open'))}">${T.open===null?'—':acMoney(T.open)}</td><td class="num c-meta" data-l="${esc(slT('c_in'))}">+${acMoney(T.inn)}</td><td class="num c-meta" data-l="${esc(slT('c_out'))}">−${acMoney(T.out)}</td><td class="num c-amt">${T.close===null?'—':acMoney(T.close)}</td><td class="c-empty"></td></tr></tfoot></table></div>`;
+}
+
+function _slExportAllCSV(){
+  const A = slState.all; if (!A) return;
+  const q = v => { if (v===null || v===undefined) return ''; const s=String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const head = ['username','name','role','opening','income','income_pending','n_income','rubber_paid','n_bills','kg','expenses','n_expenses','returned','total_out','balance','bill_issues'];
+  const body = A.rows.map(r => [r.p.username, r.name, r.p.role, r.open, r.inn, r.pend, r.S.n_advances||0, r.paid, r.S.n_payments||0, r.S.kg||0, r.exp, r.S.n_expenses||0, r.ret, r.out, r.close, r.issues].map(q).join(','));
+  const blob = new Blob(['﻿' + [head.join(','), ...body].join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `staff-overview_${A.from||'all'}_${A.to||'all'}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
 }
 
 </script>
