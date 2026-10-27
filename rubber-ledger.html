@@ -608,6 +608,18 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
 .sl-sub-pill{cursor:pointer;font-size:.68rem;font-weight:600;background:#fff;border:1px solid #FECACA;color:#B91C1C;border-radius:999px;padding:.05rem .5rem}
 .sl-o-name{font-weight:700;font-size:.9rem}
+#ac-kpi.ac-kpi{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ak-card{border-top-width:4px}
+.ak-kg{border-top-color:#A16207}.ak-in{border-top-color:#16A34A}.ak-out{border-top-color:#DC2626}.ak-bal{border-top-color:#2563EB;background:#F8FBFF}
+.ak-in .ac-card-v,.ak-in-t{color:#15803D}.ak-out .ac-card-v,.ak-out-t{color:#B91C1C}.ak-bal .ac-card-v,.ak-bal-t{color:#1D4ED8}
+.ak-list{margin-top:.5rem;border-top:1px dashed var(--border);padding-top:.4rem;font-size:.74rem}
+.ak-row{display:flex;justify-content:space-between;gap:.5rem;padding:.08rem 0}.ak-row span{color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ak-staff{border:1px solid var(--border);border-radius:8px;margin:.5rem 0;overflow:hidden}
+.ak-staff>summary{display:flex;justify-content:space-between;align-items:center;padding:.55rem .8rem;background:#F8FAFC;cursor:pointer;list-style:none;font-size:.85rem}
+.ak-staff>summary::-webkit-details-marker{display:none}
+.ak-staff>summary>span::before{content:"▸ ";opacity:.6}.ak-staff[open]>summary>span::before{content:"▾ "}
+.ak-staff .sl-kpi-tbl{margin:0;border-radius:0}
+@media(max-width:900px){#ac-kpi.ac-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .sl-modebar{display:flex;gap:.4rem;margin-bottom:.8rem;flex-wrap:wrap}
 .sl-modebar button{flex:0 0 auto;border:1.5px solid var(--border);background:#fff;color:var(--text2);border-radius:10px;padding:.55rem 1.1rem;font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit}
 .sl-modebar button.active{background:var(--sky);border-color:var(--sky);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.25)}
@@ -1970,7 +1982,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1800";
+const APP_VERSION = "2026.10.27-1900";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -8124,13 +8136,20 @@ async function acLoad(){
     acState.loading=false; return;
   }
   acState.loading = false;
+  acState.staff = null;
   acRender();
+  const seq = acState.staffSeq = (acState.staffSeq||0) + 1;
+  let st;
+  try{ st = await _acLoadStaff(from, to); }catch(e){ console.error('acLoadStaff', e); st = { err:true, rows:[] }; }
+  if (seq !== acState.staffSeq) return;   // มีการโหลดใหม่ระหว่างรอ
+  acState.staff = st;
+  _acRenderKpi4();
 }
 
 function acRender(){
   const r = acState.report; if (!r) return;
   document.getElementById('ac-generated').textContent = acT('generated', {t: acDateTime(r.generated_at)});
-  _acRenderIssues(); _acRenderKpi(); _acRenderMonths(); _acRenderChart(); acRenderDetail();
+  _acRenderIssues(); _acRenderKpi4(); _acRenderMonths(); _acRenderChart(); acRenderDetail();
 }
 
 // ── ตรวจความถูกต้อง ──
@@ -9790,6 +9809,207 @@ async function acShowKpi(key){
           [esc(acT('kd_stock_note')), '', 'sl-calc-note']]))
       + _akSec(acT('kd_by_month'), M.length ? `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('month'))}</th><th class="num">${esc(acT('kd_bought'))}</th><th class="num">${esc(acT('kd_sold'))}</th><th class="num">${esc(acT('kd_running'))}</th></tr></thead><tbody>${rows}</tbody></table>` : `<div class="ac-sub">${esc(acT('kd_none'))}</div>`)
       + (T.n_sales>0 ? '' : `<button class="btn-primary" style="padding:.4rem .9rem;font-size:.78rem" onclick="acCloseModal();acEditSale()">${esc(acT('kd_add_sale'))}</button>`);
+  }
+  _acModal(title, body, null);
+  _slWide(true);
+}
+
+
+// =====================================================
+// ACCOUNTING — 4 กล่องหลัก (ข้อมูลจริงจากบัญชีพนักงานแต่ละคน)
+//   1) จำนวนยางทั้งหมด  2) ต้นทุน (เงินทุนที่โอนให้พนักงาน)  3) รายจ่ายทั้งหมด  4) ยอดเงินคงเหลือ
+// =====================================================
+Object.assign(AC_I18N.th, {
+  q_kg:'จำนวนยางทั้งหมด', q_fund:'ต้นทุนทั้งหมด', q_spend:'รายจ่ายทั้งหมด', q_bal:'ยอดเงินคงเหลือ',
+  q_kg_s:'จากบิลที่พนักงานจ่ายเงินแล้ว', q_fund_s:'เงินทุนที่โอนให้พนักงาน', q_spend_s:'ค่ายาง + ค่าใช้จ่าย ที่พนักงานจ่ายไป', q_bal_s:'ยกมา + เงินทุน − รายจ่าย − ส่งคืน',
+  q_staff_n:'{n} คน', q_more:'+ อีก {n} คน', q_by_staff:'แยกตามบัญชีพนักงาน', q_entries:'รายการของแต่ละคน', q_open_acc:'เปิดบัญชี',
+  q_no_staff:'ยังไม่มีบัญชีพนักงานที่มีรายการในช่วงนี้', q_load_err:'โหลดบัญชีพนักงานไม่ได้', q_pending_in:'รวมเงินที่รอยืนยัน {a}',
+  q_staff:'พนักงาน', q_bills:'บิล', q_kgc:'กก.', q_avg:'ราคาเฉลี่ย/กก.', q_paid:'ค่ายาง', q_exp:'ค่าใช้จ่าย', q_ret:'ส่งเงินคืน', q_open:'ยกมา',
+  q_in:'เงินทุนที่ได้รับ', q_verified:'ยืนยันแล้ว', q_pending:'รอยืนยัน', q_spend_t:'รวมรายจ่าย', q_close:'คงเหลือ', q_close_ver:'คงเหลือ (นับเฉพาะเงินที่ยืนยัน)',
+  q_total_all:'รวมทุกคน', q_cmp:'เทียบกับบิลรับซื้อในหน้าบัญชี', q_cmp_bills:'กก.ในบิลรับซื้อ (ตามวันที่บิล)', q_cmp_staff:'กก.ที่พนักงานจ่ายแล้ว (ตามวันที่จ่าย)',
+  q_not_paid:'บิลในช่วงนี้ที่ยังไม่มีพนักงานจ่าย', q_out_range:'บิลนอกช่วงที่พนักงานมาจ่ายในช่วงนี้', q_ret_note:'เงินที่ส่งคืนไม่นับเป็นรายจ่าย แต่หักออกจากยอดคงเหลือ',
+  q_no_cash:'ไม่มีบันทึกเงินทุน', q_src:'แหล่งเงิน', q_method:'วิธี', q_status:'สถานะ', q_ref:'อ้างอิง', q_type:'ประเภท', q_detail:'รายละเอียด'
+});
+Object.assign(AC_I18N.lo, {
+  q_kg:'ຈຳນວນຢາງທັງໝົດ', q_fund:'ຕົ້ນທຶນທັງໝົດ', q_spend:'ລາຍຈ່າຍທັງໝົດ', q_bal:'ຍອດເງິນຄົງເຫຼືອ',
+  q_kg_s:'ຈາກບິນທີ່ພະນັກງານຈ່າຍເງິນແລ້ວ', q_fund_s:'ເງິນທຶນທີ່ໂອນໃຫ້ພະນັກງານ', q_spend_s:'ຄ່າຢາງ + ຄ່າໃຊ້ຈ່າຍ ທີ່ພະນັກງານຈ່າຍໄປ', q_bal_s:'ຍົກມາ + ເງິນທຶນ − ລາຍຈ່າຍ − ສົ່ງຄືນ',
+  q_staff_n:'{n} ຄົນ', q_more:'+ ອີກ {n} ຄົນ', q_by_staff:'ແຍກຕາມບັນຊີພະນັກງານ', q_entries:'ລາຍການຂອງແຕ່ລະຄົນ', q_open_acc:'ເປີດບັນຊີ',
+  q_no_staff:'ຍັງບໍ່ມີບັນຊີພະນັກງານທີ່ມີລາຍການໃນຊ່ວງນີ້', q_load_err:'ໂຫຼດບັນຊີພະນັກງານບໍ່ໄດ້', q_pending_in:'ລວມເງິນທີ່ລໍຢືນຢັນ {a}',
+  q_staff:'ພະນັກງານ', q_bills:'ບິນ', q_kgc:'ກິໂລ', q_avg:'ລາຄາສະເລ່ຍ/ກິໂລ', q_paid:'ຄ່າຢາງ', q_exp:'ຄ່າໃຊ້ຈ່າຍ', q_ret:'ສົ່ງເງິນຄືນ', q_open:'ຍົກມາ',
+  q_in:'ເງິນທຶນທີ່ໄດ້ຮັບ', q_verified:'ຢືນຢັນແລ້ວ', q_pending:'ລໍຢືນຢັນ', q_spend_t:'ລວມລາຍຈ່າຍ', q_close:'ຄົງເຫຼືອ', q_close_ver:'ຄົງເຫຼືອ (ນັບສະເພາະເງິນທີ່ຢືນຢັນ)',
+  q_total_all:'ລວມທຸກຄົນ', q_cmp:'ທຽບກັບບິນຮັບຊື້ໃນໜ້າບັນຊີ', q_cmp_bills:'ກິໂລໃນບິນຮັບຊື້ (ຕາມວັນທີບິນ)', q_cmp_staff:'ກິໂລທີ່ພະນັກງານຈ່າຍແລ້ວ (ຕາມວັນທີຈ່າຍ)',
+  q_not_paid:'ບິນໃນຊ່ວງນີ້ທີ່ຍັງບໍ່ມີພະນັກງານຈ່າຍ', q_out_range:'ບິນນອກຊ່ວງທີ່ພະນັກງານມາຈ່າຍໃນຊ່ວງນີ້', q_ret_note:'ເງິນທີ່ສົ່ງຄືນບໍ່ນັບເປັນລາຍຈ່າຍ ແຕ່ຫັກອອກຈາກຍອດຄົງເຫຼືອ',
+  q_no_cash:'ບໍ່ມີບັນທຶກເງິນທຶນ', q_src:'ແຫຼ່ງເງິນ', q_method:'ວິທີ', q_status:'ສະຖານະ', q_ref:'ອ້າງອີງ', q_type:'ປະເພດ', q_detail:'ລາຍລະອຽດ'
+});
+Object.assign(AC_I18N.en, {
+  q_kg:'Total rubber', q_fund:'Total funding', q_spend:'Total spending', q_bal:'Cash balance',
+  q_kg_s:'From bills paid by staff', q_fund_s:'Money given to staff', q_spend_s:'Rubber + expenses paid by staff', q_bal_s:'Opening + funding − spending − returned',
+  q_staff_n:'{n} staff', q_more:'+ {n} more', q_by_staff:'By staff account', q_entries:'Entries per staff', q_open_acc:'Open account',
+  q_no_staff:'No staff account has entries in this period', q_load_err:'Could not load staff accounts', q_pending_in:'Pending verification {a}',
+  q_staff:'Staff', q_bills:'Bills', q_kgc:'kg', q_avg:'Avg price/kg', q_paid:'Rubber', q_exp:'Expenses', q_ret:'Returned', q_open:'Opening',
+  q_in:'Funding received', q_verified:'Verified', q_pending:'Pending', q_spend_t:'Total spending', q_close:'Balance', q_close_ver:'Balance (verified funding only)',
+  q_total_all:'All staff', q_cmp:'Compared with purchase bills', q_cmp_bills:'kg in purchase bills (by bill date)', q_cmp_staff:'kg paid by staff (by payment date)',
+  q_not_paid:'Bills in this period not yet paid by any staff', q_out_range:'Older bills paid by staff in this period', q_ret_note:'Returned money is not spending, but it is deducted from the balance',
+  q_no_cash:'No funding recorded', q_src:'Source', q_method:'Method', q_status:'Status', q_ref:'Ref', q_type:'Type', q_detail:'Details'
+});
+
+// โหลดบัญชีพนักงานทุกคนตามช่วงวันที่ของหน้าบัญชี
+async function _acLoadStaff(from, to){
+  const pr = await _rpc('staff_ledger_people', { p_token:_staffToken });
+  if (pr.error || !pr.data?.ok) return { err:true, rows:[] };
+  const people = pr.data.people || [];
+  const res = await Promise.all(people.map(p => _rpc('staff_ledger', { p_token:_staffToken, p_username:p.username, p_from:from, p_to:to })
+    .then(r => ({ p, ok: !r.error && r.data?.ok, d: r.data }))));
+  const rows = res.map(({p, ok, d}) => {
+    const S = ok ? d.summary : {}, L = ok ? (d.lines||[]) : [];
+    const pend = Number(S.unverified_in)||0, inn = Number(S.cash_in)||0;
+    const paid = Number(S.paid_out)||0, exp = Number(S.expense_out)||0, ret = Number(S.returned)||0;
+    const open = S.has_cash_records ? Number(S.opening)||0 : null, close = _acNum(S.closing);
+    return { p, ok, d: ok ? d : null, L, name: p.display_name || p.username,
+      kg: Number(S.kg)||0, n_bills: S.n_payments||0, inn, pend, n_in: S.n_advances||0,
+      paid, exp, ret, n_exp: S.n_expenses||0, spend: paid + exp, open, close,
+      close_ver: close===null ? null : close - pend, active: (S.n_payments||0)+(S.n_advances||0)+(S.n_expenses||0)+L.filter(l=>l.kind==='return').length > 0 };
+  });
+  return { err: res.some(x=>!x.ok), rows };
+}
+
+function _acRenderKpi4(){
+  const st = acState.staff;
+  const el = document.getElementById('ac-kpi');
+  if (!st){ el.innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(acT('loading'))}</div>`; return; }
+  const R = st.rows, act = R.filter(r=>r.active);
+  const sum = k => R.reduce((s,r)=>s+(Number(r[k])||0),0);
+  const anyCash = R.some(r=>r.close!==null);
+  const top = (k, fmt) => { const L = R.filter(r=>Number(r[k])).sort((a,b)=>Number(b[k])-Number(a[k]));
+    return L.slice(0,3).map(r=>`<div class="ak-row"><span>${esc(r.name)}</span><b>${fmt(r[k])}</b></div>`).join('') + (L.length>3?`<div class="ac-sub">${esc(acT('q_more',{n:L.length-3}))}</div>`:''); };
+  const card = (k, cls, icon, label, value, sub, list) =>
+    `<div class="ac-card ak-card ${cls} sl-card-click" role="button" tabindex="0" data-k="${k}" onclick="acShowQ('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();acShowQ('${k}')}">
+      <div class="ac-card-l">${icon} ${esc(label)}</div><div class="ac-card-v">${value}</div><div class="ac-card-s">${sub}</div>
+      <div class="ak-list">${list}</div><div class="sl-card-hint">${esc(acT('kd_hint'))}</div></div>`;
+  const pend = sum('pend');
+  el.innerHTML = (st.err ? `<div class="ac-alert ac-alert-warn" style="grid-column:1/-1">⚠ ${esc(acT('q_load_err'))}</div>` : '') + [
+    card('kg', 'ak-kg', '🌳', acT('q_kg'), `${acKg(sum('kg'))} <small>${esc(acT('kg'))}</small>`,
+         `${esc(acT('q_kg_s'))} · ${sum('n_bills')} ${esc(acT('bills'))}`, top('kg', v=>acKg(v)+' '+esc(acT('kg')))),
+    card('fund', 'ak-in', '💚', acT('q_fund'), acMoney(sum('inn')),
+         esc(acT('q_fund_s')) + (pend ? `<br><span class="ac-warn">⏳ ${esc(acT('q_pending_in',{a:acMoney(pend)}))}</span>` : ''), top('inn', acMoney)),
+    card('spend', 'ak-out', '🔻', acT('q_spend'), acMoney(sum('spend')),
+         `${esc(acT('q_paid'))} ${acMoney(sum('paid'))} · ${esc(acT('q_exp'))} ${acMoney(sum('exp'))}`, top('spend', acMoney)),
+    card('bal', 'ak-bal', '💰', acT('q_bal'), anyCash ? acMoney(sum('close')) : `<span class="ac-nodata">${esc(acT('no_data'))}</span>`,
+         esc(acT('q_bal_s')) + (sum('ret') ? ` · ${esc(acT('q_ret'))} ${acMoney(sum('ret'))}` : ''), top('close', acMoney))
+  ].join('');
+}
+
+function _qStaffBtn(r){ return `<a href="javascript:void(0)" class="ac-link" onclick="event.stopPropagation();acCloseModal();slOpenFor('${escJs(r.p.username)}')"><b>${esc(r.name)}</b></a>`; }
+function _qTable(head, rows, foot){
+  return `<table class="order-table ac-table sl-kpi-tbl"><thead><tr>${head.map(h=>`<th class="${h[1]?'num':''}">${esc(h[0])}</th>`).join('')}</tr></thead>
+    <tbody>${rows}</tbody>${foot?`<tfoot><tr class="ac-total">${foot}</tr></tfoot>`:''}</table>`;
+}
+function acQLine(ri, li){
+  const r = acState.staff?.rows?.[ri]; if (!r || !r.d) return;
+  const l = r.L[li]; if (!l) return;
+  if (l.kind === 'payment' && l.src_id){ akBill(l.src_id); return; }
+  slState.data = r.d; slState.user = r.d.staff; slState.all = null;
+  slShowDetail(li);
+}
+
+function acShowQ(key){
+  const st = acState.staff; if (!st) return;
+  const R = st.rows, act = R.filter(r=>r.active);
+  const sum = (arr,k) => arr.reduce((s,r)=>s+(Number(typeof k==='function'?k(r):r[k])||0),0);
+  const dash = '<span class="ac-sub">—</span>';
+  const m = v => Number(v) ? acMoney(v) : dash;
+  const meth = l => l.method==='transfer' ? slT('transfer') : slT('cash');
+  const perStaff = (filterFn, cols, totalFn) => {   // รายการของแต่ละคน
+    const blocks = R.map((r, ri) => {
+      const L = r.L.map((l, li) => ({l, li})).filter(x => filterFn(x.l));
+      if (!L.length) return '';
+      const tot = L.reduce((s,x)=>s+(Number(totalFn(x.l))||0),0);
+      return `<details class="ak-staff" ${act.length<=3?'open':''}><summary><span>👤 ${esc(r.name)} <span class="ac-sub">· ${L.length} ${esc(acT('rows'))}</span></span><b>${cols.fmtTotal(tot)}</b></summary>
+        ${_qTable(cols.head, L.map(x => `<tr class="sl-row" onclick="acQLine(${ri},${x.li})">${cols.row(x.l)}</tr>`).join(''), null)}</details>`;
+    }).join('');
+    return blocks || `<div class="ac-sub">${esc(acT('kd_none'))}</div>`;
+  };
+  let title = '', body = '';
+
+  if (key === 'kg'){
+    title = acT('q_kg');
+    const tKg = sum(R,'kg'), tAmt = sum(R,'paid');
+    const rows = R.filter(r=>r.kg||r.n_bills).sort((a,b)=>b.kg-a.kg).map(r => `<tr><td>${_qStaffBtn(r)}</td><td class="num">${r.n_bills}</td><td class="num"><b>${acKg(r.kg)}</b></td>
+        <td class="num">${r.kg?acMoney(r.paid/r.kg):'—'}</td><td class="num">${acMoney(r.paid)}</td><td style="width:22%"><div class="sl-bar"><span style="width:${tKg?Math.max(2,r.kg/tKg*100):0}%"></span></div><span class="ac-sub">${tKg?Math.round(r.kg/tKg*1000)/10:0}%</span></td></tr>`).join('');
+    // เทียบกับบิลรับซื้อ
+    const paidIds = new Set(); R.forEach(r => r.L.forEach(l => { if (l.kind==='payment' && l.src_id) paidIds.add(String(l.src_id)); }));
+    const B = (acState.bills||[]).filter(b => b.status!=='cancelled');
+    const billIds = new Set(B.map(b=>String(b.order_id)));
+    const notPaid = B.filter(b => !paidIds.has(String(b.order_id)));
+    const outRange = []; R.forEach(r => r.L.forEach(l => { if (l.kind==='payment' && l.src_id && !billIds.has(String(l.src_id))) outRange.push({r, l}); }));
+    const cmp = _akCalc([[esc(acT('q_cmp_bills')), acKg(sum(B,'total_qty'))+' '+esc(acT('kg'))],
+        [`− ${esc(acT('q_not_paid'))} (${notPaid.length})`, acKg(sum(notPaid,'total_qty'))+' '+esc(acT('kg'))],
+        [`+ ${esc(acT('q_out_range'))} (${outRange.length})`, acKg(outRange.reduce((s,x)=>s+(Number(x.l.kg)||0),0))+' '+esc(acT('kg'))],
+        [`= ${esc(acT('q_cmp_staff'))}`, acKg(tKg)+' '+esc(acT('kg')), 'ac-total']]);
+    const cmpOk = Math.abs(sum(B,'total_qty') - sum(notPaid,'total_qty') + outRange.reduce((s,x)=>s+(Number(x.l.kg)||0),0) - tKg) < 0.01;
+    body = _akHead(`${acKg(tKg)} <small>${esc(acT('kg'))}</small>`, `${sum(R,'n_bills')} ${esc(acT('bills'))} · ${esc(acT('q_staff_n',{n:R.filter(r=>r.kg).length}))} · ${esc(acT('q_kg_s'))}`,
+             `<span class="sl-ver ${cmpOk?'ok':'wait'}">${esc(cmpOk?acT('kd_match'):acT('kd_mismatch'))}</span>`)
+      + _akSec(acT('q_by_staff'), rows ? _qTable([[acT('q_staff')],[acT('q_bills'),1],[acT('q_kgc'),1],[acT('q_avg'),1],[acT('q_paid'),1],[acT('kd_share')]], rows,
+          `<td>${esc(acT('q_total_all'))}</td><td class="num">${sum(R,'n_bills')}</td><td class="num">${acKg(tKg)}</td><td class="num">${tKg?acMoney(tAmt/tKg):'—'}</td><td class="num">${acMoney(tAmt)}</td><td></td>`) : `<div class="ac-sub">${esc(acT('q_no_staff'))}</div>`)
+      + _akSec(acT('q_cmp'), cmp + (notPaid.length ? `<div class="form-label" style="margin-top:.6rem">${esc(acT('q_not_paid'))}</div>` + _akBillTable(notPaid, ['date','po','cust','kg','total','status']) : ''))
+      + _akSec(acT('q_entries'), perStaff(l => l.kind==='payment', {
+          head: [[acT('date')],[acT('po')],[acT('customer')],[acT('receipt')],[acT('q_kgc'),1],[acT('price_kg'),1],[acT('amount'),1]],
+          row: l => `<td>${acDateTime(l.ts)}</td><td class="mono"><b>${esc(l.ref2||'')}</b></td><td>${esc(l.party||'')}</td><td class="mono" style="font-size:.72rem">${esc(l.ref||'')}</td>
+                     <td class="num"><b>${acKg(l.kg)}</b></td><td class="num">${l.price_min!=null?acMoney(l.price_min)+(Number(l.price_min)!==Number(l.price_max)?'–'+acMoney(l.price_max):''):'—'}</td><td class="num">${acMoney(l.out)}</td>`,
+          fmtTotal: v => `${acKg(v)} ${esc(acT('kg'))}` }, l => l.kg), acT('kd_click'));
+  }
+  else if (key === 'fund'){
+    title = acT('q_fund');
+    const t = sum(R,'inn'), tp = sum(R,'pend');
+    const rows = R.filter(r=>r.inn).sort((a,b)=>b.inn-a.inn).map(r => `<tr><td>${_qStaffBtn(r)}</td><td class="num">${r.n_in}</td><td class="num">${m(r.inn-r.pend)}</td>
+        <td class="num">${r.pend?`<span class="ac-warn">⏳ ${acMoney(r.pend)}</span>`:dash}</td><td class="num"><b class="ak-in-t">${acMoney(r.inn)}</b></td></tr>`).join('');
+    const bySrc = new Map(); R.forEach(r => r.L.forEach(l => { if (l.kind==='advance'){ const k = l.party||slT('no_source'); bySrc.set(k, (bySrc.get(k)||{label:esc(k),n:0,amount:0})); const g=bySrc.get(k); g.n++; g.amount+=Number(l.in)||0; } }));
+    body = _akHead(acMoney(t), `${sum(R,'n_in')} ${esc(acT('rows'))} · ${esc(acT('q_fund_s'))}` + (tp?` · <span class="ac-warn">⏳ ${esc(acT('q_pending_in',{a:acMoney(tp)}))}</span>`:''),
+             _akCheck(R.reduce((s,r)=>s+r.L.filter(l=>l.kind==='advance').reduce((a,l)=>a+(Number(l.in)||0),0),0), t))
+      + _akSec(acT('q_by_staff'), rows ? _qTable([[acT('q_staff')],[acT('kd_n'),1],[acT('q_verified'),1],[acT('q_pending'),1],[acT('q_in'),1]], rows,
+          `<td>${esc(acT('q_total_all'))}</td><td class="num">${sum(R,'n_in')}</td><td class="num">${acMoney(t-tp)}</td><td class="num">${tp?'⏳ '+acMoney(tp):'—'}</td><td class="num">${acMoney(t)}</td>`) : `<div class="ac-sub">${esc(acT('q_no_cash'))}</div>`)
+      + (bySrc.size ? _akSec(acT('q_src'), _akGroups([...bySrc.values()])) : '')
+      + _akSec(acT('q_entries'), perStaff(l => l.kind==='advance', {
+          head: [[acT('date')],[acT('q_src')],[acT('q_method')],[acT('q_ref')],[acT('q_status')],[acT('amount'),1]],
+          row: l => `<td>${acDate(l.date)}</td><td><b>${esc(l.party||slT('no_source'))}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}</td><td>${esc(meth(l))}</td><td class="mono">${esc(l.ref2||'—')}</td>
+                     <td>${l.verified?`<span class="sl-ver ok">✓ ${esc(acT('q_verified'))}</span>`:`<span class="sl-ver wait">⏳ ${esc(acT('q_pending'))}</span>`}</td><td class="num"><b class="ak-in-t">+${acMoney(l.in)}</b></td>`,
+          fmtTotal: v => `<span class="ak-in-t">+${acMoney(v)}</span>` }, l => l.in), acT('kd_click'));
+  }
+  else if (key === 'spend'){
+    title = acT('q_spend');
+    const t = sum(R,'spend');
+    const rows = R.filter(r=>r.spend).sort((a,b)=>b.spend-a.spend).map(r => `<tr><td>${_qStaffBtn(r)}</td><td class="num">${r.paid?`${acMoney(r.paid)}<div class="ac-sub">${r.n_bills} ${esc(acT('bills'))} · ${acKg(r.kg)} ${esc(acT('kg'))}</div>`:dash}</td>
+        <td class="num">${r.exp?`${acMoney(r.exp)}<div class="ac-sub">${r.n_exp} ${esc(acT('rows'))}</div>`:dash}</td><td class="num"><b class="ak-out-t">${acMoney(r.spend)}</b></td></tr>`).join('');
+    const E = []; R.forEach(r => r.L.forEach(l => { if (l.kind==='expense') E.push(l); }));
+    body = _akHead(acMoney(t), esc(acT('q_spend_s')) + (sum(R,'ret') ? ` · ${esc(acT('q_ret_note'))}` : ''),
+             _akCheck(R.reduce((s,r)=>s+r.L.filter(l=>l.kind==='payment'||l.kind==='expense').reduce((a,l)=>a+(Number(l.out)||0),0),0), t))
+      + _akSec(acT('kd_how'), _akCalc([[esc(acT('q_paid')), acMoney(sum(R,'paid'))], [`+ ${esc(acT('q_exp'))}`, acMoney(sum(R,'exp'))], [`= ${esc(acT('q_spend'))}`, acMoney(t), 'ac-total']]))
+      + _akSec(acT('q_by_staff'), rows ? _qTable([[acT('q_staff')],[acT('q_paid'),1],[acT('q_exp'),1],[acT('q_spend_t'),1]], rows,
+          `<td>${esc(acT('q_total_all'))}</td><td class="num">${acMoney(sum(R,'paid'))}</td><td class="num">${acMoney(sum(R,'exp'))}</td><td class="num">${acMoney(t)}</td>`) : `<div class="ac-sub">${esc(acT('kd_none'))}</div>`)
+      + (E.length ? _akSec(acT('kd_by_cat'), _akGroups(_akGroup(E, l=>esc(l.ref2||'—'), l=>l.out))) : '')
+      + _akSec(acT('q_entries'), perStaff(l => l.kind==='payment' || l.kind==='expense', {
+          head: [[acT('date')],[acT('q_type')],[acT('q_detail')],[acT('q_kgc'),1],[acT('amount'),1]],
+          row: l => `<td>${l.kind==='payment'?acDateTime(l.ts):acDate(l.date)}</td><td>${_slKindBadge(l.kind)}</td>
+                     <td>${l.kind==='payment'?`<b>${esc(l.party||'')}</b> · <span class="mono">${esc(l.ref2||'')}</span><div class="ac-sub">${esc(l.ref||'')}</div>`:`<b>${esc(l.ref2||'')}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}`}</td>
+                     <td class="num">${l.kg!=null&&l.kind==='payment'?acKg(l.kg):''}</td><td class="num"><b class="ak-out-t">−${acMoney(l.out)}</b></td>`,
+          fmtTotal: v => `<span class="ak-out-t">−${acMoney(v)}</span>` }, l => l.out), acT('kd_click'));
+  }
+  else if (key === 'bal'){
+    title = acT('q_bal');
+    const W = R.filter(r => r.close!==null || r.active);
+    const tc = sum(W, r=>r.close||0), tv = sum(W, r=>r.close_ver||0);
+    const rows = W.sort((a,b)=>(b.close||0)-(a.close||0)).map(r => `<tr><td>${_qStaffBtn(r)}</td><td class="num">${r.open===null?dash:acMoney(r.open)}</td>
+        <td class="num ak-in-t">${r.inn?'+'+acMoney(r.inn):dash}</td><td class="num ak-out-t">${r.spend?'−'+acMoney(r.spend):dash}</td><td class="num ak-out-t">${r.ret?'−'+acMoney(r.ret):dash}</td>
+        <td class="num"><b class="ak-bal-t ${r.close<0?'ac-neg':''}">${r.close===null?dash:acMoney(r.close)}</b></td>
+        <td class="num">${r.pend?`<span class="ac-warn">${acMoney(r.close_ver)}</span>`:(r.close===null?dash:acMoney(r.close_ver))}</td></tr>`).join('');
+    const formula = R.reduce((s,r)=>s+(r.close===null?0:(r.open||0)+r.inn-r.spend-r.ret),0);
+    body = _akHead(W.some(r=>r.close!==null) ? acMoney(tc) : `<span class="ac-nodata">${esc(acT('no_data'))}</span>`, esc(acT('q_bal_s')), _akCheck(formula, tc))
+      + _akSec(acT('kd_how'), _akCalc([[esc(acT('q_open')), acMoney(sum(R,r=>r.open||0))], [`+ ${esc(acT('q_in'))}`, acMoney(sum(R,'inn'))],
+          [`− ${esc(acT('q_spend'))}`, acMoney(sum(R,'spend'))], [`− ${esc(acT('q_ret'))}`, acMoney(sum(R,'ret'))], [`= ${esc(acT('q_bal'))}`, acMoney(tc), 'ac-total'],
+          ...(sum(R,'pend') ? [[`⏳ ${esc(acT('q_close_ver'))}`, acMoney(tv), 'sl-calc-note']] : [])]))
+      + _akSec(acT('q_by_staff'), rows ? _qTable([[acT('q_staff')],[acT('q_open'),1],[acT('q_in'),1],[acT('q_spend'),1],[acT('q_ret'),1],[acT('q_close'),1],[acT('q_close_ver'),1]], rows,
+          `<td>${esc(acT('q_total_all'))}</td><td class="num">${acMoney(sum(R,r=>r.open||0))}</td><td class="num">+${acMoney(sum(R,'inn'))}</td><td class="num">−${acMoney(sum(R,'spend'))}</td><td class="num">−${acMoney(sum(R,'ret'))}</td><td class="num">${acMoney(tc)}</td><td class="num">${acMoney(tv)}</td>`) : `<div class="ac-sub">${esc(acT('q_no_staff'))}</div>`)
+      + `<div class="ac-sub" style="margin-top:.4rem">💡 ${esc(acT('q_ret_note'))}</div>`;
   }
   _acModal(title, body, null);
   _slWide(true);
