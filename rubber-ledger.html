@@ -608,6 +608,15 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
 .sl-sub-pill{cursor:pointer;font-size:.68rem;font-weight:600;background:#fff;border:1px solid #FECACA;color:#B91C1C;border-radius:999px;padding:.05rem .5rem}
 .sl-o-name{font-weight:700;font-size:.9rem}
+.sl-modebar{display:flex;gap:.4rem;margin-bottom:.8rem;flex-wrap:wrap}
+.sl-modebar button{flex:0 0 auto;border:1.5px solid var(--border);background:#fff;color:var(--text2);border-radius:10px;padding:.55rem 1.1rem;font-size:.86rem;font-weight:700;cursor:pointer;font-family:inherit}
+.sl-modebar button.active{background:var(--sky);border-color:var(--sky);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,.25)}
+.sl-det>summary{cursor:pointer;list-style:none}
+.sl-det>summary::-webkit-details-marker{display:none}
+.sl-det>summary>span:first-child::before{content:"▾ ";opacity:.6}
+.sl-det:not([open])>summary>span:first-child::before{content:"▸ "}
+.sl-who{display:inline-block;font-weight:700;font-size:.74rem;color:#0369A1;background:#E0F2FE;border-radius:6px;padding:.05rem .45rem}
+.sl-back-all{font-weight:700}
 .sl-o-idle td{opacity:.55}
 .sl-o-chk{white-space:nowrap}
 .c-unit{display:none}
@@ -640,6 +649,7 @@ font{border:none!important;outline:none!important;display:inline!important}
   .sl-stack-o td.c-meta[data-l]::before{content:attr(data-l);display:block;font-size:.64rem;font-weight:600;color:var(--muted);opacity:.9}
   .sl-stack-o td.sl-o-chk{width:100%}
   .sl-stack-o tr{padding-bottom:.25rem}
+  .sl-modebar button{flex:1;padding:.55rem .5rem;font-size:.8rem}
   .sl-stack tbody tr:nth-child(even){background:#FAFBFC}
   .sl-stack td.c-date{order:1;flex:1;padding-top:.6rem;font-size:.72rem}
   .sl-stack td.c-amt{order:2;padding-top:.6rem;font-size:.9rem}
@@ -1632,6 +1642,11 @@ font{border:none!important;outline:none!important;display:inline!important}
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center" id="sl-actions"></div>
     </div>
 
+    <div class="sl-modebar" id="sl-modebar" style="display:none">
+      <button data-m="mine" onclick="slMode('mine')"></button>
+      <button data-m="all" onclick="slMode('all')"></button>
+    </div>
+
     <div class="card ac-filter">
       <div class="ac-filter-row">
         <label class="ac-f" id="sl-staff-wrap" style="display:none"><span class="form-label" data-sl="staff">พนักงาน</span>
@@ -1673,6 +1688,8 @@ font{border:none!important;outline:none!important;display:inline!important}
     <div class="card sl-tbl-card" id="sl-in"></div>
     <div class="card sl-tbl-card" id="sl-out"></div>
     <div class="card sl-tbl-card" id="sl-daily"></div>
+    <div class="card sl-tbl-card" id="sl-all-in" style="display:none"></div>
+    <div class="card sl-tbl-card" id="sl-all-out" style="display:none"></div>
   </div>
 
   <div class="tab-pane" id="pane-activitylog">
@@ -1953,7 +1970,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1700";
+const APP_VERSION = "2026.10.27-1730";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -7052,7 +7069,7 @@ function setLang(lang) {
   document.body.style.fontFamily = fontMap[lang] || fontMap.th;
   applyLang();
   try{ _acApplyLang(); if(acState.report) acRender(); }catch(e){}
-  try{ _slApplyLang(); const o=document.querySelector('#sl-staff option[value="__all__"]'); if(o) o.textContent=slT('all_opt'); if(slState.all && _slIsAll()) slRenderAll(); else if(slState.data) slRender(); }catch(e){}
+  try{ _slApplyLang(); const o=document.querySelector('#sl-staff option[value="__all__"]'); if(o) o.textContent=slT('all_opt'); _slModeUi(); if(slState.all && _slIsAll()) slRenderAll(); else if(slState.data) slRender(); }catch(e){}
   showToast(lang === "th" ? "TH เปลี่ยนภาษาไทย" : lang === "lo" ? "LA ປ່ຽນພາສາລາວ" : "EN Language changed", "info");
 }
 
@@ -8606,7 +8623,7 @@ function slT(k, vars){
   if (vars) Object.keys(vars).forEach(v => { s = s.split('{'+v+'}').join(vars[v]); });
   return s;
 }
-const slState = { data:null, people:[], _init:false, user:null };
+const slState = { data:null, people:[], _init:false, user:null, mode:'mine' };
 function _slIsAdmin(){ return currentUser?.role === 'admin'; }
 function _slApplyLang(){
   document.querySelectorAll('#pane-staffledger [data-sl]').forEach(el => { el.textContent = slT(el.getAttribute('data-sl')); });
@@ -8636,7 +8653,9 @@ function slDateChange(){ document.getElementById('sl-preset').value='custom'; sl
 async function slOpen(){
   _slApplyLang();
   const admin = _slIsAdmin();
-  document.getElementById('sl-staff-wrap').style.display = admin ? '' : 'none';
+  if (admin && !slState._modeInit){ slState._modeInit = true; try{ slState.mode = localStorage.getItem('rl_sl_mode') || 'mine'; }catch(e){} }
+  if (!admin) slState.mode = 'mine';
+  _slModeUi();
   if (admin && !slState.people.length){
     const r = await _rpc('staff_ledger_people', { p_token:_staffToken });
     if (!r.error && r.data?.ok){
@@ -8658,11 +8677,14 @@ async function slOpen(){
 async function slLoad(){
   if (!currentUser) return;
   const from = document.getElementById('sl-from').value || null, to = document.getElementById('sl-to').value || null;
-  const who  = _slIsAdmin() ? (document.getElementById('sl-staff').value || null) : null;
+  const who  = !_slIsAdmin() ? null : (slState.mode === 'mine' ? currentUser.username : (document.getElementById('sl-staff').value || null));
   if (who === SL_ALL) return slLoadAll();
   slState.all = null; _slFilterBits(true);
+  ['sl-all-in','sl-all-out'].forEach(id => { const e = document.getElementById(id); e.innerHTML = ''; e.style.display = 'none'; });
   document.getElementById('sl-kpi').innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(slT('loading'))}</div>`;
+  const seq = slState.seq = (slState.seq||0) + 1;
   const r = await _rpc('staff_ledger', { p_token:_staffToken, p_username:who, p_from:from, p_to:to });
+  if (seq !== slState.seq) return;   // มีการโหลดใหม่ระหว่างรอ
   if (r.error || !r.data?.ok){
     const msg = r.error && _rpcMissing(r.error) ? slT('need_db') : slT('load_err') + (r.error?': '+(r.error.message||''):'');
     document.getElementById('sl-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(msg)}</div>`;
@@ -8679,7 +8701,7 @@ async function slLoad(){
 
 function slRender(){
   const d = slState.data; if (!d) return;
-  const admin = _slIsAdmin(), name = d.staff.display_name || d.staff.username;
+  const admin = _slIsAdmin() && slState.mode === 'all', name = d.staff.display_name || d.staff.username;
   document.getElementById('sl-title').textContent = admin ? `${slT('staff_title')} — ${name}` : `${slT('my_title')} — ${name}`;
   document.getElementById('sl-generated').textContent = acT('generated', {t: acDateTime(d.generated_at)});
   document.getElementById('sl-actions').innerHTML =
@@ -8690,6 +8712,7 @@ function slRender(){
               <button class="btn-secondary" onclick="slEditMove(null,'return')">${esc(slT('add_my_ret'))}</button>
               <button class="btn-secondary" onclick="slEditExpense()">${esc(slT('add_my_exp'))}</button>`) +
     `<button class="btn-secondary" onclick="slExportCSV()">${esc(slT('export'))}</button><button class="btn-secondary" onclick="slLoad()">${esc(slT('refresh'))}</button>`;
+  if (admin) document.getElementById('sl-actions').insertAdjacentHTML('afterbegin', `<button class="btn-secondary sl-back-all" onclick="slPickStaff('${SL_ALL}')">${esc(slT('back_all'))}</button>`);
   _slRenderIssues(); _slRenderKpi(); slRenderLines(); _slRenderDaily();
 }
 
@@ -8782,7 +8805,7 @@ async function slEditMove(id, kind){
     _acField('sl-m-ref', slT('ref_no'), `<input type="text" id="sl-m-ref" maxlength="100" value="${esc(m?m.ref_no||'':'')}">`)+
     _acField('sl-m-note', acT('note'), `<textarea id="sl-m-note" rows="2" maxlength="1000">${esc(m?m.note||'':'')}</textarea>`)+
     (admin ? '' : `<div class="ac-sub">⏳ ${esc(slT('form_hint'))}</div>`);
-  const title = m ? slT('move_edit') : admin ? (isIn ? slT('adv_new',{n:staffName}) : slT('ret_new',{n:staffName})) : (isIn ? slT('in_new_self') : slT('ret_new_self'));
+  const title = m ? slT('move_edit') : (admin && !(slState.mode==='mine' && slState.user?.username===currentUser.username)) ? (isIn ? slT('adv_new',{n:staffName}) : slT('ret_new',{n:staffName})) : (isIn ? slT('in_new_self') : slT('ret_new_self'));
   _acModal(title, body, async () => {
     const amtRaw = document.getElementById('sl-m-amt').value;
     const row = { move_date: document.getElementById('sl-m-date').value, method: document.getElementById('sl-m-method').value,
@@ -8865,6 +8888,7 @@ async function slOpenFor(username){
   if (!_slIsAdmin()) return;
   switchTab('staffledger', document.getElementById('tab-staffledger-btn'));
   await new Promise(r=>setTimeout(r, 300));
+  if (slState.mode !== 'all'){ slState.mode = 'all'; _slModeUi(); }
   const sel = document.getElementById('sl-staff');
   if (sel && ![...sel.options].some(o=>o.value===username)){
     const o = document.createElement('option'); o.value = username; o.textContent = username; sel.appendChild(o);
@@ -9294,7 +9318,7 @@ Object.assign(SL_I18N.en, {
 });
 
 const SL_ALL = '__all__';
-function _slIsAll(){ return _slIsAdmin() && document.getElementById('sl-staff').value === SL_ALL; }
+function _slIsAll(){ return _slIsAdmin() && slState.mode === 'all' && document.getElementById('sl-staff').value === SL_ALL; }
 function _slFilterBits(show){
   ['sl-type','sl-search'].forEach(id => { const el = document.getElementById(id)?.closest('label'); if (el) el.style.display = show ? '' : 'none'; });
 }
@@ -9305,16 +9329,17 @@ async function slLoadAll(){
   const people = slState.people || [];
   slState.data = null; slState.user = null;
   _slFilterBits(false);
-  ['sl-kpi','sl-issues','sl-in','sl-out','sl-daily'].forEach(id => document.getElementById(id).innerHTML = '');
+  ['sl-kpi','sl-issues','sl-in','sl-out','sl-daily','sl-all-in','sl-all-out'].forEach(id => document.getElementById(id).innerHTML = '');
   document.getElementById('sl-sum').innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(slT('o_loading',{n:people.length}))}</div>`;
+  const seq = slState.seq = (slState.seq||0) + 1;
   const res = await Promise.all(people.map(p => _rpc('staff_ledger', { p_token:_staffToken, p_username:p.username, p_from:from, p_to:to })
       .then(r => ({ p, ok: !r.error && r.data?.ok, d: r.data, err: r.error }))));
-  if (!_slIsAll()) return;   // ผู้ใช้เปลี่ยนไปเลือกคนอื่นระหว่างโหลด
+  if (seq !== slState.seq || !_slIsAll()) return;   // ผู้ใช้เปลี่ยนไปเลือกคนอื่นระหว่างโหลด
   const rows = res.map(({p, ok, d}) => {
     const S = ok ? d.summary : {};
     const n_ret = ok ? (d.lines||[]).filter(l => l.kind==='return').length : 0;
     const n = (S.n_advances||0) + (S.n_payments||0) + (S.n_expenses||0) + n_ret;
-    return { p, ok, S, n, n_ret, issues: ok ? (d.issues||[]).length : 0,
+    return { p, ok, S, n, n_ret, d: ok ? d : null, issues: ok ? (d.issues||[]).length : 0,
       name: p.display_name || p.username,
       inn: Number(S.cash_in)||0, pend: Number(S.unverified_in)||0, n_pend: S.n_unverified||0,
       paid: Number(S.paid_out)||0, exp: Number(S.expense_out)||0, ret: Number(S.returned)||0, out: Number(S.total_out)||0,
@@ -9420,6 +9445,7 @@ function slRenderAll(){
         <td class="num sl-amt-bal c-amt">${r.close===null?dash:`<span class="${r.close<0?'ac-neg':''}">${acMoney(r.close)}</span>`}</td>
         <td class="c-meta sl-o-chk">${chk(r)}</td>`).replace('<tr class="sl-row"', `<tr class="sl-row${r.n?'':' sl-o-idle'}"`)).join('')}</tbody>
       <tfoot><tr class="sl-foot-bal"><td class="c-date">${esc(slT('o_total'))}</td><td class="num c-meta" data-l="${esc(slT('o_open'))}">${T.open===null?'—':acMoney(T.open)}</td><td class="num c-meta" data-l="${esc(slT('c_in'))}">+${acMoney(T.inn)}</td><td class="num c-meta" data-l="${esc(slT('c_out'))}">−${acMoney(T.out)}</td><td class="num c-amt">${T.close===null?'—':acMoney(T.close)}</td><td class="c-empty"></td></tr></tfoot></table></div>`;
+  _slRenderAllLines();
 }
 
 function _slExportAllCSV(){
@@ -9430,6 +9456,77 @@ function _slExportAllCSV(){
   const blob = new Blob(['﻿' + [head.join(','), ...body].join('\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `staff-overview_${A.from||'all'}_${A.to||'all'}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+
+// =====================================================
+// STAFF LEDGER — แอดมิน: "บัญชีของฉัน" (เหมือนพนักงาน) + "สรุปบัญชีทั้งหมด" (รวมทุกบัญชี)
+// =====================================================
+Object.assign(SL_I18N.th, { m_mine:'💵 บัญชีของฉัน', m_all:'👥 สรุปบัญชีทั้งหมด', back_all:'← กลับไปสรุปทั้งหมด', all_title:'สรุปบัญชีทั้งหมด',
+  o_all_in:'รายการรับเงินทั้งหมด (ทุกบัญชี)', o_all_out:'รายการจ่ายเงินทั้งหมด (ทุกบัญชี)', o_click_line:'กดที่แถวเพื่อดูรายละเอียด / ยืนยัน' });
+Object.assign(SL_I18N.lo, { m_mine:'💵 ບັນຊີຂອງຂ້ອຍ', m_all:'👥 ສະຫຼຸບບັນຊີທັງໝົດ', back_all:'← ກັບໄປສະຫຼຸບທັງໝົດ', all_title:'ສະຫຼຸບບັນຊີທັງໝົດ',
+  o_all_in:'ລາຍການຮັບເງິນທັງໝົດ (ທຸກບັນຊີ)', o_all_out:'ລາຍການຈ່າຍເງິນທັງໝົດ (ທຸກບັນຊີ)', o_click_line:'ກົດທີ່ແຖວເພື່ອເບິ່ງລາຍລະອຽດ / ຢືນຢັນ' });
+Object.assign(SL_I18N.en, { m_mine:'💵 My account', m_all:'👥 All accounts summary', back_all:'← Back to summary', all_title:'All accounts summary',
+  o_all_in:'All money received (every account)', o_all_out:'All payments (every account)', o_click_line:'Click a row to view / verify' });
+
+function _slModeUi(){
+  const admin = _slIsAdmin(), bar = document.getElementById('sl-modebar');
+  bar.style.display = admin ? '' : 'none';
+  bar.querySelectorAll('button').forEach(b => { b.textContent = slT('m_'+b.dataset.m); b.classList.toggle('active', b.dataset.m === slState.mode); });
+  document.getElementById('sl-staff-wrap').style.display = (admin && slState.mode === 'all') ? '' : 'none';
+}
+function slMode(m){
+  if (!_slIsAdmin()) return;
+  slState.mode = m; try{ localStorage.setItem('rl_sl_mode', m); }catch(e){}
+  if (m === 'all') document.getElementById('sl-staff').value = SL_ALL;
+  _slModeUi(); slLoad();
+}
+// เปิดรายละเอียดของรายการจากตารางรวมทุกบัญชี
+function slAllDetail(ri, li){
+  const r = slState.all?.rows?.[ri]; if (!r || !r.d) return;
+  slState.data = r.d; slState.user = r.d.staff;
+  slShowDetail(li);
+}
+
+function _slRenderAllLines(){
+  const A = slState.all, rows = A.rows;
+  const meth = l => l.method==='transfer' ? slT('transfer') : slT('cash');
+  const ins = [], outs = [];
+  rows.forEach((r, ri) => (r.d?.lines || []).forEach((l, li) => {
+    const e = { r, ri, li, l };
+    if (l.kind === 'advance') ins.push(e); else if (Number(l.out) > 0) outs.push(e);
+  }));
+  const key = e => (e.l.ts || e.l.date || '') + '';
+  ins.sort((a,b) => key(a) < key(b) ? -1 : 1); outs.sort((a,b) => key(a) < key(b) ? -1 : 1);
+  const who = e => `<span class="sl-who">${esc(e.r.name)}</span>`;
+  const tr = (e, cells) => `<tr class="sl-row" tabindex="0" onclick="if(!event.target.closest('a'))slAllDetail(${e.ri},${e.li})" onkeydown="if(event.key==='Enter')slAllDetail(${e.ri},${e.li})">${cells}</tr>`;
+  let tin = 0, tout = 0;
+  const inRows = ins.map(e => { const l = e.l; tin += Number(l.in)||0;
+    return tr(e, `<td class="sl-d c-date">${acDate(l.date)}</td><td class="c-main">${who(e)}</td>
+      <td class="c-main"><b>${esc(l.party||slT('no_source'))}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}${l.ref2?`<div class="ac-sub mono">Ref: ${esc(l.ref2)}</div>`:''}</td>
+      <td class="c-meta">${esc(meth(l))}</td>
+      <td class="c-meta">${l.verified?`<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>`:`<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`}</td>
+      <td class="num sl-amt-in c-amt">+${acMoney(l.in)}</td>`); }).join('');
+  const outRows = outs.map(e => { const l = e.l, a = Number(l.out)||0; tout += a;
+    let detail;
+    if (l.kind==='payment') detail = `<b>${esc(l.party||'')}</b> · <a href="javascript:void(0)" class="ac-link" onclick="acOpenBill('${escJs(l.src_id)}')">${esc(l.ref2||'')}</a><div class="ac-sub">${esc(l.ref||'')}${l.kg!=null?` · ${acKg(l.kg)} ${esc(slT('kg'))}`:''}</div>`;
+    else if (l.kind==='expense') detail = `<b>${esc(l.ref2||'')}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}`;
+    else detail = `<b>${esc(slT('ret_to'))}: ${esc(l.party||'—')}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}`;
+    return tr(e, `<td class="sl-d c-date">${l.kind==='payment'?acDateTime(l.ts):acDate(l.date)}</td><td class="c-main">${who(e)}</td>
+      <td class="c-meta">${_slKindBadge(l.kind)}</td><td class="c-main">${detail}</td>
+      <td class="num sl-amt-out c-amt">−${acMoney(a)}</td>`); }).join('');
+  const box = (id, cls, icon, title, n, total, sign, head, body, foot, empty) => {
+    const el = document.getElementById(id); el.style.display = '';
+    el.innerHTML = `<details open class="sl-det"><summary class="sl-tbl-head ${cls}"><span>${icon} ${esc(slT(title))} <span class="sl-cnt">${esc(slT('items_n',{n}))}</span></span><span class="sl-head-total">${sign}${acMoney(total)}</span></summary>
+      <div class="sl-scroll">${n ? `<table class="sl-tbl sl-stack"><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table>` : `<div class="sl-empty">${esc(slT(empty))}</div>`}</div></details>`;
+  };
+  const th = (k, num) => `<th${num?' class="num"':''}>${esc(slT(k))}</th>`;
+  box('sl-all-in', 'sl-head-in', '📥', 'o_all_in', ins.length, tin, '+',
+      th('c_date')+th('o_staff')+th('c_from')+th('c_method')+th('c_status')+th('c_amount',1), inRows,
+      `<tr class="sl-foot-in"><td colspan="5" class="c-ft">${esc(slT('t_in'))}</td><td class="num c-amt">+${acMoney(tin)}</td></tr>`, 'no_in');
+  box('sl-all-out', 'sl-head-out', '📤', 'o_all_out', outs.length, tout, '−',
+      th('c_date')+th('o_staff')+th('c_type')+th('c_detail')+th('c_amount',1), outRows,
+      `<tr class="sl-foot-out"><td colspan="4" class="c-ft">${esc(slT('t_out'))}</td><td class="num c-amt">−${acMoney(tout)}</td></tr>`, 'no_out');
 }
 
 </script>
