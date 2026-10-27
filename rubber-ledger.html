@@ -608,6 +608,11 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
 .sl-sub-pill{cursor:pointer;font-size:.68rem;font-weight:600;background:#fff;border:1px solid #FECACA;color:#B91C1C;border-radius:999px;padding:.05rem .5rem}
 .sl-o-name{font-weight:700;font-size:.9rem}
+.sl-head-ret{background:#F5F3FF;color:#6D28D9;border-bottom:2px solid #8B5CF6}
+.sl-amt-ret{color:#6D28D9;font-weight:700}
+.sl-foot-ret td{background:#EDE9FE;color:#6D28D9}
+.sl-stack tr.sl-foot-ret{background:#EDE9FE}
+.sl-ret-s{color:#6D28D9!important;font-weight:600}
 #ac-kpi.ac-kpi{grid-template-columns:repeat(4,minmax(0,1fr))}
 .ak-card{border-top-width:4px}
 .ak-kg{border-top-color:#A16207}.ak-in{border-top-color:#16A34A}.ak-out{border-top-color:#DC2626}.ak-bal{border-top-color:#2563EB;background:#F8FBFF}
@@ -1697,6 +1702,7 @@ font{border:none!important;outline:none!important;display:inline!important}
 
     <div class="card sl-sum-card" id="sl-sum"></div>
     <div class="sl-hint" id="sl-hint"></div>
+    <div class="card sl-tbl-card" id="sl-ret" style="display:none"></div>
     <div class="card sl-tbl-card" id="sl-in"></div>
     <div class="card sl-tbl-card" id="sl-out"></div>
     <div class="card sl-tbl-card" id="sl-daily"></div>
@@ -1982,7 +1988,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.27-1900";
+const APP_VERSION = "2026.10.27-1930";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -8709,7 +8715,7 @@ async function slLoad(){
   if (r.error || !r.data?.ok){
     const msg = r.error && _rpcMissing(r.error) ? slT('need_db') : slT('load_err') + (r.error?': '+(r.error.message||''):'');
     document.getElementById('sl-kpi').innerHTML = `<div class="ac-alert ac-alert-err">${esc(msg)}</div>`;
-    ['sl-in','sl-out','sl-daily','sl-sum'].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = ''; });
+    ['sl-in','sl-out','sl-daily','sl-sum','sl-ret'].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = ''; });
     return;
   }
   slState.data = r.data; slState.user = r.data.staff;
@@ -9093,16 +9099,22 @@ async function slShowKpi(key){
       + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
   }
   else if (key==='out'){
-    const ls = L.filter(l=>Number(l.out)>0); const tot = sum(ls, l=>l.out);
+    const ls = L.filter(l=>l.kind==='payment' || l.kind==='expense'); const tot = sum(ls, l=>l.out);
     title = slT('kpi_title_out');
-    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('n_rows'))}`, _slCheck(tot, S.total_out))
+    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('n_rows'))}` + (Number(S.returned) ? ` · ${esc(slT('ret_note'))}` : ''), _slCheck(tot, (Number(S.paid_out)||0)+(Number(S.expense_out)||0)))
       + _slGroupTable(slT('kpi_by_kind'), _slGroup(ls, l=>_slKindBadge(l.kind), l=>Number(l.out)||0), tot)
       + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
   }
   else if (key==='open'){
     title = slT('kpi_title_open');
+    const rets = L.filter(l=>l.kind==='return'), tret = sum(rets, l=>l.out);
+    const retSec = (raw) => `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_calc'))}</div><table class="sl-calc">
+        <tr><td>${esc(slT('open_raw'))}</td><td class="num">${acMoney(raw)}</td></tr>
+        <tr><td><span class="ac-sub">−</span> ${esc(slT('ret_title'))}</td><td class="num" style="color:#7C3AED">−${acMoney(tret)}</td></tr>
+        <tr class="ac-total"><td>${esc(slT('open_net'))}</td><td class="num">${acMoney(raw - tret)}</td></tr></table></div>`
+      + (rets.length ? `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('ret_title'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(rets,key)}</div>` : '');
     if (!d.from){
-      body = _slKpiHead(acMoney(0), '', '') + `<div class="ac-alert ac-alert-ok">${esc(slT('kpi_open_all'))}</div>`;
+      body = _slKpiHead(acMoney(0 - tret), tret ? esc(slT('ret_note')) : '', '') + (tret ? retSec(0) : `<div class="ac-alert ac-alert-ok">${esc(slT('kpi_open_all'))}</div>`);
     } else {
       const prev = new Date(d.from+'T00:00:00'); prev.setDate(prev.getDate()-1);
       _acModal(title, `<div class="ac-sub" style="padding:1rem">${esc(slT('loading'))}</div>`, null); _slWide(true);
@@ -9111,8 +9123,9 @@ async function slShowKpi(key){
       slState.openingData = r.data;
       const ls = r.data.lines || [];
       const tin = sum(ls, l=>l.in), tout = sum(ls, l=>l.out);
-      body = _slKpiHead(S.has_cash_records ? acMoney(S.opening) : `<span class="ac-nodata">${esc(acT('no_data'))}</span>`, esc(slT('kpi_open_note')), S.has_cash_records ? _slCheck(tin - tout, S.opening) : '')
-        + `<table class="sl-calc"><tr><td>${esc(slT('in'))}</td><td class="num ac-pos">+${acMoney(tin)}</td></tr><tr><td>${esc(slT('out'))}</td><td class="num">−${acMoney(tout)}</td></tr><tr class="ac-total"><td>${esc(slT('k_opening'))}</td><td class="num">${acMoney(tin-tout)}</td></tr></table>`
+      body = _slKpiHead(S.has_cash_records ? acMoney((Number(S.opening)||0) - tret) : `<span class="ac-nodata">${esc(acT('no_data'))}</span>`, esc(slT('kpi_open_note')) + (tret ? ' · ' + esc(slT('ret_note')) : ''), S.has_cash_records ? _slCheck(tin - tout, S.opening) : '')
+        + (tret ? retSec(Number(S.opening)||0) : '')
+        + `<table class="sl-calc"><tr><td>${esc(slT('in'))}</td><td class="num ac-pos">+${acMoney(tin)}</td></tr><tr><td>${esc(slT('out'))}</td><td class="num">−${acMoney(tout)}</td></tr><tr class="ac-total"><td>${esc(tret?slT('open_raw'):slT('k_opening'))}</td><td class="num">${acMoney(tin-tout)}</td></tr></table>`
         + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_open_before',{d:acDate(d.from)}))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key,'opening')}</div>`;
     }
   }
@@ -9127,20 +9140,20 @@ async function slShowKpi(key){
       calc = `<div class="ac-alert ac-alert-warn">${esc(slT('no_cash_hint'))}</div>`;
     } else {
       calc = `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_calc'))}</div><table class="sl-calc">`
-        + line(slT('k_opening'), acMoney(S.opening))
+        + line(Number(S.returned)?slT('open_raw'):slT('k_opening'), acMoney(S.opening))
+        + (Number(S.returned) ? line(slT('ret_title'), '−'+acMoney(S.returned), slT('minus')) + line(slT('open_net'), `<b>${acMoney((Number(S.opening)||0)-(Number(S.returned)||0))}</b>`, slT('equals')) : '')
         + line(slT('k_in'), '+'+acMoney(S.cash_in), slT('plus'), 'ac-pos')
         + line(slT('k_paid'), '−'+acMoney(S.paid_out), slT('minus'))
         + line(slT('k_exp'), '−'+acMoney(S.expense_out), slT('minus'))
-        + line(slT('k_ret'), '−'+acMoney(S.returned), slT('minus'))
         + line(slT('k_closing'), `<b>${acMoney(closing)}</b>`, slT('equals'), 'ac-total')
         + (penAmt>0 ? line(slT('kpi_if_verified'), acMoney(closing - penAmt), '', 'sl-calc-note') : '')
         + `</table>${penAmt>0?`<div class="ac-sub" style="margin-top:.3rem">⏳ ${esc(slT('pending_sum',{a:'₭'+penAmt.toLocaleString('en-US'), n:pen.length}))}</div>`:''}</div>`;
       // ยอดคงเหลือสิ้นแต่ละวัน
-      let bal = Number(S.opening)||0;
-      const days = (d.daily||[]).map(x => { bal += Number(x.net)||0; return `<tr><td>${acDate(x.date)}</td>
+      let bal = (Number(S.opening)||0) - (Number(S.returned)||0);
+      const days = (d.daily||[]).map(x => { const o = (Number(x.paid_out)||0)+(Number(x.expense_out)||0), nt = (Number(x.cash_in)||0) - o; bal += nt; return `<tr><td>${acDate(x.date)}</td>
         <td class="num ac-pos">${Number(x.cash_in)?'+'+acMoney(x.cash_in):''}</td>
-        <td class="num">${(Number(x.paid_out)||0)+(Number(x.expense_out)||0)+(Number(x.returned)||0) ? '−'+acMoney((Number(x.paid_out)||0)+(Number(x.expense_out)||0)+(Number(x.returned)||0)) : ''}</td>
-        <td class="num">${acMoney(x.net)}</td><td class="num"><b class="${bal<0?'ac-neg':''}">${acMoney(bal)}</b></td></tr>`; }).join('');
+        <td class="num">${o ? '−'+acMoney(o) : ''}</td>
+        <td class="num">${acMoney(nt)}</td><td class="num"><b class="${bal<0?'ac-neg':''}">${acMoney(bal)}</b></td></tr>`; }).join('');
       calc += days ? `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_daily_bal'))}</div><table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('date'))}</th><th class="num">${esc(slT('in'))}</th><th class="num">${esc(slT('out'))}</th><th class="num">${esc(slT('kpi_day_net'))}</th><th class="num">${esc(slT('kpi_day_end'))}</th></tr></thead><tbody>${days}</tbody></table></div>` : '';
     }
     body = _slKpiHead(closing===null ? `<span class="ac-nodata">${esc(acT('no_data'))}</span>` : acMoney(closing), esc(slT('closing_hint')), '')
@@ -9201,7 +9214,8 @@ function _slSumBar(){
   const chip = (p, k) => `<button class="sl-chip ${preset===p?'on':''}" onclick="slQuick('${p}')">${esc(slT(k))}</button>`;
   const closing = _acNum(S.closing);
   const nd = `<span class="ac-nodata">${esc(acT('no_data'))}</span>`;
-  const out = (Number(S.total_out)||0);
+  const out = (Number(S.paid_out)||0) + (Number(S.expense_out)||0), ret = Number(S.returned)||0;
+  const openNet = (Number(S.opening)||0) - ret;
   document.getElementById('sl-sum').innerHTML = `
     <div class="sl-sum-head">
       <div class="sl-sum-title">📅 ${esc(slT('sum_title'))}</div>
@@ -9213,11 +9227,11 @@ function _slSumBar(){
       <div class="sl-chips">${chip('today','q_today')}${chip('yesterday','q_yesterday')}${chip('last_7','q_7')}${chip('this_month','q_month')}${chip('last_month','q_last_month')}${chip('all','q_all')}</div>
     </div>
     <div class="sl-sum-boxes">
-      <div class="sl-box sl-box-open" onclick="slShowKpi('open')"><div class="sl-box-l">${esc(slT('s_open'))}</div><div class="sl-box-v">${S.has_cash_records?acMoney(S.opening):nd}</div></div>
+      <div class="sl-box sl-box-open" onclick="slShowKpi('open')"><div class="sl-box-l">${esc(slT('s_open'))}</div><div class="sl-box-v">${S.has_cash_records?acMoney(openNet):nd}</div>${ret?`<div class="sl-box-s sl-ret-s">↩️ ${esc(slT('open_minus',{a:acMoney(S.opening), b:acMoney(ret)}))}</div>`:''}</div>
       <div class="sl-op">+</div>
       <div class="sl-box sl-box-in" onclick="slShowKpi('in')"><div class="sl-box-l">💚 ${esc(slT('s_in'))}</div><div class="sl-box-v">${acMoney(S.cash_in)}</div><div class="sl-box-s">${esc(slT('items_n',{n:S.n_advances||0}))}</div></div>
       <div class="sl-op">−</div>
-      <div class="sl-box sl-box-out" onclick="slShowKpi('out')"><div class="sl-box-l">🔻 ${esc(slT('s_out'))}</div><div class="sl-box-v">${acMoney(out)}</div><div class="sl-box-s">${esc(slT('items_n',{n:(S.n_payments||0)+(S.n_expenses||0)+((d.lines||[]).filter(l=>l.kind==='return').length)}))}</div></div>
+      <div class="sl-box sl-box-out" onclick="slShowKpi('out')"><div class="sl-box-l">🔻 ${esc(slT('s_out'))}</div><div class="sl-box-v">${acMoney(out)}</div><div class="sl-box-s">${esc(slT('items_n',{n:(S.n_payments||0)+(S.n_expenses||0)}))}</div></div>
       <div class="sl-op">=</div>
       <div class="sl-box sl-box-close" onclick="slShowKpi('close')"><div class="sl-box-l">💰 ${esc(slT('s_close'))}</div><div class="sl-box-v">${closing===null?nd:acMoney(closing)}</div></div>
     </div>`;
@@ -9260,7 +9274,7 @@ function slRenderLines(){
       : `<div class="sl-empty">${esc(slT('no_in'))}</div>`}</div>`;
 
   // ── รายจ่าย ──
-  const outs = lines.filter(l => Number(l.out) > 0);
+  const outs = lines.filter(l => l.kind==='payment' || l.kind==='expense');
   let tout = 0; const byKind = {};
   const outRows = outs.map(l => { const a = Number(l.out)||0; tout += a; byKind[l.kind] = (byKind[l.kind]||0) + a;
     let detail = '', kg = '';
@@ -9275,32 +9289,45 @@ function slRenderLines(){
     }
     return _slRow(l, `<td class="sl-d c-date">${l.kind==='payment'?acDateTime(l.ts):acDate(l.date)}</td><td class="c-meta">${_slKindBadge(l.kind)}</td><td class="c-main">${detail}</td>
       <td class="num c-meta${kg?'':' c-empty'}">${kg}${kg?`<span class="c-unit"> ${esc(slT('kg'))}</span>`:''}</td><td class="num sl-amt-out c-amt">−${acMoney(a)}</td>`); }).join('');
-  const showOut = !type || type!=='in';
+  const showOut = !type || type==='payment' || type==='expense';
   document.getElementById('sl-out').style.display = showOut ? '' : 'none';
-  const kinds = ['payment','expense','return'].filter(k=>byKind[k]).map(k => `<span class="sl-sub-pill" role="button" tabindex="0" onclick="slShowKpi('${({payment:'paid',expense:'exp',return:'ret'})[k]}')">${esc(slT('kind_'+k))} ${acMoney(byKind[k])} ›</span>`).join('');
+  const kinds = ['payment','expense'].filter(k=>byKind[k]).map(k => `<span class="sl-sub-pill" role="button" tabindex="0" onclick="slShowKpi('${({payment:'paid',expense:'exp',return:'ret'})[k]}')">${esc(slT('kind_'+k))} ${acMoney(byKind[k])} ›</span>`).join('');
   document.getElementById('sl-out').innerHTML = `
     <div class="sl-tbl-head sl-head-out"><span>🔻 ${esc(slT('out_title'))} <span class="sl-cnt">${esc(slT('items_n',{n:outs.length}))}</span></span><span class="sl-head-total">−${acMoney(tout)}</span></div>
     <div class="sl-scroll">${outs.length ? `<table class="sl-tbl sl-stack"><thead><tr><th>${esc(slT('c_date'))}</th><th>${esc(slT('c_type'))}</th><th>${esc(slT('c_detail'))}</th><th class="num">${esc(slT('c_kg'))}</th><th class="num">${esc(slT('c_amount'))}</th></tr></thead>
       <tbody>${outRows}</tbody><tfoot><tr class="sl-foot-out"><td colspan="3" class="c-ft">${esc(slT('t_out'))} ${kinds?`<div class="sl-pills">${kinds}</div>`:''}</td><td class="c-empty"></td><td class="num">−${acMoney(tout)}</td></tr></tfoot></table>`
       : `<div class="sl-empty">${esc(slT('no_out'))}</div>`}</div>`;
   document.getElementById('sl-hint').textContent = '👆 ' + slT('row_hint');
+
+  // ── เงินที่ส่งคืน (หักจากยอดยกมา) ──
+  const rets = lines.filter(l => l.kind==='return'), retEl = document.getElementById('sl-ret');
+  const tret = rets.reduce((s,l)=>s+(Number(l.out)||0),0);
+  retEl.style.display = (rets.length && (!type || type==='return')) || type==='return' ? '' : 'none';
+  retEl.innerHTML = `
+    <div class="sl-tbl-head sl-head-ret"><span>↩️ ${esc(slT('ret_title'))} <span class="sl-cnt">${esc(slT('items_n',{n:rets.length}))}</span></span><span class="sl-head-total">−${acMoney(tret)}</span></div>
+    <div class="sl-scroll">${rets.length ? `<table class="sl-tbl sl-stack"><thead><tr><th>${esc(slT('c_date'))}</th><th>${esc(slT('ret_to'))}</th><th>${esc(slT('c_method'))}</th><th class="num">${esc(slT('c_amount'))}</th></tr></thead>
+      <tbody>${rets.map(l => _slRow(l, `<td class="sl-d c-date">${acDate(l.date)}</td><td class="c-main"><b>${esc(l.party||'—')}</b>${l.detail?`<div class="ac-sub">${esc(l.detail)}</div>`:''}${l.ref2?`<div class="ac-sub mono">Ref: ${esc(l.ref2)}</div>`:''}</td>
+        <td class="c-meta">${esc(meth(l))}</td><td class="num sl-amt-ret c-amt">−${acMoney(l.out)}</td>`)).join('')}</tbody>
+      <tfoot><tr class="sl-foot-ret"><td colspan="3" class="c-ft">${esc(slT('t_ret'))} <span class="ac-sub">· ${esc(slT('ret_note'))}</span></td><td class="num c-amt">−${acMoney(tret)}</td></tr></tfoot></table>`
+      : `<div class="sl-empty">—</div>`}</div>`;
 }
 
 function _slRenderDaily(){
   const d = slState.data, D = d.daily || [], S = d.summary;
   const el = document.getElementById('sl-daily');
   if (!D.length){ el.innerHTML = `<div class="sl-empty">${esc(slT('no_rows'))}</div>`; return; }
-  let bal = Number(S.opening)||0; const hasBal = !!S.has_cash_records;
+  const RET = Number(S.returned)||0, openNet = (Number(S.opening)||0) - RET;
+  let bal = openNet; const hasBal = !!S.has_cash_records;
   const rows = D.map(r => {
-    const tin = Number(r.cash_in)||0, tout = (Number(r.paid_out)||0)+(Number(r.expense_out)||0)+(Number(r.returned)||0);
+    const tin = Number(r.cash_in)||0, tout = (Number(r.paid_out)||0)+(Number(r.expense_out)||0);
     bal += tin - tout;
     return `<tr><td class="sl-d c-date">${acDate(r.date)}</td><td class="num sl-amt-in c-meta${tin?'':' c-empty'}" data-l="${esc(slT('c_in'))}">${tin?'+'+acMoney(tin):''}</td><td class="num sl-amt-out c-meta${tout?'':' c-empty'}" data-l="${esc(slT('c_out'))}">${tout?'−'+acMoney(tout):''}</td>
       <td class="num sl-amt-bal c-amt">${hasBal?`<span class="${bal<0?'ac-neg':''}">${acMoney(bal)}</span>`:'—'}</td></tr>`;
   }).join('');
   el.innerHTML = `<div class="sl-tbl-head sl-head-bal"><span>💰 ${esc(slT('bal_title'))}</span><span class="sl-head-total">${S.closing!=null?acMoney(S.closing):''}</span></div>
     <div class="sl-scroll"><table class="sl-tbl sl-stack sl-stack-d"><thead><tr><th>${esc(slT('c_date'))}</th><th class="num">${esc(slT('c_in'))}</th><th class="num">${esc(slT('c_out'))}</th><th class="num">${esc(slT('c_bal'))}</th></tr></thead>
-    <tbody>${S.has_cash_records?`<tr class="sl-open-row"><td class="c-date">${esc(slT('s_open'))}</td><td class="c-empty"></td><td class="c-empty"></td><td class="num c-amt">${acMoney(S.opening)}</td></tr>`:''}${rows}</tbody>
-    <tfoot><tr class="sl-foot-bal"><td class="c-date">${esc(slT('total'))}</td><td class="num c-meta">+${acMoney(S.cash_in)}</td><td class="num c-meta">−${acMoney(S.total_out)}</td><td class="num c-amt">${S.closing!=null?acMoney(S.closing):'—'}</td></tr></tfoot></table></div>`;
+    <tbody>${S.has_cash_records?`<tr class="sl-open-row"><td class="c-date">${esc(RET?slT('open_net'):slT('s_open'))}${RET?`<div class="ac-sub sl-ret-s">↩️ ${esc(slT('open_minus',{a:acMoney(S.opening), b:acMoney(RET)}))}</div>`:''}</td><td class="c-empty"></td><td class="c-empty"></td><td class="num c-amt">${acMoney(openNet)}</td></tr>`:''}${rows}</tbody>
+    <tfoot><tr class="sl-foot-bal"><td class="c-date">${esc(slT('total'))}</td><td class="num c-meta">+${acMoney(S.cash_in)}</td><td class="num c-meta">−${acMoney((Number(S.paid_out)||0)+(Number(S.expense_out)||0))}</td><td class="num c-amt">${S.closing!=null?acMoney(S.closing):'—'}</td></tr></tfoot></table></div>`;
 }
 
 
@@ -9338,6 +9365,9 @@ Object.assign(SL_I18N.en, {
   o_idle:'No entries', o_alert:'{n} staff need checking'
 });
 
+Object.assign(SL_I18N.th, { ret_title:'เงินที่ส่งคืน (หักจากยอดยกมา)', open_raw:'ยอดยกมาก่อนหักเงินคืน', open_net:'ยอดยกมาหลังหักเงินคืน', open_minus:'ยกมา {a} − คืน {b}', t_ret:'รวมเงินที่ส่งคืน', ret_note:'เงินที่ส่งคืนหักออกจากยอดยกมา ไม่นับเป็นรายจ่าย' });
+Object.assign(SL_I18N.lo, { ret_title:'ເງິນທີ່ສົ່ງຄືນ (ຫັກຈາກຍອດຍົກມາ)', open_raw:'ຍອດຍົກມາກ່ອນຫັກເງິນຄືນ', open_net:'ຍອດຍົກມາຫຼັງຫັກເງິນຄືນ', open_minus:'ຍົກມາ {a} − ຄືນ {b}', t_ret:'ລວມເງິນທີ່ສົ່ງຄືນ', ret_note:'ເງິນທີ່ສົ່ງຄືນຫັກອອກຈາກຍອດຍົກມາ ບໍ່ນັບເປັນລາຍຈ່າຍ' });
+Object.assign(SL_I18N.en, { ret_title:'Money returned (deducted from opening)', open_raw:'Opening before returns', open_net:'Opening after returns', open_minus:'Opening {a} − returned {b}', t_ret:'Total returned', ret_note:'Returned money is deducted from the opening balance, not counted as spending' });
 const SL_ALL = '__all__';
 function _slIsAll(){ return _slIsAdmin() && slState.mode === 'all' && document.getElementById('sl-staff').value === SL_ALL; }
 function _slFilterBits(show){
@@ -9350,7 +9380,8 @@ async function slLoadAll(){
   const people = slState.people || [];
   slState.data = null; slState.user = null;
   _slFilterBits(false);
-  ['sl-kpi','sl-issues','sl-in','sl-out','sl-daily','sl-all-in','sl-all-out'].forEach(id => document.getElementById(id).innerHTML = '');
+  ['sl-kpi','sl-issues','sl-in','sl-out','sl-daily','sl-all-in','sl-all-out','sl-ret'].forEach(id => document.getElementById(id).innerHTML = '');
+  document.getElementById('sl-ret').style.display = 'none';
   document.getElementById('sl-sum').innerHTML = `<div class="ac-sub" style="padding:1rem">${esc(slT('o_loading',{n:people.length}))}</div>`;
   const seq = slState.seq = (slState.seq||0) + 1;
   const res = await Promise.all(people.map(p => _rpc('staff_ledger', { p_token:_staffToken, p_username:p.username, p_from:from, p_to:to })
@@ -9363,8 +9394,8 @@ async function slLoadAll(){
     return { p, ok, S, n, n_ret, d: ok ? d : null, issues: ok ? (d.issues||[]).length : 0,
       name: p.display_name || p.username,
       inn: Number(S.cash_in)||0, pend: Number(S.unverified_in)||0, n_pend: S.n_unverified||0,
-      paid: Number(S.paid_out)||0, exp: Number(S.expense_out)||0, ret: Number(S.returned)||0, out: Number(S.total_out)||0,
-      open: S.has_cash_records ? Number(S.opening)||0 : null, close: _acNum(S.closing) };
+      paid: Number(S.paid_out)||0, exp: Number(S.expense_out)||0, ret: Number(S.returned)||0, out: (Number(S.paid_out)||0)+(Number(S.expense_out)||0),
+      open: S.has_cash_records ? (Number(S.opening)||0) - (Number(S.returned)||0) : null, open_raw: Number(S.opening)||0, close: _acNum(S.closing) };
   });
   rows.sort((a,b) => (b.n>0) - (a.n>0) || (b.inn+b.out) - (a.inn+a.out) || a.name.localeCompare(b.name));
   slState.all = { rows, from, to, generated_at: new Date().toISOString() };
@@ -9443,13 +9474,12 @@ function slRenderAll(){
   document.getElementById('sl-out').style.display = '';
   document.getElementById('sl-out').innerHTML = `
     <div class="sl-tbl-head sl-head-out"><span>🔻 ${esc(slT('o_out_title'))} <span class="sl-cnt">${outs.length} ${esc(slT('o_staff'))}</span></span><span class="sl-head-total">−${acMoney(T.out)}</span></div>
-    <div class="sl-scroll">${outs.length ? `<table class="sl-tbl sl-stack sl-stack-o"><thead><tr><th>${esc(slT('o_staff'))}</th><th class="num">${esc(slT('o_paid'))}</th><th class="num">${esc(slT('o_exp'))}</th><th class="num">${esc(slT('o_ret'))}</th><th class="num">${esc(slT('o_total_out'))}</th></tr></thead>
+    <div class="sl-scroll">${outs.length ? `<table class="sl-tbl sl-stack sl-stack-o"><thead><tr><th>${esc(slT('o_staff'))}</th><th class="num">${esc(slT('o_paid'))}</th><th class="num">${esc(slT('o_exp'))}</th><th class="num">${esc(slT('o_total_out'))}</th></tr></thead>
       <tbody>${outs.map(r => tr(r, `<td class="c-date">${nm(r)}</td>
         <td class="num c-meta${r.paid?'':' c-empty'}" data-l="${esc(slT('o_paid'))}">${r.paid?`${acMoney(r.paid)}<div class="ac-sub">${r.S.n_payments||0} ${esc(slT('o_bills'))} · ${acKg(r.S.kg)} ${esc(slT('kg'))}</div>`:dash}</td>
         <td class="num c-meta${r.exp?'':' c-empty'}" data-l="${esc(slT('o_exp'))}">${r.exp?`${acMoney(r.exp)}<div class="ac-sub">${r.S.n_expenses||0} ${esc(acT('rows'))}</div>`:dash}</td>
-        <td class="num c-meta${r.ret?'':' c-empty'}" data-l="${esc(slT('o_ret'))}">${r.ret?`${acMoney(r.ret)}<div class="ac-sub">${r.n_ret} ${esc(acT('rows'))}</div>`:dash}</td>
         <td class="num sl-amt-out c-amt">−${acMoney(r.out)}</td>`)).join('')}</tbody>
-      <tfoot><tr class="sl-foot-out"><td class="c-ft">${esc(slT('t_out'))}</td><td class="num c-meta" data-l="${esc(slT('o_paid'))}">${acMoney(T.paid)}</td><td class="num c-meta" data-l="${esc(slT('o_exp'))}">${acMoney(T.exp)}</td><td class="num c-meta" data-l="${esc(slT('o_ret'))}">${acMoney(T.ret)}</td><td class="num c-amt">−${acMoney(T.out)}</td></tr></tfoot></table>`
+      <tfoot><tr class="sl-foot-out"><td class="c-ft">${esc(slT('t_out'))}</td><td class="num c-meta" data-l="${esc(slT('o_paid'))}">${acMoney(T.paid)}</td><td class="num c-meta" data-l="${esc(slT('o_exp'))}">${acMoney(T.exp)}</td><td class="num c-amt">−${acMoney(T.out)}</td></tr></tfoot></table>`
       : `<div class="sl-empty">${esc(slT('o_no_out'))}</div>`}</div>`;
 
   // ── ตารางคงเหลือแยกตามพนักงาน (ทุกคน) ──
@@ -9460,7 +9490,7 @@ function slRenderAll(){
     <div class="sl-tbl-head sl-head-bal"><span>💰 ${esc(slT('o_bal_title'))} <span class="sl-cnt">${rows.length} ${esc(slT('o_staff'))}</span></span><span class="sl-head-total">${T.close===null?'':acMoney(T.close)}</span></div>
     <div class="sl-scroll"><table class="sl-tbl sl-stack sl-stack-o"><thead><tr><th>${esc(slT('o_staff'))}</th><th class="num">${esc(slT('o_open'))}</th><th class="num">${esc(slT('c_in'))}</th><th class="num">${esc(slT('c_out'))}</th><th class="num">${esc(slT('o_close'))}</th><th>${esc(slT('o_check'))}</th></tr></thead>
       <tbody>${rows.map(r => tr(r, `<td class="c-date">${nm(r)}</td>
-        <td class="num c-meta" data-l="${esc(slT('o_open'))}">${r.open===null?dash:acMoney(r.open)}</td>
+        <td class="num c-meta" data-l="${esc(slT('o_open'))}">${r.open===null?dash:acMoney(r.open)}${r.ret?`<div class="ac-sub sl-ret-s">↩️ ${esc(slT('open_minus',{a:acMoney(r.open_raw), b:acMoney(r.ret)}))}</div>`:''}</td>
         <td class="num sl-amt-in c-meta${r.inn?'':' c-empty'}" data-l="${esc(slT('c_in'))}">${r.inn?'+'+acMoney(r.inn):dash}</td>
         <td class="num sl-amt-out c-meta${r.out?'':' c-empty'}" data-l="${esc(slT('c_out'))}">${r.out?'−'+acMoney(r.out):dash}</td>
         <td class="num sl-amt-bal c-amt">${r.close===null?dash:`<span class="${r.close<0?'ac-neg':''}">${acMoney(r.close)}</span>`}</td>
@@ -9472,7 +9502,7 @@ function slRenderAll(){
 function _slExportAllCSV(){
   const A = slState.all; if (!A) return;
   const q = v => { if (v===null || v===undefined) return ''; const s=String(v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
-  const head = ['username','name','role','opening','income','income_pending','n_income','rubber_paid','n_bills','kg','expenses','n_expenses','returned','total_out','balance','bill_issues'];
+  const head = ['username','name','role','opening','income','income_pending','n_income','rubber_paid','n_bills','kg','expenses','n_expenses','returned','spending','balance','bill_issues'];
   const body = A.rows.map(r => [r.p.username, r.name, r.p.role, r.open, r.inn, r.pend, r.S.n_advances||0, r.paid, r.S.n_payments||0, r.S.kg||0, r.exp, r.S.n_expenses||0, r.ret, r.out, r.close, r.issues].map(q).join(','));
   const blob = new Blob(['﻿' + [head.join(','), ...body].join('\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -9515,7 +9545,7 @@ function _slRenderAllLines(){
   const ins = [], outs = [];
   rows.forEach((r, ri) => (r.d?.lines || []).forEach((l, li) => {
     const e = { r, ri, li, l };
-    if (l.kind === 'advance') ins.push(e); else if (Number(l.out) > 0) outs.push(e);
+    if (l.kind === 'advance') ins.push(e); else if (l.kind === 'payment' || l.kind === 'expense') outs.push(e);
   }));
   const key = e => (e.l.ts || e.l.date || '') + '';
   ins.sort((a,b) => key(a) < key(b) ? -1 : 1); outs.sort((a,b) => key(a) < key(b) ? -1 : 1);
@@ -9821,35 +9851,35 @@ async function acShowKpi(key){
 // =====================================================
 Object.assign(AC_I18N.th, {
   q_kg:'จำนวนยางทั้งหมด', q_fund:'ต้นทุนทั้งหมด', q_spend:'รายจ่ายทั้งหมด', q_bal:'ยอดเงินคงเหลือ',
-  q_kg_s:'จากบิลที่พนักงานจ่ายเงินแล้ว', q_fund_s:'เงินทุนที่โอนให้พนักงาน', q_spend_s:'ค่ายาง + ค่าใช้จ่าย ที่พนักงานจ่ายไป', q_bal_s:'ยกมา + เงินทุน − รายจ่าย − ส่งคืน',
+  q_kg_s:'จากบิลที่พนักงานจ่ายเงินแล้ว', q_fund_s:'เงินทุนที่โอนให้พนักงาน', q_spend_s:'ค่ายาง + ค่าใช้จ่าย ที่พนักงานจ่ายไป', q_bal_s:'(ยกมา − ส่งคืน) + เงินทุน − รายจ่าย',
   q_staff_n:'{n} คน', q_more:'+ อีก {n} คน', q_by_staff:'แยกตามบัญชีพนักงาน', q_entries:'รายการของแต่ละคน', q_open_acc:'เปิดบัญชี',
   q_no_staff:'ยังไม่มีบัญชีพนักงานที่มีรายการในช่วงนี้', q_load_err:'โหลดบัญชีพนักงานไม่ได้', q_pending_in:'รวมเงินที่รอยืนยัน {a}',
   q_staff:'พนักงาน', q_bills:'บิล', q_kgc:'กก.', q_avg:'ราคาเฉลี่ย/กก.', q_paid:'ค่ายาง', q_exp:'ค่าใช้จ่าย', q_ret:'ส่งเงินคืน', q_open:'ยกมา',
   q_in:'เงินทุนที่ได้รับ', q_verified:'ยืนยันแล้ว', q_pending:'รอยืนยัน', q_spend_t:'รวมรายจ่าย', q_close:'คงเหลือ', q_close_ver:'คงเหลือ (นับเฉพาะเงินที่ยืนยัน)',
   q_total_all:'รวมทุกคน', q_cmp:'เทียบกับบิลรับซื้อในหน้าบัญชี', q_cmp_bills:'กก.ในบิลรับซื้อ (ตามวันที่บิล)', q_cmp_staff:'กก.ที่พนักงานจ่ายแล้ว (ตามวันที่จ่าย)',
-  q_not_paid:'บิลในช่วงนี้ที่ยังไม่มีพนักงานจ่าย', q_out_range:'บิลนอกช่วงที่พนักงานมาจ่ายในช่วงนี้', q_ret_note:'เงินที่ส่งคืนไม่นับเป็นรายจ่าย แต่หักออกจากยอดคงเหลือ',
+  q_not_paid:'บิลในช่วงนี้ที่ยังไม่มีพนักงานจ่าย', q_out_range:'บิลนอกช่วงที่พนักงานมาจ่ายในช่วงนี้', q_ret_note:'เงินที่ส่งคืนหักออกจากยอดยกมา ไม่นับเป็นรายจ่าย',
   q_no_cash:'ไม่มีบันทึกเงินทุน', q_src:'แหล่งเงิน', q_method:'วิธี', q_status:'สถานะ', q_ref:'อ้างอิง', q_type:'ประเภท', q_detail:'รายละเอียด'
 });
 Object.assign(AC_I18N.lo, {
   q_kg:'ຈຳນວນຢາງທັງໝົດ', q_fund:'ຕົ້ນທຶນທັງໝົດ', q_spend:'ລາຍຈ່າຍທັງໝົດ', q_bal:'ຍອດເງິນຄົງເຫຼືອ',
-  q_kg_s:'ຈາກບິນທີ່ພະນັກງານຈ່າຍເງິນແລ້ວ', q_fund_s:'ເງິນທຶນທີ່ໂອນໃຫ້ພະນັກງານ', q_spend_s:'ຄ່າຢາງ + ຄ່າໃຊ້ຈ່າຍ ທີ່ພະນັກງານຈ່າຍໄປ', q_bal_s:'ຍົກມາ + ເງິນທຶນ − ລາຍຈ່າຍ − ສົ່ງຄືນ',
+  q_kg_s:'ຈາກບິນທີ່ພະນັກງານຈ່າຍເງິນແລ້ວ', q_fund_s:'ເງິນທຶນທີ່ໂອນໃຫ້ພະນັກງານ', q_spend_s:'ຄ່າຢາງ + ຄ່າໃຊ້ຈ່າຍ ທີ່ພະນັກງານຈ່າຍໄປ', q_bal_s:'(ຍົກມາ − ສົ່ງຄືນ) + ເງິນທຶນ − ລາຍຈ່າຍ',
   q_staff_n:'{n} ຄົນ', q_more:'+ ອີກ {n} ຄົນ', q_by_staff:'ແຍກຕາມບັນຊີພະນັກງານ', q_entries:'ລາຍການຂອງແຕ່ລະຄົນ', q_open_acc:'ເປີດບັນຊີ',
   q_no_staff:'ຍັງບໍ່ມີບັນຊີພະນັກງານທີ່ມີລາຍການໃນຊ່ວງນີ້', q_load_err:'ໂຫຼດບັນຊີພະນັກງານບໍ່ໄດ້', q_pending_in:'ລວມເງິນທີ່ລໍຢືນຢັນ {a}',
   q_staff:'ພະນັກງານ', q_bills:'ບິນ', q_kgc:'ກິໂລ', q_avg:'ລາຄາສະເລ່ຍ/ກິໂລ', q_paid:'ຄ່າຢາງ', q_exp:'ຄ່າໃຊ້ຈ່າຍ', q_ret:'ສົ່ງເງິນຄືນ', q_open:'ຍົກມາ',
   q_in:'ເງິນທຶນທີ່ໄດ້ຮັບ', q_verified:'ຢືນຢັນແລ້ວ', q_pending:'ລໍຢືນຢັນ', q_spend_t:'ລວມລາຍຈ່າຍ', q_close:'ຄົງເຫຼືອ', q_close_ver:'ຄົງເຫຼືອ (ນັບສະເພາະເງິນທີ່ຢືນຢັນ)',
   q_total_all:'ລວມທຸກຄົນ', q_cmp:'ທຽບກັບບິນຮັບຊື້ໃນໜ້າບັນຊີ', q_cmp_bills:'ກິໂລໃນບິນຮັບຊື້ (ຕາມວັນທີບິນ)', q_cmp_staff:'ກິໂລທີ່ພະນັກງານຈ່າຍແລ້ວ (ຕາມວັນທີຈ່າຍ)',
-  q_not_paid:'ບິນໃນຊ່ວງນີ້ທີ່ຍັງບໍ່ມີພະນັກງານຈ່າຍ', q_out_range:'ບິນນອກຊ່ວງທີ່ພະນັກງານມາຈ່າຍໃນຊ່ວງນີ້', q_ret_note:'ເງິນທີ່ສົ່ງຄືນບໍ່ນັບເປັນລາຍຈ່າຍ ແຕ່ຫັກອອກຈາກຍອດຄົງເຫຼືອ',
+  q_not_paid:'ບິນໃນຊ່ວງນີ້ທີ່ຍັງບໍ່ມີພະນັກງານຈ່າຍ', q_out_range:'ບິນນອກຊ່ວງທີ່ພະນັກງານມາຈ່າຍໃນຊ່ວງນີ້', q_ret_note:'ເງິນທີ່ສົ່ງຄືນຫັກອອກຈາກຍອດຍົກມາ ບໍ່ນັບເປັນລາຍຈ່າຍ',
   q_no_cash:'ບໍ່ມີບັນທຶກເງິນທຶນ', q_src:'ແຫຼ່ງເງິນ', q_method:'ວິທີ', q_status:'ສະຖານະ', q_ref:'ອ້າງອີງ', q_type:'ປະເພດ', q_detail:'ລາຍລະອຽດ'
 });
 Object.assign(AC_I18N.en, {
   q_kg:'Total rubber', q_fund:'Total funding', q_spend:'Total spending', q_bal:'Cash balance',
-  q_kg_s:'From bills paid by staff', q_fund_s:'Money given to staff', q_spend_s:'Rubber + expenses paid by staff', q_bal_s:'Opening + funding − spending − returned',
+  q_kg_s:'From bills paid by staff', q_fund_s:'Money given to staff', q_spend_s:'Rubber + expenses paid by staff', q_bal_s:'(Opening − returned) + funding − spending',
   q_staff_n:'{n} staff', q_more:'+ {n} more', q_by_staff:'By staff account', q_entries:'Entries per staff', q_open_acc:'Open account',
   q_no_staff:'No staff account has entries in this period', q_load_err:'Could not load staff accounts', q_pending_in:'Pending verification {a}',
   q_staff:'Staff', q_bills:'Bills', q_kgc:'kg', q_avg:'Avg price/kg', q_paid:'Rubber', q_exp:'Expenses', q_ret:'Returned', q_open:'Opening',
   q_in:'Funding received', q_verified:'Verified', q_pending:'Pending', q_spend_t:'Total spending', q_close:'Balance', q_close_ver:'Balance (verified funding only)',
   q_total_all:'All staff', q_cmp:'Compared with purchase bills', q_cmp_bills:'kg in purchase bills (by bill date)', q_cmp_staff:'kg paid by staff (by payment date)',
-  q_not_paid:'Bills in this period not yet paid by any staff', q_out_range:'Older bills paid by staff in this period', q_ret_note:'Returned money is not spending, but it is deducted from the balance',
+  q_not_paid:'Bills in this period not yet paid by any staff', q_out_range:'Older bills paid by staff in this period', q_ret_note:'Returned money is deducted from the opening balance, not counted as spending',
   q_no_cash:'No funding recorded', q_src:'Source', q_method:'Method', q_status:'Status', q_ref:'Ref', q_type:'Type', q_detail:'Details'
 });
 
@@ -9998,17 +10028,18 @@ function acShowQ(key){
     title = acT('q_bal');
     const W = R.filter(r => r.close!==null || r.active);
     const tc = sum(W, r=>r.close||0), tv = sum(W, r=>r.close_ver||0);
-    const rows = W.sort((a,b)=>(b.close||0)-(a.close||0)).map(r => `<tr><td>${_qStaffBtn(r)}</td><td class="num">${r.open===null?dash:acMoney(r.open)}</td>
-        <td class="num ak-in-t">${r.inn?'+'+acMoney(r.inn):dash}</td><td class="num ak-out-t">${r.spend?'−'+acMoney(r.spend):dash}</td><td class="num ak-out-t">${r.ret?'−'+acMoney(r.ret):dash}</td>
+    const rows = W.sort((a,b)=>(b.close||0)-(a.close||0)).map(r => `<tr><td>${_qStaffBtn(r)}</td><td class="num">${r.open===null?dash:acMoney(r.open)}</td><td class="num sl-amt-ret">${r.ret?'−'+acMoney(r.ret):dash}</td>
+        <td class="num ak-in-t">${r.inn?'+'+acMoney(r.inn):dash}</td><td class="num ak-out-t">${r.spend?'−'+acMoney(r.spend):dash}</td>
         <td class="num"><b class="ak-bal-t ${r.close<0?'ac-neg':''}">${r.close===null?dash:acMoney(r.close)}</b></td>
         <td class="num">${r.pend?`<span class="ac-warn">${acMoney(r.close_ver)}</span>`:(r.close===null?dash:acMoney(r.close_ver))}</td></tr>`).join('');
     const formula = R.reduce((s,r)=>s+(r.close===null?0:(r.open||0)+r.inn-r.spend-r.ret),0);
     body = _akHead(W.some(r=>r.close!==null) ? acMoney(tc) : `<span class="ac-nodata">${esc(acT('no_data'))}</span>`, esc(acT('q_bal_s')), _akCheck(formula, tc))
-      + _akSec(acT('kd_how'), _akCalc([[esc(acT('q_open')), acMoney(sum(R,r=>r.open||0))], [`+ ${esc(acT('q_in'))}`, acMoney(sum(R,'inn'))],
-          [`− ${esc(acT('q_spend'))}`, acMoney(sum(R,'spend'))], [`− ${esc(acT('q_ret'))}`, acMoney(sum(R,'ret'))], [`= ${esc(acT('q_bal'))}`, acMoney(tc), 'ac-total'],
+      + _akSec(acT('kd_how'), _akCalc([[esc(acT('q_open')), acMoney(sum(R,r=>r.open||0))], [`− ${esc(acT('q_ret'))}`, acMoney(sum(R,'ret'))],
+          [`= ${esc(slT('open_net'))}`, `<b>${acMoney(sum(R,r=>r.open||0) - sum(R,'ret'))}</b>`], [`+ ${esc(acT('q_in'))}`, acMoney(sum(R,'inn'))],
+          [`− ${esc(acT('q_spend'))}`, acMoney(sum(R,'spend'))], [`= ${esc(acT('q_bal'))}`, acMoney(tc), 'ac-total'],
           ...(sum(R,'pend') ? [[`⏳ ${esc(acT('q_close_ver'))}`, acMoney(tv), 'sl-calc-note']] : [])]))
-      + _akSec(acT('q_by_staff'), rows ? _qTable([[acT('q_staff')],[acT('q_open'),1],[acT('q_in'),1],[acT('q_spend'),1],[acT('q_ret'),1],[acT('q_close'),1],[acT('q_close_ver'),1]], rows,
-          `<td>${esc(acT('q_total_all'))}</td><td class="num">${acMoney(sum(R,r=>r.open||0))}</td><td class="num">+${acMoney(sum(R,'inn'))}</td><td class="num">−${acMoney(sum(R,'spend'))}</td><td class="num">−${acMoney(sum(R,'ret'))}</td><td class="num">${acMoney(tc)}</td><td class="num">${acMoney(tv)}</td>`) : `<div class="ac-sub">${esc(acT('q_no_staff'))}</div>`)
+      + _akSec(acT('q_by_staff'), rows ? _qTable([[acT('q_staff')],[acT('q_open'),1],[acT('q_ret'),1],[acT('q_in'),1],[acT('q_spend'),1],[acT('q_close'),1],[acT('q_close_ver'),1]], rows,
+          `<td>${esc(acT('q_total_all'))}</td><td class="num">${acMoney(sum(R,r=>r.open||0))}</td><td class="num">−${acMoney(sum(R,'ret'))}</td><td class="num">+${acMoney(sum(R,'inn'))}</td><td class="num">−${acMoney(sum(R,'spend'))}</td><td class="num">${acMoney(tc)}</td><td class="num">${acMoney(tv)}</td>`) : `<div class="ac-sub">${esc(acT('q_no_staff'))}</div>`)
       + `<div class="ac-sub" style="margin-top:.4rem">💡 ${esc(acT('q_ret_note'))}</div>`;
   }
   _acModal(title, body, null);
