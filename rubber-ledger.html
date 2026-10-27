@@ -541,6 +541,22 @@ font{border:none!important;outline:none!important;display:inline!important}
 .sl-row{cursor:pointer}
 .sl-row:hover td{background:var(--sky-l)}
 .ac-btn.sl-verify{border-color:var(--green-m);color:var(--green-d);font-weight:700}
+.sl-card-click{cursor:pointer;position:relative;transition:box-shadow .15s,border-color .15s,transform .15s}
+.sl-card-click:hover,.sl-card-click:focus-visible{border-color:var(--sky);box-shadow:0 4px 14px rgba(14,165,233,.18);transform:translateY(-1px);outline:none}
+.sl-card-hint{font-size:.66rem;color:var(--sky-d);margin-top:.35rem;opacity:.75}
+.sl-card-click:hover .sl-card-hint{opacity:1}
+.sl-kpi-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;padding:.2rem 0 .8rem;border-bottom:1px solid var(--border);margin-bottom:.8rem}
+.sl-kpi-big{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;margin:.2rem 0}
+.sl-kpi-sec{margin:.9rem 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sl-kpi-tbl{font-size:.8rem}
+.sl-kpi-tbl td,.sl-kpi-tbl th{padding:.45rem .6rem}
+.sl-bar{display:inline-block;width:70%;height:7px;background:var(--surface3);border-radius:4px;vertical-align:middle;margin-right:.4rem;overflow:hidden}
+.sl-bar span{display:block;height:100%;background:var(--sky);border-radius:4px}
+.sl-calc{width:100%;max-width:520px;border-collapse:collapse;font-size:.86rem}
+.sl-calc td{padding:.4rem .5rem;border-bottom:1px solid var(--border)}
+.sl-calc td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sl-calc .ac-total td{font-weight:700;font-size:.95rem;border-top:2px solid var(--border2)}
+.sl-calc .sl-calc-note td{color:#9A3412;font-size:.8rem}
 #pane-staffledger .card{margin-bottom:1rem}
 #pane-accounting .card{margin-bottom:1rem}
 @media(max-width:640px){
@@ -1845,7 +1861,7 @@ function _jparse(s, fallback){
 // ── ACCOUNTS ──
 // ไม่มีบัญชีหรือรหัสผ่านฝังในโค้ดอีกต่อไป — ทุกบัญชีอยู่ในฐานข้อมูล
 let ACCOUNTS=[];
-const APP_VERSION = "2026.10.25-2330";
+const APP_VERSION = "2026.10.27-1500";
 console.log("%cRubberLedger v"+APP_VERSION, "background:#0EA5E9;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold");
 let currentUser=null;
 // _secureMode: true = ฐานข้อมูลมี RPC ความปลอดภัย (รัน sql/01 แล้ว)
@@ -8221,6 +8237,7 @@ function _acCatsTable(){
 // ── Modal ──
 function acCloseModal(){ document.getElementById('ac-modal').style.display='none'; }
 function _acModal(title, bodyHtml, onSave){
+  try{ _slWide(false); }catch(e){}
   document.getElementById('ac-modal-title').textContent = title;
   document.getElementById('ac-modal-body').innerHTML = bodyHtml;
   const err = document.getElementById('ac-modal-err'); err.style.display='none'; err.textContent='';
@@ -8593,7 +8610,10 @@ function _slRenderIssues(){
 
 function _slRenderKpi(){
   const S = slState.data.summary, M = slState.data.by_method || {};
-  const card = (l, v, s, cls) => `<div class="ac-card ${cls||''}"><div class="ac-card-l">${esc(l)}</div><div class="ac-card-v">${v}</div><div class="ac-card-s">${s||''}</div></div>`;
+  const KEYS = ['open','in','paid','exp','ret','out','close']; let ki = 0;
+  const card = (l, v, s, cls) => { const k = KEYS[ki++];
+    return `<div class="ac-card sl-card-click ${cls||''}" role="button" tabindex="0" onclick="slShowKpi('${k}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();slShowKpi('${k}')}">
+      <div class="ac-card-l">${esc(l)}</div><div class="ac-card-v">${v}</div><div class="ac-card-s">${s||''}</div><div class="sl-card-hint">${esc(slT('kpi_hint'))}</div></div>`; };
   const nd = `<span class="ac-nodata">${esc(acT('no_data'))}</span>`;
   const methods = Object.keys(M).map(k => `${esc(k==='transfer'?slT('transfer'):slT('cash'))} ${acMoney(M[k])}`).join(' · ');
   const closing = _acNum(S.closing);
@@ -8749,8 +8769,8 @@ async function slVerify(id, on){
 }
 
 // ── รายละเอียดเต็มของแต่ละรายการ (คลิกที่แถว) ──
-async function slShowDetail(idx){
-  const l = (slState.data?.lines||[])[idx]; if (!l) return;
+async function slShowDetail(idx, backKey, src){
+  const l = ((src==='opening' ? slState.openingData?.lines : slState.data?.lines) || [])[idx]; if (!l) return;
   const m = l.meta || {}, admin = _slIsAdmin();
   const row = (k, v) => (v===null || v===undefined || v==='') ? '' : `<tr><th style="text-align:left;width:42%;color:var(--muted);font-weight:600;padding:.35rem .5rem">${esc(k)}</th><td style="padding:.35rem .5rem">${v}</td></tr>`;
   const meth = (x) => x ? esc(x==='transfer'?slT('transfer'):slT('cash')) : '';
@@ -8796,6 +8816,10 @@ async function slShowDetail(idx){
   } else if (l.src_table === 'expenses'){
     document.getElementById('ac-modal-actions').innerHTML = `<button class="btn-secondary" onclick="acCloseModal();slEditExpense(${Number(l.src_id)})">${esc(slT('edit'))}</button><button class="btn-primary" onclick="acCloseModal()">${esc(acT('close'))}</button>`;
   }
+  if (backKey){
+    const act = document.getElementById('ac-modal-actions');
+    act.insertAdjacentHTML('afterbegin', `<button class="btn-secondary" style="margin-right:auto" onclick="slShowKpi('${backKey}')">${esc(slT('kpi_back'))}</button>`);
+  }
 }
 
 // เปิดบัญชีของพนักงานคนที่เลือกจากหน้าตั้งค่า (แอดมิน)
@@ -8831,6 +8855,220 @@ function slExportCSV(){
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `rubberledger-staff-${d.staff.username}-${d.from||'all'}_${d.to||'all'}.csv`; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+
+// =====================================================
+// STAFF LEDGER — กดที่การ์ดสรุป → แสดงรายละเอียดทั้งหมดที่ประกอบเป็นตัวเลขนั้น
+// =====================================================
+Object.assign(SL_I18N.th, {
+  kpi_hint:'🔍 กดดูรายละเอียด', kpi_title_in:'รายละเอียด: เงินที่ได้รับ', kpi_title_paid:'รายละเอียด: จ่ายค่ายางให้ผู้ขาย',
+  kpi_title_exp:'รายละเอียด: ค่าใช้จ่ายที่จ่ายเอง', kpi_title_ret:'รายละเอียด: ส่งเงินคืนบริษัท', kpi_title_out:'รายละเอียด: รายจ่ายรวม',
+  kpi_title_open:'รายละเอียด: ยอดยกมา', kpi_title_close:'รายละเอียด: เงินคงเหลือในมือ',
+  kpi_period:'ช่วงเวลา', kpi_staff:'พนักงาน', kpi_count:'จำนวนรายการ', kpi_total:'ยอดรวม', kpi_match:'✓ ตรงกับยอดในการ์ด',
+  kpi_mismatch:'⚠ ผลรวมรายการไม่ตรงกับการ์ด', kpi_by_source:'แยกตามแหล่งที่มา', kpi_by_method:'แยกตามวิธีรับ/จ่าย',
+  kpi_by_status:'แยกตามสถานะการยืนยัน', kpi_by_seller:'แยกตามผู้ขาย', kpi_by_cat:'แยกตามประเภท', kpi_by_kind:'แยกตามประเภทรายจ่าย',
+  kpi_items:'รายการทั้งหมด', kpi_click_row:'กดที่แถวเพื่อดูข้อมูลครบทุกช่องและประวัติการแก้ไข', kpi_none:'ไม่มีรายการในช่วงนี้',
+  kpi_calc:'วิธีคำนวณ', kpi_daily_bal:'ยอดคงเหลือสิ้นแต่ละวัน', kpi_day_end:'คงเหลือสิ้นวัน', kpi_day_net:'สุทธิวันนั้น',
+  kpi_if_verified:'คงเหลือ หากนับเฉพาะเงินรับที่ยืนยันแล้ว', kpi_open_all:'เลือก "ทั้งหมด" อยู่ จึงไม่มียอดยกมา (เริ่มจาก ₭0)',
+  kpi_open_before:'รายการทั้งหมดก่อนวันที่ {d}', kpi_open_note:'ยอดยกมา = ผลรวม (รับ − จ่าย) ของทุกรายการก่อนช่วงเวลาที่เลือก',
+  kpi_kg:'กก. รวม', kpi_avg:'ราคาเฉลี่ย/กก.', kpi_range:'ราคาต่ำสุด–สูงสุด', kpi_back:'← กลับ', share:'สัดส่วน', n_rows:'รายการ',
+  minus:'หัก', plus:'บวก', equals:'เท่ากับ'
+});
+Object.assign(SL_I18N.lo, {
+  kpi_hint:'🔍 ກົດເບິ່ງລາຍລະອຽດ', kpi_title_in:'ລາຍລະອຽດ: ເງິນທີ່ໄດ້ຮັບ', kpi_title_paid:'ລາຍລະອຽດ: ຈ່າຍຄ່າຢາງໃຫ້ຜູ້ຂາຍ',
+  kpi_title_exp:'ລາຍລະອຽດ: ຄ່າໃຊ້ຈ່າຍທີ່ຈ່າຍເອງ', kpi_title_ret:'ລາຍລະອຽດ: ສົ່ງເງິນຄືນບໍລິສັດ', kpi_title_out:'ລາຍລະອຽດ: ລາຍຈ່າຍລວມ',
+  kpi_title_open:'ລາຍລະອຽດ: ຍອດຍົກມາ', kpi_title_close:'ລາຍລະອຽດ: ເງິນຄົງເຫຼືອໃນມື',
+  kpi_period:'ຊ່ວງເວລາ', kpi_staff:'ພະນັກງານ', kpi_count:'ຈຳນວນລາຍການ', kpi_total:'ຍອດລວມ', kpi_match:'✓ ກົງກັບຍອດໃນກາດ',
+  kpi_mismatch:'⚠ ຜົນລວມລາຍການບໍ່ກົງກັບກາດ', kpi_by_source:'ແຍກຕາມແຫຼ່ງທີ່ມາ', kpi_by_method:'ແຍກຕາມວິທີຮັບ/ຈ່າຍ',
+  kpi_by_status:'ແຍກຕາມສະຖານະການຢືນຢັນ', kpi_by_seller:'ແຍກຕາມຜູ້ຂາຍ', kpi_by_cat:'ແຍກຕາມປະເພດ', kpi_by_kind:'ແຍກຕາມປະເພດລາຍຈ່າຍ',
+  kpi_items:'ລາຍການທັງໝົດ', kpi_click_row:'ກົດທີ່ແຖວເພື່ອເບິ່ງຂໍ້ມູນຄົບທຸກຊ່ອງ ແລະ ປະຫວັດການແກ້ໄຂ', kpi_none:'ບໍ່ມີລາຍການໃນຊ່ວງນີ້',
+  kpi_calc:'ວິທີຄິດໄລ່', kpi_daily_bal:'ຍອດຄົງເຫຼືອທ້າຍແຕ່ລະມື້', kpi_day_end:'ຄົງເຫຼືອທ້າຍມື້', kpi_day_net:'ສຸດທິມື້ນັ້ນ',
+  kpi_if_verified:'ຄົງເຫຼືອ ຖ້ານັບສະເພາະເງິນຮັບທີ່ຢືນຢັນແລ້ວ', kpi_open_all:'ເລືອກ "ທັງໝົດ" ຢູ່ ຈຶ່ງບໍ່ມີຍອດຍົກມາ (ເລີ່ມຈາກ ₭0)',
+  kpi_open_before:'ລາຍການທັງໝົດກ່ອນວັນທີ {d}', kpi_open_note:'ຍອດຍົກມາ = ຜົນລວມ (ຮັບ − ຈ່າຍ) ຂອງທຸກລາຍການກ່ອນຊ່ວງເວລາທີ່ເລືອກ',
+  kpi_kg:'ກິໂລລວມ', kpi_avg:'ລາຄາສະເລ່ຍ/ກິໂລ', kpi_range:'ລາຄາຕ່ຳສຸດ–ສູງສຸດ', kpi_back:'← ກັບຄືນ', share:'ສັດສ່ວນ', n_rows:'ລາຍການ',
+  minus:'ຫັກ', plus:'ບວກ', equals:'ເທົ່າກັບ'
+});
+Object.assign(SL_I18N.en, {
+  kpi_hint:'🔍 Click for details', kpi_title_in:'Details: money received', kpi_title_paid:'Details: rubber paid to sellers',
+  kpi_title_exp:'Details: expenses paid by staff', kpi_title_ret:'Details: cash returned', kpi_title_out:'Details: total paid out',
+  kpi_title_open:'Details: opening balance', kpi_title_close:'Details: cash on hand',
+  kpi_period:'Period', kpi_staff:'Staff', kpi_count:'Entries', kpi_total:'Total', kpi_match:'✓ Matches the card',
+  kpi_mismatch:'⚠ Entries do not add up to the card', kpi_by_source:'By source', kpi_by_method:'By method',
+  kpi_by_status:'By verification status', kpi_by_seller:'By seller', kpi_by_cat:'By category', kpi_by_kind:'By type',
+  kpi_items:'All entries', kpi_click_row:'Click a row to see every field and its edit history', kpi_none:'No entries in this period',
+  kpi_calc:'How it is calculated', kpi_daily_bal:'End-of-day balance', kpi_day_end:'End of day', kpi_day_net:'Day net',
+  kpi_if_verified:'Balance counting verified receipts only', kpi_open_all:'"All time" is selected, so there is no opening balance (starts at ₭0)',
+  kpi_open_before:'All entries before {d}', kpi_open_note:'Opening balance = sum of (in − out) for every entry before the selected period',
+  kpi_kg:'Total kg', kpi_avg:'Avg price/kg', kpi_range:'Min–max price', kpi_back:'← Back', share:'Share', n_rows:'entries',
+  minus:'minus', plus:'plus', equals:'equals'
+});
+
+function _slPeriodLabel(d){
+  if (!d.from && !d.to) return slT('p_all');
+  return `${d.from?acDate(d.from):'…'} – ${d.to?acDate(d.to):'…'}`;
+}
+// ตารางสรุปแยกกลุ่ม: [{label, amount, n}]
+function _slGroupTable(title, groups, total){
+  if (!groups.length) return '';
+  const rows = groups.sort((a,b)=>b.amount-a.amount).map(g => {
+    const pct = total ? Math.round(g.amount/total*1000)/10 : 0;
+    return `<tr><td>${g.label}</td><td class="num">${g.n}</td><td class="num"><b>${acMoney(g.amount)}</b></td>
+      <td style="width:28%"><div class="sl-bar"><span style="width:${Math.max(2,Math.min(100,pct))}%"></span></div><span class="ac-sub">${pct}%</span></td></tr>`;
+  }).join('');
+  return `<div class="sl-kpi-sec"><div class="form-label">${esc(title)}</div>
+    <table class="order-table ac-table sl-kpi-tbl"><thead><tr><th></th><th class="num">${esc(slT('n_rows'))}</th><th class="num">${esc(slT('kpi_total'))}</th><th>${esc(slT('share'))}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function _slGroup(lines, keyFn, valFn){
+  const m = new Map();
+  lines.forEach(l => { const k = keyFn(l); const g = m.get(k) || {label:k, amount:0, n:0}; g.amount += valFn(l); g.n++; m.set(k, g); });
+  return [...m.values()];
+}
+// ตารางรายการต้นทาง (กดแถวเพื่อดูรายละเอียดเต็ม)
+function _slLinesTable(lines, key, src){
+  if (!lines.length) return `<div class="empty-state" style="padding:1rem">${esc(slT('kpi_none'))}</div>`;
+  const all = src==='opening' ? (slState.openingData?.lines||[]) : (slState.data.lines||[]);
+  let total = 0;
+  const rows = lines.map(l => {
+    const amt = (Number(l.in)||0) - (Number(l.out)||0); total += amt;
+    const idx = all.indexOf(l);
+    const t = l.kind==='payment' ? acDateTime(l.ts) : acDate(l.date);
+    let who = '', extra = '';
+    if (l.kind==='payment'){
+      who = `<b>${esc(l.party||'')}</b><div class="ac-sub mono">${esc(l.ref2||'')} · ${esc(l.ref||'')}</div>`;
+      const pr = l.price_min==null ? '' : (Number(l.price_min)===Number(l.price_max) ? acMoney(l.price_min) : `${acMoney(l.price_min)}–${acMoney(l.price_max)}`);
+      extra = `${l.kg!=null?acKg(l.kg)+' '+esc(slT('kg')):''}${pr?` × ${pr}`:''}${l.location?`<div class="ac-sub">📍 ${esc(l.location)}</div>`:''}`;
+    } else if (l.kind==='expense'){
+      who = `<b>${esc(l.ref2||'')}</b><div>${esc(l.detail||'')}</div>`;
+    } else {
+      who = `<b>${esc(l.party||slT('no_source'))}</b>${l.detail?`<div>${esc(l.detail)}</div>`:''}${l.ref2?`<div class="ac-sub mono">Ref: ${esc(l.ref2)}</div>`:''}`;
+      extra = l.verified ? `<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>` : `<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`;
+    }
+    const meth = l.method ? esc(l.method==='transfer'?slT('transfer'):slT('cash')) : '';
+    const by = l.meta && l.meta.created_by && l.src_table!=='orders' ? `<div class="ac-sub">✍ ${esc(l.meta.created_by)}</div>` : '';
+    return `<tr class="sl-row" onclick="slShowDetail(${idx},'${key}','${src||''}')">
+      <td style="white-space:nowrap">${t}</td><td>${_slKindBadge(l.kind)}<div class="ac-sub mono">${l.kind==='payment'?'':esc(l.ref||'')}</div></td>
+      <td>${who}${by}</td><td>${extra}</td><td>${meth}</td>
+      <td class="num"><b class="${amt<0?'':'ac-pos'}">${amt<0?'−':'+'}${acMoney(Math.abs(amt))}</b></td></tr>`;
+  }).join('');
+  return `<table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('date'))}</th><th>${esc(slT('kind'))}</th><th>${esc(slT('party'))}</th><th></th><th>${esc(slT('method'))}</th><th class="num">${esc(acT('amount'))}</th></tr></thead>
+    <tbody>${rows}</tbody><tfoot><tr class="ac-total"><td colspan="5">${esc(slT('kpi_total'))} · ${lines.length} ${esc(slT('n_rows'))}</td><td class="num">${total<0?'−':''}${acMoney(Math.abs(total))}</td></tr></tfoot></table>`;
+}
+function _slCheck(sum, expected){
+  const ok = Math.abs((Number(sum)||0) - (Number(expected)||0)) < 0.01;
+  return ok ? `<span class="sl-ver ok">${esc(slT('kpi_match'))}</span>` : `<span class="sl-ver wait">${esc(slT('kpi_mismatch'))}: ${acMoney(sum)} ≠ ${acMoney(expected)}</span>`;
+}
+function _slKpiHead(big, sub, check){
+  const d = slState.data;
+  return `<div class="sl-kpi-head">
+    <div><div class="ac-sub">${esc(slT('kpi_staff'))}: <b>${esc(d.staff.display_name||d.staff.username)}</b> · ${esc(slT('kpi_period'))}: <b>${esc(_slPeriodLabel(d))}</b></div>
+      <div class="sl-kpi-big">${big}</div><div class="ac-sub">${sub||''}</div></div>
+    <div>${check||''}</div></div>`;
+}
+
+async function slShowKpi(key){
+  const d = slState.data; if (!d) return;
+  const S = d.summary, L = d.lines || [];
+  const sum = (arr, f) => arr.reduce((a,l)=>a+(Number(f(l))||0), 0);
+  const meth = l => l.method==='transfer' ? slT('transfer') : slT('cash');
+  let title = '', body = '';
+
+  if (key==='in'){
+    const ls = L.filter(l=>l.kind==='advance'); const tot = sum(ls, l=>l.in);
+    const ver = ls.filter(l=>l.verified), pen = ls.filter(l=>!l.verified);
+    title = slT('kpi_title_in');
+    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('n_rows'))}`, _slCheck(tot, S.cash_in))
+      + _slGroupTable(slT('kpi_by_source'), _slGroup(ls, l=>esc(l.party||slT('no_source')), l=>Number(l.in)||0), tot)
+      + _slGroupTable(slT('kpi_by_status'), [
+          ...(ver.length?[{label:`<span class="sl-ver ok">✓ ${esc(slT('verified'))}</span>`, amount:sum(ver,l=>l.in), n:ver.length}]:[]),
+          ...(pen.length?[{label:`<span class="sl-ver wait">⏳ ${esc(slT('pending'))}</span>`, amount:sum(pen,l=>l.in), n:pen.length}]:[])], tot)
+      + _slGroupTable(slT('kpi_by_method'), _slGroup(ls, l=>esc(meth(l)), l=>Number(l.in)||0), tot)
+      + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
+  }
+  else if (key==='paid'){
+    const ls = L.filter(l=>l.kind==='payment'); const tot = sum(ls, l=>l.out);
+    const kg = sum(ls, l=>l.kg); const pmin = Math.min(...ls.map(l=>Number(l.price_min)).filter(isFinite)), pmax = Math.max(...ls.map(l=>Number(l.price_max)).filter(isFinite));
+    title = slT('kpi_title_paid');
+    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('bills'))} · ${esc(slT('kpi_kg'))} ${acKg(kg)} · ${esc(slT('kpi_avg'))} ${kg?acMoney(Math.round(tot/kg*100)/100):'—'}${isFinite(pmin)?` · ${esc(slT('kpi_range'))} ${acMoney(pmin)}–${acMoney(pmax)}`:''}`, _slCheck(tot, S.paid_out))
+      + _slGroupTable(slT('kpi_by_seller'), _slGroup(ls, l=>esc(l.party||'—'), l=>Number(l.out)||0), tot)
+      + _slGroupTable(slT('kpi_by_method'), _slGroup(ls, l=>esc(meth(l)), l=>Number(l.out)||0), tot)
+      + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
+  }
+  else if (key==='exp'){
+    const ls = L.filter(l=>l.kind==='expense'); const tot = sum(ls, l=>l.out);
+    title = slT('kpi_title_exp');
+    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('n_rows'))}`, _slCheck(tot, S.expense_out))
+      + _slGroupTable(slT('kpi_by_cat'), _slGroup(ls, l=>esc(l.ref2||'—'), l=>Number(l.out)||0), tot)
+      + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
+  }
+  else if (key==='ret'){
+    const ls = L.filter(l=>l.kind==='return'); const tot = sum(ls, l=>l.out);
+    title = slT('kpi_title_ret');
+    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('n_rows'))}`, _slCheck(tot, S.returned))
+      + _slGroupTable(slT('kpi_by_source'), _slGroup(ls, l=>esc(l.party||slT('no_source')), l=>Number(l.out)||0), tot)
+      + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
+  }
+  else if (key==='out'){
+    const ls = L.filter(l=>Number(l.out)>0); const tot = sum(ls, l=>l.out);
+    title = slT('kpi_title_out');
+    body = _slKpiHead(acMoney(tot), `${ls.length} ${esc(slT('n_rows'))}`, _slCheck(tot, S.total_out))
+      + _slGroupTable(slT('kpi_by_kind'), _slGroup(ls, l=>_slKindBadge(l.kind), l=>Number(l.out)||0), tot)
+      + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key)}</div>`;
+  }
+  else if (key==='open'){
+    title = slT('kpi_title_open');
+    if (!d.from){
+      body = _slKpiHead(acMoney(0), '', '') + `<div class="ac-alert ac-alert-ok">${esc(slT('kpi_open_all'))}</div>`;
+    } else {
+      const prev = new Date(d.from+'T00:00:00'); prev.setDate(prev.getDate()-1);
+      _acModal(title, `<div class="ac-sub" style="padding:1rem">${esc(slT('loading'))}</div>`, null); _slWide(true);
+      const r = await _rpc('staff_ledger', { p_token:_staffToken, p_username:d.staff.username, p_from:null, p_to:_acYmd(prev) });
+      if (r.error || !r.data?.ok){ document.getElementById('ac-modal-body').innerHTML = `<div class="ac-alert ac-alert-err">${esc(slT('load_err'))}</div>`; return; }
+      slState.openingData = r.data;
+      const ls = r.data.lines || [];
+      const tin = sum(ls, l=>l.in), tout = sum(ls, l=>l.out);
+      body = _slKpiHead(S.has_cash_records ? acMoney(S.opening) : `<span class="ac-nodata">${esc(acT('no_data'))}</span>`, esc(slT('kpi_open_note')), S.has_cash_records ? _slCheck(tin - tout, S.opening) : '')
+        + `<table class="sl-calc"><tr><td>${esc(slT('in'))}</td><td class="num ac-pos">+${acMoney(tin)}</td></tr><tr><td>${esc(slT('out'))}</td><td class="num">−${acMoney(tout)}</td></tr><tr class="ac-total"><td>${esc(slT('k_opening'))}</td><td class="num">${acMoney(tin-tout)}</td></tr></table>`
+        + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_open_before',{d:acDate(d.from)}))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(ls,key,'opening')}</div>`;
+    }
+  }
+  else if (key==='close'){
+    title = slT('kpi_title_close');
+    const ins = L.filter(l=>l.kind==='advance'), pen = ins.filter(l=>!l.verified);
+    const penAmt = sum(pen, l=>l.in);
+    const closing = _acNum(S.closing);
+    const line = (lbl, v, sign, cls) => `<tr class="${cls||''}"><td>${sign?`<span class="ac-sub">${esc(sign)}</span> `:''}${esc(lbl)}</td><td class="num">${v}</td></tr>`;
+    let calc = '';
+    if (closing === null){
+      calc = `<div class="ac-alert ac-alert-warn">${esc(slT('no_cash_hint'))}</div>`;
+    } else {
+      calc = `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_calc'))}</div><table class="sl-calc">`
+        + line(slT('k_opening'), acMoney(S.opening))
+        + line(slT('k_in'), '+'+acMoney(S.cash_in), slT('plus'), 'ac-pos')
+        + line(slT('k_paid'), '−'+acMoney(S.paid_out), slT('minus'))
+        + line(slT('k_exp'), '−'+acMoney(S.expense_out), slT('minus'))
+        + line(slT('k_ret'), '−'+acMoney(S.returned), slT('minus'))
+        + line(slT('k_closing'), `<b>${acMoney(closing)}</b>`, slT('equals'), 'ac-total')
+        + (penAmt>0 ? line(slT('kpi_if_verified'), acMoney(closing - penAmt), '', 'sl-calc-note') : '')
+        + `</table>${penAmt>0?`<div class="ac-sub" style="margin-top:.3rem">⏳ ${esc(slT('pending_sum',{a:'₭'+penAmt.toLocaleString('en-US'), n:pen.length}))}</div>`:''}</div>`;
+      // ยอดคงเหลือสิ้นแต่ละวัน
+      let bal = Number(S.opening)||0;
+      const days = (d.daily||[]).map(x => { bal += Number(x.net)||0; return `<tr><td>${acDate(x.date)}</td>
+        <td class="num ac-pos">${Number(x.cash_in)?'+'+acMoney(x.cash_in):''}</td>
+        <td class="num">${(Number(x.paid_out)||0)+(Number(x.expense_out)||0)+(Number(x.returned)||0) ? '−'+acMoney((Number(x.paid_out)||0)+(Number(x.expense_out)||0)+(Number(x.returned)||0)) : ''}</td>
+        <td class="num">${acMoney(x.net)}</td><td class="num"><b class="${bal<0?'ac-neg':''}">${acMoney(bal)}</b></td></tr>`; }).join('');
+      calc += days ? `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_daily_bal'))}</div><table class="order-table ac-table sl-kpi-tbl"><thead><tr><th>${esc(acT('date'))}</th><th class="num">${esc(slT('in'))}</th><th class="num">${esc(slT('out'))}</th><th class="num">${esc(slT('kpi_day_net'))}</th><th class="num">${esc(slT('kpi_day_end'))}</th></tr></thead><tbody>${days}</tbody></table></div>` : '';
+    }
+    body = _slKpiHead(closing===null ? `<span class="ac-nodata">${esc(acT('no_data'))}</span>` : acMoney(closing), esc(slT('closing_hint')), '')
+      + calc + `<div class="sl-kpi-sec"><div class="form-label">${esc(slT('kpi_items'))} <span class="ac-sub">· ${esc(slT('kpi_click_row'))}</span></div>${_slLinesTable(L,key)}</div>`;
+  }
+  slState.kpiOpen = key;
+  _acModal(title, body, null);
+  _slWide(true);
+}
+function _slWide(on){
+  const box = document.querySelector('#ac-modal .modal-box');
+  if (box) box.style.maxWidth = on ? '980px' : '560px';
 }
 
 </script>
